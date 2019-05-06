@@ -13,11 +13,16 @@ extern class CodinGame
 	static public function readline():String;
 }
 //*/
+
 class CodinGame
 {
 	#if js
 	static public function print(output:Dynamic):Void { untyped __js__('print(output)'); }
 	static public function printErr(output:Dynamic):Void { untyped __js__('printErr(output)'); }
 	static public inline function readline():String { return untyped __js__('readline()'); }
+	#elseif python
+	static public function print(output:Dynamic):Void { python.Syntax.code('print(output)'); }
+	static public function printErr(output:Dynamic):Void { python.Syntax.code('print(output, file=sys.stderr)'); }
+	static public inline function readline():String { return python.Syntax.code('input()'); }
 	#end
 }
