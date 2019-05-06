@@ -4,4 +4,4 @@
 -D analyzer-optimize
 -D js-es=6
 -main Main
---js js/app.js
+--js dest/app.js
