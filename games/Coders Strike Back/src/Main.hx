@@ -1,3 +1,4 @@
+import csb.Point;
 /**
  * This code automatically collects game data in an infinite loop.
  * It uses the standard input to place data into the game variables such as x and y.
@@ -9,6 +10,10 @@ class Main {
 	static function main() {
 		
 		var boosted = false;
+		
+		// final checkpoints:Map<String, Point> = [];
+		// final isCollectingCheckpoints = true;
+		var lastPos = new Point();
 
 		while( true ) {
 
@@ -23,13 +28,43 @@ class Main {
 			final opponentX = Std.parseInt(inputs[0]);
 			final opponentY = Std.parseInt(inputs[1]);
 
-			final thrust = nextCheckpointAngle > 90 || nextCheckpointAngle < -90 ? 0 : nextCheckpointAngle > 80 || nextCheckpointAngle < -80 ? 50 : 100;
-			if( nextCheckpointDist > 10000 && Math.abs( nextCheckpointAngle ) < 18 && !boosted ) {
+			// if( isCollectingCheckpoints ) {
+			// 	final checkpointId = Std.string( nextCheckpointX ) + Std.string( nextCheckpointY );
+			// 	if( !checkpoints.exists( checkpointId )) {
+			// 		checkpoints.set( checkpointId, new Point( nextCheckpointX, nextCheckpointY ));
+			// 	}
+			// }
+			
+			final pos = new Point( x, y );
+			
+			final deltaPos = pos.distance2( lastPos );
+			// CodinGame.printErr( 'deltaPos $deltaPos' );
+
+			final nextCheckpointAngleRad = degToRad( nextCheckpointAngle );
+			final thrust = Math.round( Math.max( 0, Math.min( 1, Math.cos( 0.5 * nextCheckpointAngleRad ) * 2 )) * 100 );
+			CodinGame.printErr( 'nextCheckpointAngleRad $nextCheckpointAngleRad thrust $thrust' );
+			
+			// final thrust = Math.abs( nextCheckpointAngle ) > 90 ? 0 : Math.abs( nextCheckpointAngle ) > 80 ? 50 : 100;
+			if( nextCheckpointDist > 5000 && Math.abs( nextCheckpointAngle ) < 20 && !boosted ) {
 				CodinGame.print( '$nextCheckpointX $nextCheckpointY BOOST' );	
 				boosted = true;
 			} else {
 				CodinGame.print( '$nextCheckpointX $nextCheckpointY $thrust' );
 			}
+
+			lastPos.x = x;
+			lastPos.y = y;
 		}
 	}
+
+	static function degToRad( deg:Float ):Float {
+		return deg * Math.PI / 180;
+	}
+
+	static function radToDeg( rad:Float ):Float {
+		return rad * 180 / Math.PI;
+	}
+
+	
+	
 }
