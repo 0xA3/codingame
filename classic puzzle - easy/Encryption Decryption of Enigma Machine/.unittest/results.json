@@ -1,0 +1,61 @@
+{
+	"name": "root",
+	"classes": [
+		{
+			"name": "Test Encode",
+			"pos": {
+				"line": 0,
+				"file": "src/test/TestEncodeDecode.hx"
+			},
+			"id": "Test Encode [src/test/TestEncodeDecode.hx]",
+			"methods": [
+				{
+					"name": "AAA => KQF",
+					"line": 10,
+					"executionTime": 0,
+					"errorLine": null,
+					"state": "success",
+					"message": null,
+					"timestamp": 1558371839.3219535
+				}
+			]
+		},
+		{
+			"name": "Test Decode",
+			"pos": {
+				"line": 0,
+				"file": "src/test/TestEncodeDecode.hx"
+			},
+			"id": "Test Decode [src/test/TestEncodeDecode.hx]",
+			"methods": [
+				{
+					"name": "KQF => AAA",
+					"line": 22,
+					"executionTime": 0,
+					"errorLine": null,
+					"state": "success",
+					"message": null,
+					"timestamp": 1558371839.3219535
+				},
+				{
+					"name": "PQSACVVTOISXFXCIAMQEM => EVERYONEISWELCOMEHERE",
+					"line": 31,
+					"executionTime": 0.00099849700927734375,
+					"errorLine": null,
+					"state": "success",
+					"message": null,
+					"timestamp": 1558371839.3219535
+				},
+				{
+					"name": "XPCXAUPHYQALKJMGKRWPGYHFTKRFFFNOUTZCABUAEHQLGXREZ => THEQUICKBROWNFOXJUMPSOVERALAZYSPHINXOFBLACKQUARTZ",
+					"line": 40,
+					"executionTime": 0,
+					"errorLine": null,
+					"state": "success",
+					"message": null,
+					"timestamp": 1558371839.3219535
+				}
+			]
+		}
+	]
+}

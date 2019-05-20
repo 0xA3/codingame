@@ -1,0 +1,9 @@
+{
+	"test.TestEncodeDecode": {
+		"pos": {
+			"line": 5,
+			"file": "src/test/TestEncodeDecode.hx"
+		},
+		"methods": {}
+	}
+}
