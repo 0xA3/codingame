@@ -14,7 +14,7 @@ class TestBrackets extends buddy.BuddySuite {
 			});
             
             it( "{(}) shoud be false", {
-				Main.evaluate( "][" ).should.be( false );
+				Main.evaluate( "{(})" ).should.be( false );
 			});
             
             it( "{([]){}()} shoud be true", {
