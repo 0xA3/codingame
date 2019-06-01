@@ -1,7 +1,7 @@
 class Area {
 	
-	public final top:Int;
 	public final left:Int;
+	public final top:Int;
 	public final right:Int;
 	public final bottom:Int;
 	@:isVar public var center( get, never ):Point;
@@ -15,6 +15,10 @@ class Area {
 
 	function get_center():Point {
 		return { x: left + Math.round(( right - left ) / 2 ), y: top + Math.round(( bottom - top ) / 2 ) };
+	}
+
+	public function toString():String {
+		return 'left: $left, top: $top, right: $right, bottom: $bottom';
 	}
 
 }

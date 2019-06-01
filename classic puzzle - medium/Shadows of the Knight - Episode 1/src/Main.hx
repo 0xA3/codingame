@@ -21,6 +21,9 @@ class Main {
 
 
 		final completeArea = new Area( 0, 0, w - 1, h - 1 );
+		
+		CodinGame.printErr( 'completeArea: $completeArea' );
+
 		final bombAreas:Array<Area> = [ completeArea ];
 		var x = x0;
 		var y = y0;
@@ -28,8 +31,8 @@ class Main {
 		while (true) {
 			
 			final bombDir = CodinGame.readline(); // the direction of the bombs from batman's current location (U, UR, R, DR, D, DL, L or UL)
-			final lastBombArea = bombAreas[ bombAreas.length - 1 ];
-
+			final lastBombArea = bombAreas[ bombAreas.length - 1 ]; //CodinGame.printErr( 'lastBombArea: $lastBombArea' );
+			
 			final bombArea = switch bombDir {
 				case "U":	new Area( x, lastBombArea.top, x, y - 1 );
 				case "UR":	new Area( x + 1, lastBombArea.top, lastBombArea.right, y - 1 );
@@ -41,16 +44,17 @@ class Main {
 				case _: 	new Area( lastBombArea.left, lastBombArea.top, x - 1, y - 1 ); // case "UL"
 			}
 
-			// CodinGame.printErr( 'bombArea: ${bombArea.left} ${bombArea.top} ${bombArea.right} ${bombArea.bottom}' );
 
+			// CodinGame.printErr( 'bombArea: $bombArea' );
 			final center = bombArea.center;
 			// CodinGame.printErr( 'center of bombArea: ${center.x} ${center.y}' );
 			
 			CodinGame.print( '${center.x} ${center.y}' );
+			
 			x = center.x;
 			y = center.y;
 
-			bombAreas.push( lastBombArea );
+			bombAreas.push( bombArea );
 		}
 	}
 
