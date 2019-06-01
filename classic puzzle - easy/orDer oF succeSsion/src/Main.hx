@@ -10,10 +10,8 @@ class Main {
 	static function main() {
 
 		final n = Std.parseInt( CodinGame.readline() );
-		final lines:Array<String> = [];
-		for( i in 0...n ) {
-			lines.push( CodinGame.readline());
-		}
+		final lines = [for( i in 0...n ) CodinGame.readline()];
+
 		// for( line in lines ) CodinGame.printErr( line );
 		final people = getPeople( lines );
 

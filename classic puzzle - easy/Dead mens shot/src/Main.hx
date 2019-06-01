@@ -1,12 +1,8 @@
-/**
- * Auto-generated code below aims at helping you parse
- * the standard input according to the problem statement.
- **/
-
-using Lambda;
 
 class Main {
 	
+	static function createPoint( a:Array<String> ):Point return { x: Std.parseInt( a[0] ), y: Std.parseInt( a[1] )};
+
 	static function main() {
 
 		/**
@@ -15,23 +11,13 @@ class Main {
 		 **/
 
 		final n = Std.parseInt( CodinGame.readline());
-		final polygon:Array<Point> = [];
-		for( i in 0...n ) {
-			var inputs = CodinGame.readline().split(' ');
-			final x = Std.parseInt( inputs[0] );
-			final y = Std.parseInt( inputs[1] );
-			polygon.push({ x: x, y: y });
-		}
+		final polygon = [for( i in 0...n ) createPoint( CodinGame.readline().split(' '))];
+
 		final m = Std.parseInt( CodinGame.readline());
-		for( i in 0...m ) {
-			var inputs = CodinGame.readline().split(' ');
-			final x = Std.parseInt( inputs[0] );
-			final y = Std.parseInt( inputs[1] );
+		final shots = [for( i in 0...m ) createPoint( CodinGame.readline().split(' '))];
+		final results = shots.map( point -> isInConvexPolygon( point, polygon ));
 
-			final result = isInConvexPolygon({ x: x, y: y }, polygon );
-
-			CodinGame.print( result ? 'hit' : 'miss' );
-		}
+		for( result in results ) CodinGame.print( result ? 'hit' : 'miss' );
 
 	}
 
