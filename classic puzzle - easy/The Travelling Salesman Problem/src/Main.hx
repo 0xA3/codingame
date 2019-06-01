@@ -4,73 +4,55 @@ using Lambda;
 
 class Main {
 	
+	static var distance = ( p1:Point, p2:Point ) -> Math.sqrt( Math.pow( p2.x - p1.x, 2 ) + Math.pow( p2.y - p1.y, 2 ));
+	static function createPoint( a:Array<String> ):Point return { x: Std.parseInt( a[0] ), y: Std.parseInt( a[1] )};
+
 	static function main() {
 		
 		final n = Std.parseInt( CodinGame.readline()); // the number of temperatures to analyse
-		
-		final positions:Array<Position> = [];
-		for( i in 0...n ) {
-			var inputs = CodinGame.readline().split(' ');
-			positions.push({ x: Std.parseInt( inputs[0] ), y: Std.parseInt( inputs[1] )});
-			// CodinGame.printErr( '${inputs[0]} ${inputs[1]}' );
-		}
+		final cities = [for(i in 0...n ) createPoint( CodinGame.readline().split(' '))];
 
-		CodinGame.print( getTotalDistance( positions ));
+		CodinGame.print( getTotalDistance( cities ));
 	}
 
-	static function getTotalDistance( positions:Array<Position> ):Int {
+	static function getTotalDistance( cities:Array<Point> ):Int {
 
-		final firstPosition = positions[0];
-		var currentPosition = firstPosition;
-		final otherPositions = positions.slice( 1 );
+		final first = cities.shift();
 		
+		var currentCity = first;
 		var totalDistance = 0.0;
-		while( otherPositions.length > 0 ) {
-			final nearestPositionDistance = getNearestPositionDistance( currentPosition, otherPositions );
-			otherPositions.remove( nearestPositionDistance.position );
-			totalDistance += nearestPositionDistance.distance;
-			currentPosition = nearestPositionDistance.position;
+		while( cities.length > 0 ) {
+			final closestPositionDistance = getNearestPositionDistance( currentCity, cities );
+			cities.remove( closestPositionDistance.position );
+			totalDistance += closestPositionDistance.distance;
+			currentCity = closestPositionDistance.position;
 		}
-		totalDistance += getDistance( currentPosition, firstPosition );
+		totalDistance += distance( currentCity, first );
 
 		return Math.round( totalDistance );
-
 	}
 
-	static function getNearestPositionDistance( currentPosition:Position, positions:Array<Position> ):PositionDistance {
+	static function getNearestPositionDistance( city:Point, cities:Array<Point> ):PositionDistance {
 		
-		final positionDistances:Array<PositionDistance> = positions.map( position -> {
-			position: position,
-			distance: getDistance( currentPosition, position )
-		});
+		final positionDistances:Array<PositionDistance> = cities.map( position -> { position: position, distance: distance( city, position ) });
 
 		ArraySort.sort( positionDistances, ( a, b ) -> {
 			if( a.distance < b.distance ) return -1;
   			else if( a.distance > b.distance ) return 1;
   			return 0;
 		});
-		
-		// final distances = positionDistances.map( pd -> pd.distance ).join( "," );
-		// CodinGame.printErr( distances );
-
-		// CodinGame.printErr( '${positionDistances[0].position.x} ${positionDistances[0].position.y}  ${positionDistances[0].distance}' );
 
 		return positionDistances[0];
 	}
 
-	static function getDistance( p1:Position, p2:Position ):Float {
-		final dx = p2.x - p1.x;
-		final dy = p2.y - p1.y;
-		return  Math.sqrt( dx * dx + dy * dy );
-	}
 }
 
-typedef Position = {
+typedef Point = {
 	final x:Int;
 	final y:Int;
 }
 
 typedef PositionDistance = {
-	final position:Position;
+	final position:Point;
 	final distance:Float;
 }
