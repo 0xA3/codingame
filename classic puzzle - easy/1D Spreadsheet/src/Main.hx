@@ -21,10 +21,11 @@ class Main {
 			
 			case Formula(a):
 				// trace( 'Formula $a' );
+				final op = a[0];
 				final arg1 = getArg( a[1], resultLines, i );
 				final arg2 = getArg( a[2], resultLines, i );
 				
-				final v = switch a[0] {
+				final v = switch op {
 					case "ADD": arg1 + arg2;
 					case "SUB": arg1 - arg2;
 					case "MULT": arg1 * arg2;
@@ -32,6 +33,7 @@ class Main {
 				}
 				resultLines[i] = Result( v );
 				return v;
+			
 			case Result(v):
 				// trace( 'Result $v' );
 				return v;
@@ -41,12 +43,11 @@ class Main {
 	static function getArg( s:String, resultLines:Array<TCell>, cellId:Int ) {
 		return if( s.charAt( 0 ) == "$" ) {
 			final cellId = Std.parseInt( s.substr( 1 ));
-				eval( resultLines, cellId );
+			eval( resultLines, cellId );
 		} else {
 			Std.parseInt( s );
 		}
 	}
-
 
 }
 
