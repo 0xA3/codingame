@@ -7,66 +7,25 @@ class TestParse extends buddy.BuddySuite {
 	
 	public function new() {
 		
-		describe( "Test createAST", {
-			
-			final op1 = ["VALUE", "3", "_" ];
-			final op2 = ["ADD", "3", "4" ];
-
-			it( "Test op1", {
-				Main.createAST( [op1], 0 ).should.equal( Value( 3 ));
-			});
-			
-			it( "Test op2", {
-				Main.createAST( [op2], 0 ).should.equal( Add( Value( 3 ), Value( 4 )));
-			});
-			
-		});
-		
 		describe( "Test Eval", {
-			
-			final value = Value( 3 );
-			final add = Add( Value( 3 ), Value( 4 ));
-			final sub = Sub( Value( 3 ), Value( 4 ));
-			final mult = Mult( Value( 3 ), Value( 4 ));
-
-			it( "Test value", {
-				Main.eval( value ).should.be( 3 );
-			});
-			
-			it( "Test add", {
-				Main.eval( add ).should.be( 7 );
-			});
-			
-			it( "Test sub", {
-				Main.eval( sub ).should.be( -1 );
-			});
-			
-			it( "Test mult", {
-				Main.eval( mult ).should.be( 12 );
-			});
-			
-		});
-
-		describe( "Test Process", {
 
 			final s1 = 'VALUE 3 _\nADD $0 4';
 			final case1 = parseLines( s1 );
 			it( "Test case1", {
-				Main.process( case1 )[0].should.be( 3 );
-				Main.process( case1 )[1].should.be( 7 );
+				Main.eval( case1, 0 ).should.be( 3 );
+				Main.eval( case1, 1 ).should.be( 7 );
 			});
 
 			final case2 = parseLines( aih );
 			it( "Test case2" , {
-				trace( Main.process( case2 ));
-				Main.process( case2 )[6].should.be( 0 );
+				Main.eval( case2, 6 ).should.be( 0 );
 			});
 
 		});
 	}
 
-	function parseLines( s:String ):Array<Array<String>> {
-		return s.split( "\n" ).map( a -> a.split(' '));
+	function parseLines( s:String ):Array<TCell> {
+		return s.split( "\n" ).map( a -> Formula( a.split(' ')));
 	}
 
 static final aih = 'MULT $61 $95

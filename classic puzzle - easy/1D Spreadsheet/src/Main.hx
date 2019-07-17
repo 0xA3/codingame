@@ -9,47 +9,48 @@ class Main {
 		CodinGame.printErr( 'n: $n' );
 
 		final elementsLines = [for( i in 0...n ) CodinGame.readline().split(' ')];
-		final results = process( elementsLines );
-		for( result in results ) CodinGame.print( Std.string( result ));
-	}
-
-	static function process( elementsLines:Array<Array<String>> ) {
-		
-		final asts = [for( i in 0...elementsLines.length ) createAST( elementsLines, i )];
-		final results = asts.map( ast -> eval( ast ));
-		return results;
-	}
-
-	static function createAST( calculations:Array<Array<String>>, index:Int ):TOperation {
-		
-		final calculation = calculations[index];
-		
-		final v1 = calculation[1].charAt( 0 ) == "$" ? createAST( calculations, Std.parseInt( calculation[1].substr( 1 ))) : Value( Std.parseInt( calculation[1] ));
-		final v2 = calculation[2].charAt( 0 ) == "$" ? createAST( calculations, Std.parseInt( calculation[2].substr( 1 ))) : Value( Std.parseInt( calculation[2] ));
-		
-		switch calculation[0] {
-			case "VALUE": return v1;
-			case "ADD": return Add( v1, v2 );
-			case "SUB": return Sub( v1, v2 );
-			case "MULT": return Mult( v1, v2 );
-			case _: return null;
+		final resultLines = elementsLines.map( elementLine -> Formula( elementLine ));
+		for( i in 0...resultLines.length ) {
+			CodinGame.print( Std.string( eval( resultLines, i )));
 		}
 	}
 
-	static function eval( tree:TOperation ):Int {
-		return switch tree {
-			case Value( v ): return v;
-			case Add( v1, v2 ): return eval( v1 ) + eval( v2 );
-			case Sub( v1, v2 ): return eval( v1 ) - eval( v2 );
-			case Mult( v1, v2 ): return eval( v1 ) * eval( v2 );
+	static function eval( resultLines:Array<TCell>, i:Int ):Int {
+		
+		return switch resultLines[i] {
+			
+			case Formula(a):
+				// trace( 'Formula $a' );
+				final arg1 = getArg( a[1], resultLines, i );
+				final arg2 = getArg( a[2], resultLines, i );
+				
+				final v = switch a[0] {
+					case "ADD": arg1 + arg2;
+					case "SUB": arg1 - arg2;
+					case "MULT": arg1 * arg2;
+					case _: arg1;
+				}
+				resultLines[i] = Result( v );
+				return v;
+			case Result(v):
+				// trace( 'Result $v' );
+				return v;
 		}	
 	}
 
+	static function getArg( s:String, resultLines:Array<TCell>, cellId:Int ) {
+		return if( s.charAt( 0 ) == "$" ) {
+			final cellId = Std.parseInt( s.substr( 1 ));
+				eval( resultLines, cellId );
+		} else {
+			Std.parseInt( s );
+		}
+	}
+
+
 }
 
-enum TOperation {
-	Value( v:Int );
-	Add( v1:TOperation, v2:TOperation );
-	Sub( v1:TOperation, v2:TOperation );
-	Mult( v1:TOperation, v2:TOperation );
+enum TCell {
+	Formula( a:Array<String> );
+	Result( v:Int );
 }
