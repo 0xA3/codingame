@@ -16,16 +16,31 @@ class Main {
 
 		// CodinGame.printErr( 'startX:$startX  startY: $startY' );
 
+		final points:Array<String> = [];
+
+		points.push( '${startY + 1} ${startX}');
+
+		for( i in 0...numberRounds - 1 ) {
+
+			var x:Int;
+			var y:Int;
+			do {
+				x = Std.random( dimension );
+				y = Std.random( dimension );
+			} while( points.indexOf( '$y $x' ) != -1 );
+
+			points.push( '$y $x' );
+		}
+
 		// game loop
+		var i = 0;
 		while( true ) {
 			final inputs = CodinGame.readline().split(' ');
 			final opponentRow = Std.parseInt( inputs[0] );
 			final opponentRow = Std.parseInt( inputs[1] );
 			
-			CodinGame.print( '${Std.random( dimension)} ${Std.random( dimension)}' );
-
+			CodinGame.print( '${points[i]}' );
+			i++;
 		}
-
-
 	}
 }
