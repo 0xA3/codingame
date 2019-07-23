@@ -15,22 +15,10 @@ class Main {
 		final startY = Std.int( startX );
 
 		// CodinGame.printErr( 'startX:$startX  startY: $startY' );
+		final matrix = [for( i in 0...dimension ) [for( i in 0...dimension ) false ]];
+		final ant = new Ant( matrix, startX, startY );
 
-		final points:Array<String> = [];
-
-		points.push( '${startY + 1} ${startX}');
-
-		for( i in 0...numberRounds - 1 ) {
-
-			var x:Int;
-			var y:Int;
-			do {
-				x = Std.random( dimension );
-				y = Std.random( dimension );
-			} while( points.indexOf( '$y $x' ) != -1 );
-
-			points.push( '$y $x' );
-		}
+		while( ant.colorPositions.length < pathLength ) ant.step();
 
 		// game loop
 		var i = 0;
@@ -39,7 +27,7 @@ class Main {
 			final opponentRow = Std.parseInt( inputs[0] );
 			final opponentRow = Std.parseInt( inputs[1] );
 			
-			CodinGame.print( '${points[i]}' );
+			CodinGame.print( '${ant.colorPositions[i]}' );
 			i++;
 		}
 	}
