@@ -20,6 +20,7 @@ class MiniMax {
 	public function evaluate( alpha = MIN, beta = MAX, nodeIndex = 0, isMax = true, currentDepth = 0 ) {
 
 		visitedNodesQuantity++;
+		
 		// base case : depth reached
 		if( currentDepth == depth ) return leafs[nodeIndex];
 
@@ -36,24 +37,22 @@ class MiniMax {
 				// Alpha Beta Pruning
 				if( beta <= alpha ) break;
 			}
-
 			return best;
 
 		} else {
 
 			var best = MAX;
+			
 			// Recur for left and right children
 			for( i in 0...branchingFactor ) {
 
-				final val = evaluate( alpha, beta, nodeIndex * branchingFactor + i, true, currentDepth + 1);
+				final val = evaluate( alpha, beta, nodeIndex * branchingFactor + i, true, currentDepth + 1 );
 				best = Std.int( Math.min( best, val ));
 				beta = Std.int( Math.min( beta, best ));
 				
 				// Alpha Beta Pruning
 				if( beta <= alpha ) break;
-
 			}
-
 			return best;
 
 		}
