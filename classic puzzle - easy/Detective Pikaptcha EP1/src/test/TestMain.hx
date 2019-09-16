@@ -3,5 +3,7 @@ package test;
 import buddy.Buddy;
 
 class TestMain implements Buddy<[
-	TestParse
+	TestGetCell,
+	TestGetAdjacentCells,
+	TestCompute
 ]>{}
