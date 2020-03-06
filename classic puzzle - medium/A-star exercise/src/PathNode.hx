@@ -15,4 +15,9 @@ class PathNode {
 		this.distanceToGoal = distanceToGoal;
 		this.neighbors = neighbors;
 	}
+
+	public static function compare( a:PathNode, b:PathNode ) {
+		if( a.costFromStart > b.costFromStart ) return true;
+		return false;
+	}
 }

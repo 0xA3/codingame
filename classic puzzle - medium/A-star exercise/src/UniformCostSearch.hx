@@ -1,25 +1,29 @@
 using Lambda;
 
-class UniformCostSearch {
+class UniformCostSearch { // Dijkstra’s Algorithm
 	
 	public static function getPath( nodes:Array<PathNode>, start:Int, goal:Int ) {
 		
-		final frontier = new List<Int>();
+		final frontier = new MinPriorityQueue<PathNode>( PathNode.compare );
 		
-		frontier.add( start );
-		nodes[start].visited = true;
+		final startNode = nodes[start];
+		startNode.visited = true;
+		startNode.costFromStart = 0;
+		frontier.add( startNode );
 
 		while( !frontier.isEmpty()) {
-			final current = frontier.pop();
+			final currentNode = frontier.pop();
 			// CodinGame.printErr( 'current $current' );
-			for( edge in nodes[current].neighbors ) {
+			for( edge in currentNode.neighbors ) {
 				final next = edge.to;
 				// CodinGame.printErr( 'check $next' );
 				final nextNode = nodes[edge.to];
+				final nextCost = currentNode.costFromStart + nextNode.costFromStart;
 				if( !nextNode.visited ) {
 					nextNode.previous = current;
 					nextNode.visited = true;
-					frontier.add( next );
+					nextNode.costFromStart = nextCost;
+					frontier.add( nextNode );
 					if( next == goal ) {
 						// CodinGame.printErr( 'found goal' );
 						return backtrack( nodes, start, goal );
