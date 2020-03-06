@@ -33,6 +33,10 @@ class CodinGame
 	static public function print(output:Dynamic):Void { untyped __lua__('print(output)'); }
 	static public function printErr(output:Dynamic):Void { untyped __lua__('io.stderr:write(output)'); }
 	static public inline function readline():String { return untyped __lua__('io.read()'); }
+	#elseif interp
+	static public function print(output:Dynamic):Void { Sys.println(output); }
+	static public function printErr(output:Dynamic):Void { Sys.println(output); }
+	static public inline function readline():String { return ""; }
 	#else
 	static public function print(output:Dynamic):Void { trace(output); }
 	static public function printErr(output:Dynamic):Void { trace(output); }

@@ -23,7 +23,7 @@ class Main {
 			final y = Std.parseInt( inputs[1] );
 			final c = Std.parseInt( inputs[2] );
 			edges.get( x ).push({ to: y, cost:c });
-			edges.get( y ).push({ to: x, cost: c });
+			if( x != s ) edges.get( y ).push({ to: x, cost: c });
 		}
 		
 		final nodes = createNodes( n, distances, edges );
@@ -37,7 +37,7 @@ class Main {
 	static function createNodes( n:Int, distances:Array<Int>, edges:Map<Int, Array<Edge>> ) {
 		
 		final nodes = new List<PathNode>();
-		for( i in 0...n ) nodes.add( new PathNode( distances[i], edges[i] ));
+		for( i in 0...n ) nodes.add( new PathNode( i, distances[i], edges[i] ));
 		return Lambda.array( nodes );
 	}
 

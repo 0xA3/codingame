@@ -13,21 +13,26 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 
 		while( !frontier.isEmpty()) {
 			final currentNode = frontier.pop();
-			// CodinGame.printErr( 'current $current' );
+			if( currentNode.id == goal ) {
+				// CodinGame.printErr( 'found goal' );
+				return backtrack( nodes, start, goal );
+			}
+			
+			// CodinGame.printErr( 'current ${currentNode.id}' );
 			for( edge in currentNode.neighbors ) {
-				final next = edge.to;
-				// CodinGame.printErr( 'check $next' );
 				final nextNode = nodes[edge.to];
-				final nextCost = currentNode.costFromStart + nextNode.costFromStart;
-				if( !nextNode.visited ) {
-					nextNode.previous = current;
-					nextNode.visited = true;
+				final nextCost = currentNode.costFromStart + edge.cost;
+				CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} cost $nextCost' + ( nextNode.visited ? '  <  ${nextNode.previous}-${nextNode.id} cost ${nextNode.costFromStart}' : "" ));
+				if( nextCost < nextNode.costFromStart ) {
+					nextNode.previous = currentNode.id;
 					nextNode.costFromStart = nextCost;
-					frontier.add( nextNode );
-					if( next == goal ) {
-						// CodinGame.printErr( 'found goal' );
-						return backtrack( nodes, start, goal );
+					if( !nextNode.visited ) { 
+						frontier.add( nextNode ); }
+					else {
+						frontier.sort();
 					}
+					nextNode.visited = true;
+					CodinGame.printErr( frontier );
 				}
 			}
 		}
@@ -44,6 +49,7 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 		path.add( start );
 		final aPath = Lambda.array( path );
 		aPath.reverse();
+		CodinGame.printErr( aPath );
 		return aPath;
 	}
 }

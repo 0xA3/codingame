@@ -32,7 +32,7 @@ class ParseInput {
 			final y = Std.parseInt( inputs[1] );
 			final c = Std.parseInt( inputs[2] );
 			edges.get( x ).push({ to: y, cost:c });
-			edges.get( y ).push({ to: x, cost: c });
+			if( x != s ) edges.get( y ).push({ to: x, cost: c });
 		}
 
 		final parsedInput:ParsedInput = { n:n, s: s, g: g, distances: distances, edges:edges };

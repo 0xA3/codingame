@@ -28,7 +28,7 @@ class MinPriorityQueue<T> {
 		n = keys.length;
 		pq = new Vector<T>( keys.length + 1 );
 		for( i in 0...n ) pq[i + 1] = keys[i];
-		for( k in -Std.int( n / 2 )...0 ) sink( -k );
+		sort();
 	}
 
 	/**
@@ -94,6 +94,16 @@ class MinPriorityQueue<T> {
 		if(( n > 0 ) && ( n == ( pq.length - 1 ) / 4 )) resize( Std.int( pq.length / 2 ));
 		return min;
 	}
+
+	/**
+	 * sorts the priority queue.
+	 *
+	*/
+	public function sort() {
+		if( isEmpty()) return;
+		for( k in -Std.int( n / 2 )...0 ) sink( -k );
+	}
+
 	/***************************************************************************
 	* Helper functions to restore the heap invariant.
 	***************************************************************************/
@@ -148,6 +158,11 @@ class MinPriorityQueue<T> {
 		return isMinHeapOrdered( left ) && isMinHeapOrdered( right );
 	}
 
+	public function toString() {
+		return [for( i in 1...n + 1 ) pq[i]].toString();
+
+	}
+	
 	public static function compareInt( a:Int, b:Int ) {
 		if( a > b ) return true;
 		return false;

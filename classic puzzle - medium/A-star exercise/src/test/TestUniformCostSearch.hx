@@ -10,7 +10,7 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 	public function new() {
 		
 		describe( "Test UniformCostSearch", {
-@include			
+
 			it( "3-node Graph", {
 				
 				final input = 
@@ -23,9 +23,9 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 				final p = ParseInput.parse( input );
 				final nodes = Main.createNodes( p.n, p.distances, p.edges );
 				final path = UniformCostSearch.getPath( nodes, p.s, p.g );
-				path.toString().should.be( "[0,2]" );
+				path.toString().should.be( "[0,1,2]" );
 			});
-	
+
 			it( "Small Graph A", {
 				
 				final input = 
@@ -42,9 +42,9 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 				final p = ParseInput.parse( input );
 				final nodes = Main.createNodes( p.n, p.distances, p.edges );
 				final path = UniformCostSearch.getPath( nodes, p.s, p.g );
-				path.toString().should.be( "[0,1,4]" );
+				path.toString().should.be( "[0,1,2,3,4]" );
 			});
-			
+
 			it( "Small Graph A'", {
 				
 				final input = 
@@ -61,7 +61,7 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 				final p = ParseInput.parse( input );
 				final nodes = Main.createNodes( p.n, p.distances, p.edges );
 				final path = UniformCostSearch.getPath( nodes, p.s, p.g );
-				path.toString().should.be( "[4,1,0]" );
+				path.toString().should.be( "[4,3,2,1,0]" );
 			});
 
 			it( "Slightly Larger Graph", {
@@ -83,7 +83,7 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 				final p = ParseInput.parse( input );
 				final nodes = Main.createNodes( p.n, p.distances, p.edges );
 				final path = UniformCostSearch.getPath( nodes, p.s, p.g );
-				path.toString().should.be( "[0,1,5,6,7]" );
+				path.toString().should.be( "[0,2,5,6,7]" );
 			});
 
 			it( "From Arad To Bucharest", {
@@ -118,7 +118,7 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 				final p = ParseInput.parse( input );
 				final nodes = Main.createNodes( p.n, p.distances, p.edges );
 				final path = UniformCostSearch.getPath( nodes, p.s, p.g );
-				path.toString().should.be( "[0,15,5,1]" );
+				path.toString().should.be( "[0,15,14,13,1]" );
 			});
 
 			it( "Equal f-value", {
@@ -134,7 +134,6 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 				final p = ParseInput.parse( input );
 				final nodes = Main.createNodes( p.n, p.distances, p.edges );
 				final path = UniformCostSearch.getPath( nodes, p.s, p.g );
-				// trace( path );
 				path.toString().should.be( "[0,1,3]" );
 			});
 			
