@@ -27,11 +27,10 @@ class Main {
 		}
 		
 		final nodes = createNodes( n, distances, edges );
-
+		final outputs = AStarSearch.getPath( nodes, s, g );
 		// Write an action using console.log()
 		// To debug: console.error( 'Debug messages...' );
-		
-		CodinGame.print( '0 0' );
+		for( o in outputs )	CodinGame.print( o.join( " " ));
 	}
 
 	static function createNodes( n:Int, distances:Array<Int>, edges:Map<Int, Array<Edge>> ) {
