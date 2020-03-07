@@ -6,7 +6,7 @@ typedef Edge = {
 class PathNode {
 	
 	public final id:Int;
-	final distanceToGoal:Int;
+	public final distanceToGoal:Int;
 	public final neighbors:Array<Edge> = [];
 	public var costFromStart = Math.POSITIVE_INFINITY;
 	public var previous = -1;
@@ -18,10 +18,17 @@ class PathNode {
 		this.neighbors = neighbors;
 	}
 
-	public function toString() return '{ ${ previous != -1 ? Std.string( previous ) + "-" : ""}$id cost: $costFromStart}';
+	public function toString() return '{ ${ previous != -1 ? Std.string( previous ) + "-" : ""}$id dist: $distanceToGoal}';
 
-	public static function compare( a:PathNode, b:PathNode ) {
+	public static function compareCostFromStart( a:PathNode, b:PathNode ) {
 		if( a.costFromStart > b.costFromStart ) return true;
 		return false;
 	}
+
+	public static function compareDistanceToGoal( a:PathNode, b:PathNode ) {
+		if( a.distanceToGoal > b.distanceToGoal ) return true;
+		return false;
+	}
+
+
 }

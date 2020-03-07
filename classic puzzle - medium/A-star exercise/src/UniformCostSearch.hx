@@ -4,7 +4,7 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 	
 	public static function getPath( nodes:Array<PathNode>, start:Int, goal:Int ) {
 		
-		final frontier = new MinPriorityQueue<PathNode>( PathNode.compare );
+		final frontier = new MinPriorityQueue<PathNode>( PathNode.compareCostFromStart );
 		
 		final startNode = nodes[start];
 		startNode.visited = true;
@@ -22,7 +22,7 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 			for( edge in currentNode.neighbors ) {
 				final nextNode = nodes[edge.to];
 				final nextCost = currentNode.costFromStart + edge.cost;
-				CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} cost $nextCost' + ( nextNode.visited ? '  <  ${nextNode.previous}-${nextNode.id} cost ${nextNode.costFromStart}' : "" ));
+				// CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} cost $nextCost' + ( nextNode.visited ? '  <  ${nextNode.previous}-${nextNode.id} cost ${nextNode.costFromStart}' : "" ));
 				if( nextCost < nextNode.costFromStart ) {
 					nextNode.previous = currentNode.id;
 					nextNode.costFromStart = nextCost;
@@ -49,7 +49,7 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 		path.add( start );
 		final aPath = Lambda.array( path );
 		aPath.reverse();
-		CodinGame.printErr( aPath );
+		// CodinGame.printErr( aPath );
 		return aPath;
 	}
 }
