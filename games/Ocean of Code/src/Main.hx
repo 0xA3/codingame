@@ -44,18 +44,21 @@ class Main {
 
 			me.update( x, y, myLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown );
 			final moveAction = me.getMoveAction();
-			final powerAction = me.getPowerAction();
+			final chargeAction = me.getChargeAction();
+			final executeAction = me.getExecuteAction();
 
+			var command = "";
 			// CodinGame.printErr( action );
 			switch moveAction {
 				case Move(d):
-					switch powerAction {
-						case Charge(c): CodinGame.print( 'MOVE ${d.mString()} ${c.cString()}' );
-						case Execute(e): CodinGame.print( 'MOVE ${d.mString()} | ${e.eString()}' );
+					switch executeAction {
+						case None: // no-op
+						case FireTorpedo(e): command += '${executeAction.eString()} | ';
 					}
-					
-				case Surface: CodinGame.print( 'SURFACE' );
+					command += 'MOVE ${d.mString()} ${chargeAction.cString()}';	
+				case Surface: command = 'SURFACE';
 			}
+			CodinGame.print( command );
 
 		}
 

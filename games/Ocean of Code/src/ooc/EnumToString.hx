@@ -21,6 +21,7 @@ class EnumToString {
 
 	public static function eString( action:ExecuteAction ) {
 		return switch action {
+			case None: '';
 			case FireTorpedo(p): 'TORPEDO ${p.x} ${p.y}';
 		}
 	}

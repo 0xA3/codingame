@@ -52,12 +52,16 @@ class Submarine {
 		return Surface;
 	}
 
-	public function getPowerAction():PowerAction {
+	public function getChargeAction():ChargeAction {
+		return ChargeTorpedo;
+	}
+
+	public function getExecuteAction():ExecuteAction {
 		if( torpedoCooldown == 0 ) {
 			final torpedoTarget = getTorpedoTarget();
-			return Execute( FireTorpedo( torpedoTarget ));
+			return FireTorpedo( torpedoTarget );
 		}
-		return Charge( ChargeTorpedo );
+		return None;
 	}
 
 
