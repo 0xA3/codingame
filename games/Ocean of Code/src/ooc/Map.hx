@@ -25,6 +25,11 @@ class Map {
 				if( cells[y][x] ) validPositions.push( position );
 			}
 		}
+		for( i in 1...10 ) {
+			final x = (( i - 1 ) * 5 ) % width;
+			final y = Std.int((i - 1 ) / 3 ) * 5;
+			sectorStartPositions.push( getPosition( x, y ));
+		}
 	}
 
 	public function getRandomValidPosition() {
@@ -40,12 +45,46 @@ class Map {
 		}
 	}
 
+	public function getNextPosition( position:Position, direction:Direction ):Position {
+		return switch direction {
+			case North: return getPosition( position.x, position.y - 1 );
+			case West: return getPosition( position.x - 1, position.y );
+			case South: return getPosition( position.x, position.y + 1 );
+			case East: return getPosition( position.x + 1, position.y );
+		}
+	}
+	
+	public function getPreviousPosition( position:Position, direction:Direction ):Position {
+		return switch direction {
+			case North: return getPosition( position.x, position.y + 1 );
+			case West: return getPosition( position.x + 1, position.y );
+			case South: return getPosition( position.x, position.y - 1 );
+			case East: return getPosition( position.x - 1, position.y );
+		}
+	}
+	
+	public function isPositionValid( position:Position ) {
+		return isValid( position.x, position.y );
+	}
+
 	public function isValid( x:Int, y:Int ) {
 		if( x < 0 || y < 0 || x >= width || y >= height ) return false;
 		return cells[y][x];
 	}
 
-	public function cellsOfSector( sector:Int ) {
+	public function positionsOfSector( sector:Int ) {
+		final sectorStartX = sectorStartPositions[sector - 1].x;
+		final sectorStartY = sectorStartPositions[sector - 1].y;
+		final positions:Array<Position> = [];
+		for( x in 0...5 ) {
+			for( y in 0...5 ) {
+				positions.push( getPosition( sectorStartX + x, sectorStartY + y ));
+			}
+		}
+		return positions;
+	}
 
+	public function pos2String( positions:Array<Position> ) {
+		return positions.map( position -> '${position.x}:${position.y}' ).join( " " );
 	}
 }

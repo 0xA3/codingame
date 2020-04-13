@@ -10,10 +10,8 @@ class Submarine {
 	
 	var path:GenericStack<Position>;
 
-
 	var life:Int;
-	var x:Int;
-	var y:Int;
+	var position:Position;
 	var torpedoCooldown:Int;
 	var sonarCooldown:Int;
 	var silenceCooldown:Int;
@@ -31,22 +29,21 @@ class Submarine {
 	}
 	
 	public function update( x:Int, y:Int, life:Int, torpedoCooldown:Int, sonarCooldown:Int, silenceCooldown:Int, mineCooldown:Int ) {
-		this.x = x;
-		this.y = y;
+		position = map.getPosition( x, y );
 		this.life = life;
 		this.torpedoCooldown = torpedoCooldown;
 		this.sonarCooldown = sonarCooldown;
 		this.silenceCooldown = silenceCooldown;
 		this.mineCooldown = mineCooldown;
 
-		path.add( map.getPosition( x, y ));
+		path.add( position );
 	}
 
 	public function getMoveAction():MoveAction {
-		if( isPositionValid( getCell( North ))) return Move( North );
-		if( isPositionValid( getCell( West ))) return Move( West );
-		if( isPositionValid( getCell( South ))) return Move( South );
-		if( isPositionValid( getCell( East )))  return Move( East );
+		if( isPositionValid( map.getNextPosition( position, North ))) return Move( North );
+		if( isPositionValid( map.getNextPosition( position, West ))) return Move( West );
+		if( isPositionValid( map.getNextPosition( position, South ))) return Move( South );
+		if( isPositionValid( map.getNextPosition( position, East )))  return Move( East );
 		
 		clearPath();
 		return Surface;
@@ -67,14 +64,14 @@ class Submarine {
 
 	function getTorpedoTarget():Position {
 		final positionsInRange:Array<Position> = [];
-		positionsInRange.push( map.getPosition( x, y - 4 ));
-		for( i in x - 1...x + 1) positionsInRange.push( map.getPosition( i, y - 3 ));
-		for( i in x - 2...x + 2) positionsInRange.push( map.getPosition( i, y - 2 ));
-		for( i in x - 3...x + 3) positionsInRange.push( map.getPosition( i, y - 1 ));
-		for( i in x - 4...x + 4) positionsInRange.push( map.getPosition( i, y ));
- 		for( i in x - 3...x + 3) positionsInRange.push( map.getPosition( i, y + 1 ));
-		for( i in x - 2...x + 2) positionsInRange.push( map.getPosition( i, y + 2 ));
-		for( i in x - 1...x + 1) positionsInRange.push( map.getPosition( i, y + 3 ));
+		positionsInRange.push( map.getPosition( position.x, position.y - 4 ));
+		for( i in position.x - 1...position.x + 1) positionsInRange.push( map.getPosition( i, position.y - 3 ));
+		for( i in position.x - 2...position.x + 2) positionsInRange.push( map.getPosition( i, position.y - 2 ));
+		for( i in position.x - 3...position.x + 3) positionsInRange.push( map.getPosition( i, position.y - 1 ));
+		for( i in position.x - 4...position.x + 4) positionsInRange.push( map.getPosition( i, position.y ));
+ 		for( i in position.x - 3...position.x + 3) positionsInRange.push( map.getPosition( i, position.y + 1 ));
+		for( i in position.x - 2...position.x + 2) positionsInRange.push( map.getPosition( i, position.y + 2 ));
+		for( i in position.x - 1...position.x + 1) positionsInRange.push( map.getPosition( i, position.y + 3 ));
 
 		final validPositions = positionsInRange.filter( isTorpedoPositionValid );
 		final randomPosition = validPositions[Std.random( validPositions.length )];
@@ -82,26 +79,16 @@ class Submarine {
 		return randomPosition;
 	}
 
-	function getCell( direction:Direction ):Position {
-		switch direction {
-			case North: return map.getPosition( x, y - 1 );
-			case West: return map.getPosition( x - 1, y );
-			case South: return map.getPosition( x, y + 1 );
-			case East: return map.getPosition( x + 1, y );
-		}
-	}
-
-	function isPositionValid( position:Position ) {
-		if( position.x < 0 || position.y < 0 || position.x >= width || position.y >= height ) return false;
-		if( !map.isValid( position.y, position.x )) return false;
-		for( pathPostion in path ) if( pathPostion == position ) return false;
+	function isPositionValid( other:Position ) {
+		if( !map.isPositionValid( other )) return false;
+		for( pathPostion in path ) if( pathPostion == other ) return false;
 		return true;
 	}
 
-	function isTorpedoPositionValid( position:Position ) {
-		if( position.x == x && position.y == y ) return false;
-		if( position.x < 0 || position.y < 0 || position.x >= width || position.y >= height ) return false;
-		if( !map.isValid( position.y, position.x )) return false;
+	function isTorpedoPositionValid( other:Position ) {
+		if( other.x == position.x && other.y == position.y ) return false;
+		if( other.x < 0 || other.y < 0 || other.x >= width || other.y >= height ) return false;
+		if( !map.isValid( other.y, other.x )) return false;
 		return true;
 	}
 }

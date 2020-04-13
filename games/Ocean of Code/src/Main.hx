@@ -46,9 +46,6 @@ class Main {
 			final sonarResult = CodinGame.readline();
 			final opponentOrders = CodinGame.readline();
 		
-			// Write an action using console.log()
-			// To debug: console.error( 'Debug messages...' );
-
 			submarine.update( x, y, myLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown );
 			opponent.update( oppLife, sonarResult, opponentOrders );
 			
@@ -68,7 +65,6 @@ class Main {
 				case Surface: command = 'SURFACE';
 			}
 			CodinGame.print( command );
-
 		}
 
 	}
