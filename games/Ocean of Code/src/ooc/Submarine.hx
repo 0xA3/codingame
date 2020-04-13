@@ -6,7 +6,7 @@ class Submarine {
 	
 	final width:Int;
 	final height:Int;
-	final map:Array<Array<Bool>>;
+	final map:ooc.Map;
 	
 	var path:GenericStack<Position>;
 
@@ -19,7 +19,7 @@ class Submarine {
 	var silenceCooldown:Int;
 	var mineCooldown:Int;
 
-	public function new( width:Int, height:Int, map:Array<Array<Bool>> ) {
+	public function new( width:Int, height:Int, map:ooc.Map ) {
 		this.width = width;
 		this.height = height;
 		this.map = map;
@@ -39,7 +39,7 @@ class Submarine {
 		this.silenceCooldown = silenceCooldown;
 		this.mineCooldown = mineCooldown;
 
-		path.add({ x: x, y: y });
+		path.add( map.getPosition( x, y ));
 	}
 
 	public function getMoveAction():MoveAction {
@@ -67,14 +67,14 @@ class Submarine {
 
 	function getTorpedoTarget():Position {
 		final positionsInRange:Array<Position> = [];
-		positionsInRange.push({ x: x, y: y - 4});
-		for( i in x - 1...x + 1) positionsInRange.push({ x: i, y: y - 3});
-		for( i in x - 2...x + 2) positionsInRange.push({ x: i, y: y - 2});
-		for( i in x - 3...x + 3) positionsInRange.push({ x: i, y: y - 1});
-		for( i in x - 4...x + 4) positionsInRange.push({ x: i, y: y});
-		for( i in x - 3...x + 3) positionsInRange.push({ x: i, y: y + 1});
-		for( i in x - 2...x + 2) positionsInRange.push({ x: i, y: y + 2});
-		for( i in x - 1...x + 1) positionsInRange.push({ x: i, y: y + 3});
+		positionsInRange.push( map.getPosition( x, y - 4 ));
+		for( i in x - 1...x + 1) positionsInRange.push( map.getPosition( i, y - 3 ));
+		for( i in x - 2...x + 2) positionsInRange.push( map.getPosition( i, y - 2 ));
+		for( i in x - 3...x + 3) positionsInRange.push( map.getPosition( i, y - 1 ));
+		for( i in x - 4...x + 4) positionsInRange.push( map.getPosition( i, y ));
+ 		for( i in x - 3...x + 3) positionsInRange.push( map.getPosition( i, y + 1 ));
+		for( i in x - 2...x + 2) positionsInRange.push( map.getPosition( i, y + 2 ));
+		for( i in x - 1...x + 1) positionsInRange.push( map.getPosition( i, y + 3 ));
 
 		final validPositions = positionsInRange.filter( isTorpedoPositionValid );
 		final randomPosition = validPositions[Std.random( validPositions.length )];
@@ -84,24 +84,24 @@ class Submarine {
 
 	function getCell( direction:Direction ):Position {
 		switch direction {
-			case North: return { x: x, y: y - 1 };
-			case West: return { x: x - 1, y: y };
-			case South: return { x: x, y: y + 1 };
-			case East: return { x: x + 1, y: y };
+			case North: return map.getPosition( x, y - 1 );
+			case West: return map.getPosition( x - 1, y );
+			case South: return map.getPosition( x, y + 1 );
+			case East: return map.getPosition( x + 1, y );
 		}
 	}
 
 	function isPositionValid( position:Position ) {
 		if( position.x < 0 || position.y < 0 || position.x >= width || position.y >= height ) return false;
-		if( !map[position.y][position.x] ) return false;
-		for( pathPostion in path ) if( pathPostion.x == position.x && pathPostion.y == position.y ) return false;
+		if( !map.isValid( position.y, position.x )) return false;
+		for( pathPostion in path ) if( pathPostion == position ) return false;
 		return true;
 	}
 
 	function isTorpedoPositionValid( position:Position ) {
 		if( position.x == x && position.y == y ) return false;
 		if( position.x < 0 || position.y < 0 || position.x >= width || position.y >= height ) return false;
-		if( !map[position.y][position.x] ) return false;
+		if( !map.isValid( position.y, position.x )) return false;
 		return true;
 	}
 }

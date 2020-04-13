@@ -1,3 +1,4 @@
+import ooc.Opponent;
 import ooc.Position;
 
 using ooc.EnumToString;
@@ -12,19 +13,25 @@ class Main {
 		final myId = Std.parseInt( inputs[2] );
 		// CodinGame.printErr( 'width $width  height $height  myId $myId' );
 		
-		final map:Array<Array<Bool>> = [];
+		final cells:Array<Array<Bool>> = [];
 		for( i in 0...height ) {
 			final line = CodinGame.readline();
-			map.push( line.split( "" ).map( s -> s == "." ? true : false ));
+			cells.push( line.split( "" ).map( s -> s == "." ? true : false ));
 			// CodinGame.printErr( line );
 		}
 		
-		final start = ooc.PlaceSubmarine.place( width, height, map );
-		// start coordinate
-		CodinGame.print( '${start.x} ${start.y}' );
-		
-		final me = new ooc.Submarine( width, height, map );
+		final map = new ooc.Map( width, height, cells );
+		map.init();
 
+		final submarine = new ooc.Submarine( width, height, map );
+		final opponent = new ooc.Opponent( width, height, map );
+		opponent.init();
+
+		final startPosition = map.getRandomValidPosition();
+		// CodinGame.printErr( map );
+		// start coordinate
+		CodinGame.print( '${startPosition.x} ${startPosition.y}' );
+		
 		// game loop
 		while ( true ) {
 			final inputs = CodinGame.readline().split( ' ' );
@@ -42,10 +49,12 @@ class Main {
 			// Write an action using console.log()
 			// To debug: console.error( 'Debug messages...' );
 
-			me.update( x, y, myLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown );
-			final moveAction = me.getMoveAction();
-			final chargeAction = me.getChargeAction();
-			final executeAction = me.getExecuteAction();
+			submarine.update( x, y, myLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown );
+			opponent.update( oppLife, sonarResult, opponentOrders );
+			
+			final moveAction = submarine.getMoveAction();
+			final chargeAction = submarine.getChargeAction();
+			final executeAction = submarine.getExecuteAction();
 
 			var command = "";
 			// CodinGame.printErr( action );
