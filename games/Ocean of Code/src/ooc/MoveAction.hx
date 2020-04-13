@@ -1,6 +1,7 @@
 package ooc;
 
-enum Action {
+enum MoveAction {
 	Move( d:Direction );
 	Surface;
 }
+

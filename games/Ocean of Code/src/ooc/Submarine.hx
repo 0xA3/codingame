@@ -42,7 +42,7 @@ class Submarine {
 		path.add({ x: x, y: y });
 	}
 
-	public function getAction():Action {
+	public function getMoveAction():MoveAction {
 		if( isPositionValid( getCell( North ))) return Move( North );
 		if( isPositionValid( getCell( West ))) return Move( West );
 		if( isPositionValid( getCell( South ))) return Move( South );
@@ -50,6 +50,32 @@ class Submarine {
 		
 		clearPath();
 		return Surface;
+	}
+
+	public function getPowerAction():PowerAction {
+		if( torpedoCooldown == 0 ) {
+			final torpedoTarget = getTorpedoTarget();
+			return Execute( FireTorpedo( torpedoTarget ));
+		}
+		return Charge( ChargeTorpedo );
+	}
+
+
+	function getTorpedoTarget():Position {
+		final positionsInRange:Array<Position> = [];
+		positionsInRange.push({ x: x, y: y - 4});
+		for( i in x - 1...x + 1) positionsInRange.push({ x: i, y: y - 3});
+		for( i in x - 2...x + 2) positionsInRange.push({ x: i, y: y - 2});
+		for( i in x - 3...x + 3) positionsInRange.push({ x: i, y: y - 1});
+		for( i in x - 4...x + 4) positionsInRange.push({ x: i, y: y});
+		for( i in x - 3...x + 3) positionsInRange.push({ x: i, y: y + 1});
+		for( i in x - 2...x + 2) positionsInRange.push({ x: i, y: y + 2});
+		for( i in x - 1...x + 1) positionsInRange.push({ x: i, y: y + 3});
+
+		final validPositions = positionsInRange.filter( isTorpedoPositionValid );
+		final randomPosition = validPositions[Std.random( validPositions.length )];
+
+		return randomPosition;
 	}
 
 	function getCell( direction:Direction ):Position {
@@ -65,6 +91,13 @@ class Submarine {
 		if( position.x < 0 || position.y < 0 || position.x >= width || position.y >= height ) return false;
 		if( !map[position.y][position.x] ) return false;
 		for( pathPostion in path ) if( pathPostion.x == position.x && pathPostion.y == position.y ) return false;
+		return true;
+	}
+
+	function isTorpedoPositionValid( position:Position ) {
+		if( position.x == x && position.y == y ) return false;
+		if( position.x < 0 || position.y < 0 || position.x >= width || position.y >= height ) return false;
+		if( !map[position.y][position.x] ) return false;
 		return true;
 	}
 }

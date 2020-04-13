@@ -1,5 +1,7 @@
 import ooc.Position;
 
+using ooc.EnumToString;
+
 class Main {
 	
 	static function main() {
@@ -41,11 +43,17 @@ class Main {
 			// To debug: console.error( 'Debug messages...' );
 
 			me.update( x, y, myLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown );
-			final action = me.getAction();
+			final moveAction = me.getMoveAction();
+			final powerAction = me.getPowerAction();
 
 			// CodinGame.printErr( action );
-			switch action {
-				case Move(d): CodinGame.print( 'MOVE ${ooc.DirectionString.get( d )} TORPEDO' );
+			switch moveAction {
+				case Move(d):
+					switch powerAction {
+						case Charge(c): CodinGame.print( 'MOVE ${d.mString()} ${c.cString()}' );
+						case Execute(e): CodinGame.print( 'MOVE ${d.mString()} | ${e.eString()}' );
+					}
+					
 				case Surface: CodinGame.print( 'SURFACE' );
 			}
 
