@@ -54,10 +54,10 @@ class Submarine {
 	}
 
 	public function getExecuteAction():ExecuteAction {
-		if( torpedoCooldown == 0 ) {
-			final torpedoTarget = getTorpedoTarget();
-			return FireTorpedo( torpedoTarget );
-		}
+		// if( torpedoCooldown == 0 ) {
+		// 	final torpedoTarget = getTorpedoTarget();
+		// 	return FireTorpedo( torpedoTarget );
+		// }
 		return None;
 	}
 

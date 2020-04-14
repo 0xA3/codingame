@@ -50,7 +50,9 @@ class Opponent {
 	}
 
 	function removePositionsWithInvalidPrevious( direction:Direction ) {
-		possiblePositions = possiblePositions.filter( position -> map.isPositionValid( map.getPreviousPosition( position, direction )));
+		final invalidPositions = possiblePositions.filter( position -> !map.isPositionValid( map.getPreviousPosition( position, direction )));
+		CodinGame.printErr( 'invalidPositions\n${map.pos2String( invalidPositions )}' );
+		removePositions( invalidPositions );
 	}
 
 	function removePositions( positionsToRemove:Array<Position> ) {
