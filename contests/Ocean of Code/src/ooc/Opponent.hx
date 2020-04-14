@@ -26,11 +26,11 @@ class Opponent {
 		switch orderArray[0] {
 			case "SURFACE":
 				final sector = Std.parseInt( orderArray[1] );
-				unionPositions( map.positionsOfSector( sector ));
+				intersectPositions( map.positionsOfSector( sector ));
 			case "MOVE":
 				final direction = StringToEnum.direction( orderArray[1] );
-				removeBorderPositions( direction );
-				removePositionsWithInvalidPrevious( direction );
+				subtractBorderPositions( direction );
+				subtractPositionsWithInvalidPrevious( direction );
 				move( direction );
 			default: // no-op
 		}
@@ -43,19 +43,19 @@ class Opponent {
 		addPositions( nextPossiblePositions );
 	}
 
-	function removeBorderPositions( direction:Direction ) {
+	function subtractBorderPositions( direction:Direction ) {
 		final borderPositions = possiblePositions.filter( position -> !possiblePositions.contains( map.getPreviousPosition( position, direction )));
 		CodinGame.printErr( 'borderPositions\n${map.pos2String( borderPositions )}' );
-		removePositions( borderPositions );
+		subtractPositions( borderPositions );
 	}
 
-	function removePositionsWithInvalidPrevious( direction:Direction ) {
+	function subtractPositionsWithInvalidPrevious( direction:Direction ) {
 		final invalidPositions = possiblePositions.filter( position -> !map.isPositionValid( map.getPreviousPosition( position, direction )));
 		CodinGame.printErr( 'invalidPositions\n${map.pos2String( invalidPositions )}' );
-		removePositions( invalidPositions );
+		subtractPositions( invalidPositions );
 	}
 
-	function removePositions( positionsToRemove:Array<Position> ) {
+	function subtractPositions( positionsToRemove:Array<Position> ) {
 		possiblePositions = possiblePositions.filter( position -> !positionsToRemove.contains( position ));
 	}
 
@@ -65,7 +65,7 @@ class Opponent {
 		}
 	}
 
-	function unionPositions( positionsToUnionize:Array<Position> ) {
+	function intersectPositions( positionsToUnionize:Array<Position> ) {
 		final resultPositions:Array<Position> = [];
 		for( position in possiblePositions ) if( positionsToUnionize.contains( position )) resultPositions.push( position );
 		possiblePositions = resultPositions;
