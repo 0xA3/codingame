@@ -50,7 +50,10 @@ class Submarine {
 	}
 
 	public function getChargeAction():ChargeAction {
-		return ChargeTorpedo;
+		final random = Math.random();
+		if( random < 0.3 && torpedoCooldown > 0 ) return ChargeTorpedo;
+		if( random < 0.6 && sonarCooldown > 0 ) return ChargeSonar;
+		return ChargeSilence;
 	}
 
 	public function getExecuteAction():ExecuteAction {

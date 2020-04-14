@@ -87,4 +87,9 @@ class Map {
 	public function pos2String( positions:Array<Position> ) {
 		return positions.map( position -> '${position.x}:${position.y}' ).join( " " );
 	}
+
+	public function manhattan( x1:Int, y1:Int, x2:Int, y2:Int ) {
+		return Std.int( Math.abs( x2 - x1 ) + Math.abs( y2 - y1 ));
+	}
+	
 }

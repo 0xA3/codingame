@@ -24,8 +24,8 @@ class Main {
 		map.init();
 
 		final submarine = new ooc.Submarine( width, height, map );
-		final opponent = new ooc.Opponent( width, height, map );
-		opponent.init();
+		final opponentManager = new ooc.OpponentManager( width, height, map );
+		opponentManager.init();
 
 		final startPosition = map.getRandomValidPosition();
 		// CodinGame.printErr( map );
@@ -47,7 +47,7 @@ class Main {
 			final opponentOrders = CodinGame.readline();
 		
 			submarine.update( x, y, myLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown );
-			opponent.update( oppLife, sonarResult, opponentOrders );
+			opponentManager.update( oppLife, sonarResult, opponentOrders );
 			
 			final moveAction = submarine.getMoveAction();
 			final chargeAction = submarine.getChargeAction();

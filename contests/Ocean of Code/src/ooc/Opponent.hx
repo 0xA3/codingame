@@ -7,76 +7,38 @@ class Opponent {
 	final width:Int;
 	final height:Int;
 	final map:ooc.Map;
+	public var position:Position;
+	public var isValid(default, null) = true;
 
-	var possiblePositions:Array<Position> = [];
-
-	public function new( width:Int, height:Int, map:ooc.Map ) {
+	public function new( width:Int, height:Int, map:ooc.Map, position:Position ) {
 		this.width = width;
 		this.height = height;
 		this.map = map;
+		this.position = position;
 	}
 
-	public function init() {
-		possiblePositions = map.validPositions;
+	public function surface( positionsOfSector:Array<Position> ) {
+		isValid = positionsOfSector.contains( position );
 	}
 
-	public function update( oppLife:Int, sonarResult:String, opponentOrders:String ) {
-		CodinGame.printErr( 'life $oppLife  sonar $sonarResult  orders $opponentOrders' );
-		final orderArray = opponentOrders.split( " " );
-		switch orderArray[0] {
-			case "SURFACE":
-				final sector = Std.parseInt( orderArray[1] );
-				intersectPositions( map.positionsOfSector( sector ));
-			case "MOVE":
-				final direction = StringToEnum.direction( orderArray[1] );
-				subtractBorderPositions( direction );
-				subtractPositionsWithInvalidPrevious( direction );
-				move( direction );
-			default: // no-op
-		}
-		possiblePositions.sort( positionSort );
-		CodinGame.printErr( 'possiblePositions\n${map.pos2String( possiblePositions )}' );
+	public function move( direction:Direction ) {
+		position = map.getNextPosition( position, direction );
+		isValid = map.isPositionValid( position );
 	}
 
-	function move( direction:Direction ) {
-		final nextPossiblePositions = possiblePositions.map( position -> map.getNextPosition( position, direction )).filter( position -> map.isValid( position.x, position.y ));
-		addPositions( nextPossiblePositions );
+	public function torpedo( x:Int, y:Int ) {
+		isValid = map.manhattan( position.x, position.y, x, y ) <= 4;
 	}
 
-	function subtractBorderPositions( direction:Direction ) {
-		final borderPositions = possiblePositions.filter( position -> !possiblePositions.contains( map.getPreviousPosition( position, direction )));
-		CodinGame.printErr( 'borderPositions\n${map.pos2String( borderPositions )}' );
-		subtractPositions( borderPositions );
-	}
-
-	function subtractPositionsWithInvalidPrevious( direction:Direction ) {
-		final invalidPositions = possiblePositions.filter( position -> !map.isPositionValid( map.getPreviousPosition( position, direction )));
-		CodinGame.printErr( 'invalidPositions\n${map.pos2String( invalidPositions )}' );
-		subtractPositions( invalidPositions );
-	}
-
-	function subtractPositions( positionsToRemove:Array<Position> ) {
-		possiblePositions = possiblePositions.filter( position -> !positionsToRemove.contains( position ));
-	}
-
-	function addPositions( positionsToAdd:Array<Position> ) {
-		for( position in positionsToAdd ) {
-			if( !possiblePositions.contains( position )) possiblePositions.push( position );
-		}
-	}
-
-	function intersectPositions( positionsToUnionize:Array<Position> ) {
-		final resultPositions:Array<Position> = [];
-		for( position in possiblePositions ) if( positionsToUnionize.contains( position )) resultPositions.push( position );
-		possiblePositions = resultPositions;
-	}
-
-	function positionSort( a:Position, b:Position ) {
-		if( a.y < b.y ) return -1;
-		if( a.y > b.y ) return 1;
-		if( a.x < b.x ) return -1;
-		if( a.x > b.x ) return 1;
+	public static function sort( a:Opponent, b:Opponent ) {
+		if( a.position.y < b.position.y ) return -1;
+		if( a.position.y > b.position.y ) return 1;
+		if( a.position.x < b.position.x ) return -1;
+		if( a.position.x > b.position.x ) return 1;
 		return 0;
 	}
 
+	public function toString() {
+		return '${position.x}:${position.y}';
+	}
 }
