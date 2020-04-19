@@ -4,15 +4,11 @@ using ooc.ArrayUtils;
 
 class Opponent {
 	
-	final width:Int;
-	final height:Int;
 	final map:ooc.Map;
 	public var position:Position;
 	public var isValid(default, null) = true;
 
-	public function new( width:Int, height:Int, map:ooc.Map, position:Position ) {
-		this.width = width;
-		this.height = height;
+	public function new( map:ooc.Map, position:Position ) {
 		this.map = map;
 		this.position = position;
 	}

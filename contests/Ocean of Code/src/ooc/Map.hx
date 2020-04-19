@@ -1,7 +1,11 @@
 package ooc;
 
+import ooc.Direction;
+
 class Map {
 	
+	public static var directions = [North, West, South, East];
+
 	public final width:Int;
 	public final height:Int;
 	final cells:Array<Array<Bool>>;
@@ -45,12 +49,12 @@ class Map {
 		}
 	}
 
-	public function getNextPosition( position:Position, direction:Direction ):Position {
+	public function getNextPosition( position:Position, direction:Direction, distance = 1 ):Position {
 		return switch direction {
-			case North: return getPosition( position.x, position.y - 1 );
-			case West: return getPosition( position.x - 1, position.y );
-			case South: return getPosition( position.x, position.y + 1 );
-			case East: return getPosition( position.x + 1, position.y );
+			case North: return getPosition( position.x, position.y - distance );
+			case West: return getPosition( position.x - distance, position.y );
+			case South: return getPosition( position.x, position.y + distance );
+			case East: return getPosition( position.x + distance, position.y );
 		}
 	}
 	
@@ -91,5 +95,5 @@ class Map {
 	public function manhattan( x1:Int, y1:Int, x2:Int, y2:Int ) {
 		return Std.int( Math.abs( x2 - x1 ) + Math.abs( y2 - y1 ));
 	}
-	
+
 }

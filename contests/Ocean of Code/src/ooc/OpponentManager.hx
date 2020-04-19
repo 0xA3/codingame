@@ -17,11 +17,11 @@ class OpponentManager {
 	}
 
 	public function init() {
-		possibleOpponents = map.validPositions.map( position -> new Opponent( width, height, map, position ));
+		possibleOpponents = map.validPositions.map( position -> new Opponent( map, position ));
 	}
 
 	public function update( oppLife:Int, sonarResult:String, opponentOrders:String ) {
-		CodinGame.printErr( 'life $oppLife  sonar $sonarResult  orders $opponentOrders' );
+		// CodinGame.printErr( 'life $oppLife  sonar $sonarResult  orders $opponentOrders' );
 		final orderArray = opponentOrders.split( " " );
 		switch orderArray[0] {
 			case "SURFACE":
@@ -35,11 +35,33 @@ class OpponentManager {
 				final x = Std.parseInt( orderArray[1] );
 				final y = Std.parseInt( orderArray[2] );
 				for( opponent in possibleOpponents ) opponent.torpedo( x, y );
+			case "SILENCE":
+				createSilenceOpponents();
 			default: // no-op
 		}
 		possibleOpponents = possibleOpponents.filter( opponent -> opponent.isValid );
 		possibleOpponents.sort( Opponent.sort );
-		CodinGame.printErr( 'possiblePositions\n$possibleOpponents' );
+		// CodinGame.printErr( 'possiblePositions\n$possibleOpponents' );
+	}
+
+	function createSilenceOpponents() {
+		final possibleOpponentPositions = possibleOpponents.map( opponent -> opponent.position );
+		for( possibleOpponentPosition in possibleOpponentPositions ) {
+			for( direction in ooc.Map.directions ) {
+				for( distance in 0...4 ) {
+					final nextPosition = map.getNextPosition( possibleOpponentPosition, direction, distance );
+					if( map.isPositionValid( nextPosition )) {
+						addOpponent( possibleOpponentPositions, nextPosition );
+					} else {
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	function addOpponent( possibleOpponentPositions:Array<Position>, position:Position ) {
+		if( possibleOpponentPositions.notContains( position )) possibleOpponents.push( new Opponent( map, position ));
 	}
 
 }
