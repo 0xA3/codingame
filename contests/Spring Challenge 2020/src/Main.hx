@@ -61,7 +61,7 @@ class Main {
 			// Write an action using console.log()
 			// To debug: console.error( 'Debug messages...' );
 		
-			for( pac in myPacs ) CodinGame.print( pac.move());     // MOVE <pacId> <x> <y>
+			CodinGame.print( myPacs.map( pac -> pac.move()).join( " | " ));     // MOVE <pacId> <x> <y>
 		
 		}
 	}
