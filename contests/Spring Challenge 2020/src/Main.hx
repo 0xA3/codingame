@@ -19,7 +19,7 @@ class Main {
 
 		final pelletBuffer = new Vector<Bool>( width * height );
 
-		CodinGame.printErr( lines );
+		// CodinGame.printErr( lines );
 
 		final myPacs:Map<Int, Pac> = [];
 		final enemyPacs:Map<Int, Pac> = [];
@@ -51,9 +51,14 @@ class Main {
 				pacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
 			}
 
+
 			final visibleCellIds = myPacs.flatMap( pac -> pac.getVisibleCellIds());
 			final nonEmptyVisibleCellIds = visibleCellIds.filter( cellId -> grid.getCell( cellId ) != Empty );
+			// for( cellId in nonEmptyVisibleCellIds )
+				// CodinGame.printErr( 'visible ${grid.getCellX( cellId )} ${grid.getCellY( cellId )}' );
 
+			
+			
 			for( i in 0...pelletBuffer.length ) pelletBuffer[i] = false;
 			final visiblePelletCount = Std.parseInt( CodinGame.readline()); // all pellets in sight
 			for( i in 0...visiblePelletCount ) {
@@ -62,24 +67,36 @@ class Main {
 				final y = Std.parseInt( inputs[1] );
 				final value = Std.parseInt( inputs[2] ); // amount of points this pellet is worth
 				
-				final cell = grid.cells[y * width + x];
+				// CodinGame.printErr( 'pellet $x $y' );
+				pelletBuffer[grid.getCellId( x, y )] = true;
+				final cell = grid.getCell2d( x, y );
 				switch cell {
-					case Unknown: grid.cells[y * width + x] = Food( value );
+					case Unknown:
+						// CodinGame.printErr( 'set $x $y Food($value)' );
+						grid.setCell2d( x, y, Food( value ));
 					default: // no-op
 				}
-				pelletBuffer[y * width + x] = true;
 			}
+			
+			
 			// clear empty cells
-			for( cellId in nonEmptyVisibleCellIds ) if( !pelletBuffer[cellId] ) grid.setCell( cellId, Empty );
-			for( pac in myPacs ) pac.addPellets();
+			for( cellId in nonEmptyVisibleCellIds ) {
+				// CodinGame.printErr( 'cell ${grid.getCellX( cellId )} ${grid.getCellY( cellId )} ${pelletBuffer[cellId]}' );
+				if( !pelletBuffer[cellId] ) {
+					// CodinGame.printErr( 'set ${grid.getCellX( cellId )} ${grid.getCellY( cellId )} Empty' );
+					grid.setCell( cellId, Empty );
+				}
+			}
 
-			CodinGame.printErr( grid.toString() );
+			// CodinGame.printErr( grid.toString() );
 			// Write an action using console.log()
 			// To debug: console.error( 'Debug messages...' );
 		
-			final myVisiblePacs = myPacs.filter( pac -> pac.isVisible );
-			CodinGame.print( myVisiblePacs.map( pac -> pac.move()).join( " | " ));     // MOVE <pacId> <x> <y>
+			// for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
+			for( pac in myPacs ) pac.addPellets();
+			// CodinGame.print( myPacs.map( pac -> pac.move()).join( "|" ));     // MOVE <pacId> <x> <y>
 		
+			CodinGame.print( myPacs[0].move());
 		}
 	}
 

@@ -1,6 +1,6 @@
 class Pac {
 
-	final id:Int;
+	public final id:Int;
 	final grid:Grid;
 
 	var x:Int;
@@ -26,15 +26,15 @@ class Pac {
 		this.abilityCooldown = abilityCooldown;
 		
 		isVisible = true;
-		pellets.splice( 0, pellets.length );
-		grid.setCellXY( x, y, Empty );
+		pellets.splice( 0, pellets.length ); // clear pellets
+		grid.setCell2d( x, y, Empty ); // set cell of currentPosition to Empty
 	}
 
 	public function addPellets() {
 		for( i in 0...grid.cells.length ) {
 			final xp = grid.getCellX( i );
 			final yp = grid.getCellY( i );
-			switch grid.cells[i]  {
+			switch grid.getCell( i )  {
 				case Unknown: pellets.push({ x: xp, y: yp, value: 1, distance: getDistance2( xp, yp ) });
 				case Food(value): pellets.push({ x: xp, y: yp, value: value, distance: getDistance2( xp, yp ) });
 				default: // no-op;
@@ -68,7 +68,7 @@ class Pac {
 		if( p1.distance < p2.distance ) return -1;
 		return 0;
 	}
-			
+
 }
 
 typedef Pellet = {
