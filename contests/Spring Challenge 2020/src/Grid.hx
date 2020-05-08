@@ -3,7 +3,7 @@ class Grid {
 	final width:Int;
 	final height:Int;
 	final floors:Array<Bool>;
-	final cells:Array<Cell>;
+	public final cells:Array<Cell>;
 
 	public function new( width:Int, height:Int, floors:Array<Bool>, cells:Array<Cell> ) {
 		this.width = width;
@@ -12,44 +12,68 @@ class Grid {
 		this.cells = cells;
 	}
 
-	public function getVisibleCells( x:Int, y:Int ) {
+	public function getVisibleCellIds( pacX:Int, pacY:Int ) {
 		
-		final visibleCells:Array<Cell> = [];
-		// go right
-		for( pos in x + 1...width ) {
-			// trace( "right", pos, y, checkFloor( pos, y ));
-			if( checkFloor( pos, y )) visibleCells.push( getCell( pos, y ));
-			else break;
-		}
-		// go down
-		for( pos in y + 1...height ) {
-			// trace( "down", x, pos, checkFloor( x, pos ));
-			if( checkFloor( x, pos )) visibleCells.push( getCell( x, pos ));
-			else break;
-		}
+		final visibleCellIds:Array<Int> = [];
 		// go left
-		// for( pos in x - 1...-1 ) {
-		for( pos in - x + 1...1 ) {
-			// trace( "left", -pos, y, checkFloor( -pos, y ));
-			if( checkFloor( -pos, y )) visibleCells.push( getCell( -pos, y ));
+		// for( x in pacX - 1...-1 ) {
+		for( x in - pacX + 1...1 ) {
+			// trace( "left", -x, pacY, checkFloorXY( -x, pacY ));
+			if( checkFloorXY( -x, pacY )) visibleCellIds.push( getCellIdByXY( -x, pacY ));
+			else break;
+		}
+		// go right
+		for( x in pacX + 1...width ) {
+			// trace( "right", x, pacY, checkFloorXY( x, pacY ));
+			if( checkFloorXY( x, pacY )) visibleCellIds.push( getCellIdByXY( x, pacY ));
 			else break;
 		}
 		// go up
-		// for( pos in y - 1...-1 ) {
-		for( pos in - y + 1...1 ) {
-			// trace( "up", x, -pos, checkFloor( x, -pos ));
-			if( checkFloor( x, -pos )) visibleCells.push( getCell( x, -pos ));
+		// for( y in pacY - 1...-1 ) {
+		for( y in - pacY + 1...1 ) {
+			// trace( "up", pacX, -y, checkFloorXY( pacX, -y ));
+			if( checkFloorXY( pacX, -y )) visibleCellIds.push( getCellIdByXY( pacX, -y ));
 			else break;
 		}
-		return visibleCells;
+		// go down
+		for( y in pacY + 1...height ) {
+			// trace( "down", pacX, y, checkFloorXY( pacX, y ));
+			if( checkFloorXY( pacX, y )) visibleCellIds.push( getCellIdByXY( pacX, y ));
+			else break;
+		}
+		return visibleCellIds;
 	}
 
-	public inline function checkFloor( x:Int, y:Int ) {
-		return floors[y * width + x];
+	public function setCell( id:Int, value:Cell ) {
+		cells[id] = value;
 	}
 
-	public inline function getCell( x:Int, y:Int ) {
-		return cells[y * width + x];
+	public function setCellXY( x:Int, y:Int, value:Cell ) {
+		cells[y * width + x] = value;
+	}
+
+	public inline function checkFloorXY( x:Int, y:Int ) {
+		return floors[getCellIdByXY( x, y )];
+	}
+
+	public inline function getCellByXY( x:Int, y:Int ) {
+		return cells[getCellIdByXY( x, y )];
+	}
+
+	public inline function getCellIdByXY( x:Int, y:Int ) {
+		return y * width + x;
+	}
+
+	public inline function getCell( id:Int ) {
+		return cells[id];
+	}
+
+	public inline function getCellX( id:Int ) {
+		return id % width;
+	}
+
+	public inline function getCellY( id:Int ) {
+		return Std.int( id / width );
 	}
 
 	public function toString() {

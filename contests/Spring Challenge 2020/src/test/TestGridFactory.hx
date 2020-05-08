@@ -15,28 +15,28 @@ class TestGridFactory extends buddy.BuddySuite {
 				// Main.getLetterWeights( "a" ).get( 'a' ).length.should.be( 1 );
 				final lines = ["#"];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
-				grid.getCell( 0, 0 ).content.should.equal( Wall );
+				grid.getCellByXY( 0, 0 ).should.equal( Wall );
 			});
 			
 			it( "test 2x1 grid", {
 				// Main.getLetterWeights( "a" ).get( 'a' ).length.should.be( 1 );
 				final lines = ["# "];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
-				grid.getCell( 1, 0 ).content.should.equal( Unknown );
+				grid.getCellByXY( 1, 0 ).should.equal( Unknown );
 			});
 			
 			it( "test 1x2 grid", {
 				// Main.getLetterWeights( "a" ).get( 'a' ).length.should.be( 1 );
 				final lines = ["#", " "];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
-				grid.getCell( 0, 1 ).content.should.equal( Unknown );
+				grid.getCellByXY( 0, 1 ).should.equal( Unknown );
 			});
 			
 			it( "test 4x3 grid", {
 				// Main.getLetterWeights( "a" ).get( 'a' ).length.should.be( 1 );
 				final lines = ["####", "#  #", "####"];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
-				grid.getCell( 1, 1 ).content.should.equal( Unknown );
+				grid.getCellByXY( 1, 1 ).should.equal( Unknown );
 			});
 			
 			

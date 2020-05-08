@@ -1,4 +1,5 @@
 
+import haxe.ds.Vector;
 using Lambda;
 
 class Main {
@@ -16,6 +17,8 @@ class Main {
 
 		final grid = GridFactory.createGrid( width, height, lines );
 
+		final pelletBuffer = new Vector<Bool>( width * height );
+
 		CodinGame.printErr( lines );
 
 		final myPacs:Map<Int, Pac> = [];
@@ -24,6 +27,8 @@ class Main {
 		// game loop
 		while( true ) {
 			
+			for( pac in myPacs ) pac.isVisible = false;
+
 			var inputs = CodinGame.readline().split(' ');
 			final myScore = Std.parseInt( inputs[0] );
 			final opponentScore = Std.parseInt( inputs[1] );
@@ -46,20 +51,34 @@ class Main {
 				pacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
 			}
 
+			final visibleCellIds = myPacs.flatMap( pac -> pac.getVisibleCellIds());
+			final nonEmptyVisibleCellIds = visibleCellIds.filter( cellId -> grid.getCell( cellId ) != Empty );
+
+			for( i in 0...pelletBuffer.length ) pelletBuffer[i] = false;
 			final visiblePelletCount = Std.parseInt( CodinGame.readline()); // all pellets in sight
 			for( i in 0...visiblePelletCount ) {
 				var inputs = CodinGame.readline().split(' ');
 				final x = Std.parseInt( inputs[0] );
 				final y = Std.parseInt( inputs[1] );
 				final value = Std.parseInt( inputs[2] ); // amount of points this pellet is worth
-
-				for( pac in myPacs ) pac.addPellet( x, y, value );
+				
+				final cell = grid.cells[y * width + x];
+				switch cell {
+					case Unknown: grid.cells[y * width + x] = Food( value );
+					default: // no-op
+				}
+				pelletBuffer[y * width + x] = true;
 			}
-		
+			// clear empty cells
+			for( cellId in nonEmptyVisibleCellIds ) if( !pelletBuffer[cellId] ) grid.setCell( cellId, Empty );
+			for( pac in myPacs ) pac.addPellets();
+
+			CodinGame.printErr( grid.toString() );
 			// Write an action using console.log()
 			// To debug: console.error( 'Debug messages...' );
 		
-			CodinGame.print( myPacs.map( pac -> pac.move()).join( " | " ));     // MOVE <pacId> <x> <y>
+			final myVisiblePacs = myPacs.filter( pac -> pac.isVisible );
+			CodinGame.print( myVisiblePacs.map( pac -> pac.move()).join( " | " ));     // MOVE <pacId> <x> <y>
 		
 		}
 	}

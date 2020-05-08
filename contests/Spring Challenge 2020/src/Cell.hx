@@ -1,23 +1,23 @@
-enum CellContent {
+enum Cell {
 	Unknown;
 	Wall;
 	Empty;
-	Food( pellet:Pellet );
+	Food( value:Float );
 }
 
-class Cell {
+// class Cell {
 
-	public final x:Int;
-	public final y:Int;
-	public var content:CellContent;
+// 	public final x:Int;
+// 	public final y:Int;
+// 	public var content:CellContent;
 
-	public function new( x:Int, y:Int, content:CellContent ) {
-		this.x = x;
-		this.y = y;
-		this.content = content;
-	}
+// 	public function new( x:Int, y:Int, content:CellContent ) {
+// 		this.x = x;
+// 		this.y = y;
+// 		this.content = content;
+// 	}
 
-	public function toString() {
-		return 'x $x, y $y, $content';
-	}
-}
+// 	public function toString() {
+// 		return 'x $x, y $y, $content';
+// 	}
+// }
