@@ -1,6 +1,9 @@
 class Pac {
 
+	public static final NAMES = ["0tto", "1ngmar", "2om", "3ddie", "4ictor"];
+
 	public final id:Int;
+	public final name:String;
 	final grid:Grid;
 
 	var x:Int;
@@ -15,6 +18,7 @@ class Pac {
 
 	public function new( id:Int, grid:Grid ) {
 		this.id = id;
+		this.name = NAMES[id];
 		this.grid = grid;
 	}
 
@@ -57,10 +61,10 @@ class Pac {
 	}
 
 	public function move() {
-		if( pellets.length == 0 ) return 'MOVE $id 0 0';
+		if( pellets.length == 0 ) return 'MOVE $id $x $y $name';
 		pellets.sort( sortPelletDistances );
 		// CodinGame.printErr( 'move from x $x y $y to ${pellets[0]}' );
-		return 'MOVE $id ${pellets[0].x} ${pellets[0].y}';
+		return 'MOVE $id ${pellets[0].x} ${pellets[0].y} $name';
 	}
 
 	public function sortPelletDistances( p1:Pellet, p2:Pellet ) {

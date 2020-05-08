@@ -92,11 +92,11 @@ class Main {
 			// Write an action using console.log()
 			// To debug: console.error( 'Debug messages...' );
 		
-			// for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
+			for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
 			for( pac in myPacs ) pac.addPellets();
-			// CodinGame.print( myPacs.map( pac -> pac.move()).join( "|" ));     // MOVE <pacId> <x> <y>
+			CodinGame.print( myPacs.map( pac -> pac.move()).join( "|" ));     // MOVE <pacId> <x> <y>
 		
-			CodinGame.print( myPacs[0].move());
+			// CodinGame.print( myPacs[0].move());
 		}
 	}
 
