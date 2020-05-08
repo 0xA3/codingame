@@ -1,8 +1,8 @@
-import haxe.ds.GenericStack;
-
 class Pac {
 
 	final id:Int;
+	final grid:Grid;
+
 	var x:Int;
 	var y:Int;
 	var typeId:String;
@@ -11,8 +11,9 @@ class Pac {
 
 	final pellets:Array<Pellet> = [];
 
-	public function new( id:Int ) {
+	public function new( id:Int, grid:Grid ) {
 		this.id = id;
+		this.grid = grid;
 	}
 
 	public function update( x:Int, y:Int, typeId:String, speedTurnsLeft:Int, abilityCooldown:Int ) {

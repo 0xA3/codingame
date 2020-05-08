@@ -1,11 +1,8 @@
+
 using Lambda;
 
 class Main {
 	
-	static var width:Int;
-	static var height:Int;
-	static var grid:Array<Bool>;
-
 	static function main() {
 		
 		/**
@@ -13,19 +10,20 @@ class Main {
 		 **/
 
 		var inputs = CodinGame.readline().split( ' ' );
-		width = Std.parseInt( inputs[0] ); // size of the grid
-		height = Std.parseInt( inputs[1] ); // top left corner is( x=0, y=0 )
+		final width = Std.parseInt( inputs[0] ); // size of the grid
+		final height = Std.parseInt( inputs[1] ); // top left corner is( x=0, y=0 )
 		final lines = [for( _ in 0...height ) CodinGame.readline()];
-		grid = lines.map( line -> line.split("").map( cell -> cell == " " ? true : false )).flatten();
+
+		final grid = GridFactory.createGrid( width, height, lines );
 
 		CodinGame.printErr( lines );
+
+		final myPacs:Map<Int, Pac> = [];
+		final enemyPacs:Map<Int, Pac> = [];
 
 		// game loop
 		while( true ) {
 			
-			final myPacs:Map<Int, Pac> = [];
-			final enemyPacs:Map<Int, Pac> = [];
-
 			var inputs = CodinGame.readline().split(' ');
 			final myScore = Std.parseInt( inputs[0] );
 			final opponentScore = Std.parseInt( inputs[1] );
@@ -42,7 +40,7 @@ class Main {
 
 				var pacs = mine ? myPacs : enemyPacs;
 				if( !pacs.exists( pacId )) {
-					final pac = new Pac( pacId );
+					final pac = new Pac( pacId, grid );
 					pacs.set( pacId, pac );
 				}
 				pacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
@@ -66,7 +64,6 @@ class Main {
 		}
 	}
 
-	static function getGridPoint( x:Int, y:Int ) {
-		return grid[y * height + x];
-	}
+
+
 }
