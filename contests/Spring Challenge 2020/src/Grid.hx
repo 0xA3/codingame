@@ -5,6 +5,7 @@ class Grid {
 	final height:Int;
 	final floors:Array<Bool>;
 	public final cells:Array<Cell>;
+	public final superPellets:Array<Int> = [];
 
 	public function new( width:Int, height:Int, floors:Array<Bool>, cells:Array<Cell> ) {
 		this.width = width;

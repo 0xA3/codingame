@@ -23,10 +23,12 @@ class Main {
 
 		final myPacs:Map<Int, Pac> = [];
 		final enemyPacs:Map<Int, Pac> = [];
+		final superPellets:Map<Int, Bool> = [];
 
 		// game loop
 		while( true ) {
 			for( pac in myPacs ) pac.cleanUp();
+			for( key in superPellets.keys()) superPellets.set( key, false );
 			// for( pac in enemyPacs ) pac.cleanUp();
 
 			var inputs = CodinGame.readline().split(' ');
@@ -76,6 +78,14 @@ class Main {
 						// CodinGame.printErr( 'set $x $y Food($value)' );
 						grid.setCell2d( x, y, value == 1 ? Food : Superfood );
 					default: // no-op
+				}
+				if( value > 1 ) superPellets.set( y * width + x, true );
+			}
+			
+			// remove disappeared superPellets
+			for( id in superPellets.keys() ) {
+				if( !superPellets.get( id )) {
+					grid.setCell( id, Empty );
 				}
 			}
 			
