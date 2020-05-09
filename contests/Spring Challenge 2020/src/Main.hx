@@ -26,8 +26,8 @@ class Main {
 
 		// game loop
 		while( true ) {
-			
-			for( pac in myPacs ) pac.isVisible = false;
+			for( pac in myPacs ) pac.cleanUp();
+			// for( pac in enemyPacs ) pac.cleanUp();
 
 			var inputs = CodinGame.readline().split(' ');
 			final myScore = Std.parseInt( inputs[0] );
@@ -39,13 +39,13 @@ class Main {
 				final mine = inputs[1] != '0'; // true if this pac is yours
 				final x = Std.parseInt( inputs[2] ); // position in the grid
 				final y = Std.parseInt( inputs[3] ); // position in the grid
-				final typeId = inputs[4]; // unused in wood leagues
-				final speedTurnsLeft = Std.parseInt( inputs[5] ); // unused in wood leagues
-				final abilityCooldown = Std.parseInt( inputs[6] ); // unused in wood leagues
+				final typeId = inputs[4]; // ROCK PAPER SCISSORS
+				final speedTurnsLeft = Std.parseInt( inputs[5] );
+				final abilityCooldown = Std.parseInt( inputs[6] );
 
 				var pacs = mine ? myPacs : enemyPacs;
 				if( !pacs.exists( pacId )) {
-					final pac = new Pac( pacId, grid );
+					final pac = new Pac( pacId, grid, x, y );
 					pacs.set( pacId, pac );
 				}
 				pacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
@@ -73,7 +73,7 @@ class Main {
 				switch cell {
 					case Unknown:
 						// CodinGame.printErr( 'set $x $y Food($value)' );
-						grid.setCell2d( x, y, Food( value ));
+						grid.setCell2d( x, y, value == 1 ? Food : Superfood );
 					default: // no-op
 				}
 			}
@@ -94,9 +94,11 @@ class Main {
 		
 			for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
 			for( pac in myPacs ) pac.addPellets();
-			CodinGame.print( myPacs.map( pac -> pac.move()).join( "|" ));     // MOVE <pacId> <x> <y>
+			for( pac in myPacs ) pac.navigate();
+			CodinGame.print( myPacs.map( pac -> pac.go()).join( "|" ));     // MOVE <pacId> <x> <y>
 		
-			// CodinGame.print( myPacs[0].move());
+			// CodinGame.printErr( "Standard Output" );
+			// CodinGame.print( myPacs[0].go());
 		}
 	}
 
