@@ -14,7 +14,11 @@ extern class CodinGame
 //*/
 class CodinGame
 {
-	#if js
+	#if nodejs
+	static public function print(output:Dynamic):Void { trace(output); }
+	static public function printErr(output:Dynamic):Void { trace(output); }
+	static public inline function readline():String { return ""; }
+	#elseif js
 	static public function print(output:Dynamic):Void { untyped __js__('print(output)'); }
 	static public function printErr(output:Dynamic):Void { untyped __js__('printErr(output)'); }
 	static public inline function readline():String { return untyped __js__('readline()'); }

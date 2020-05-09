@@ -10,7 +10,7 @@ class TestGrid extends buddy.BuddySuite {
 	public function new() {
 		
 		describe( "Test getVisibleCellIds", {
-			
+
 			it( "test horizontal middle", {
 				// Main.getLetterWeights( "a" ).get( 'a' ).length.should.be( 1 );
 				final lines = ["####", "#  #", "####"];

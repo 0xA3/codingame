@@ -1,3 +1,5 @@
+import astar.Graph;
+
 class Grid {
 	
 	final width:Int;
@@ -5,14 +7,19 @@ class Grid {
 	final height:Int;
 	final floors:Array<Bool>;
 	public final cells:Array<Cell>;
+	final distances:Map<String, Float> = [];
+
 	public final superPellets:Array<Int> = [];
 
-	public function new( width:Int, height:Int, floors:Array<Bool>, cells:Array<Cell> ) {
+	final graph:Graph;
+
+	public function new( width:Int, height:Int, floors:Array<Bool>, cells:Array<Cell>, graph:Graph ) {
 		this.width = width;
 		widthHalf = Std.int( width / 2 );
 		this.height = height;
 		this.floors = floors;
 		this.cells = cells;
+		this.graph = graph;
 	}
 
 	public function getVisibleCellIds( pacX:Int, pacY:Int ) {
@@ -47,6 +54,21 @@ class Grid {
 			else break;
 		}
 		return visibleCellIds;
+	}
+
+	public function getDistance( from:Int, to:Int ) {
+		final s = '${from}_${to}';
+		if( distances.exists( s )) return distances[s];
+		final startX = getCellX( from );
+		final startY = getCellY( from );
+		final endX = getCellX( to );
+		final endY = getCellY( to );
+		final result = graph.solve( startX, startY, endX, endY );
+		if( result.result == Solved ) {
+			distances.set( '${from}_${to}', result.cost );
+			distances.set( '${to}_${from}', result.cost );
+		}
+		return result.cost;
 	}
 
 	public inline function checkFloor2d( x:Int, y:Int ) {
