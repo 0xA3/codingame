@@ -51,6 +51,7 @@ class Main {
 				pacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
 			}
 
+			for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
 
 			final visibleCellIds = myPacs.flatMap( pac -> pac.getVisibleCellIds());
 			final nonEmptyVisibleCellIds = visibleCellIds.filter( cellId -> grid.getCell( cellId ) != Empty );
@@ -92,9 +93,10 @@ class Main {
 			// Write an action using console.log()
 			// To debug: console.error( 'Debug messages...' );
 		
-			for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
 			for( pac in myPacs ) pac.addPellets();
-			for( pac in myPacs ) pac.navigate();
+			final sortedPacs = Lambda.array( myPacs );
+			sortedPacs.sort( Pac.sortByPelletPriority );
+			for( pac in sortedPacs ) pac.navigate();
 			CodinGame.print( myPacs.map( pac -> pac.go()).join( "|" ));     // MOVE <pacId> <x> <y>
 		
 			// CodinGame.printErr( "Standard Output" );

@@ -18,6 +18,7 @@ class Pac {
 	var targetX:Int;
 	var targetY:Int;
 	var targetCellType:Cell;
+	public var pelletPriority:Float;
 
 	public var isVisible = true;
 
@@ -46,7 +47,7 @@ class Pac {
 			}
 		);
 		// if( id == 0 ) CodinGame.printErr( 'reset Cell $targetX $targetY to ${CellPrint.print( grid.getCell2d(targetX, targetY))}' );
-		
+		isVisible = false;
 		pellets.splice( 0, pellets.length ); // clear pellets
 	}
 
@@ -68,11 +69,17 @@ class Pac {
 			final xp = grid.getCellX( i );
 			final yp = grid.getCellY( i );
 			switch grid.getCell( i )  {
-				case Unknown | Food : pellets.push({ x: xp, y: yp, value: 1, distance: getDistance2( xp, yp ) });
-				case Superfood: pellets.push({ x: xp, y: yp, value: 10, distance: getDistance2( xp, yp ) });
+				case Unknown | Food:
+					final distance = getDistance2( xp, yp );
+					pellets.push({ x: xp, y: yp, value: 1, distance: distance, priority: distance });
+				case Superfood:
+					final distance = getDistance2( xp, yp );
+					pellets.push({ x: xp, y: yp, value: 10, distance: getDistance2( xp, yp ), priority: distance / 100 });
 				default: // no-op;
 			}
 		}
+		pellets.sort( sortPelletPriorites );
+		pelletPriority = pellets.length > 0 ? pellets[0].priority : 0;
 	}
 
 	public function navigate() {
@@ -80,7 +87,6 @@ class Pac {
 			targetX = x;
 			targetY = y;
 		} else {
-			pellets.sort( sortPelletDistances );
 			for( pellet in pellets ) {
 				final target = grid.getCell2d( pellet.x, pellet.y );
 				switch target {
@@ -99,11 +105,18 @@ class Pac {
 
 	public function go() {
 		return 'MOVE $id $targetX $targetY Go_${targetX}_${targetY}';
+		// return 'MOVE $id $targetX $targetY ${NAMES[id]}';
 	}
 
 	public function sortPelletDistances( p1:Pellet, p2:Pellet ) {
 		if( p1.distance > p2.distance ) return 1;
 		if( p1.distance < p2.distance ) return -1;
+		return 0;
+	}
+
+	public function sortPelletPriorites( p1:Pellet, p2:Pellet ) {
+		if( p1.priority > p2.priority ) return 1;
+		if( p1.priority < p2.priority ) return -1;
 		return 0;
 	}
 
@@ -121,6 +134,12 @@ class Pac {
 		return dx * dx + dy * dy;
 	}
 
+	public static function sortByPelletPriority( p1:Pac, p2:Pac ) {
+		if( p1.pelletPriority > p2.pelletPriority ) return 1;
+		if( p1.pelletPriority < p2.pelletPriority ) return -1;
+		return 0;
+	}
+
 }
 
 typedef Pellet = {
@@ -128,4 +147,5 @@ typedef Pellet = {
 	final y:Int;
 	final value:Float;
 	final distance:Float;
+	final priority:Float;
 }
