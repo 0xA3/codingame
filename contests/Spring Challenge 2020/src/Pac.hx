@@ -1,4 +1,11 @@
-import Cell.CellPrint;
+import Cell;
+
+enum abstract TPac(Int) {
+	var Stop;
+	var Move;
+	var Speedup;
+	var Switch;
+}
 
 class Pac {
 
@@ -11,15 +18,17 @@ class Pac {
 
 	var x:Int;
 	var y:Int;
+	var positionIndex:Int;
 	var typeId:String;
 	var speedTurnsLeft:Int;
 	var abilityCooldown:Int;
 
 	var targetX:Int;
 	var targetY:Int;
-	var targetCellType:Cell;
-	var collisions:Int = 0;
+	var targetCellType:Cell = Unknown;
+	var collisions = 0;
 	public var pelletPriority:Float;
+	var state:TPac = Stop;
 
 	public var isVisible = true;
 
@@ -55,47 +64,70 @@ class Pac {
 	}
 
 	public function update( x:Int, y:Int, typeId:String, speedTurnsLeft:Int, abilityCooldown:Int ) {
-		if(( this.x == x && this.y == y ) && ( targetX != x || targetY != y )) {
+		if( state == Move && this.x == x && this.y == y ) {
 			collisions++;
+			CodinGame.printErr( 'collisions $collisions' );
 		} else {
 			collisions = 0;
 		}
 		// CodinGame.printErr( 'id $id collisions $collisions' );
 		this.x = x;
 		this.y = y;
+		positionIndex = grid.getCellIndex( x, y );
 		this.typeId = typeId;
 		this.speedTurnsLeft = speedTurnsLeft;
 		this.abilityCooldown = abilityCooldown;
 		
 		isVisible = true;
-		grid.setCell2d( x, y, Empty );
+		grid.setCell( positionIndex, Empty );
 		// CodinGame.printErr( 'update setEmpty $x $y' );
 		// if( id == 0 ) CodinGame.printErr( '$id update x $x y $y' );
 		// CodinGame.printErr( '$id speed $speedTurnsLeft cooldown $abilityCooldown' );
 	}
 
-	public function addPellets() {
-		final positionIndex = grid.getCellId( x, y );
-		for( i in 0...grid.cells.length ) {
-			final xp = grid.getCellX( i );
-			final yp = grid.getCellY( i );
-			switch grid.getCell( i )  {
-				case Unknown | Food:
-					// final distance = getDistance2( xp, yp );
-					final distance = grid.getDistance( positionIndex, i );
-					pellets.push({ x: xp, y: yp, value: 1, distance: distance, priority: distance });
-				case Superfood:
-					// final distance = getDistance2( xp, yp );
-					// pellets.push({ x: xp, y: yp, value: 10, distance: distance, priority: distance / 100 });
-					final distance = grid.getDistance( positionIndex, i );
-					pellets.push({ x: xp, y: yp, value: 10, distance: distance, priority: distance / 10 });
-				default: // no-op;
-			}
+	public function addPelletsAroundPosition( maxPellets:Int ) {
+		for( r in 1...grid.widthHalf + 1 ) {
+			final cTop = y - r;
+			final cLeft = x - r;
+			final cBottom = y + r;
+			final cRight = x + r;
+			if( pellets.length > maxPellets ) break;
+
+			final rTop = Std.int( Math.max( 0, cTop ));
+			final rLeft = ( grid.width + cLeft ) % grid.width;
+			final rBottom = Std.int( Math.min( grid.height - 1, cBottom ));
+			final rRight = cRight % grid.width;
+
+			for( yp in rTop...rBottom ) addPellet( rLeft, yp );
+			if( rBottom == cBottom ) for( xp in rLeft...rRight ) addPellet( xp, rBottom );
+			for( yp in -rBottom...-rTop ) addPellet( rRight, -yp );
+			if( rTop == cTop ) for( xp in -rRight...-rLeft ) addPellet( -xp, rTop );
+
 		}
 		pellets.sort( sortPelletPriorites );
 		pelletPriority = pellets.length > 0 ? pellets[0].priority : 99999;
-		// CodinGame.printErr( 'id $id pellet ${pellets[0].x} ${pellets[0].y}' );
+		// CodinGame.printErr( 'id $id pellet0 ${pellets[0].x} ${pellets[0].y}' );
 		// if( id == 0 ) CodinGame.printErr( 'id $id 1 1 ${CellPrint.print( grid.getCell2d( 1, 1 ))}' );
+	}
+
+	function addPellet( xp:Int, yp:Int ) {
+		switch grid.getCell2d( xp, yp ) {
+			case Unknown | Food:
+				final distance = grid.getDistance( positionIndex, grid.getCellIndex( xp, yp ));
+				// if( id == 3 ) CodinGame.printErr( '$id addPellet [$xp $yp]  $distance' );
+				pellets.push({ x: xp, y: yp, value: 1, distance: distance, priority: distance });
+			default: // no-op;
+		}
+	}
+
+	public function addSuperPellets( superPellets:Map<Int, Bool> ) {
+		for( pelletPositionIndex in superPellets.keys()) {
+			final distance = grid.getDistance( positionIndex, pelletPositionIndex );
+			final xp = grid.getCellX( pelletPositionIndex );
+			final yp = grid.getCellY( pelletPositionIndex );
+			pellets.push({ x: xp, y: yp, value: 10, distance: distance, priority: distance / 20 });
+			// if( id == 3 ) CodinGame.printErr( '$id addSuperPellets [$xp $yp]   ${distance / 20}' );
+		}
 	}
 
 	public function navigate() {
@@ -121,13 +153,18 @@ class Pac {
 			}
 		}
 		targetCellType = grid.getCell2d( targetX, targetY );
-		// CodinGame.printErr( '$id get targetCellType $targetX $targetY ${CellPrint.print( targetCellType )}' );
+		// CodinGame.printErr( '$id target $targetX $targetY ${CellPrint.print( targetCellType )}' );
 		grid.setCell2d( targetX, targetY, TargetFriend );
 		// CodinGame.printErr( '$id navigate setCell target $targetX $targetY TargetFriend' );
 	}
 
 	public function go() {
-		// if( abilityCooldown == 0 ) return 'SPEED $id';
+		if( abilityCooldown == 0 ) {
+			state = Speedup;
+			return 'SPEED $id ${targetX}_${targetY}';
+		}
+		
+		state = Move;
 		return 'MOVE $id $targetX $targetY ${targetX}_${targetY}';
 		// return 'MOVE $id $targetX $targetY ${NAMES[id]}';
 	}
@@ -144,19 +181,19 @@ class Pac {
 		return 0;
 	}
 
-	public function getVisibleCellIds() {
-		return grid.getVisibleCellIds( x, y );
+	public function getVisibleCellIndices() {
+		return grid.getVisibleCellIndices( x, y );
 	}
 
-	inline function getDistance( xp:Int, yp:Int ) {
-		return Math.sqrt( getDistance2( xp, yp ));
-	}
+	// inline function getDistance( xp:Int, yp:Int ) {
+	// 	return Math.sqrt( getDistance2( xp, yp ));
+	// }
 
-	inline function getDistance2( xp:Int, yp:Int ) {
-		final dx = xp - x;
-		final dy = yp - y;
-		return dx * dx + dy * dy;
-	}
+	// inline function getDistance2( xp:Int, yp:Int ) {
+	// 	final dx = xp - x;
+	// 	final dy = yp - y;
+	// 	return dx * dx + dy * dy;
+	// }
 
 	public static function sortByPelletPriority( p1:Pac, p2:Pac ) {
 		if( p1.pelletPriority > p2.pelletPriority ) return 1;

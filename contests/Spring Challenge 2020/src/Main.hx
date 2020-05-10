@@ -56,7 +56,7 @@ class Main {
 
 			for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
 
-			final visibleCellIds = myPacs.flatMap( pac -> pac.getVisibleCellIds());
+			final visibleCellIds = myPacs.flatMap( pac -> pac.getVisibleCellIndices());
 			final nonEmptyVisibleCellIds = visibleCellIds.filter( cellId -> grid.getCell( cellId ) != Empty );
 			// for( cellId in nonEmptyVisibleCellIds ) {
 			// 	if( grid.getCellY( cellId ) == 3 ) {
@@ -75,7 +75,7 @@ class Main {
 				final value = Std.parseInt( inputs[2] ); // amount of points this pellet is worth
 				
 				// if(frame >= 9 && frame < 15 ) CodinGame.printErr( 'visible pellet $x $y' );
-				pelletBuffer[grid.getCellId( x, y )] = true;
+				pelletBuffer[grid.getCellIndex( x, y )] = true;
 				final cell = grid.getCell2d( x, y );
 				switch cell {
 					case Unknown:
@@ -90,11 +90,12 @@ class Main {
 			for( id in superPellets.keys() ) {
 				if( !superPellets.get( id )) {
 					grid.setCell( id, Empty );
+					superPellets.remove( id );
 					// CodinGame.printErr( 'remove superPellet ${grid.getCellX( id )} ${grid.getCellY( id )} Empty' );
 				}
 			}
 			
-			// final id1 = grid.getCellId( 1, 1 );
+			// final id1 = grid.getCellIndex( 1, 1 );
 			// clear empty cells
 			for( cellId in nonEmptyVisibleCellIds ) {
 				// CodinGame.printErr( 'cell ${grid.getCellX( cellId )} ${grid.getCellY( cellId )} ${pelletBuffer[cellId]}' );
@@ -108,7 +109,10 @@ class Main {
 			// Write an action using console.log()
 			// To debug: console.error( 'Debug messages...' );
 		
-			for( pac in myPacs ) pac.addPellets();
+			for( pac in myPacs ) {
+				pac.addSuperPellets( superPellets );
+				pac.addPelletsAroundPosition( 10 );
+			}
 			final sortedPacs = Lambda.array( myPacs );
 			sortedPacs.sort( Pac.sortByPelletPriority );
 			for( pac in sortedPacs ) pac.navigate();

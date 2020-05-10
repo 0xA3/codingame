@@ -37,7 +37,7 @@ class TestGridFactory extends buddy.BuddySuite {
 				final lines = ["####", "#  #", "####"];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
 				grid.getCell2d( 1, 1 ).should.be( Unknown );
-				// trace( grid.getDistance( grid.getCellId( 1, 1 ), grid.getDistance( 2, 1 )));
+				// trace( grid.getDistance( grid.getCellIndex( 1, 1 ), grid.getDistance( 2, 1 )));
 			});
  @include			
 			it( "test grid", {

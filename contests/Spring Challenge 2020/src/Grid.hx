@@ -2,9 +2,9 @@ import astar.Graph;
 
 class Grid {
 	
-	final width:Int;
-	final widthHalf:Int;
-	final height:Int;
+	public final width:Int;
+	public final widthHalf:Int;
+	public final height:Int;
 	final floors:Array<Bool>;
 	public final cells:Array<Cell>;
 	final distances:Map<String, Float> = [];
@@ -22,35 +22,35 @@ class Grid {
 		this.graph = graph;
 	}
 
-	public function getVisibleCellIds( pacX:Int, pacY:Int ) {
+	public function getVisibleCellIndices( pacX:Int, pacY:Int ) {
 		
 		final visibleCellIds:Array<Int> = [];
 		// go left
 		for( dx in 1...widthHalf + 1 ) {
 			final x = ( width + pacX - dx ) % width;
 			// trace( "left", x, pacY, checkFloor2d( x, pacY ));
-			if( checkFloor2d( x, pacY )) visibleCellIds.push( getCellId( x, pacY ));
+			if( checkFloor2d( x, pacY )) visibleCellIds.push( getCellIndex( x, pacY ));
 			else break;
 		}
 		// go right
 		for( dx in 1...widthHalf + 1 ) {
 			final x = ( pacX + dx ) % width;
 			// trace( "right", x, pacY, checkFloor2d( x, pacY ));
-			if( checkFloor2d( x, pacY )) visibleCellIds.push( getCellId( x, pacY ));
+			if( checkFloor2d( x, pacY )) visibleCellIds.push( getCellIndex( x, pacY ));
 			else break;
 		}
 		// go up
 		for( dy in 1...height ) {
 			final y = pacY - dy;
 			// trace( "up", pacX, y, checkFloor2d( pacX, y ));
-			if( checkFloor2d( pacX, y )) visibleCellIds.push( getCellId( pacX, y ));
+			if( checkFloor2d( pacX, y )) visibleCellIds.push( getCellIndex( pacX, y ));
 			else break;
 		}
 		// go down
 		for( dy in 1...height ) {
 			final y = pacY + dy;
 			// trace( "down", pacX, y, checkFloor2d( pacX, y ));
-			if( checkFloor2d( pacX, y )) visibleCellIds.push( getCellId( pacX, y ));
+			if( checkFloor2d( pacX, y )) visibleCellIds.push( getCellIndex( pacX, y ));
 			else break;
 		}
 		return visibleCellIds;
@@ -72,7 +72,7 @@ class Grid {
 	}
 
 	public inline function checkFloor2d( x:Int, y:Int ) {
-		return floors[getCellId( x, y )];
+		return floors[getCellIndex( x, y )];
 	}
 
 	public inline function getCell( id:Int ) {
@@ -80,7 +80,7 @@ class Grid {
 	}
 
 	public inline function getCell2d( x:Int, y:Int ) {
-		return cells[getCellId( x, y )];
+		return cells[getCellIndex( x, y )];
 	}
 
 	public function setCell( id:Int, value:Cell ) {
@@ -91,7 +91,7 @@ class Grid {
 		cells[y * width + x] = value;
 	}
 
-	public inline function getCellId( x:Int, y:Int ) {
+	public inline function getCellIndex( x:Int, y:Int ) {
 		return y * width + x;
 	}
 
