@@ -1,9 +1,13 @@
 
+import Pac.PacType;
+import Pac.PacFaction;
 import haxe.ds.Vector;
 using Lambda;
 
 class Main {
 	
+	public static var frame = 0;
+
 	static function main() {
 		
 		/**
@@ -23,14 +27,22 @@ class Main {
 		final enemyPacs:Map<Int, Pac> = [];
 		final superPellets:Map<Int, Bool> = [];
 
-		var frame = 0;
 		// game loop
 		while( true ) {
 			frame++;
 			// CodinGame.printErr( 'frame $frame' );
+			
+			////////////////////////////////////////////////////////////////////////////////////////
+			// Cleanup
+
+
 			for( pac in myPacs ) pac.cleanUp();
 			for( key in superPellets.keys()) superPellets.set( key, false );
-			// for( pac in enemyPacs ) pac.cleanUp();
+			for( pac in enemyPacs ) pac.cleanUp();
+
+			////////////////////////////////////////////////////////////////////////////////////////
+			// Update
+
 
 			var inputs = CodinGame.readline().split(' ');
 			final myScore = Std.parseInt( inputs[0] );
@@ -39,33 +51,36 @@ class Main {
 			for( _ in 0...visiblePacCount ) {
 				var inputs = CodinGame.readline().split( ' ' );
 				final pacId = Std.parseInt( inputs[0] ); // pac number( unique within a team )
-				final mine = inputs[1] != '0'; // true if this pac is yours
+				final faction:PacFaction = inputs[1] != '0' ? Me : Enemy; // true if this pac is yours
 				final x = Std.parseInt( inputs[2] ); // position in the grid
 				final y = Std.parseInt( inputs[3] ); // position in the grid
-				final typeId = inputs[4]; // ROCK PAPER SCISSORS
+				final typeId:PacType = switch inputs[4]{
+					case "ROCK": ROCK;
+					case "PAPER": PAPER;
+					default: SCISSORS;
+				}; // ROCK PAPER SCISSORS
 				final speedTurnsLeft = Std.parseInt( inputs[5] );
 				final abilityCooldown = Std.parseInt( inputs[6] );
 
-				var pacs = mine ? myPacs : enemyPacs;
+				var pacs = faction == Me ? myPacs : enemyPacs;
 				if( !pacs.exists( pacId )) {
-					final pac = new Pac( pacId, grid, x, y );
+					final pac = new Pac( pacId, faction, grid, x, y );
 					pacs.set( pacId, pac );
 				}
 				pacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
 			}
 
+			
+			// remove dead pacs
 			for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
-
 			final visibleCellIds = myPacs.flatMap( pac -> pac.getVisibleCellIndices());
 			final nonEmptyVisibleCellIds = visibleCellIds.filter( cellId -> grid.getCell( cellId ) != Empty );
-			// for( cellId in nonEmptyVisibleCellIds ) {
-			// 	if( grid.getCellY( cellId ) == 3 ) {
-			// 		CodinGame.printErr( 'nonEmptyVisible ${grid.getCellX( cellId )} ${grid.getCellY( cellId )}' );
-			// 	}
-			// }
-			// if( frame == 9 ) for( cellId in visibleCellIds ) CodinGame.printErr( 'visible ${grid.getCellX( cellId )} ${grid.getCellY( cellId )}' );
-
 			
+			
+			////////////////////////////////////////////////////////////////////////////////////////
+			// Pellets
+
+
 			for( i in 0...pelletBuffer.length ) pelletBuffer[i] = false;
 			final visiblePelletCount = Std.parseInt( CodinGame.readline()); // all pellets in sight
 			for( i in 0...visiblePelletCount ) {
@@ -91,11 +106,9 @@ class Main {
 				if( !superPellets.get( id )) {
 					grid.setCell( id, Empty );
 					superPellets.remove( id );
-					// CodinGame.printErr( 'remove superPellet ${grid.getCellX( id )} ${grid.getCellY( id )} Empty' );
 				}
 			}
 			
-			// final id1 = grid.getCellIndex( 1, 1 );
 			// clear empty cells
 			for( cellId in nonEmptyVisibleCellIds ) {
 				// CodinGame.printErr( 'cell ${grid.getCellX( cellId )} ${grid.getCellY( cellId )} ${pelletBuffer[cellId]}' );
@@ -106,16 +119,21 @@ class Main {
 			}
 
 			// CodinGame.printErr( grid.toString() );
-			// Write an action using console.log()
-			// To debug: console.error( 'Debug messages...' );
-		
+			
+			
+			////////////////////////////////////////////////////////////////////////////////////////
+			// Navigation
+			
+			for( pac in enemyPacs ) if( pac.isVisible ) pac.placeInGrid();
 			for( pac in myPacs ) {
+				pac.placeInGrid();
 				pac.addSuperPellets( superPellets );
-				pac.addPelletsAroundPosition( 10 );
+				pac.addTargetsAroundPosition( 64 );
 			}
 			final sortedPacs = Lambda.array( myPacs );
 			sortedPacs.sort( Pac.sortByPelletPriority );
 			for( pac in sortedPacs ) pac.navigate();
+			
 			CodinGame.print( myPacs.map( pac -> pac.go()).join( "|" ));     // MOVE <pacId> <x> <y>
 		
 			// CodinGame.printErr( "Standard Output" );
