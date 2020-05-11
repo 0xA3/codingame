@@ -7,7 +7,6 @@ class Grid {
 	public final height:Int;
 	final floors:Array<Bool>;
 	public final cells:Array<Cell>;
-	final distances:Map<String, Float> = [];
 
 	public final superPellets:Array<Int> = [];
 
@@ -56,19 +55,52 @@ class Grid {
 		return visibleCellIds;
 	}
 
-	public function getDistance( from:Int, to:Int ) {
+	public function getPath( from:Int, to:Int ) {
 		final s = '${from}_${to}';
-		if( distances.exists( s )) return distances[s];
 		final startX = getCellX( from );
 		final startY = getCellY( from );
 		final endX = getCellX( to );
 		final endY = getCellY( to );
 		final result = graph.solve( startX, startY, endX, endY );
-		if( result.result == Solved ) {
-			distances.set( '${from}_${to}', result.cost );
-			distances.set( '${to}_${from}', result.cost );
+		return result;
+	}
+
+	public function getPossibleDestinations( x:Int, y:Int, speed:Bool ) {
+		
+		final directions:Array<Int> = [getCellIndex( x, y )];
+		final rto = speed ? 2 : 1;
+		for( r in 1...rto + 1 ) {
+			final cTop = y - r;
+			final cLeft = x - r;
+			final cBottom = y + r;
+			final cRight = x + r;
+
+			final rTop = Std.int( Math.max( 0, cTop ));
+			final rBottom = Std.int( Math.min( height - 1, cBottom ));
+
+			// if( x == 31 && y == 4 ) CodinGame.printErr( 'top $cTop left $cLeft bottom $cBottom right $cRight' );
+
+			final rLeft = ( width + cLeft ) % width;
+			for( yp in rTop...rBottom ) directions.push( getCellIndex( rLeft, yp ));
+			
+			if( rBottom == cBottom ) for( xp in cLeft...cRight ) {
+				final rp = ( width + xp ) % width;
+				directions.push( getCellIndex( rp, rBottom ));
+			}
+			
+			final rRight = cRight % width;
+			for( yp in -rBottom...-rTop ) directions.push( getCellIndex( rRight, -yp ));
+			
+			if( rTop == cTop ) for( xp in -cRight...-cLeft ) {
+				final rp = ( width - xp ) % width;
+				// if( x == 31 && y == 4 ) CodinGame.printErr( 'xp $xp -cRight ${-cRight} -cLeft ${-cLeft} rp $rp' );
+				directions.push( getCellIndex( rp, rTop ));
+			}
+
 		}
-		return result.cost;
+		directions.sort((a, b) -> a - b );
+		final possibleDirections = directions.filter( index -> floors[index] );
+		return possibleDirections;
 	}
 
 	public inline function checkFloor2d( x:Int, y:Int ) {
@@ -92,6 +124,10 @@ class Grid {
 	}
 
 	public inline function getCellIndex( x:Int, y:Int ) {
+		// if( x < 0 ) throw 'Error x $x';
+		// if( x >= width ) throw 'Error x $x';
+		// if( y < 0 ) throw 'Error y $y';
+		// if( y >= height ) throw 'Error y $y';
 		return y * width + x;
 	}
 
@@ -105,6 +141,10 @@ class Grid {
 
 	public function toString() {
 		return 'width $width, height $height, cells $cells';
+	}
+
+	public function cellIndexToString( index:Int ) {
+		return '${getCellX( index )}:${getCellY( index )}';
 	}
 
 }

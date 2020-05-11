@@ -18,7 +18,7 @@ class Main {
 		final width = Std.parseInt( inputs[0] ); // size of the grid
 		final height = Std.parseInt( inputs[1] ); // top left corner is( x=0, y=0 )
 		final lines = [for( _ in 0...height ) CodinGame.readline()];
-		// CodinGame.printErr( lines );
+		// CodinGame.printErr( 'width $width' );
 
 		final grid = GridFactory.createGrid( width, height, lines );
 		final pelletBuffer = new Vector<Bool>( width * height );
@@ -29,7 +29,6 @@ class Main {
 
 		// game loop
 		while( true ) {
-			frame++;
 			// CodinGame.printErr( 'frame $frame' );
 			
 			////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +41,6 @@ class Main {
 
 			////////////////////////////////////////////////////////////////////////////////////////
 			// Update
-
 
 			var inputs = CodinGame.readline().split(' ');
 			final myScore = Std.parseInt( inputs[0] );
@@ -129,6 +127,7 @@ class Main {
 				pac.placeInGrid();
 				pac.addSuperPellets( superPellets );
 				pac.addTargetsAroundPosition( 64 );
+				pac.addEnemies( enemyPacs );
 			}
 			
 			final pacs = Lambda.array( myPacs );
@@ -139,6 +138,7 @@ class Main {
 		
 			// CodinGame.printErr( "Standard Output" );
 			// CodinGame.print( myPacs[0].go());
+			frame++;
 		}
 	}
 
