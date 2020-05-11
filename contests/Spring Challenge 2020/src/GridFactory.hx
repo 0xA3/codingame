@@ -13,7 +13,7 @@ class GridFactory {
 		final floors = lines.map( line -> line.split("").map( cell -> cell == " " ? true : false )).flatten();
 		
 		final movementDirection = FourWay;
-		final graph = new Graph( width, height, movementDirection );
+		final graph = new Graph( width, height, movementDirection, true );
 		final worldMap = floors.map( b -> b ? 0 : 1 );
 		final costs = [0 => [ N => 1., S => 1., W => 1., E => 1. ]];
 		

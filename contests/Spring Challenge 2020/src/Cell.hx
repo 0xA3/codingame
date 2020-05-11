@@ -4,7 +4,7 @@ enum Cell {
 	Empty;
 	Food;
 	Superfood;
-	Enemy( enemyPac:Pac );
+	EnemyPac( enemyPac:Pac );
 	MyPac;
 	MyDestination;
 }

@@ -73,8 +73,8 @@ class Main {
 			
 			// remove dead pacs
 			for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
-			final visibleCellIds = myPacs.flatMap( pac -> pac.getVisibleCellIndices());
-			final nonEmptyVisibleCellIds = visibleCellIds.filter( cellId -> grid.getCell( cellId ) != Empty );
+			final visibleCellIndices = myPacs.flatMap( pac -> pac.getVisibleCellIndices());
+			final nonEmptyVisibleCellIds = visibleCellIndices.filter( cellId -> grid.getCell( cellId ) != Empty );
 			
 			
 			////////////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ class Main {
 				pac.addTargetsAroundPosition( 64 );
 			}
 			final sortedPacs = Lambda.array( myPacs );
-			sortedPacs.sort( Pac.sortByPelletPriority );
+			sortedPacs.sort( Pac.sortByFirstTargetPriority );
 			for( pac in sortedPacs ) pac.navigate();
 			
 			CodinGame.print( myPacs.map( pac -> pac.go()).join( "|" ));     // MOVE <pacId> <x> <y>

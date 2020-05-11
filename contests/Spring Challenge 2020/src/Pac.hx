@@ -20,11 +20,20 @@ enum abstract PacType(String) {
 
 class Pac {
 
+	public static inline var MAX_IMPORTANCE = 20;
+	
+	public static inline var IMPORTANCE_FOOD = 1			/ MAX_IMPORTANCE;
+	public static inline var IMPORTANCE_SUPERFOOD = 20		/ MAX_IMPORTANCE;
+	public static inline var IMPORTANCE_ENEMY = 10			/ MAX_IMPORTANCE;
+
 	public static final STRENGTHS:Map<PacType, Map<PacType, Int>> = [
 		ROCK => [ ROCK => 0, PAPER => -1, SCISSORS => 1 ],
 		PAPER => [ ROCK => 1, PAPER => 0, SCISSORS => -1 ],
 		SCISSORS => [ ROCK => -1, PAPER => 1, SCISSORS => 0 ]
 	];
+	
+	public static final BEAT_TYPE = [ROCK => PAPER, PAPER => SCISSORS, SCISSORS => ROCK];
+
 	public static final NAMES = ["0tto", "1ngmar", "2om", "3ddie", "4ictor"];
 
 	public final id:Int;
@@ -36,19 +45,25 @@ class Pac {
 	var y:Int;
 	var positionIndex:Int;
 	public var type:PacType;
+	var nextType:PacType;
 	var speedTurnsLeft:Int;
 	var abilityCooldown:Int;
 
+	var destinationCellType:Cell = Unknown;
 	var destinationX:Int;
 	var destinationY:Int;
-	var destinationCellType:Cell = Unknown;
+	public var vx = 0;
+	public var vy = 0;
+	
 	var collisions = 0;
-	public var pelletPriority:Float;
+	public var firstTargetPriority:Float;
 	var state:TPac = Stop;
 
 	public var isVisible = true;
 
 	final targets:Array<Target> = [];
+
+	var visibleCellIndices:Array<Int> = [];
 
 	public function new( id:Int, faction:PacFaction, grid:Grid, x:Int, y:Int ) {
 		this.id = id;
@@ -74,28 +89,37 @@ class Pac {
 	}
 
 	public function update( x:Int, y:Int, type:PacType, speedTurnsLeft:Int, abilityCooldown:Int ) {
-		if( state == Move && this.x == x && this.y == y ) {
-			collisions++;
-			// CodinGame.printErr( 'collisions $collisions' );
-		} else {
-			collisions = 0;
-		}
+		collisions = ( state == Move && this.x == x && this.y == y ) ? collisions + 1 : 0;
+		vx = x - this.x;
+		vy = y - this.y;
 		// CodinGame.printErr( 'id $id collisions $collisions' );
 		this.x = x;
 		this.y = y;
 		positionIndex = grid.getCellIndex( x, y );
 		this.type = type;
+		nextType = type;
 		this.speedTurnsLeft = speedTurnsLeft;
 		this.abilityCooldown = abilityCooldown;
 		
 		isVisible = true;
+		visibleCellIndices = grid.getVisibleCellIndices( x, y );
 		// CodinGame.printErr( 'update setEmpty $x $y' );
 		// if( id == 0 ) CodinGame.printErr( '$id update x $x y $y' );
 		// CodinGame.printErr( '$id speed $speedTurnsLeft cooldown $abilityCooldown' );
 	}
 
 	public function placeInGrid() {
-		grid.setCell( positionIndex, faction == Me ? MyPac : Enemy( this ));
+		grid.setCell( positionIndex, faction == Me ? MyPac : EnemyPac( this ));
+	}
+
+	public function addSuperPellets( superPellets:Map<Int, Bool> ) {
+		for( pelletPositionIndex in superPellets.keys()) {
+			final distance = grid.getDistance( positionIndex, pelletPositionIndex );
+			final xp = grid.getCellX( pelletPositionIndex );
+			final yp = grid.getCellY( pelletPositionIndex );
+			targets.push({ x: xp, y: yp, value: 10, distance: distance, priority: 1 / distance * IMPORTANCE_SUPERFOOD });
+			// if( id == 3 ) CodinGame.printErr( '$id addSuperPellets [$xp $yp]   ${distance / 20}' );
+		}
 	}
 
 	public function addTargetsAroundPosition( maxTargets:Int ) {
@@ -117,41 +141,46 @@ class Pac {
 			if( rTop == cTop ) for( xp in -rRight...-rLeft ) addTarget( -xp, rTop );
 
 		}
+		
 		targets.sort( sortTargetPriorites );
-		pelletPriority = targets.length > 0 ? targets[0].priority : 99999;
+		firstTargetPriority = targets.length > 0 ? targets[0].priority : 99999;
 		// if( Main.frame > 22 && Main.frame < 30 && id == 1 ) {
 			// for( i in 0...Std.int( Math.min(4, targets.length ))) CodinGame.printErr( targets[i] );
 		// }
-		// CodinGame.printErr( 'id $id pellet0 ${targets[0].x} ${targets[0].y}' );
+		CodinGame.printErr( 'id $id target0 ${targets[0].x} ${targets[0].y} ${targets[0].distance}' );
 		// if( id == 0 ) CodinGame.printErr( 'id $id 1 1 ${CellPrint.print( grid.getCell2d( 1, 1 ))}' );
 	}
 
 	function addTarget( xp:Int, yp:Int ) {
-		switch grid.getCell2d( xp, yp ) {
+		final cell = grid.getCell2d( xp, yp );
+		switch cell {
 			case Unknown | Food:
 				final distance = grid.getDistance( positionIndex, grid.getCellIndex( xp, yp ));
 				// if( xp == 3 && yp == 4 ) CodinGame.printErr( '$id target Food [$xp $yp]  priority $distance' );
-				targets.push({ x: xp, y: yp, value: 1, distance: distance, priority: distance });
-			case Enemy( enemyPac ):
-				final strength = STRENGTHS[this.type][enemyPac.type];
-				if( strength > 0 ) {
-					final distance = grid.getDistance( positionIndex, grid.getCellIndex( xp, yp ));
-					targets.push({ x: xp, y: yp, value: 1, distance: distance, priority: distance / 10 });
-					// CodinGame.printErr( '$id target Enemy ${enemyPac.id} priority ${distance / 10}' );
+				targets.push({ index: grid.getCellIndex( xp, yp ), x: xp, y: yp, value: 1, distance: distance, priority: getPriority( distance, IMPORTANCE_FOOD )});
+			case EnemyPac( enemyPac ):
+				if( iCanSeeCell( xp, yp )) {
+					// CodinGame.printErr( '$id can see enemy ${enemyPac.id}' );
+					final strength = STRENGTHS[this.type][enemyPac.type];
+					// CodinGame.printErr( '$id target Enemy strength $strength' );
+					if( strength > 0 ) {
+						final distance = grid.getDistance( positionIndex, grid.getCellIndex( xp, yp ));
+						targets.push({ index: grid.getCellIndex( xp, yp ), x: xp, y: yp, value: 1, distance: distance, priority: getPriority( distance, IMPORTANCE_ENEMY )});
+						// CodinGame.printErr( '$id target Enemy ${enemyPac.id} priority ${distance / 10}' );
+					} else {
+						// Flight or Switch ?
+						nextType = BEAT_TYPE[type];
+						// CodinGame.printErr( '$id set nextType $nextType' );
+					}
+				// } else {
+					// CodinGame.printErr( '$id can not see enemy ${enemyPac.id}' );
 				}
-
 			default: // no-op;
 		}
 	}
 
-	public function addSuperPellets( superPellets:Map<Int, Bool> ) {
-		for( pelletPositionIndex in superPellets.keys()) {
-			final distance = grid.getDistance( positionIndex, pelletPositionIndex );
-			final xp = grid.getCellX( pelletPositionIndex );
-			final yp = grid.getCellY( pelletPositionIndex );
-			targets.push({ x: xp, y: yp, value: 10, distance: distance, priority: distance / 20 });
-			// if( id == 3 ) CodinGame.printErr( '$id addSuperPellets [$xp $yp]   ${distance / 20}' );
-		}
+	inline function getPriority( distance:Float, importance:Float ) {
+		return 1 / distance * importance;
 	}
 
 	public function navigate() {
@@ -186,35 +215,60 @@ class Pac {
 	}
 
 	public function go() {
+		final dtype = switch destinationCellType {
+			case Unknown: "U";
+			case Food: "F";
+			case Superfood: "S";
+			case EnemyPac(enemyPac): 'E${enemyPac.id}';
+			default: "X";
+		}
+
 		if( abilityCooldown == 0 ) {
-			state = Speedup;
-			return 'SPEED $id ${destinationX}:${destinationY}';
+			// if( nextType != type ) {
+			// 	state = Switch;
+			// 	return 'SWITCH $id $nextType';
+			// } else {
+				state = Speedup;
+				return 'SPEED $id ${destinationX}:${destinationY}$dtype';
+			// }
 		}
 		
 		state = Move;
-		return 'MOVE $id $destinationX $destinationY ${destinationX}:${destinationY}';
+		return 'MOVE $id $destinationX $destinationY ${destinationX}:${destinationY}$dtype';
 		// return 'MOVE $id $destinationX $destinationY ${NAMES[id]}';
 	}
 
 	public function sortTargetPriorites( p1:Target, p2:Target ) {
-		if( p1.priority > p2.priority ) return 1;
-		if( p1.priority < p2.priority ) return -1;
+		if( p1.priority > p2.priority ) return -1;
+		if( p1.priority < p2.priority ) return 1;
 		return 0;
 	}
 
 	public function getVisibleCellIndices() {
-		return grid.getVisibleCellIndices( x, y );
+		return visibleCellIndices;
 	}
 
-	public static function sortByPelletPriority( p1:Pac, p2:Pac ) {
-		if( p1.pelletPriority > p2.pelletPriority ) return 1;
-		if( p1.pelletPriority < p2.pelletPriority ) return -1;
+	function iCanSeeCell( x:Int, y:Int ) {
+		final cellIndex = grid.getCellIndex( x, y );
+		return visibleCellIndices.indexOf( cellIndex ) != -1;
+	}
+
+	// public static function sortByFirstTargetPriority( p1:Pac, p2:Pac ) {
+	// 	if( p1.firstTargetPriority > p2.firstTargetPriority ) return 1;
+	// 	if( p1.firstTargetPriority < p2.firstTargetPriority ) return -1;
+	// 	return 0;
+	// }
+
+	public static function sortByFirstTargetPriority( p1:Pac, p2:Pac ) {
+		if( p1.firstTargetPriority > p2.firstTargetPriority ) return -1;
+		if( p1.firstTargetPriority < p2.firstTargetPriority ) return 1;
 		return 0;
 	}
 
 }
 
 typedef Target = {
+	final index:Int;
 	final x:Int;
 	final y:Int;
 	final value:Float;
