@@ -130,9 +130,10 @@ class Main {
 				pac.addSuperPellets( superPellets );
 				pac.addTargetsAroundPosition( 64 );
 			}
-			final sortedPacs = Lambda.array( myPacs );
-			sortedPacs.sort( Pac.sortByFirstTargetPriority );
-			for( pac in sortedPacs ) pac.navigate();
+			
+			final pacs = Lambda.array( myPacs );
+			DistributeTargets.distribute( pacs );
+			for( pac in pacs ) pac.navigate();
 			
 			CodinGame.print( myPacs.map( pac -> pac.go()).join( "|" ));     // MOVE <pacId> <x> <y>
 		

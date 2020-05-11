@@ -56,12 +56,12 @@ class Pac {
 	public var vy = 0;
 	
 	var collisions = 0;
-	public var firstTargetPriority:Float;
+	// public var firstTargetPriority:Float;
 	var state:TPac = Stop;
 
 	public var isVisible = true;
 
-	final targets:Array<Target> = [];
+	public final targets:Array<Target> = [];
 
 	var visibleCellIndices:Array<Int> = [];
 
@@ -90,9 +90,9 @@ class Pac {
 
 	public function update( x:Int, y:Int, type:PacType, speedTurnsLeft:Int, abilityCooldown:Int ) {
 		collisions = ( state == Move && this.x == x && this.y == y ) ? collisions + 1 : 0;
-		vx = x - this.x;
+		vx = ( grid.width + x - this.x ) % grid.width;
 		vy = y - this.y;
-		// CodinGame.printErr( 'id $id collisions $collisions' );
+		CodinGame.printErr(( faction == Me ? "My" : "Enemy" ) + ' id $id v $vx $vy' );
 		this.x = x;
 		this.y = y;
 		positionIndex = grid.getCellIndex( x, y );
@@ -117,7 +117,7 @@ class Pac {
 			final distance = grid.getDistance( positionIndex, pelletPositionIndex );
 			final xp = grid.getCellX( pelletPositionIndex );
 			final yp = grid.getCellY( pelletPositionIndex );
-			targets.push({ x: xp, y: yp, value: 10, distance: distance, priority: 1 / distance * IMPORTANCE_SUPERFOOD });
+			targets.push({ index: grid.getCellIndex( xp, yp ), x: xp, y: yp, priority: 1 / distance * IMPORTANCE_SUPERFOOD });
 			// if( id == 3 ) CodinGame.printErr( '$id addSuperPellets [$xp $yp]   ${distance / 20}' );
 		}
 	}
@@ -143,11 +143,11 @@ class Pac {
 		}
 		
 		targets.sort( sortTargetPriorites );
-		firstTargetPriority = targets.length > 0 ? targets[0].priority : 99999;
+		// firstTargetPriority = targets.length > 0 ? targets[0].priority : 99999;
 		// if( Main.frame > 22 && Main.frame < 30 && id == 1 ) {
 			// for( i in 0...Std.int( Math.min(4, targets.length ))) CodinGame.printErr( targets[i] );
 		// }
-		CodinGame.printErr( 'id $id target0 ${targets[0].x} ${targets[0].y} ${targets[0].distance}' );
+		// CodinGame.printErr( 'id $id target0 ${targets[0].x} ${targets[0].y} ${targets[0].priority}' );
 		// if( id == 0 ) CodinGame.printErr( 'id $id 1 1 ${CellPrint.print( grid.getCell2d( 1, 1 ))}' );
 	}
 
@@ -157,7 +157,7 @@ class Pac {
 			case Unknown | Food:
 				final distance = grid.getDistance( positionIndex, grid.getCellIndex( xp, yp ));
 				// if( xp == 3 && yp == 4 ) CodinGame.printErr( '$id target Food [$xp $yp]  priority $distance' );
-				targets.push({ index: grid.getCellIndex( xp, yp ), x: xp, y: yp, value: 1, distance: distance, priority: getPriority( distance, IMPORTANCE_FOOD )});
+				targets.push({ index: grid.getCellIndex( xp, yp ), x: xp, y: yp, priority: getPriority( distance, IMPORTANCE_FOOD )});
 			case EnemyPac( enemyPac ):
 				if( iCanSeeCell( xp, yp )) {
 					// CodinGame.printErr( '$id can see enemy ${enemyPac.id}' );
@@ -165,7 +165,7 @@ class Pac {
 					// CodinGame.printErr( '$id target Enemy strength $strength' );
 					if( strength > 0 ) {
 						final distance = grid.getDistance( positionIndex, grid.getCellIndex( xp, yp ));
-						targets.push({ index: grid.getCellIndex( xp, yp ), x: xp, y: yp, value: 1, distance: distance, priority: getPriority( distance, IMPORTANCE_ENEMY )});
+						targets.push({ index: grid.getCellIndex( xp, yp ), x: xp, y: yp, priority: getPriority( distance, IMPORTANCE_ENEMY )});
 						// CodinGame.printErr( '$id target Enemy ${enemyPac.id} priority ${distance / 10}' );
 					} else {
 						// Flight or Switch ?
@@ -253,25 +253,11 @@ class Pac {
 		return visibleCellIndices.indexOf( cellIndex ) != -1;
 	}
 
-	// public static function sortByFirstTargetPriority( p1:Pac, p2:Pac ) {
-	// 	if( p1.firstTargetPriority > p2.firstTargetPriority ) return 1;
-	// 	if( p1.firstTargetPriority < p2.firstTargetPriority ) return -1;
-	// 	return 0;
-	// }
-
-	public static function sortByFirstTargetPriority( p1:Pac, p2:Pac ) {
-		if( p1.firstTargetPriority > p2.firstTargetPriority ) return -1;
-		if( p1.firstTargetPriority < p2.firstTargetPriority ) return 1;
-		return 0;
-	}
-
 }
 
 typedef Target = {
 	final index:Int;
 	final x:Int;
 	final y:Int;
-	final value:Float;
-	final distance:Float;
 	final priority:Float;
 }
