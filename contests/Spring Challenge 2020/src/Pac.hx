@@ -280,7 +280,7 @@ class Pac {
 		}
 
 		var huntDistance = 999.0;
-/*		// attack weaker enemies when the come to me
+		// attack weaker enemies when the come to me
 		for( enemy in weakerEnemies ) {
 			if( !enemy.movesAway ) {
 				final pathToEnemy = enemy.path;
@@ -303,9 +303,9 @@ class Pac {
 				}
 			}
 		}
-*/
+
 		var dangerDistance = 999.0;
-/*		// avoid stronger enemies when the come to me
+		// avoid stronger enemies when the come to me
 		for( enemy in strongerEnemies ) {
 			if( !enemy.movesAway ) {
 				final pathToEnemy = enemy.path;
@@ -330,7 +330,7 @@ class Pac {
 				}
 			}
 		}
-*/
+
 		// for( destinationPriority in destinationPriorities ) destinationPriority.priority /= layers;
 		destinationPriorities.sort( sortDestinationPriorities );
 		// for( d in destinationPriorities ) {
@@ -344,11 +344,11 @@ class Pac {
 		// if( id == 1 ) CodinGame.printErr( '$id hunt $huntDistance danger $dangerDistance cooldown $abilityCooldown speed $speed' );
 		// if( huntDistance > 2 && dangerDistance > 6 && abilityCooldown == 0 ) {
 		// 	state = Speed;
-		// } else if( dangerDistance < 3 && abilityCooldown == 0 ) {
-		// 	state = Switch( TYPESWITCH[type] );
-		// } else {
+		if( dangerDistance < 3 && abilityCooldown == 0 ) {
+			state = Switch( TYPESWITCH[type] );
+		} else {
 			state = Move( destinationPriorities[0].index );
-		// }
+		}
 		
 		// if( id == 0 ) CodinGame.printErr( 'hightest priority index $destinationIndex ${destinationPriorities[0].priority}' );
 
