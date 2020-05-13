@@ -22,7 +22,10 @@ class DistributePellets {
 
 	static function resolvePellets( pacs:Array<Pac> ) {
 		for( i in 1...pacs.length ) {
-			// CodinGame.printErr( 'remove pac ${pacs[i].id} target ${pacs[i].pelletTargets[0].x}:${pacs[i].pelletTargets[0].y}' );
+			
+			// final pelletIndex = pacs[i].pelletTargets[0].index;
+			// CodinGame.printErr( 'remove pac ${pacs[i].id} target $pelletIndex' );
+			
 			pacs[i].pelletTargets.shift();
 		}
 	}

@@ -25,12 +25,10 @@ typedef Neighbor = {
 
 class Pac {
 
-	public static inline var MAX_IMPORTANCE = 30;
-	
-	public static inline var IMPORTANCE_FOOD = 1			/ MAX_IMPORTANCE;
-	public static inline var IMPORTANCE_SUPERFOOD = 20		/ MAX_IMPORTANCE;
-	public static inline var IMPORTANCE_ENEMY = 10			/ MAX_IMPORTANCE;
-	public static inline var IMPORTANCE_EVADE = 30			/ MAX_IMPORTANCE;
+	public static inline var IMPORTANCE_FOOD = 1;
+	public static inline var IMPORTANCE_SUPERFOOD = 9;
+	public static inline var IMPORTANCE_ENEMY = 8.5;
+	public static inline var IMPORTANCE_EVADE = 10;
 
 	public static final STRENGTHS:Map<PacType, Map<PacType, Int>> = [
 		ROCK => [ ROCK => 0, PAPER => -1, SCISSORS => 1 ],
@@ -38,7 +36,8 @@ class Pac {
 		SCISSORS => [ ROCK => -1, PAPER => 1, SCISSORS => 0 ]
 	];
 	
-	public static final BEAT_TYPE = [ROCK => PAPER, PAPER => SCISSORS, SCISSORS => ROCK];
+	// public static final BEAT_TYPE = [ROCK => PAPER, PAPER => SCISSORS, SCISSORS => ROCK];
+	public static final TYPESWITCH = [ROCK => SCISSORS, PAPER => ROCK, SCISSORS => PAPER];
 
 	public static final NAMES = ["0tto", "1ngmar", "2om", "3ddie", "4ictor"];
 
@@ -71,8 +70,8 @@ class Pac {
 	public var isVisible = true;
 
 	public final pelletTargets:Array<PelletTarget> = [];
-	public final strongerEnemies:Array<Pac> = [];
-	public final weakerEnemies:Array<Pac> = [];
+	public final strongerEnemies:Array<Enemy> = [];
+	public final weakerEnemies:Array<Enemy> = [];
 
 	var visibleCellIndices:Array<Int> = [];
 
@@ -141,8 +140,8 @@ class Pac {
 			final cost = path.cost;
 			final xp = grid.getCellX( pelletPositionIndex );
 			final yp = grid.getCellY( pelletPositionIndex );
-			pelletTargets.push({ index: grid.getCellIndex( xp, yp ), path: path, value: 10, priority: getPriority( cost, IMPORTANCE_SUPERFOOD )});
-			// if( id == 3 ) CodinGame.printErr( '$id addSuperPellets [$xp $yp]   ${distance / 20}' );
+			pelletTargets.push({ index: grid.getCellIndex( xp, yp ), path: path, value: 10, priority: getFoodPriority( IMPORTANCE_SUPERFOOD, cost )});
+			// if( id == 0 ) CodinGame.printErr( '$id addSuperPellet index $pelletPositionIndex [$xp $yp]   ${getFoodPriority( cost, IMPORTANCE_SUPERFOOD )}' );
 		}
 	}
 
@@ -182,17 +181,24 @@ class Pac {
 		// if( id == 0 ) CodinGame.printErr( 'id $id 1 1 ${CellPrint.print( grid.getCell2d( 1, 1 ))}' );
 	}
 
+	inline function getFoodPriority( importance:Float, cost:Float ) {
+		return importance / cost;
+	}
+
 	function addPellet( xp:Int, yp:Int ) {
 		final cell = grid.getCell2d( xp, yp );
 		switch cell {
 			case Unknown | Food:
-				final path = grid.getPath( positionIndex, grid.getCellIndex( xp, yp ));
-				final cost = path.cost;
-					// if( xp == 3 && yp == 4 ) CodinGame.printErr( '$id target Food [$xp $yp]  priority $distance' );
-				pelletTargets.push({ index: grid.getCellIndex( xp, yp ), path: path, value: 1, priority: getPriority( cost, IMPORTANCE_FOOD )});
-			// case EnemyPac( enemyPac ):
-				// if( iCanSeeCell( xp, yp )) addEnemyPac( xp, yp, enemyPac );
-			default: // no-op;
+				final pelletPositionIndex = grid.getCellIndex( xp, yp );
+				final path = grid.getPath( positionIndex, pelletPositionIndex );
+				if( path.result != None ) {
+					final cost = path.cost;
+					pelletTargets.push({ index: grid.getCellIndex( xp, yp ), path: path, value: 1, priority: getFoodPriority( IMPORTANCE_FOOD, cost )});
+					// if( id == 0 ) CodinGame.printErr( '$id pellet index $pelletPositionIndex [$xp $yp]   ${getFoodPriority( cost, IMPORTANCE_FOOD )}' );
+				} else {
+					CodinGame.printErr( 'Error no path found from [$x $y] to $[$xp $yp]' );
+				}
+				default: // no-op;
 		}
 	}
 
@@ -200,26 +206,43 @@ class Pac {
 		for( enemyPac in enemyPacs ) {
 			if( enemyPac.isVisible ) {
 				final typeStrength = STRENGTHS[type][enemyPac.type];
-				if( typeStrength > 0 ) {
-					weakerEnemies.push( enemyPac );
+				final pathToEnemy = grid.getPath( positionIndex, enemyPac.positionIndex );
+				final movesAway = if( grid.getCell2d( enemyPac.targetX, enemyPac.targetY ) != Wall ) {
+					grid.getPath( positionIndex, enemyPac.targetIndex ).cost > pathToEnemy.cost;
 				} else {
-					strongerEnemies.push( enemyPac );
+					getDistance2( enemyPac.x, enemyPac.y ) > getDistance2( enemyPac.targetX, enemyPac.targetY );
+				}
+				if( typeStrength > 0 ) {
+					weakerEnemies.push({ enemyPac: enemyPac, path: pathToEnemy, movesAway: movesAway });
+				} else {
+					strongerEnemies.push({ enemyPac: enemyPac, path: pathToEnemy, movesAway: movesAway });
 				}
 			}
 		}
+		weakerEnemies.sort( sortEnemies );
+		strongerEnemies.sort( sortEnemies );
 	}
 
-	inline function getPriority( cost:Float, importance:Float ) {
-		return 1 / cost * importance;
+	function sortEnemies( a:Enemy, b:Enemy ) {
+		if( a.movesAway && !b.movesAway ) return -1;
+		if( !a.movesAway && b.movesAway ) return 1;
+		if( a.path.cost > b.path.cost ) return -1;
+		if( b.path.cost < a.path.cost ) return 1;
+		return 0;
+		
 	}
 
 	public function navigate() {
 		
+		var layers = 0;
+
 		// get cells around pac without walls
 		final destinations = grid.getPossibleDestinations( x, y, speed );
+		if( id == 1 ) CodinGame.printErr( '$id [$x $y]' );
 		// init destinations with neutral priority
-		final destinationPriorities:Array<DestinationPriority> = destinations.map( positionIndex -> { index: positionIndex, priority: 0.5 });
-		
+		final destinationPriorities:Array<DestinationPriority> = destinations.map( positionIndex -> { index: positionIndex, priority: 1.0 });
+		final myPositionIndex = findDestinationIndex( destinationPriorities, positionIndex );
+		if( myPositionIndex != -1 ) destinationPriorities[myPositionIndex].priority = 0.5;
 		// if( id == 4 ) CodinGame.printErr( 'destinations $destinations' );
 		// if( id == 4 ) CodinGame.printErr( 'destinations xy ${destinations.map( d -> grid.cellIndexToString( d )).join(" ")}' );
 		
@@ -227,16 +250,18 @@ class Pac {
 		if( collisions > 0 ) {
 			final randomDestination = destinationPriorities[Std.random( destinationPriorities.length )];
 			// increase random position priority
-			randomDestination.priority += 0.1;
+			randomDestination.priority += 1;
+			layers++;
 		}
 
 		final steps = speed ? 2 : 1;
 		// determine target from pelletTargets
 		if( pelletTargets.length > 0 ) {
-			for( step in 1...steps + 1 ) {
-				final targetPath = pelletTargets[0].path.path;
-				if( targetPath.length > step ) {
-					final pathStep = pelletTargets[0].path.path[step];
+			final pelletTarget = pelletTargets[0];
+			final targetPath = pelletTarget.path.path;
+			if( targetPath != null && targetPath.length > steps ) {
+				for( step in 1...steps + 1 ) {
+					final pathStep = targetPath[step];
 					final pathIndex = grid.getCellIndex( pathStep.x, pathStep.y );
 					
 					// if( id == 0 ) CodinGame.printErr( '$id pathStep index $pathIndex  [${pathStep.x} ${pathStep.y}]' );
@@ -244,24 +269,21 @@ class Pac {
 					// check if path is in possible destinations
 					final destinationIndex = findDestinationIndex( destinationPriorities, pathIndex );
 					if( destinationIndex != -1 ) {
-						destinationPriorities[destinationIndex].priority += pelletTargets[0].priority / 2 + step / 10;
-						// if( id == 0 ) CodinGame.printErr( 'set priority ${destinationPriorities[destinationIndex].priority}' );
+						destinationPriorities[destinationIndex].priority += pelletTarget.priority + step * 0.1;
+						if( id == 1 ) CodinGame.printErr( '$id add ${pelletTarget.priority} to [${pathStep.x}:${pathStep.y}] = ${destinationPriorities[destinationIndex].priority}' );
 					} else {
-						CodinGame.printErr( 'Error: Pellet [${pathStep.x},${pathStep.y}] is not in possible destinations' );
+						CodinGame.printErr( '$id [$x $y] Error: Pellet [${pathStep.x},${pathStep.y}] is not in possible destinations' );
 					}
 				}
 			}
+			layers++;
 		}
 
-		// attack weaker enemies when the come to me
+		var huntDistance = 999.0;
+/*		// attack weaker enemies when the come to me
 		for( enemy in weakerEnemies ) {
-			final pathToEnemy = grid.getPath( positionIndex, enemy.positionIndex );
-			final movesToMe = if( grid.getCell2d( enemy.targetX, enemy.targetY ) != Wall ) {
-				grid.getPath( positionIndex, enemy.targetIndex ).cost > pathToEnemy.cost;
-			} else {
-				getDistance2( enemy.x, enemy.y ) > getDistance2( enemy.targetX, enemy.targetY );
-			}
-			if( movesToMe ) {
+			if( !enemy.movesAway ) {
+				final pathToEnemy = enemy.path;
 				for( step in 1...steps + 1 ) {
 					if( pathToEnemy.path.length > step ) {
 						final pathStep = pathToEnemy.path[step];
@@ -270,7 +292,9 @@ class Pac {
 						// check if path is in possible destinations
 						final destinationIndex = findDestinationIndex( destinationPriorities, pathIndex );
 						if( destinationIndex != -1 ) {
-							destinationPriorities[destinationIndex].priority += IMPORTANCE_ENEMY / 2 + step / 10;
+							destinationPriorities[destinationIndex].priority += IMPORTANCE_ENEMY / pathToEnemy.cost;
+							huntDistance = Math.min( pathToEnemy.cost, huntDistance );
+							layers++;
 							// if( id == 0 ) CodinGame.printErr( 'set priority ${destinationPriorities[destinationIndex].priority}' );
 						} else {
 							CodinGame.printErr( 'Error: Enemy [${pathStep.x},${pathStep.y}] is not in possible destinations' );
@@ -279,17 +303,12 @@ class Pac {
 				}
 			}
 		}
-
-		var danger = false;
-		// avoid stronger enemies when the come to me
+*/
+		var dangerDistance = 999.0;
+/*		// avoid stronger enemies when the come to me
 		for( enemy in strongerEnemies ) {
-			final pathToEnemy = grid.getPath( positionIndex, enemy.positionIndex );
-			final movesToMe = if( grid.getCell2d( enemy.targetX, enemy.targetY ) != Wall ) {
-				grid.getPath( positionIndex, enemy.targetIndex ).cost > pathToEnemy.cost;
-			} else {
-				getDistance2( enemy.x, enemy.y ) > getDistance2( enemy.targetX, enemy.targetY );
-			}
-			if( movesToMe ) {
+			if( !enemy.movesAway ) {
+				final pathToEnemy = enemy.path;
 				for( step in 1...steps + 1 ) {
 					if( pathToEnemy.path.length > step ) {
 						final pathStep = pathToEnemy.path[step];
@@ -298,8 +317,11 @@ class Pac {
 						// check if path is in possible destinations
 						final destinationIndex = findDestinationIndex( destinationPriorities, pathIndex );
 						if( destinationIndex != -1 ) {
-							destinationPriorities[destinationIndex].priority -= IMPORTANCE_ENEMY / 2 + step / 10;
-							danger = true;
+							
+							destinationPriorities[destinationIndex].priority -= IMPORTANCE_EVADE / pathToEnemy.cost - step / 10;
+							// if( id == 1 ) CodinGame.printErr( '$id enemy $IMPORTANCE_ENEMY cost ${pathToEnemy.cost} priority ${destinationPriorities[destinationIndex].priority}' );
+							dangerDistance = Math.min( pathToEnemy.cost, dangerDistance );
+							layers++;
 							// if( id == 0 ) CodinGame.printErr( 'set priority ${destinationPriorities[destinationIndex].priority}' );
 						} else {
 							CodinGame.printErr( 'Error: Enemy [${pathStep.x},${pathStep.y}] is not in possible destinations' );
@@ -308,27 +330,30 @@ class Pac {
 				}
 			}
 		}
-
-
+*/
+		// for( destinationPriority in destinationPriorities ) destinationPriority.priority /= layers;
 		destinationPriorities.sort( sortDestinationPriorities );
+		// for( d in destinationPriorities ) {
+			// if( id == 1 ) CodinGame.printErr( '$id [${grid.getCellX( d.index )}:${grid.getCellY( d.index )}] priority ${d.priority}' );
+		// }
 
-		if( !danger && abilityCooldown == 0 ) {
-			state = Speed;
-		// } else if( danger && abilityCooldown == 0 ) {
-			// state = Switch
-		} else {
+		// dangerDistance
+		// huntDistance
+		// abilityCooldown
+		// speed
+		// if( id == 1 ) CodinGame.printErr( '$id hunt $huntDistance danger $dangerDistance cooldown $abilityCooldown speed $speed' );
+		// if( huntDistance > 2 && dangerDistance > 6 && abilityCooldown == 0 ) {
+		// 	state = Speed;
+		// } else if( dangerDistance < 3 && abilityCooldown == 0 ) {
+		// 	state = Switch( TYPESWITCH[type] );
+		// } else {
 			state = Move( destinationPriorities[0].index );
-		}
-		// destinationIndex = destinationPriorities[0].index;
+		// }
 		
 		// if( id == 0 ) CodinGame.printErr( 'hightest priority index $destinationIndex ${destinationPriorities[0].priority}' );
 
-		// destinationCellType = grid.getCell( destinationIndex );
-		
 		// if( id == 4 ) CodinGame.printErr( '$id destination $destinationX $destinationY' );
 		
-		// grid.setCell2d( destinationX, destinationY, MyDestination );
-		// CodinGame.printErr( '$id navigate setCell destination $destinationX $destinationY MyPellet' );
 	}
 
 	function findDestinationIndex( destinationPriorities:Array<DestinationPriority>, positionIndex:Int ) {
@@ -390,9 +415,10 @@ typedef PelletTarget = {
 	final priority:Float;
 }
 
-typedef PacTarget = {
+typedef Enemy = {
+	final enemyPac:Pac;
 	final path:astar.SearchResult;
-	final pac:Pac;
+	final movesAway:Bool;
 }
 
 typedef DestinationPriority = {

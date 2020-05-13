@@ -65,7 +65,7 @@ class Grid {
 		return result;
 	}
 
-	public function getPossibleDestinations( x:Int, y:Int, speed:Bool ) {
+/*	public function getPossibleDestinations( x:Int, y:Int, speed:Bool ) {
 		
 		final directions:Array<Int> = [getCellIndex( x, y )];
 		final rto = speed ? 2 : 1;
@@ -101,6 +101,51 @@ class Grid {
 		directions.sort((a, b) -> a - b );
 		final possibleDirections = directions.filter( index -> floors[index] );
 		return possibleDirections;
+	}
+*/
+
+/*
+Possible destinations
+    2
+  2 1 2
+2 1 X 1 2
+  2 1 2
+    2
+*/
+	public function getPossibleDestinations( x:Int, y:Int, speed:Bool ) {
+		final destinations = speed
+		? [
+			                  [x,y-2],
+			        [x-1,y-1],[x,y-1],[x+1,y-1],
+			[x-2,y],[x-1,y  ],[x,y  ],[x+1,y  ],[x+2,y],
+			        [x-1,y+1],[x,y+1],[x+1,y+1],
+			                  [x,y+2]
+		] : [
+			        [x,y-1],
+			[x-1,y],[x,y  ],[x+1,y],
+			        [x,y+1]
+		];
+		final possibleDestinationIndices = destinations
+			.filter( cropY )
+			.map( wrapX )
+			.map( xy -> getCellIndex( xy[0], xy[1] ))
+			.filter( index -> floors[index] );
+		
+		// if( x == 9 && y == 3 ) {
+			// for( i in possibleDestinationIndices ) CodinGame.printErr( '${getCellX(i)} ${getCellY(i)}' );
+		// }
+		return possibleDestinationIndices;
+		
+	}
+
+	inline function cropY( xy:Array<Int> ) {
+		if( xy[1] < 0 || xy[1] >= height ) return false;
+		return true;
+	}
+
+	inline function wrapX( xy:Array<Int> ) {
+		xy[0] = ( width + xy[0] ) % width;
+		return xy;
 	}
 
 	public inline function checkFloor2d( x:Int, y:Int ) {
