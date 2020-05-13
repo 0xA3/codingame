@@ -126,12 +126,12 @@ class Main {
 			for( pac in myPacs ) {
 				pac.placeInGrid();
 				pac.addSuperPellets( superPellets );
-				pac.addTargetsAroundPosition( 64 );
+				pac.addPelletsAroundPosition( 64 );
 				pac.addEnemies( enemyPacs );
 			}
 			
 			final pacs = Lambda.array( myPacs );
-			DistributeTargets.distribute( pacs );
+			DistributePellets.distribute( pacs );
 			for( pac in pacs ) pac.navigate();
 			
 			CodinGame.print( myPacs.map( pac -> pac.go()).join( "|" ));     // MOVE <pacId> <x> <y>
