@@ -1,6 +1,5 @@
 
-import Pac.PacType;
-import Pac.PacFaction;
+import PacType;
 import haxe.ds.Vector;
 using Lambda;
 
@@ -24,7 +23,7 @@ class Main {
 		final pelletBuffer = new Vector<Bool>( width * height );
 
 		final myPacs:Map<Int, Pac> = [];
-		final enemyPacs:Map<Int, Pac> = [];
+		final enemyPacs:Map<Int, EnemyPac> = [];
 		final superPellets:Map<Int, Bool> = [];
 
 		// game loop
@@ -49,7 +48,7 @@ class Main {
 			for( _ in 0...visiblePacCount ) {
 				var inputs = CodinGame.readline().split( ' ' );
 				final pacId = Std.parseInt( inputs[0] ); // pac number( unique within a team )
-				final faction:PacFaction = inputs[1] != '0' ? Me : Enemy; // true if this pac is yours
+				final faction = inputs[1] != '0' ? true : false; // true if this pac is yours
 				final x = Std.parseInt( inputs[2] ); // position in the grid
 				final y = Std.parseInt( inputs[3] ); // position in the grid
 				final typeId:PacType = switch inputs[4]{
@@ -60,15 +59,15 @@ class Main {
 				final speedTurnsLeft = Std.parseInt( inputs[5] );
 				final abilityCooldown = Std.parseInt( inputs[6] );
 
-				var pacs = faction == Me ? myPacs : enemyPacs;
-				if( !pacs.exists( pacId )) {
-					final pac = new Pac( pacId, faction, grid, x, y );
-					pacs.set( pacId, pac );
+				if( faction ) {
+					if( !myPacs.exists( pacId )) myPacs.set( pacId, new Pac( pacId, grid, x, y ) );
+					myPacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
+				} else {
+					if( !enemyPacs.exists( pacId ))	enemyPacs.set( pacId, new EnemyPac( pacId, grid, x, y ));
+					enemyPacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
 				}
-				pacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
 			}
-
-			
+		
 			// remove dead pacs
 			for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
 			final visibleCellIndices = myPacs.flatMap( pac -> pac.getVisibleCellIndices());
@@ -122,9 +121,7 @@ class Main {
 			////////////////////////////////////////////////////////////////////////////////////////
 			// Navigation
 			
-			for( pac in enemyPacs ) if( pac.isVisible ) pac.placeInGrid();
 			for( pac in myPacs ) {
-				pac.placeInGrid();
 				pac.addSuperPellets( superPellets );
 				pac.addPelletsAroundPosition( 64 );
 				pac.addEnemies( enemyPacs );

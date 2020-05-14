@@ -1,22 +1,5 @@
 import Cell;
-
-enum TPac {
-	Stop;
-	Move( index:Int );
-	Speed;
-	Switch( pacType:PacType );
-}
-
-enum abstract PacFaction(Int) {
-	var Me;
-	var Enemy;
-}
-
-enum abstract PacType(String) {
-	var ROCK = "ROCK";
-	var PAPER = "PAPER";
-	var SCISSORS = "SCISSORS";
-}
+import PacType;
 
 typedef Neighbor = {
 	var index:Int;
@@ -43,7 +26,6 @@ class Pac {
 
 	public final id:Int;
 	public final name:String;
-	public final faction:PacFaction;
 	final grid:Grid;
 
 	var x:Int;
@@ -64,7 +46,7 @@ class Pac {
 	public var targetY = 0;
 	public var targetIndex = 0;
 
-	var state:TPac = Stop;
+	var state:Action = Stop;
 	var collisions = 0;
 
 	public var isVisible = true;
@@ -75,10 +57,9 @@ class Pac {
 
 	var visibleCellIndices:Array<Int> = [];
 
-	public function new( id:Int, faction:PacFaction, grid:Grid, x:Int, y:Int ) {
+	public function new( id:Int, grid:Grid, x:Int, y:Int ) {
 		this.id = id;
 		this.name = NAMES[id];
-		this.faction = faction;
 		this.grid = grid;
 		this.x = x;
 		this.y = y;
@@ -128,10 +109,6 @@ class Pac {
 		// CodinGame.printErr( 'update setEmpty $x $y' );
 		// if( id == 0 ) CodinGame.printErr( '$id update x $x y $y' );
 		// CodinGame.printErr( '$id speed $speedTurnsLeft cooldown $abilityCooldown' );
-	}
-
-	public function placeInGrid() {
-		grid.setCell( positionIndex, faction == Me ? MyPac : EnemyPac( this ));
 	}
 
 	public function addSuperPellets( superPellets:Map<Int, Bool> ) {
@@ -202,7 +179,7 @@ class Pac {
 		}
 	}
 
-	public function addEnemies( enemyPacs:Map<Int, Pac> ) {
+	public function addEnemies( enemyPacs:Map<Int, EnemyPac> ) {
 		for( enemyPac in enemyPacs ) {
 			if( enemyPac.isVisible ) {
 				final typeStrength = STRENGTHS[type][enemyPac.type];
@@ -416,7 +393,7 @@ typedef PelletTarget = {
 }
 
 typedef Enemy = {
-	final enemyPac:Pac;
+	final enemyPac:EnemyPac;
 	final path:astar.SearchResult;
 	final movesAway:Bool;
 }
