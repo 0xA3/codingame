@@ -112,7 +112,7 @@ Possible destinations
   2 1 2
     2
 */
-	public function getPossibleDestinations( x:Int, y:Int, speed:Bool ) {
+	public function getPossibleDestinations( x:Int, y:Int, speed = false ) {
 		final destinations = speed
 		? [
 			                  [x,y-2],
@@ -188,7 +188,7 @@ Possible destinations
 		return 'width $width, height $height, cells $cells';
 	}
 
-	public function cellIndexToString( index:Int ) {
+	public function sxy( index:Int ) {
 		return '${getCellX( index )}:${getCellY( index )}';
 	}
 

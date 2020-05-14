@@ -139,8 +139,7 @@ class Main {
 	static inline function navigate() {
 		
 		for( pac in myPacs ) {
-			pac.updateSuperPellets( superPellets );
-			pac.updatePellets( 32 );
+			pac.updatePellets( superPellets, 15 );
 			pac.updateEnemies();
 		}
 		
