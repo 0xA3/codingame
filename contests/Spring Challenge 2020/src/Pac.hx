@@ -50,7 +50,6 @@ class Pac {
 	var state:Action = Stop;
 	var collisions = 0;
 
-	public var isVisible = true;
 	var superPellets:Map<Int, Bool>;
 	public final pelletTargets:Array<PelletTarget> = [];
 	public final strongerEnemies:Array<Enemy> = [];
@@ -79,7 +78,6 @@ class Pac {
 
 		// CodinGame.printErr( 'cleanup destination $destinationX $destinationY from ${CellPrint.print( destinationCellType )} to ${CellPrint.print( grid.getCell2d( destinationX, destinationY ))}' );
 		// if( id == 0 ) CodinGame.printErr( 'reset Cell $destinationX $destinationY to ${CellPrint.print( grid.getCell2d(destinationX, destinationY))}' );
-		isVisible = false;
 		pelletTargets.splice( 0, pelletTargets.length ); // clear pelletTargets
 		strongerEnemies.splice( 0, strongerEnemies.length ); // clear enemies
 		weakerEnemies.splice( 0, weakerEnemies.length ); // clear enemies
@@ -109,7 +107,6 @@ class Pac {
 		this.speedTurnsLeft = speedTurnsLeft;
 		this.abilityCooldown = abilityCooldown;
 		
-		isVisible = true; // to find my dead pacs and enemy visible pacs
 		visibleCellIndices = grid.getVisibleCellIndices( x, y );
 		// CodinGame.printErr( 'update setEmpty $x $y' );
 		// if( id == 0 ) CodinGame.printErr( '$id update x $x y $y' );

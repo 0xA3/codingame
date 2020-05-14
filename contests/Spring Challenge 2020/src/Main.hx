@@ -76,7 +76,8 @@ class Main {
 			final typeId:PacType = switch inputs[4] { // ROCK PAPER SCISSORS
 				case "ROCK": ROCK;
 				case "PAPER": PAPER;
-				default: SCISSORS;
+				case "SCISSORS": SCISSORS;
+				default: DEAD;
 			};
 			final speedTurnsLeft = Std.parseInt( inputs[5] );
 			final abilityCooldown = Std.parseInt( inputs[6] );
@@ -90,7 +91,6 @@ class Main {
 			}
 		}
 		// remove dead pacs
-		for( pac in myPacs ) if( !pac.isVisible ) myPacs.remove( pac.id );
 		visibleCellIndices = myPacs.flatMap( pac -> pac.getVisibleCellIndices());
 	}
 
@@ -139,13 +139,17 @@ class Main {
 	static inline function navigate() {
 		
 		for( pac in myPacs ) {
-			pac.updatePellets( superPellets, 15 );
-			pac.updateEnemies();
+			if( pac.type != DEAD ) {
+				pac.updatePellets( superPellets, 15 );
+				pac.updateEnemies();
+			}
 		}
 		
-		final pacs = Lambda.array( myPacs );
+		final pacs = Lambda.array( myPacs ).filter( pac -> pac.type != DEAD );
 		DistributePellets.distribute( pacs );
-		for( pac in pacs ) pac.navigate();
+		for( pac in pacs ) {
+			pac.navigate();
+		}
 		
 		CodinGame.print( myPacs.map( pac -> pac.go()).join( "|" ));     // MOVE <pacId> <x> <y>
 	}
