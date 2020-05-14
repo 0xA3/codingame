@@ -1,5 +1,3 @@
-import Cell;
-
 class EnemyPac {
 
 	public final id:Int;
@@ -19,6 +17,8 @@ class EnemyPac {
 	public var targetY = 0;
 	public var targetIndex = 0;
 
+	public var cellsInReach:Array<Int> = [];
+
 	public var isVisible = true;
 
 	public function new( id:Int, grid:Grid, x:Int, y:Int ) {
@@ -28,7 +28,7 @@ class EnemyPac {
 		this.y = y;
 	}
 
-	public function cleanUp() {
+	public function reset() {
 		grid.setCell2d( x, y, Empty ); // set cell of currentPosition to Empty
 		isVisible = false;
 	}
@@ -41,16 +41,19 @@ class EnemyPac {
 		vy = dy > 0 ? 1 : dy < 0 ? -1 : 0;
 		speed = speedTurnsLeft > 0;
 		targetX = x + vx * ( speed ? 2 : 1 );
-		targetY = x + vy * ( speed ? 2 : 1 );
+		targetY = y + vy * ( speed ? 2 : 1 );
 		targetIndex = grid.getCellIndex( targetX, targetY );
 
-		// CodinGame.printErr(( faction == Me ? "My" : "Enemy" ) + ' id $id v $vx $vy' );
+		// CodinGame.printErr( 'enemy $id [$x $y] d [$dx $dy] v [$vx $vy]  target [$targetX $targetY]' );
+		
 		this.x = x;
 		this.y = y;
 		positionIndex = grid.getCellIndex( x, y );
 		this.type = type;
 		this.speedTurnsLeft = speedTurnsLeft;
 		this.abilityCooldown = abilityCooldown;
+
+		cellsInReach = grid.getPossibleDestinations( x, y, speed );
 		
 		isVisible = true; // to find enemy visible pacs
 	}
