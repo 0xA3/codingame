@@ -65,53 +65,14 @@ class Grid {
 		return result;
 	}
 
-/*	public function getPossibleDestinations( x:Int, y:Int, speed:Bool ) {
-		
-		final directions:Array<Int> = [getCellIndex( x, y )];
-		final rto = speed ? 2 : 1;
-		for( r in 1...rto + 1 ) {
-			final cTop = y - r;
-			final cLeft = x - r;
-			final cBottom = y + r;
-			final cRight = x + r;
-
-			final rTop = Std.int( Math.max( 0, cTop ));
-			final rBottom = Std.int( Math.min( height - 1, cBottom ));
-
-			// if( x == 31 && y == 4 ) CodinGame.printErr( 'top $cTop left $cLeft bottom $cBottom right $cRight' );
-
-			final rLeft = ( width + cLeft ) % width;
-			for( yp in rTop...rBottom ) directions.push( getCellIndex( rLeft, yp ));
-			
-			if( rBottom == cBottom ) for( xp in cLeft...cRight ) {
-				final rp = ( width + xp ) % width;
-				directions.push( getCellIndex( rp, rBottom ));
-			}
-			
-			final rRight = cRight % width;
-			for( yp in -rBottom...-rTop ) directions.push( getCellIndex( rRight, -yp ));
-			
-			if( rTop == cTop ) for( xp in -cRight...-cLeft ) {
-				final rp = ( width - xp ) % width;
-				// if( x == 31 && y == 4 ) CodinGame.printErr( 'xp $xp -cRight ${-cRight} -cLeft ${-cLeft} rp $rp' );
-				directions.push( getCellIndex( rp, rTop ));
-			}
-
-		}
-		directions.sort((a, b) -> a - b );
-		final possibleDirections = directions.filter( index -> floors[index] );
-		return possibleDirections;
-	}
-*/
-
-/*
-Possible destinations
-    2
-  2 1 2
-2 1 X 1 2
-  2 1 2
-    2
-*/
+	/*
+	Possible destinations
+		2
+	  2 1 2
+	2 1 × 1 2
+	  2 1 2
+		2
+	*/
 	public function getPossibleDestinations( x:Int, y:Int, speed = false ) {
 		final destinations = speed
 		? [
@@ -125,27 +86,44 @@ Possible destinations
 			[x-1,y],[x,y  ],[x+1,y],
 			        [x,y+1]
 		];
-		final possibleDestinationIndices = destinations
+		
+		final destinationIndices = destinations
 			.filter( cropY )
-			.map( wrapX )
-			.map( xy -> getCellIndex( xy[0], xy[1] ))
-			.filter( index -> floors[index] );
+			// .map( wrapX )
+			.map( xy -> getCellIndex( xy[0], xy[1] ));
+		
+		// trace( [for( i in 0...destinationIndices.length ) '[${getCellX( destinationIndices[i] )} ${getCellY( destinationIndices[i] )}]'] );
+			// filter out +2 positions when position inbetween is wall
+		// 	     0
+		// 	  1  2  3
+		// 4  5  6  7  8
+		// 	  9 10 11
+		// 	    12
+			  
+		if( speed ) {
+			if( !floors[destinationIndices[10]] ) destinationIndices.splice( 12, 1 );
+			if( !floors[destinationIndices[7]] ) destinationIndices.splice( 8, 1 );
+			if( !floors[destinationIndices[5]] ) destinationIndices.splice( 4, 1 );
+			if( !floors[destinationIndices[2]] ) destinationIndices.splice( 0, 1 );
+		}
+
+		final destinationsWithoutWalls = destinationIndices.filter( index -> floors[index] );
 		
 		// if( x == 9 && y == 3 ) {
 			// for( i in possibleDestinationIndices ) CodinGame.printErr( '${getCellX(i)} ${getCellY(i)}' );
 		// }
-		return possibleDestinationIndices;
+		return destinationsWithoutWalls;
 		
 	}
 
 	inline function cropY( xy:Array<Int> ) {
-		if( xy[1] < 0 || xy[1] >= height ) return false;
-		return true;
+		// trace( 'y ${xy[1]} >= 0  ${xy[1] < 0}  y ${xy[1]} < $height  ${xy[1] < height}' );
+		return xy[1] >= 0 || xy[1] < height;
 	}
 
 	inline function wrapX( xy:Array<Int> ) {
-		xy[0] = ( width + xy[0] ) % width;
-		return xy;
+		final x = ( width + xy[0] ) % width;
+		return [x, xy[1]];
 	}
 
 	public inline function checkFloor2d( x:Int, y:Int ) {

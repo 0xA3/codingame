@@ -3,7 +3,8 @@ package test;
 import buddy.Buddy;
 
 class TestMain implements Buddy<[
-	test.TestGetDistance,
+	test.TestGetPath,
+	test.TestGrid,
 	test.TestGridFactory,
-	test.TestGrid
+	TestGetPossibleDestinations
 ]>{}
