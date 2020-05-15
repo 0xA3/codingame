@@ -88,8 +88,8 @@ class Grid {
 		];
 		
 		final destinationIndices = destinations
-			.filter( cropY )
-			.map( wrapX )
+			.filter( cropXY )
+			.map( wrapXY )
 			.map( xy -> getCellIndex( xy[0], xy[1] ));
 		
 		// trace( [for( i in 0...destinationIndices.length ) '[${getCellX( destinationIndices[i] )} ${getCellY( destinationIndices[i] )}]'] );
@@ -116,17 +116,22 @@ class Grid {
 		
 	}
 
-	inline function cropY( xy:Array<Int> ) {
+	inline function cropXY( xy:Array<Int> ) {
 		// trace( 'y ${xy[1]} >= 0  ${xy[1] < 0}  y ${xy[1]} < $height  ${xy[1] < height}' );
 		return xy[1] >= 0 || xy[1] < height;
 	}
 
-	inline function wrapX( xy:Array<Int> ) {
+	inline function wrapXY( xy:Array<Int> ) {
 		final x = ( width + xy[0] ) % width;
 		return [x, xy[1]];
 	}
 
+	public inline function wrapX( x:Int ) {
+		return ( width + x ) % width;
+	}
+
 	public inline function checkFloor2d( x:Int, y:Int ) {
+		if( y < 0 || y >= height ) return false;
 		return floors[getCellIndex( x, y )];
 	}
 
