@@ -50,7 +50,6 @@ class Pac {
 	var state:Action = Stop;
 	var collisions = 0;
 
-	var superPellets:Map<Int, Bool>;
 	public final pelletTargets:Array<PelletTarget> = [];
 	public final strongerEnemies:Array<Enemy> = [];
 	public final weakerEnemies:Array<Enemy> = [];
@@ -114,7 +113,6 @@ class Pac {
 	}
 	
 	public function updatePellets( superPellets:Map<Int, Bool>, maxPellets:Int ) {
-		this.superPellets = superPellets;
 		
 		for( superPelletIndex in superPellets.keys()) {
 			// if( id == 3 ) CodinGame.printErr( 'superpellet [${grid.getCellX( superPelletIndex)} ${grid.getCellY( superPelletIndex)}]' );
@@ -160,12 +158,8 @@ class Pac {
 	function getPelletsStep2( sx:Int, sy:Int ) {
 		final startPositionIndex = grid.getCellIndex( sx, sy );
 		final step2PelletTargets:Array<PelletTarget> = [];
-		for( superPelletIndex in superPellets.keys()) {
-			// if( id == 3 ) CodinGame.printErr( 'superpellet [${grid.getCellX( superPelletIndex)} ${grid.getCellY( superPelletIndex)}]' );
-			addSuperPellet( step2PelletTargets, startPositionIndex, superPelletIndex );
-		}
 		for( pelletTarget in pelletTargets ) {
-			addPellet( step2PelletTargets, startPositionIndex, pelletTarget.index );
+			addPelletOrSuperpellet( step2PelletTargets, startPositionIndex, pelletTarget.index );
 		}
 		return step2PelletTargets;
 	}
@@ -176,18 +170,8 @@ class Pac {
 		if( path.result != None ) {
 			final cost = path.cost;
 			pelletTargetContainer.push({ index: pelletPositionIndex, path: path, value: 10, priority: getFoodPriority( IMPORTANCE_SUPERFOOD, cost )});
-			
-			final sx = grid.getCellX( startPositionIndex );
-			final sy = grid.getCellY( startPositionIndex );
-			final px = grid.getCellX( pelletPositionIndex );
-			final py = grid.getCellY( pelletPositionIndex );
-			// if( id == 3 ) CodinGame.printErr( '$id start [$sx $sy] superpellet $[$px $py] priority  ${getFoodPriority( IMPORTANCE_SUPERFOOD, cost )}' );
 		} else {
-			final sx = grid.getCellX( startPositionIndex );
-			final sy = grid.getCellY( startPositionIndex );
-			final px = grid.getCellX( pelletPositionIndex );
-			final py = grid.getCellY( pelletPositionIndex );
-			CodinGame.printErr( 'Error no path found from [$sx $sy] to $[$px $py]' );
+			CodinGame.printErr( 'Error no path found from ${grid.sxy( startPositionIndex )} to ${grid.sxy( pelletPositionIndex )}' );
 		}
 	}
 
@@ -202,16 +186,38 @@ class Pac {
 					pelletTargetContainer.push({ index: pelletPositionIndex, path: path, value: 1, priority: getFoodPriority( IMPORTANCE_FOOD, cost )});
 					// if( id == 0 ) CodinGame.printErr( '$id pellet index $pelletPositionIndex [$xp $yp]   ${getFoodPriority( cost, IMPORTANCE_FOOD )}' );
 				} else {
-					final sx = grid.getCellX( startPositionIndex );
-					final sy = grid.getCellY( startPositionIndex );
-					final px = grid.getCellX( pelletPositionIndex );
-					final py = grid.getCellY( pelletPositionIndex );
-					CodinGame.printErr( 'Error no path found from [$sx $sy] to $[$px $py]' );
+					CodinGame.printErr( 'Error no path found from ${grid.sxy( startPositionIndex )} to ${grid.sxy( pelletPositionIndex )}' );
 				}
 			default: // no-op;
 		}
 	}
 	
+	function addPelletOrSuperpellet( pelletTargetContainer:Array<PelletTarget>, startPositionIndex:Int, pelletPositionIndex:Int ) {
+		if( startPositionIndex == pelletPositionIndex ) return;
+		final cell = grid.getCell( pelletPositionIndex );
+		switch cell {
+			case Unknown | Food:
+				final path = grid.getPath( startPositionIndex, pelletPositionIndex );
+				if( path.result != None ) {
+					final cost = path.cost;
+					pelletTargetContainer.push({ index: pelletPositionIndex, path: path, value: 1, priority: getFoodPriority( IMPORTANCE_FOOD, cost )});
+					// if( id == 0 ) CodinGame.printErr( '$id pellet index $pelletPositionIndex [$xp $yp]   ${getFoodPriority( cost, IMPORTANCE_FOOD )}' );
+				} else {
+					CodinGame.printErr( 'Error no path found from ${grid.sxy( startPositionIndex )} to ${grid.sxy( pelletPositionIndex )}' );
+				}
+			case Superfood:
+				final path = grid.getPath( startPositionIndex, pelletPositionIndex );
+				if( path.result != None ) {
+					final cost = path.cost;
+					pelletTargetContainer.push({ index: pelletPositionIndex, path: path, value: 10, priority: getFoodPriority( IMPORTANCE_SUPERFOOD, cost )});
+					// if( id == 0 ) CodinGame.printErr( '$id pellet index $pelletPositionIndex [$xp $yp]   ${getFoodPriority( cost, IMPORTANCE_FOOD )}' );
+				} else {
+					CodinGame.printErr( 'Error no path found from ${grid.sxy( startPositionIndex )} to ${grid.sxy( pelletPositionIndex )}' );
+				}
+			default: // no-op;
+		}
+	}
+
 	inline function getFoodPriority( importance:Float, cost:Float ) {
 		return importance / cost;
 	}
@@ -265,9 +271,10 @@ class Pac {
 		final steps = speed ? 2 : 1;
 		var sx = x;
 		var sy = y;
+		var previousPriority = 0.0;
 		for( step in 0...steps ) {
-			// if( id == 3 ) CodinGame.printErr( 'step $step' );
 			final stepPositionIndex = grid.getCellIndex( sx, sy );
+			if( id == 0 ) CodinGame.printErr( 'step $step [$sx $sy]' );
 			// if( id == 3 ) CodinGame.printErr( '$id stepPositionIndex $stepPositionIndex [${sx} ${sy}] priority ${getPriority( stepPositionIndex )}' );
 			
 			// if( id == 1 ) CodinGame.printErr( '$id [$x $y]' );
@@ -278,28 +285,32 @@ class Pac {
 			// determine target from pelletTargets
 			if( pelletTargets.length > 0 ) {
 				final currentPelletTargets = step == 0 ? pelletTargets : getPelletsStep2( sx, sy );
-				if( step != 0 ) currentPelletTargets.sort( sortPelletPriorites );
+				if( step != 0 ) currentPelletTargets.sort( sortPelletPriorites ); // they are already sorted in step 0
 				
 				final pelletTarget = currentPelletTargets[0];
-				// if( id == 3 ) CodinGame.printErr( '$id pelletTarget ${pelletTarget.index} ${grid.sxy( pelletTarget.index )}' );
+				if( id == 0 ) {
+					for( i in 0...4 ) CodinGame.printErr( '$id pelletTarget0 ${grid.sxy( currentPelletTargets[i].index )} priority ${currentPelletTargets[i].priority}' );
+				}
 				final targetPath = pelletTarget.path.path;
 				if( targetPath != null && targetPath.length > 1 ) {
 					final pathStep = targetPath[1];
 					final pathIndex = grid.getCellIndex( pathStep.x, pathStep.y );
-					addPriority( pathIndex, pelletTarget.priority + step * 0.1 );
-					// if( id == 3 ) CodinGame.printErr( '$id pathStep index $pathIndex [${pathStep.x} ${pathStep.y}] priority ${getPriority( pathIndex )}' );
+					addPriority( pathIndex, pelletTarget.priority + previousPriority );
+					// if( id == 0 ) CodinGame.printErr( '$id pathStep index $pathIndex [${pathStep.x} ${pathStep.y}] priority ${getPriority( pathIndex )}' );
 				}
 			}
 
 			if( step < steps - 1 ) {
 				destinationPriorities.sort( sortDestinationPriorities );
-				// if( id == 3 ) CodinGame.printErr( '$id destinationPriorities[0] ${grid.sxy( destinationPriorities[0].index )} priority ${destinationPriorities[0].priority}' );
+				if( id == 0 ) CodinGame.printErr( '$id ${grid.sxy( positionIndex )} destinationPriorities[0] ${grid.sxy( destinationPriorities[0].index )} priority ${destinationPriorities[0].priority}' );
 				final hightesPriorityIndex = destinationPriorities[0].index;
 				sx = grid.getCellX( hightesPriorityIndex );
 				sy = grid.getCellY( hightesPriorityIndex );
-				// if( id == 3 ) CodinGame.printErr( '$id set sx sy [$sx $sy]' );
-				setPriority( hightesPriorityIndex, 0 );
+				if( id == 0 ) CodinGame.printErr( '$id set sx sy [$sx $sy]' );
+				previousPriority = destinationPriorities[0].priority;
 			}
+
+			if( grid.getPossibleDestinations( sx, sy ).length < 3 ) break; // when in front of wall allow 1 stop forward
 		}
 
 		var huntDistance = 999.0;
@@ -329,7 +340,7 @@ class Pac {
 			}
 			
 			
-			
+/*			
 			// if( !enemy.movesAway ) {
 			// 	final pathToEnemy = enemy.path;
 			// 	for( step in 1...steps + 1 ) {
@@ -352,13 +363,14 @@ class Pac {
 			// 		}
 			// 	}
 			// }
+*/		
 		}
 
 		// for( destinationPriority in destinationPriorities ) destinationPriority.priority /= layers;
 		destinationPriorities.sort( sortDestinationPriorities );
-		// for( d in destinationPriorities ) {
-		// 	if( id == 3 ) CodinGame.printErr( '$id [${grid.getCellX( d.index )}:${grid.getCellY( d.index )}] priority ${d.priority}' );
-		// }
+		for( d in destinationPriorities ) {
+			// if( id == 0 ) CodinGame.printErr( '$id ${grid.sxy( positionIndex )} to ${grid.sxy( d.index)} priority ${d.priority}' );
+		}
 
 		// dangerDistance
 		// huntDistance
@@ -374,11 +386,7 @@ class Pac {
 		} else {
 			state = Move( destinationPriorities[0].index );
 		}
-		
-		// if( id == 0 ) CodinGame.printErr( 'hightest priority index $destinationIndex ${destinationPriorities[0].priority}' );
 
-		// if( id == 4 ) CodinGame.printErr( '$id destination $destinationX $destinationY' );
-		
 	}
 
 	function addPriority( index:Int, value:Float ) {

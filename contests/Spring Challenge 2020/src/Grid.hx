@@ -89,7 +89,7 @@ class Grid {
 		
 		final destinationIndices = destinations
 			.filter( cropY )
-			// .map( wrapX )
+			.map( wrapX )
 			.map( xy -> getCellIndex( xy[0], xy[1] ));
 		
 		// trace( [for( i in 0...destinationIndices.length ) '[${getCellX( destinationIndices[i] )} ${getCellY( destinationIndices[i] )}]'] );
@@ -167,7 +167,7 @@ class Grid {
 	}
 
 	public function sxy( index:Int ) {
-		return '${getCellX( index )}:${getCellY( index )}';
+		return '[${getCellX( index )}:${getCellY( index )}]';
 	}
 
 }
