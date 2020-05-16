@@ -9,6 +9,7 @@ class Main {
 
 	static var grid:Grid;
 	static final myPacs:Map<Int, Pac> = [];
+	static final pacPelletManagers:Map<Int, PelletManager> = [];
 	static final enemyPacs:Map<Int, EnemyPac> = [];
 	static final superPellets:Map<Int, Bool> = [];
 	
@@ -70,7 +71,7 @@ class Main {
 		for( _ in 0...visiblePacCount ) {
 			var inputs = CodinGame.readline().split( ' ' );
 			final pacId = Std.parseInt( inputs[0] ); // pac number( unique within a team )
-			final faction = inputs[1] != '0' ? true : false; // true if this pac is yours
+			final myFaction = inputs[1] != '0' ? true : false; // true if this pac is yours
 			final x = Std.parseInt( inputs[2] ); // position in the grid
 			final y = Std.parseInt( inputs[3] ); // position in the grid
 			final typeId:PacType = switch inputs[4] { // ROCK PAPER SCISSORS
@@ -82,16 +83,19 @@ class Main {
 			final speedTurnsLeft = Std.parseInt( inputs[5] );
 			final abilityCooldown = Std.parseInt( inputs[6] );
 
-			if( faction ) {
-				if( !myPacs.exists( pacId )) myPacs.set( pacId, new Pac( pacId, grid, x, y, enemyPacs ) );
+			if( myFaction ) {
+				if( !myPacs.exists( pacId )) {
+					final pelletManager = new PelletManager( pacId, grid );
+					pacPelletManagers.set( pacId, pelletManager );
+					myPacs.set( pacId, new Pac( pacId, pelletManager, grid, x, y, enemyPacs ) );
+				}
 				myPacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
 			} else {
 				if( !enemyPacs.exists( pacId ))	enemyPacs.set( pacId, new EnemyPac( pacId, grid, x, y ));
 				enemyPacs[pacId].update( x, y, typeId, speedTurnsLeft, abilityCooldown );
 			}
 		}
-		// remove dead pacs
-		visibleCellIndices = myPacs.flatMap( pac -> pac.getVisibleCellIndices());
+		visibleCellIndices = myPacs.filter( pac -> pac.type != DEAD ).flatMap( pac -> pac.getVisibleCellIndices());
 	}
 
 	static inline function updatePellets( width:Int ) {

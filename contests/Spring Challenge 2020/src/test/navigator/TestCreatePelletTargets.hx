@@ -1,6 +1,6 @@
 package test.navigator;
 
-import Navigator.PelletTarget;
+import PelletManager.PelletTarget;
 
 using buddy.Should;
 
@@ -18,7 +18,7 @@ class TestCreatePelletTargets extends buddy.BuddySuite {
 					"  #"
 				];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				final pelletIndices = [1];
 
 				final pelletTargets = navigator.createPelletTargets( 0, pelletIndices, Food, 1 );
@@ -31,7 +31,7 @@ class TestCreatePelletTargets extends buddy.BuddySuite {
 					"   #"
 				];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				final pelletIndices = [2];
 
 				final pelletTargets = navigator.createPelletTargets( 0, pelletIndices, Food, 1 );
@@ -44,7 +44,7 @@ class TestCreatePelletTargets extends buddy.BuddySuite {
 					"           #"
 				];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				final pelletIndices = [10];
 
 				final pelletTargets = navigator.createPelletTargets( 0, pelletIndices, Food, 1 );
@@ -57,7 +57,7 @@ class TestCreatePelletTargets extends buddy.BuddySuite {
 					"           #"
 				];
 				final grid = GridFactory.createGrid( lines[0].length, lines.length, lines );
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				final pelletIndices = [10];
 
 				final pelletTargets = navigator.createPelletTargets( 0, pelletIndices, Food, 9 );

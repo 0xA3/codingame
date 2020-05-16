@@ -1,7 +1,7 @@
 import haxe.ds.GenericStack;
 import Cell;
 import PacType;
-import Navigator;
+import PelletManager;
 
 typedef Neighbor = {
 	var index:Int;
@@ -29,12 +29,13 @@ class Pac {
 	public static final NAMES = ["0tto", "1ngmar", "2om", "3ddie", "4ictor"];
 
 	public final id:Int;
-	public final name:String;
+	public final pelletManager:PelletManager;
 	final grid:Grid;
 	var x:Int;
 	var y:Int;
 	final enemyPacs:Map<Int,EnemyPac>;
 	
+	public final name:String;
 	var positionIndex:Int;
 	public var type:PacType;
 	var nextType:PacType;
@@ -42,7 +43,7 @@ class Pac {
 	var abilityCooldown:Int;
 
 	var destinationIndex:Int;
-	var destinationCellType:Cell = Unknown;
+	var destinationCellType:Cell = Empty;
 	
 	public var vx = 0;
 	public var vy = 0;
@@ -52,7 +53,6 @@ class Pac {
 	var collisions = 0;
 
 	public final previousPositions = new GenericStack<Int>();
-	public final pelletTargets:Array<PelletTarget> = [];
 	public final strongerEnemies:Array<Enemy> = [];
 	public final weakerEnemies:Array<Enemy> = [];
 
@@ -60,14 +60,15 @@ class Pac {
 
 	var visibleCellIndices:Array<Int> = [];
 
-	public function new( id:Int, grid:Grid, x:Int, y:Int, enemyPacs:Map<Int, EnemyPac> ) {
+	public function new( id:Int, pelletManager:PelletManager, grid:Grid, x:Int, y:Int, enemyPacs:Map<Int, EnemyPac> ) {
 		this.id = id;
-		this.name = NAMES[id];
+		this.pelletManager = pelletManager;
 		this.grid = grid;
 		this.x = x;
 		this.y = y;
 		this.enemyPacs = enemyPacs;
 
+		this.name = NAMES[id];
 		destinationIndex = grid.getCellIndex( x, y );
 	}
 
@@ -80,7 +81,6 @@ class Pac {
 
 		// CodinGame.printErr( 'cleanup destination $destinationX $destinationY from ${CellPrint.print( destinationCellType )} to ${CellPrint.print( grid.getCell2d( destinationX, destinationY ))}' );
 		// if( id == 4 ) CodinGame.printErr( 'reset Cell $destinationX $destinationY to ${CellPrint.print( grid.getCell2d(destinationX, destinationY))}' );
-		pelletTargets.splice( 0, pelletTargets.length ); // clear pelletTargets
 		strongerEnemies.splice( 0, strongerEnemies.length ); // clear enemies
 		weakerEnemies.splice( 0, weakerEnemies.length ); // clear enemies
 	}
@@ -113,113 +113,7 @@ class Pac {
 	}
 	
 	public function updatePellets( superPellets:Map<Int, Bool>, maxPellets:Int ) {
-		
-		for( superPelletIndex in superPellets.keys()) {
-			// if( id == 3 ) CodinGame.printErr( 'superpellet [${grid.getCellX( superPelletIndex)} ${grid.getCellY( superPelletIndex)}]' );
-			addSuperPellet( pelletTargets, positionIndex, superPelletIndex );
-		}
-
-		for( r in 1...grid.widthHalf + 1 ) {
-			final cTop = y - r;
-			final cLeft = x - r;
-			final cBottom = y + r;
-			final cRight = x + r;
-			if( pelletTargets.length > maxPellets ) break;
-
-			final rTop = Std.int( Math.max( 0, cTop ));
-			final rBottom = Std.int( Math.min( grid.height - 1, cBottom ));
-
-			final rLeft = ( grid.width + cLeft ) % grid.width;
-			for( yp in rTop...rBottom ) addPellet( pelletTargets, positionIndex, grid.getCellIndex( rLeft, yp ));
-			
-			if( rBottom == cBottom ) for( xp in cLeft...cRight ) {
-				final rp = ( grid.width + xp ) % grid.width;
-				addPellet( pelletTargets, positionIndex, grid.getCellIndex( rp, rBottom ));
-			}
-			final rRight = cRight % grid.width;
-			for( yp in -rBottom...-rTop ) addPellet( pelletTargets, positionIndex, grid.getCellIndex( rRight, -yp ));
-			
-			if( rTop == cTop ) for( xp in -cRight...-cLeft ) {
-				final rp = ( grid.width - xp ) % grid.width;
-				addPellet( pelletTargets, positionIndex, grid.getCellIndex( rp, rTop ));
-			}
-		}
-		
-		pelletTargets.sort( sortPelletPriorites );
-
-		// firstPelletPriority = pelletTargets.length > 0 ? pelletTargets[0].priority : 99999;
-		// if( Main.frame > 22 && Main.frame < 30 && id == 1 ) {
-			// for( i in 0...Std.int( Math.min(4, pelletTargets.length ))) CodinGame.printErr( pelletTargets[i] );
-		// }
-		// CodinGame.printErr( 'id $id target0 ${pelletTargets[0].x} ${pelletTargets[0].y} ${pelletTargets[0].priority}' );
-		// if( id == 4 ) CodinGame.printErr( 'id $id 1 1 ${CellPrint.print( grid.getCell2d( 1, 1 ))}' );
-	}
-
-	function getPelletsStep2( sx:Int, sy:Int ) {
-		final startPositionIndex = grid.getCellIndex( sx, sy );
-		final step2PelletTargets:Array<PelletTarget> = [];
-		for( pelletTarget in pelletTargets ) {
-			addPelletOrSuperpellet( step2PelletTargets, startPositionIndex, pelletTarget.index );
-		}
-		return step2PelletTargets;
-	}
-
-	function addSuperPellet( pelletTargetContainer:Array<PelletTarget>, startPositionIndex:Int, pelletPositionIndex:Int ) {
-		if( startPositionIndex == pelletPositionIndex ) return;
-		final path = grid.getPath( startPositionIndex, pelletPositionIndex );
-		if( path.result != None ) {
-			final cost = path.cost;
-			pelletTargetContainer.push({ index: pelletPositionIndex, path: path, type: Superfood, priority: getFoodPriority( IMPORTANCE_SUPERFOOD, cost )});
-		} else {
-			CodinGame.printErr( 'Error no path found from ${grid.sxy( startPositionIndex )} to ${grid.sxy( pelletPositionIndex )}' );
-		}
-	}
-
-	function addPellet( pelletTargetContainer:Array<PelletTarget>, startPositionIndex:Int, pelletPositionIndex:Int ) {
-		if( startPositionIndex == pelletPositionIndex ) return;
-		final cell = grid.getCell( pelletPositionIndex );
-		switch cell {
-			case Unknown | Food:
-				final path = grid.getPath( startPositionIndex, pelletPositionIndex );
-				if( path.result != None ) {
-					final cost = path.cost;
-					pelletTargetContainer.push({ index: pelletPositionIndex, path: path, type: Food, priority: getFoodPriority( IMPORTANCE_FOOD, cost )});
-					// if( id == 4 ) CodinGame.printErr( '$id pellet index $pelletPositionIndex [$xp $yp]   ${getFoodPriority( cost, IMPORTANCE_FOOD )}' );
-				} else {
-					CodinGame.printErr( 'Error no path found from ${grid.sxy( startPositionIndex )} to ${grid.sxy( pelletPositionIndex )}' );
-				}
-			default: // no-op;
-		}
-	}
-	
-	function addPelletOrSuperpellet( pelletTargetContainer:Array<PelletTarget>, startPositionIndex:Int, pelletPositionIndex:Int ) {
-		if( startPositionIndex == pelletPositionIndex ) return;
-		final cell = grid.getCell( pelletPositionIndex );
-		switch cell {
-			case Unknown | Food:
-				final path = grid.getPath( startPositionIndex, pelletPositionIndex );
-				if( path.result != None ) {
-					final cost = path.cost;
-					pelletTargetContainer.push({ index: pelletPositionIndex, path: path,  type: Food, priority: getFoodPriority( IMPORTANCE_FOOD, cost )});
-					// if( id == 4 ) CodinGame.printErr( '$id pellet index $pelletPositionIndex [$xp $yp]   ${getFoodPriority( cost, IMPORTANCE_FOOD )}' );
-				} else {
-					CodinGame.printErr( 'Error no path found from ${grid.sxy( startPositionIndex )} to ${grid.sxy( pelletPositionIndex )}' );
-				}
-			case Superfood:
-				final path = grid.getPath( startPositionIndex, pelletPositionIndex );
-				if( path.result != None ) {
-					final cost = path.cost;
-					pelletTargetContainer.push({ index: pelletPositionIndex, path: path, type: Superfood, priority: getFoodPriority( IMPORTANCE_SUPERFOOD, cost )});
-					// if( id == 4 ) CodinGame.printErr( '$id pellet index $pelletPositionIndex [$xp $yp]   ${getFoodPriority( cost, IMPORTANCE_FOOD )}' );
-				} else {
-					CodinGame.printErr( 'Error no path found from ${grid.sxy( startPositionIndex )} to ${grid.sxy( pelletPositionIndex )}' );
-				}
-			default: // no-op;
-		}
-	}
-
-	inline function getFoodPriority( importance:Float, cost:Float ) {
-		return importance / cost;
+		pelletManager.updatePellets( x, y, positionIndex, superPellets, maxPellets );
 	}
 
 	public function updateEnemies() {
@@ -290,8 +184,8 @@ class Pac {
 			// if( id == 4 ) CodinGame.printErr( 'destinations xy ${destinations.map( d -> grid.sxy( d )).join(" ")}' );
 		
 			// determine target from pelletTargets
-			if( pelletTargets.length > 0 ) {
-				final currentPelletTargets = step == 0 ? pelletTargets : getPelletsStep2( sx, sy );
+			if( pelletManager.pelletTargets.length > 0 ) {
+				final currentPelletTargets = step == 0 ? pelletManager.pelletTargets : pelletManager.getPelletsStep2( sx, sy );
 				if( step != 0 ) currentPelletTargets.sort( sortPelletPriorites ); // they are already sorted in step 0
 				
 				// final pelletTarget = currentPelletTargets[0];
@@ -391,8 +285,8 @@ class Pac {
 		// 	state = Speed;
 		if( danger && abilityCooldown == 0 ) {
 			state = Switch( TYPESWITCH[type] );
-		} else if( !danger && abilityCooldown == 0 ) {
-			state = Speed;
+		// } else if( !danger && abilityCooldown == 0 ) {
+		// 	state = Speed;
 		} else {
 			state = Move( destinationPriorities[0].index );
 		}

@@ -55,6 +55,48 @@ class Grid {
 		return visibleCellIds;
 	}
 
+	public function getCellIndicesAroundPosition( x:Int, y:Int, types:Array<Cell>, max:Int ) {
+		
+		final indices:Array<Int> = [];
+		for( r in 1...widthHalf + 1 ) {
+			final cTop = y - r;
+			final cLeft = x - r;
+			final cBottom = y + r;
+			final cRight = x + r;
+			if( indices.length > max ) break;
+
+			final rTop = Std.int( Math.max( 0, cTop ));
+			final rBottom = Std.int( Math.min( height - 1, cBottom ));
+
+			final rLeft = ( width + cLeft ) % width;
+			for( yp in rTop...rBottom ) {
+				final index = getCellIndex( rLeft, yp );
+				if( types.contains( cells[index] )) indices.push( index );
+			}
+			
+			if( rBottom == cBottom ) for( xp in cLeft...cRight ) {
+				final rp = ( width + xp ) % width;
+				final index = getCellIndex( rp, rBottom );
+				if( types.contains( cells[index] )) indices.push( index );
+			}
+
+			final rRight = cRight % width;
+			for( yp in -rBottom...-rTop ) {
+				final index = getCellIndex( rRight, -yp );
+				if( types.contains( cells[index] )) indices.push( index );
+			}
+			
+			if( rTop == cTop ) for( xp in -cRight...-cLeft ) {
+				final rp = ( width - xp ) % width;
+				final index = getCellIndex( rp, rTop );
+				if( types.contains( cells[index] )) indices.push( index );
+			}
+		}
+		return indices;
+	}
+
+
+
 	public function getPath( from:Int, to:Int ) {
 		final s = '${from}_${to}';
 		final startX = getCellX( from );

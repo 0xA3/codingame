@@ -1,6 +1,8 @@
 package test.navigator;
 
-import Navigator.PelletTarget;
+import PelletManager.PelletTarget;
+import test.GetFloorLines;
+import test.GetPelletIndices;
 
 using buddy.Should;
 
@@ -10,22 +12,22 @@ class TestSetDestinationPriorities extends buddy.BuddySuite {
 
 		describe( "TestSetDestinationPriorities", {
 
-			it( "test getFloorLines", {
+			it( "test GetFloorLines.get", {
 				// Main.getLetterWeights( "a" ).get( 'a' ).length.should.be( 1 );
 				final lines = [
 					"a"
 				];
-				final floorLines = getFloorLines( lines );
+				final floorLines = GetFloorLines.get( lines );
 				floorLines.length.should.be( 1 );
 				floorLines[0].should.be(" ");
 			});
 			
-			it( "test getPelletIndices", {
+			it( "test GetPelletIndices.get", {
 				// Main.getLetterWeights( "a" ).get( 'a' ).length.should.be( 1 );
 				final lines = [
 					"·"
 				];
-				final pelletIndices = getPelletIndices( lines, "·" );
+				final pelletIndices = GetPelletIndices.get( lines, "·" );
 				pelletIndices.length.should.be( 1 );
 				pelletIndices[0].should.be( 0 );
 			});
@@ -45,7 +47,7 @@ class TestSetDestinationPriorities extends buddy.BuddySuite {
 					{ index: 1, path: grid.getPath( 0, 1 ), type: Food, priority: 1 }
 				];
 				
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				final destinationPriorities = navigator.getDestinationPriorities( destinations, pelletTargets );
 
 				destinationPriorities[0].should.be( 0 );
@@ -67,7 +69,7 @@ class TestSetDestinationPriorities extends buddy.BuddySuite {
 					{ index: 2, path: grid.getPath( 0, 2 ), type: Food, priority: 0.5 }
 				];
 				
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				final destinationPriorities = navigator.getDestinationPriorities( destinations, pelletTargets );
 
 				destinationPriorities[0].should.be( 0 );
@@ -79,12 +81,12 @@ class TestSetDestinationPriorities extends buddy.BuddySuite {
 				final lines = [
 					" ··#"
 				];
-				final grid = GridFactory.createGrid( lines[0].length, lines.length, getFloorLines( lines ));
+				final grid = GridFactory.createGrid( lines[0].length, lines.length, GetFloorLines.get( lines ));
 				
 				final destinations = [ 0 => 0.0, 1 => 0.0 ];
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				
-				final pelletTargets = navigator.createPelletTargets( startIndex, getPelletIndices( lines, "·" ), Food, 1 );
+				final pelletTargets = navigator.createPelletTargets( startIndex, GetPelletIndices.get( lines, "·" ), Food, 1 );
 				
 				final destinationPriorities = navigator.getDestinationPriorities( destinations, pelletTargets );
 
@@ -97,12 +99,12 @@ class TestSetDestinationPriorities extends buddy.BuddySuite {
 				final lines = [
 					"·· ··#"
 				];
-				final grid = GridFactory.createGrid( lines[0].length, lines.length, getFloorLines( lines ));
+				final grid = GridFactory.createGrid( lines[0].length, lines.length, GetFloorLines.get( lines ));
 				
 				final destinations = [ 1 => 0.0, 2 => 0.0, 3 => 0.0 ];
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				
-				final pelletTargets = navigator.createPelletTargets( 2, getPelletIndices( lines, "·" ), Food, 1 );
+				final pelletTargets = navigator.createPelletTargets( 2, GetPelletIndices.get( lines, "·" ), Food, 1 );
 				
 				final destinationPriorities = navigator.getDestinationPriorities( destinations, pelletTargets );
 
@@ -116,12 +118,12 @@ class TestSetDestinationPriorities extends buddy.BuddySuite {
 				final lines = [
 					"·· ··#"
 				];
-				final grid = GridFactory.createGrid( lines[0].length, lines.length, getFloorLines( lines ));
+				final grid = GridFactory.createGrid( lines[0].length, lines.length, GetFloorLines.get( lines ));
 				
 				final destinations = [ 1 => 0.0, 2 => 0.0, 3 => 0.0 ];
-				final navigator = new Navigator( 0, grid );
+				final pelletManager = new PelletManager( 0, grid );
 				
-				final pelletTargets = navigator.createPelletTargets( 2, getPelletIndices( lines, "·" ), Food, 1 );
+				final pelletTargets = navigator.createPelletTargets( 2, GetPelletIndices.get( lines, "·" ), Food, 1 );
 				
 				final destinationPriorities = navigator.getDestinationPriorities( destinations, pelletTargets );
 
@@ -129,7 +131,6 @@ class TestSetDestinationPriorities extends buddy.BuddySuite {
 				destinationPriorities[2].should.be( 0 );
 				destinationPriorities[3].should.be( 1.5 );
 			});
-			
 
 		});
 	}
@@ -137,23 +138,4 @@ class TestSetDestinationPriorities extends buddy.BuddySuite {
 	
 	
 	
-	public function getFloorLines( lines:Array<String> ) {
-		final floorLines = lines.map( line -> line.split("").map( s -> s == "#" ? "#" : " " ).join("") );
-		return floorLines;
-	}
-
-	public function getPelletIndices( lines:Array<String>, pelletChar:String ) {
-		final width = lines.length > 0 ? lines[0].length : throw "Error: empty array";
-		final a = lines.map( line -> line.split(""));
-		
-		final indices:Array<Int> = [];
-		for( y in 0...a.length ) {
-			final line = a[y];
-			if( line.length != width ) throw 'Error: line $y length should be $width but is ${line.length}';
-			for( x in 0...line.length ) {
-				if( line[x] == "·" ) indices.push( y * width + x );
-			}
-		}
-		return indices;
-	}
 }
