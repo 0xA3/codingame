@@ -31,8 +31,10 @@ class DistributePellets {
 	}
 
 	static function sortByFirstPelletPriority( p1:Pac, p2:Pac ) {
-		if( p1.pelletManager.pelletTargets[0].priority > p2.pelletManager.pelletTargets[0].priority ) return -1;
-		if( p1.pelletManager.pelletTargets[0].priority < p2.pelletManager.pelletTargets[0].priority ) return 1;
+		final pp1 = p1.pelletManager.pelletTargets[0].priority;
+		final pp2 = p2.pelletManager.pelletTargets[0].priority;
+		if( pp1 > pp2 ) return -1;
+		if( pp1 < pp2 ) return 1;
 		return 0;
 	}
 }

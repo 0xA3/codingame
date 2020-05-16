@@ -144,7 +144,7 @@ class Main {
 		
 		for( pac in myPacs ) {
 			if( pac.type != DEAD ) {
-				pac.updatePellets( superPellets, 15 );
+				pac.updatePellets( superPellets, 32 );
 				pac.updateEnemies();
 			}
 		}
