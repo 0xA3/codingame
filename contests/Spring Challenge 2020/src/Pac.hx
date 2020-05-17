@@ -75,12 +75,12 @@ class Pac {
 	public function reset() {
 		grid.setCell2d( x, y, Empty ); // set cell of currentPosition to Empty
 		previousPositions.add( positionIndex );
-		// if( id == 1 ) CodinGame.printErr( 'reset Cell $x $y to Empty' );
+		// if( id == 0 ) CodinGame.printErr( 'reset Cell $x $y to Empty' );
 		
 		// if( faction == Me ) grid.setCell2d( destinationX, destinationY, destinationCellType );
 
 		// CodinGame.printErr( 'cleanup destination $destinationX $destinationY from ${CellPrint.print( destinationCellType )} to ${CellPrint.print( grid.getCell2d( destinationX, destinationY ))}' );
-		// if( id == 1 ) CodinGame.printErr( 'reset Cell $destinationX $destinationY to ${CellPrint.print( grid.getCell2d(destinationX, destinationY))}' );
+		// if( id == 0 ) CodinGame.printErr( 'reset Cell $destinationX $destinationY to ${CellPrint.print( grid.getCell2d(destinationX, destinationY))}' );
 		strongerEnemies.splice( 0, strongerEnemies.length ); // clear enemies
 		weakerEnemies.splice( 0, weakerEnemies.length ); // clear enemies
 	}
@@ -108,7 +108,7 @@ class Pac {
 		
 		visibleCellIndices = grid.getVisibleCellIndices( x, y );
 		// CodinGame.printErr( 'update setEmpty $x $y' );
-		// if( id == 1 ) CodinGame.printErr( '$id update x $x y $y' );
+		// if( id == 0 ) CodinGame.printErr( '$id update x $x y $y' );
 		// CodinGame.printErr( '$id speed $speedTurnsLeft cooldown $abilityCooldown' );
 	}
 	
@@ -118,7 +118,7 @@ class Pac {
 
 	public function updateEnemies() {
 		for( enemyPac in enemyPacs ) {
-			// if( id == 1 ) if( enemyPac.type != DEAD ) CodinGame.printErr( 'enemyPac ${enemyPac.id} ${grid.sxy( enemyPac.positionIndex)} isVisible ${enemyPac.isVisible}' );
+			// if( id == 0 ) if( enemyPac.type != DEAD ) CodinGame.printErr( 'enemyPac ${enemyPac.id} ${grid.sxy( enemyPac.positionIndex)} isVisible ${enemyPac.isVisible}' );
 			if( enemyPac.isVisible && enemyPac.type != DEAD ) {
 				final myStrength = STRENGTHS[type][enemyPac.type];
 				final pathToEnemy = grid.getPath( positionIndex, enemyPac.positionIndex );
@@ -156,7 +156,7 @@ class Pac {
 		final l1Destinations = grid.getPossibleDestinations( x, y );
 		final possibleDestinations = grid.getPossibleDestinations( x, y, speed );
 		// init destinations with neutral priority
-		destinationPriorities = possibleDestinations.map( positionIndex -> { index: positionIndex, priority: 1.0 });
+		destinationPriorities = possibleDestinations.map( index -> { index: index, priority: grid.getCell( index ) == Empty ? 0.5 : 1.0 });
 		addPriority( positionIndex, IMPORTANCE_CURRENT_POSITION );
 		
 		// for( previousPositionIndex in previousPositions ) {
@@ -172,18 +172,22 @@ class Pac {
 		
 		final p1Priorities = pelletManager.getDestinationPriorities( l1Destinations, pelletManager.pelletTargets );
 		for( index => value in p1Priorities ) addPriority( index, value );
-		
+		if( id == 0 ) CodinGame.printErr( '$id p1Priorities ${grid.m2s( p1Priorities )}' );
+
 		if( speed ) {
 			final highestL1Index = getHighestIndex( p1Priorities );
 			final sx = grid.getCellX( highestL1Index );
 			final sy = grid.getCellY( highestL1Index );
 			final p2Pellets = pelletManager.createModifiedPelletTargets( highestL1Index, pelletManager.pelletTargets );
 			final l2Destinations = grid.getPossibleDestinations( sx, sy );
+
 			if( l2Destinations.length > 2 ) {
 				final p2Priorities = pelletManager.getDestinationPriorities( l2Destinations, p2Pellets );
+				p2Priorities.remove( positionIndex );
 				final highestL2Index = getHighestIndex( p2Priorities );
 				for( index => value in p2Priorities ) addPriority( index, value );
 				addPriority( highestL2Index, p1Priorities[highestL1Index] );
+				if( id == 0 ) CodinGame.printErr( '$id p2Priorities ${grid.m2s( p2Priorities )}' );
 			}
 		}
 		
@@ -216,15 +220,15 @@ class Pac {
 
 		// for( destinationPriority in destinationPriorities ) destinationPriority.priority /= layers;
 		destinationPriorities.sort( sortDestinationPriorities );
-		for( d in destinationPriorities ) {
-			if( id == 1 ) CodinGame.printErr( '$id ${grid.sxy( positionIndex )} to ${grid.sxy( d.index)} priority ${d.priority}' );
-		}
+		// for( d in destinationPriorities ) {
+		// 	if( id == 0 ) CodinGame.printErr( '$id ${grid.sxy( positionIndex )} to ${grid.sxy( d.index)} priority ${d.priority}' );
+		// }
 
 		// dangerDistance
 		// huntDistance
 		// abilityCooldown
 		// speed
-		// if( id == 1 ) CodinGame.printErr( '$id hunt $huntDistance danger $dangerDistance cooldown $abilityCooldown speed $speed' );
+		// if( id == 0 ) CodinGame.printErr( '$id hunt $huntDistance danger $dangerDistance cooldown $abilityCooldown speed $speed' );
 		// if( huntDistance > 2 && dangerDistance > 6 && abilityCooldown == 0 ) {
 		// 	state = Speed;
 		if( danger && abilityCooldown == 0 ) {

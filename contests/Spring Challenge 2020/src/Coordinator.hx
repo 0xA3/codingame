@@ -1,6 +1,31 @@
-class DistributePellets {
-	
-	public static function distribute( pacs:Array<Pac> ) {
+class Coordinator {
+
+	final myPacs:Map<Int, Pac>;
+	final superPellets:Map<Int, Bool>;
+
+	public function new( myPacs:Map<Int, Pac>, superPellets:Map<Int, Bool> ) {
+		this.myPacs = myPacs;
+		this.superPellets = superPellets;
+	}
+
+	public function navigate() {
+		
+		for( pac in myPacs ) {
+			if( pac.type != DEAD ) {
+				pac.updatePellets( superPellets, 32 );
+				pac.updateEnemies();
+			}
+		}
+		
+		final pacs = Lambda.array( myPacs ).filter( pac -> pac.type != DEAD );
+		distributePellets( pacs );
+		for( pac in pacs ) {
+			pac.navigate();
+		}
+
+	}
+
+	function distributePellets( pacs:Array<Pac> ) {
 		
 		pacs.sort( sortByFirstPelletPriority );
 		for( a in 0...pacs.length - 1 ) {
@@ -14,7 +39,7 @@ class DistributePellets {
 			}
 			if( same.length > 1 ) {
 				resolvePellets( same );
-				distribute( pacs );
+				distributePellets( pacs );
 				break;
 			}
 		}
@@ -37,4 +62,5 @@ class DistributePellets {
 		if( pp1 < pp2 ) return 1;
 		return 0;
 	}
+
 }

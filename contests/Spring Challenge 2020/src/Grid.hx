@@ -217,4 +217,12 @@ class Grid {
 		return '[${getCellX( index )}:${getCellY( index )}]';
 	}
 
+	public function m2s( m:Map<Int,Float> ) {
+		var a:Array<String> = [];
+		for( index => priority in m ) {
+			a.push( '${sxy( index )}: $priority' );
+		}
+		return a.join(", ");
+	}
+
 }

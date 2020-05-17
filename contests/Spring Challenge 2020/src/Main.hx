@@ -31,6 +31,7 @@ class Main {
 
 		grid = GridFactory.createGrid( width, height, lines );
 		pelletBuffer = new Vector<Bool>( width * height );
+		final coordinator = new Coordinator( myPacs, superPellets );
 
 		updatePacs();
 		for( pacId => pac in myPacs ) {
@@ -42,7 +43,8 @@ class Main {
 			}
 		}
 		updatePellets( width );
-		navigate();
+		coordinator.navigate();
+		output();
 		frame++;
 
 		// game loop
@@ -51,7 +53,8 @@ class Main {
 			reset();
 			updatePacs();
 			updatePellets( width );
-			navigate();
+			coordinator.navigate();
+			output();
 			frame++;
 		}
 	}
@@ -140,21 +143,7 @@ class Main {
 		}
 	}
 
-	static inline function navigate() {
-		
-		for( pac in myPacs ) {
-			if( pac.type != DEAD ) {
-				pac.updatePellets( superPellets, 32 );
-				pac.updateEnemies();
-			}
-		}
-		
-		final pacs = Lambda.array( myPacs ).filter( pac -> pac.type != DEAD );
-		DistributePellets.distribute( pacs );
-		for( pac in pacs ) {
-			pac.navigate();
-		}
-		
+	static inline function output() {
 		CodinGame.print( myPacs.map( pac -> pac.go()).join( "|" ));     // MOVE <pacId> <x> <y>
 	}
 }
