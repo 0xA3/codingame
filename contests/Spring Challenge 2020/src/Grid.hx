@@ -94,14 +94,6 @@ class Grid {
 		return indices;
 	}
 
-	// public function updateGraph() {
-	// 	final worldMap = cells.map( c -> switch c {
-	// 		case Wall | Friend | Enemy: 1;
-	// 		default: 0;
-	// 	});
-	// 	graph.setWorld( worldMap );
-	// }
-
 	public function getPath( from:Int, to:Int ) {
 		final s = '${from}_${to}';
 		final startX = getCellX( from );

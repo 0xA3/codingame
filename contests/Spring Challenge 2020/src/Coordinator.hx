@@ -34,6 +34,7 @@ class Coordinator {
 		}
 		
 		distributePellets( pacs );
+		// for( pac in pacs ) CodinGame.printErr( '${pac.id} pellet0 ${grid.sxy( pac.pelletManager.pelletTargets[0].index )}' );
 		
 		for( pac in pacs ) {
 			pac.navigate();
