@@ -31,7 +31,7 @@ class Main {
 
 		grid = GridFactory.createGrid( width, height, lines );
 		pelletBuffer = new Vector<Bool>( width * height );
-		final coordinator = new Coordinator( myPacs, superPellets );
+		final coordinator = new Coordinator( grid, myPacs, superPellets );
 
 		updatePacs();
 		for( pacId => pac in myPacs ) {

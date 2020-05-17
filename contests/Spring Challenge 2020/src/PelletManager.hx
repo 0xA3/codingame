@@ -11,10 +11,7 @@ class PelletManager {
 		this.grid = grid;
 	}
 
-	public function updatePellets( x:Int, y:Int, positionIndex:Int, superPellets:Map<Int, Bool>, maxPellets:Int ) {
-		
-		final superPelletIndices = [for( i in superPellets.keys()) i];
-		final normalPelletIndices = grid.getCellIndicesAroundPosition( x, y, [Unknown, Food], maxPellets );
+	public function updatePellets( positionIndex:Int, superPelletIndices:Array<Int>, normalPelletIndices:Array<Int> ) {
 		
 		final superPelletTargets = createPelletTargets( positionIndex, superPelletIndices, Superfood, Pac.IMPORTANCE_SUPERFOOD );
 		final normalPelletTargets = createPelletTargets( positionIndex, normalPelletIndices, Food, Pac.IMPORTANCE_FOOD );

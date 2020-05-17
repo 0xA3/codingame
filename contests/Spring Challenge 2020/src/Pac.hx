@@ -1,3 +1,4 @@
+import Coordinator.P2;
 import haxe.ds.GenericStack;
 import Cell;
 import PacType;
@@ -59,6 +60,8 @@ class Pac {
 	var destinationPriorities:Array<DestinationPriority> = [];
 
 	var visibleCellIndices:Array<Int> = [];
+	public var operationCenterX:Int;
+	public var operationCenterY:Int;
 
 	public function new( id:Int, pelletManager:PelletManager, grid:Grid, x:Int, y:Int, enemyPacs:Map<Int, EnemyPac> ) {
 		this.id = id;
@@ -67,6 +70,8 @@ class Pac {
 		this.x = x;
 		this.y = y;
 		this.enemyPacs = enemyPacs;
+		operationCenterX = x;
+		operationCenterY = y;
 
 		this.name = NAMES[id];
 		destinationIndex = grid.getCellIndex( x, y );
@@ -106,6 +111,7 @@ class Pac {
 		this.speedTurnsLeft = speedTurnsLeft;
 		this.abilityCooldown = abilityCooldown;
 		
+		grid.setCell2d( x, y, Friend ); // set cell of currentPosition
 		visibleCellIndices = grid.getVisibleCellIndices( x, y );
 		// CodinGame.printErr( 'update setEmpty $x $y' );
 		// if( id == 0 ) CodinGame.printErr( '$id update x $x y $y' );
@@ -113,7 +119,13 @@ class Pac {
 	}
 	
 	public function updatePellets( superPellets:Map<Int, Bool>, maxPellets:Int ) {
-		pelletManager.updatePellets( x, y, positionIndex, superPellets, maxPellets );
+		final superPelletIndices = [for( i in superPellets.keys()) i];
+		
+		final cx = Std.int(( x + operationCenterX ) / 2 );
+		final cy = Std.int(( y + operationCenterY ) / 2 );
+
+		final normalPelletIndices = grid.getCellIndicesAroundPosition( cx, cy, [Unknown, Food], maxPellets );
+		pelletManager.updatePellets( positionIndex, superPelletIndices, normalPelletIndices );
 	}
 
 	public function updateEnemies() {
@@ -172,7 +184,7 @@ class Pac {
 		
 		final p1Priorities = pelletManager.getDestinationPriorities( l1Destinations, pelletManager.pelletTargets );
 		for( index => value in p1Priorities ) addPriority( index, value );
-		if( id == 0 ) CodinGame.printErr( '$id p1Priorities ${grid.m2s( p1Priorities )}' );
+		// if( id == 0 ) CodinGame.printErr( '$id p1Priorities ${grid.m2s( p1Priorities )}' );
 
 		if( speed ) {
 			final highestL1Index = getHighestIndex( p1Priorities );
@@ -187,25 +199,25 @@ class Pac {
 				final highestL2Index = getHighestIndex( p2Priorities );
 				for( index => value in p2Priorities ) addPriority( index, value );
 				addPriority( highestL2Index, p1Priorities[highestL1Index] );
-				if( id == 0 ) CodinGame.printErr( '$id p2Priorities ${grid.m2s( p2Priorities )}' );
+				// if( id == 0 ) CodinGame.printErr( '$id p2Priorities ${grid.m2s( p2Priorities )}' );
 			}
 		}
 		
 		var huntDistance = 999.0;
-		// attack weaker enemies when the come to me
-		for( enemy in weakerEnemies ) {
-			if( !enemy.movesAway ) {
-				final pathToEnemy = enemy.path;
-				for( step in 1...steps + 1 ) {
-					if( pathToEnemy.path.length > step ) {
-						final pathStep = pathToEnemy.path[step];
-						final pathIndex = grid.getCellIndex( pathStep.x, pathStep.y );
-						addPriority( pathIndex, IMPORTANCE_ENEMY / pathToEnemy.cost );
-						huntDistance = Math.min( pathToEnemy.cost, huntDistance );
-					}
-				}
-			}
-		}
+		// attack weaker enemies when they are in range
+		// for( enemy in weakerEnemies ) {
+		// 	if( !enemy.movesAway ) {
+		// 		final pathToEnemy = enemy.path;
+		// 		for( step in 1...steps + 1 ) {
+		// 			if( pathToEnemy.path.length > step ) {
+		// 				final pathStep = pathToEnemy.path[step];
+		// 				final pathIndex = grid.getCellIndex( pathStep.x, pathStep.y );
+		// 				addPriority( pathIndex, IMPORTANCE_ENEMY / pathToEnemy.cost );
+		// 				huntDistance = Math.min( pathToEnemy.cost, huntDistance );
+		// 			}
+		// 		}
+		// 	}
+		// }
 		
 		// avoid stronger enemies when the come to me
 		var danger = false;
@@ -218,7 +230,6 @@ class Pac {
 			}
 		}
 
-		// for( destinationPriority in destinationPriorities ) destinationPriority.priority /= layers;
 		destinationPriorities.sort( sortDestinationPriorities );
 		// for( d in destinationPriorities ) {
 		// 	if( id == 0 ) CodinGame.printErr( '$id ${grid.sxy( positionIndex )} to ${grid.sxy( d.index)} priority ${d.priority}' );
@@ -289,12 +300,6 @@ class Pac {
 	// 	return -1;
 	// }
 
-	function sortDestinationPriorities( a:DestinationPriority, b:DestinationPriority ) {
-		if( a.priority > b.priority ) return -1;
-		if( b.priority < a.priority ) return 1;
-		return 0;
-	}
-
 	public function go() {
 		
 		switch state {
@@ -312,6 +317,12 @@ class Pac {
 
 	}
 
+	function sortDestinationPriorities( a:DestinationPriority, b:DestinationPriority ) {
+		if( a.priority > b.priority ) return -1;
+		if( b.priority < a.priority ) return 1;
+		return 0;
+	}
+
 	public function sortPelletPriorites( p1:PelletTarget, p2:PelletTarget ) {
 		if( p1.priority > p2.priority ) return -1;
 		if( p1.priority < p2.priority ) return 1;
@@ -326,7 +337,7 @@ class Pac {
 		return visibleCellIndices.contains( grid.getCellIndex( x, y ));
 	}
 
-	inline function getDistance2( xp:Int, yp:Int ) {
+	public inline function getDistance2( xp:Int, yp:Int ) {
 		final dx = xp - x;
 		final dy = yp - y;
 		return dx * dx + dy * dy;
@@ -335,6 +346,10 @@ class Pac {
 	public function mirrorToEnemy() {
 		final mirrorX = grid.width - ( x + 1 );
 		return new EnemyPac( id, grid, mirrorX, y );
+	}
+
+	public function spos() {
+		return '[$x $y]';
 	}
 }
 

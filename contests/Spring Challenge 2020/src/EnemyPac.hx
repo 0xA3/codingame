@@ -55,6 +55,7 @@ class EnemyPac {
 
 		cellsInReach = grid.getPossibleDestinations( x, y, speed );
 		
+		grid.setCell2d( x, y, Enemy ); // set cell of currentPosition
 		isVisible = true; // to find enemy visible pacs
 	}
 

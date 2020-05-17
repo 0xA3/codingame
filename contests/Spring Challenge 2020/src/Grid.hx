@@ -7,10 +7,9 @@ class Grid {
 	public final height:Int;
 	final floors:Array<Bool>;
 	public final cells:Array<Cell>;
+	final graph:Graph;
 
 	public final superPellets:Array<Int> = [];
-
-	final graph:Graph;
 
 	public function new( width:Int, height:Int, floors:Array<Bool>, cells:Array<Cell>, graph:Graph ) {
 		this.width = width;
@@ -95,7 +94,13 @@ class Grid {
 		return indices;
 	}
 
-
+	// public function updateGraph() {
+	// 	final worldMap = cells.map( c -> switch c {
+	// 		case Wall | Friend | Enemy: 1;
+	// 		default: 0;
+	// 	});
+	// 	graph.setWorld( worldMap );
+	// }
 
 	public function getPath( from:Int, to:Int ) {
 		final s = '${from}_${to}';

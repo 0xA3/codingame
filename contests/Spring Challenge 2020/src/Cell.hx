@@ -4,10 +4,8 @@ enum abstract Cell(Int) {
 	var Empty;
 	var Food;
 	var Superfood;
-	// var Enemy;
-	// var TargetEnemy;
-	// var Friend;
-	// var TargetFriend;
+	var Friend;
+	var Enemy;
 }
 	 
 class CellPrint {
@@ -18,10 +16,8 @@ class CellPrint {
 			case Empty: "Empty";
 			case Food: "Food";
 			case Superfood: "Superfood";
-			// case Enemy: "Enemy";
-			// case TargetEnemy: "TargetEnemy";
-			// case Friend: "Friend";
-			// case TargetFriend: "TargetFriend";
+			case Friend: "Friend";
+			case Enemy: "Enemy";
 		}
 	}
 }
