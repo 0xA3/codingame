@@ -137,7 +137,11 @@ class Main {
 		for( cellId in nonEmptyVisibleCellIds ) {
 			// CodinGame.printErr( 'cell ${grid.getCellX( cellId )} ${grid.getCellY( cellId )} ${pelletBuffer[cellId]}' );
 			if( !pelletBuffer[cellId] ) {
-				grid.setCell( cellId, Empty );
+				switch grid.getCell( cellId ) {
+					case Unknown | Food | Superfood: grid.setCell( cellId, Empty );
+					default: // no-op
+				}
+				
 				// CodinGame.printErr( 'clear empty cells set ${grid.getCellX( cellId )} ${grid.getCellY( cellId )} Empty' );
 			}
 		}

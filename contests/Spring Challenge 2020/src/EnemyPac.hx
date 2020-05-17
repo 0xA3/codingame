@@ -56,6 +56,7 @@ class EnemyPac {
 		cellsInReach = grid.getPossibleDestinations( x, y, speed );
 		
 		grid.setCell2d( x, y, Enemy ); // set cell of currentPosition
+		// CodinGame.printErr( 'enemy $id setCell [$x $y] to Enemy' );
 		isVisible = true; // to find enemy visible pacs
 	}
 

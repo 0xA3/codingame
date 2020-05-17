@@ -1,3 +1,5 @@
+import Cell.CellPrint;
+import astar.types.PathPoint;
 import Pac.DestinationPriority;
 
 class PelletManager {
@@ -32,23 +34,41 @@ class PelletManager {
 		final pelletTargets:Array<PelletTarget> = [];
 		for( endIndex in indices ) {
 			if( startIndex != endIndex ) {
+				// if( id == 0 && type == Superfood ) CodinGame.printErr( '$id getPath $startIndex ${grid.sxy( startIndex )} to $endIndex ${grid.sxy( endIndex )}' );
 				final path = grid.getPath( startIndex, endIndex );
-				if( path.result == Solved ) {
-					final priority = importance / ( path.cost * path.cost );
-					final pelletTarget:PelletTarget = {
-						index: endIndex,
-						path: path,
-						type: type,
-						priority: priority
+				if( path.result == Solved  ) {
+					// if( id == 0 && endIndex == 215 ) isPathClear( path.path, true );
+					if( isPathClear( path.path )) {
+						final priority = importance / ( path.cost * path.cost );
+						final pelletTarget:PelletTarget = {
+							index: endIndex,
+							path: path,
+							type: type,
+							priority: priority
+						}
+						// if( id == 0 ) CodinGame.printErr( '$id $startIndex ${grid.sxy( startIndex )} $endIndex ${grid.sxy( pelletTarget.index )} priority ${pelletTarget.priority}' );
+						pelletTargets.push( pelletTarget );
+					} else {
+						// if( id == 0 ) CodinGame.printErr( '$id  not clear $startIndex ${grid.sxy( startIndex )} $endIndex ${grid.sxy( endIndex )}' );
 					}
-					// trace( '${grid.sxy( startIndex )} ${grid.sxy( pelletTarget.index )} result ${path.result} cost ${path.cost} path ${path.path}' );
-					pelletTargets.push( pelletTarget );
 				} else {
 					CodinGame.printErr( 'Error no path found from ${grid.sxy( startIndex )} to ${grid.sxy( endIndex )}' );
 				}
 			}
 		}
 		return pelletTargets;
+	}
+
+	function isPathClear( pathPoints:Array<PathPoint>, log = false ) {
+		for( i in 1...pathPoints.length ) {
+			final pathPoint = pathPoints[i];
+			// if( log ) CodinGame.printErr( '[${pathPoint.x} ${pathPoint.y}] ${CellPrint.print( grid.getCell2d( pathPoint.x, pathPoint.y ))}' );
+			switch grid.getCell2d( pathPoint.x, pathPoint.y ) {
+				case Enemy | Friend: return false;
+				default: // no-op
+			}
+		}
+		return true;
 	}
 
 	public function createModifiedPelletTargets( startIndex:Int, oldPelletTargets:Array<PelletTarget> ) {

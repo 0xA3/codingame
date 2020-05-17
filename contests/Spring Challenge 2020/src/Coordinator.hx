@@ -29,7 +29,7 @@ class Coordinator {
 		distributeAreas( pacs.copy());
 		
 		for( pac in pacs ) {
-			pac.updatePellets( superPellets, 32 );
+			pac.updatePellets( superPellets, 31 );
 			pac.updateEnemies();
 		}
 		
@@ -71,18 +71,23 @@ class Coordinator {
 		
 		pacs.sort( sortByFirstPelletPriority );
 		for( a in 0...pacs.length - 1 ) {
-			final targetIndex = pacs[a].pelletManager.pelletTargets[0].index;
-			final same:Array<Pac> = [];
-			same.push( pacs[a] );
-			for( b in a + 1...pacs.length ) {
-				if( pacs[b].pelletManager.pelletTargets[0].index == targetIndex ) {
-					same.push( pacs[b] );
+			if( pacs[a].pelletManager.pelletTargets.length > 0 ) {
+
+				final targetIndex = pacs[a].pelletManager.pelletTargets[0].index;
+				final same:Array<Pac> = [];
+				same.push( pacs[a] );
+				for( b in a + 1...pacs.length ) {
+					if( pacs[b].pelletManager.pelletTargets.length > 0 ) {
+						if( pacs[b].pelletManager.pelletTargets[0].index == targetIndex ) {
+							same.push( pacs[b] );
+						}
+					}
 				}
-			}
-			if( same.length > 1 ) {
-				resolvePellets( same );
-				distributePellets( pacs );
-				break;
+				if( same.length > 1 ) {
+					resolvePellets( same );
+					distributePellets( pacs );
+					break;
+				}
 			}
 		}
 	}
@@ -96,6 +101,12 @@ class Coordinator {
 	}
 
 	function sortByFirstPelletPriority( p1:Pac, p2:Pac ) {
+		final l1 = p1.pelletManager.pelletTargets.length;
+		final l2 = p2.pelletManager.pelletTargets.length;
+		if( l1 == 0 && l2 == 0 ) return 0;
+		if( l1 == 0 ) return 1;
+		if( l2 == 0 ) return -1;
+
 		final pp1 = p1.pelletManager.pelletTargets[0].priority;
 		final pp2 = p2.pelletManager.pelletTargets[0].priority;
 		if( pp1 > pp2 ) return -1;

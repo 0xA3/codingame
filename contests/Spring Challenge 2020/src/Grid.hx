@@ -1,3 +1,4 @@
+import Cell.CellPrint;
 import astar.Graph;
 
 class Grid {
@@ -187,6 +188,7 @@ class Grid {
 	}
 
 	public function setCell2d( x:Int, y:Int, value:Cell ) {
+		// CodinGame.printErr( 'setCell2d [$x $y] ${CellPrint.print( value)}' );
 		cells[y * width + x] = value;
 	}
 
