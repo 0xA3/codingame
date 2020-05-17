@@ -39,7 +39,13 @@ class Coordinator {
 		for( pac in pacs ) {
 			pac.navigate();
 		}
+		
+		distributeDestinations( pacs );
 
+		for( pac in pacs ) {
+			pac.move();
+		}
+		
 	}
 
 	function distributeAreas( pacs:Array<Pac> ) {
@@ -83,10 +89,8 @@ class Coordinator {
 
 	function resolvePellets( pacs:Array<Pac> ) {
 		for( i in 1...pacs.length ) {
-			
 			// final pelletIndex = pacs[i].pelletTargets[0].index;
 			// CodinGame.printErr( 'remove pac ${pacs[i].id} target $pelletIndex' );
-			
 			pacs[i].pelletManager.pelletTargets.shift();
 		}
 	}
@@ -97,6 +101,31 @@ class Coordinator {
 		if( pp1 > pp2 ) return -1;
 		if( pp1 < pp2 ) return 1;
 		return 0;
+	}
+
+	function distributeDestinations( pacs:Array<Pac> ) {
+		for( a in 0...pacs.length - 1 ) {
+			final targetIndex = pacs[a].destinationPriorities[0].index;
+			final same:Array<Pac> = [];
+			same.push( pacs[a] );
+			for( b in a + 1...pacs.length ) {
+				if( pacs[b].destinationPriorities[0].index == targetIndex ) {
+					same.push( pacs[b] );
+				}
+			}
+			if( same.length > 1 ) {
+				resolveDestinations( pacs );
+				break;
+			}
+		}
+	}
+
+	function resolveDestinations( pacs:Array<Pac> ) {
+		for( i in 1...pacs.length ) {
+			// final pelletIndex = pacs[i].pelletTargets[0].index;
+			// CodinGame.printErr( 'remove pac ${pacs[i].id} target $pelletIndex' );
+			pacs[i].destinationPriorities.shift();
+		}
 	}
 
 }

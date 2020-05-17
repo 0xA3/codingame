@@ -48,15 +48,15 @@ class Pac {
 	public var vx = 0;
 	public var vy = 0;
 	public var speed:Bool;
+	var danger:Bool;
 
 	var state:Action = Stop;
 	var collisions = 0;
 
-	public final previousPositions = new GenericStack<Int>();
 	public final strongerEnemies:Array<Enemy> = [];
 	public final weakerEnemies:Array<Enemy> = [];
 
-	var destinationPriorities:Array<DestinationPriority> = [];
+	public var destinationPriorities:Array<DestinationPriority> = [];
 
 	var visibleCellIndices:Array<Int> = [];
 	public var operationCenterX:Int;
@@ -77,7 +77,7 @@ class Pac {
 
 	public function reset() {
 		grid.setCell2d( x, y, Empty ); // set cell of currentPosition to Empty
-		previousPositions.add( positionIndex );
+		danger = false;
 		// if( id == 1 ) CodinGame.printErr( 'reset Cell $x $y to Empty' );
 		
 		// if( faction == Me ) grid.setCell2d( destinationX, destinationY, destinationCellType );
@@ -224,7 +224,6 @@ class Pac {
 		// }
 		
 		// avoid stronger enemies when the come to me
-		var danger = false;
 		for( enemy in strongerEnemies ) {
 			if( enemy.enemyPac.cellsInReach.contains( positionIndex )) {
 				danger = true;
@@ -233,9 +232,12 @@ class Pac {
 				setPriority( index, 0, false );
 			}
 		}
-
 		destinationPriorities.sort( sortDestinationPriorities );
-		final destinationIndex = destinationPriorities[0].index;
+	}
+
+	public function move() {
+		
+		final destinationIndex = destinationPriorities.length > 0 ? destinationPriorities[0].index : positionIndex;
 		for( d in destinationPriorities ) {
 			if( id == 1 ) CodinGame.printErr( '$id ${grid.sxy( positionIndex )} to ${grid.sxy( d.index)} priority ${d.priority}' );
 		}
