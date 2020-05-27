@@ -1,10 +1,12 @@
+*.jpg
 *.js
 *.lua
+*.pdf
+*.psd
 *.py
 *.url
-*.jpg
 howto
 /games/Coders Strike Back - Magusgeek
 /SyncToy*
 .unittest
-*.psd
+contests/Ghosts in the Cell/ideas.txt

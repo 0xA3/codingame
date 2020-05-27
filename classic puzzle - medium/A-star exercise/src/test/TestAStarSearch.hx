@@ -8,7 +8,7 @@ using buddy.Should;
 class TestAStarSearch extends buddy.BuddySuite {
 	
 	public function new() {
-		@include
+
 		describe( "Test AStarSearch", {
 
 			it( "3-node Graph", {
