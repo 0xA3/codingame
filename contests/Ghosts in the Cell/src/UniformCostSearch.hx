@@ -15,7 +15,7 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 		
 		final nodes = incomingNodes.map( n -> n.copy());
 
-		final frontier = new MinPriorityQueue<PathNode>( PathNode.compareCostFromStart );
+		final frontier = new MinPriorityQueue<PathNode>( PathNode.compareCostAndSteps );
 		
 		final startNode = nodes[start];
 		startNode.visited = true;
@@ -25,22 +25,27 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 		while( !frontier.isEmpty()) {
 			final currentNode = frontier.pop();
 			
-			// CodinGame.printErr( 'current ${currentNode.id}' );
+			if( start == 0 ) CodinGame.printErr( 'current ${currentNode.id}' );
 			for( edge in currentNode.neighbors ) {
 				final nextNode = nodes[edge.id];
 				final nextCost = currentNode.costFromStart + edge.cost;
-				// CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} cost $nextCost' + ( nextNode.visited ? '  <  ${nextNode.previous}-${nextNode.id} cost ${nextNode.costFromStart}' : "" ));
+				final intermediates = currentNode.intermediates + 1;
+				// if( start == 0 ) CodinGame.printErr( 'next ${nextNode.id} visited ${nextNode.visited}' );
+				// if( start == 0 ) CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} cost $nextCost' );
+					// CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} cost $nextCost' + ( nextNode.visited ? '  <  ${nextNode.previous}-${nextNode.id} cost ${nextNode.costFromStart}' : "" ));
+				
 				if( nextCost < nextNode.costFromStart ) {
 					nextNode.previous = currentNode.id;
 					nextNode.costToPrevious = edge.cost;
 					nextNode.costFromStart = nextCost;
-					if( !nextNode.visited ) { 
-						frontier.add( nextNode ); }
-					else {
+					nextNode.intermediates = intermediates;
+					if( !nextNode.visited ) {
+						frontier.add( nextNode );
+					} else {
 						frontier.sort();
 					}
 					nextNode.visited = true;
-					// CodinGame.printErr( frontier );
+					if( start == 0 ) CodinGame.printErr( 'frontier $frontier' );
 				}
 			}
 		}
@@ -77,7 +82,7 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 		// path.add( start );
 		final aPath = Lambda.array( path );
 		aPath.reverse();
-		// CodinGame.printErr( aPath );
+		CodinGame.printErr( '${start}-${goal}: ' + aPath.map( edge -> '${edge.from}-${edge.to} cost ${edge.cost}' ).join(", "));
 		return aPath;
 	}
 }
