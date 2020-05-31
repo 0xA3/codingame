@@ -2,6 +2,7 @@ import PathNode.Neighbor;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
+import Std.parseInt;
 
 using Lambda;
 
@@ -15,8 +16,8 @@ class Main {
 	
 	static function main() {
 		
-		final factoryCount = Std.parseInt( readline()); // the number of factories
-		final linkCount = Std.parseInt( readline()); // the number of links between factories
+		final factoryCount = parseInt( readline()); // the number of factories
+		final linkCount = parseInt( readline()); // the number of links between factories
 		
 		// printErr( factoryCount );
 		// printErr( linkCount );
@@ -24,16 +25,17 @@ class Main {
 		final links:Array<Link> = [];
 		for( _ in 0...linkCount ) {
 			var inputs = readline().split( ' ' );
-			final factory1 = Std.parseInt( inputs[0] );
-			final factory2 = Std.parseInt( inputs[1] );
-			final distance = Std.parseInt( inputs[2] );
+			final factory1 = parseInt( inputs[0] );
+			final factory2 = parseInt( inputs[1] );
+			final distance = parseInt( inputs[2] );
 			links.push({ n1: factory1, n2: factory2, cost: distance });
 			
 			// printErr( inputs.join(' '));
 		}
 		
-		final factories = [for( i in 0...factoryCount) i];
-		final pathNodes = factories.map( id -> {
+		final factories = [for( id in 0...factoryCount) new Factory( id )];
+		final pathNodes = factories.map( factory -> {
+			final id = factory.id;
 			final factoryLinks = links.filter( link -> link.n1 == id || link.n2 == id );
 			final neighbors:Array<Neighbor> = factoryLinks.map( link -> {
 				id: link.n1 == id ? link.n2 : link.n1,
@@ -42,14 +44,17 @@ class Main {
 			return new PathNode( id, neighbors );
 		});
 		final shortestPaths = UniformCostSearch.getShortestPathsBetweenNodes( pathNodes );
+		final pathsThrough = GetPathsThrough.get( factories, shortestPaths );
 
+		final factoriesMap = [for( factory in factories ) factory.id => factory];
 		final myFactories:Array<Factory> = [];
 		final enemyFactories:Array<Factory> = [];
 		final neutralFactories:Array<Factory> = [];
 
+		var turn = 0;
 		// game loop
 		while( true ) {
-			final entityCount = Std.parseInt( readline()); // the number of entities( e.g. factories and troops )
+			final entityCount = parseInt( readline()); // the number of entities( e.g. factories and troops )
 			
 			myFactories.splice( 0, myFactories.length );
 			enemyFactories.splice( 0, enemyFactories.length );
@@ -57,16 +62,17 @@ class Main {
 			
 			for( _ in 0...entityCount ) {
 				final inputs = readline().split( ' ' );
-				final entityId = Std.parseInt( inputs[0] );
+				final entityId = parseInt( inputs[0] );
 				final entityType = inputs[1];
-				final arg1 = Std.parseInt( inputs[2] );
-				final arg2 = Std.parseInt( inputs[3] );
-				final arg3 = Std.parseInt( inputs[4] );
-				final arg4 = Std.parseInt( inputs[5] );
-				final arg5 = Std.parseInt( inputs[6] );
-				// printErr( '$entityId, $entityType, $arg1, $arg2' );
+				final arg1 = parseInt( inputs[2] );
+				final arg2 = parseInt( inputs[3] );
+				final arg3 = parseInt( inputs[4] );
+				final arg4 = parseInt( inputs[5] );
+				final arg5 = parseInt( inputs[6] );
 				if( entityType == "FACTORY" ) {
-					final factory:Factory = { id: entityId, cyborgs: arg2, production: arg3 }
+					final factory = factoriesMap[entityId];
+					factory.update( arg2, arg3 );
+					// printErr( 'id ${factory.id} owner $arg1 cybs ${factory.cyborgs} prod ${factory.production}' );
 					switch arg1 {
 						case 1: myFactories.push( factory );
 						case -1: enemyFactories.push( factory );
@@ -75,6 +81,9 @@ class Main {
 				}
 			}
 		
+			// init factory value
+			if( turn == 0 ) for( factory in factories ) factory.setValue( pathsThrough[factory.id] );
+
 			if( myFactories.length == 0 || enemyFactories.length == 0 ) {
 				print( 'WAIT' );
 			} else {
@@ -96,6 +105,7 @@ class Main {
 					print( 'MOVE $myFactoryId $randomEnemyFactory $troops' );
 				}
 			}
+			turn++;
 		}
 	}
 
@@ -119,13 +129,7 @@ class Main {
 
 }
 
-typedef Factory = {
-	final id:Int;
-	final cyborgs:Int;
-	final production:Int;
-}
-
-typedef FactoryDistance ={
+typedef FactoryDistance = {
 	final id:Int;
 	final distance:Float;
 }

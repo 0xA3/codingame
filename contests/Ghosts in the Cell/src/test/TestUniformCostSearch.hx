@@ -39,7 +39,7 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 				shortestPaths["0-1"].length.should.be( 5 );
 				shortestPaths["0-1"].edges.length.should.be( 1 );
 			});
-			@include			
+
 			it( "3-node Graph 0-2-1 = 0-1", {
 				
 				final input =
