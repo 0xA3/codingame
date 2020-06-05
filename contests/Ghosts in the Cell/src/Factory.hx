@@ -3,6 +3,7 @@ import CodinGame.printErr;
 using Lambda;
 
 enum abstract Action(Int) {
+	var Nothing;
 	var Take;
 	var Attack;
 	var Defend;
@@ -136,6 +137,7 @@ class Factory {
 		final neededForDefense = getNeededForDefense( 5 );
 		if( production == 3 || cyborgs - neededForDefense < 10 ) {
 			score = 0;
+			action = Nothing;
 			return;
 		}
 		
@@ -153,6 +155,7 @@ class Factory {
 
 	public static inline function actionToString( action:Action ) {
 		return switch action {
+			case Nothing: "Nothing";
 			case Take: "Take";
 			case Attack: "Attack";
 			case Defend: "Defend";

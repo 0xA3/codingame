@@ -134,14 +134,16 @@ class Main {
 					for( other in factories ) {
 						final pathId = other == myFactory ? '${myFactory.id}  ' : '${myFactory.id}-${other.id}';
 						final distance = other == myFactory ? 0 : shortestPaths[pathId].length;
-						// printErr( '$pathId ${Factory.actionToString( other.action )} dist $distance needed ${other.neededTroops} prod ${other.production} score ${other.score}' );
+						// if( myFactory.id == 0 ) printErr( '$pathId ${Factory.actionToString( other.action )} dist $distance needed ${other.neededTroops} prod ${other.production} score ${other.score}' );
 						if( sparableForces > 0 ) {
 							switch other.action {
+								case Nothing: // no-op
 								case Attack:
 									final path = shortestPaths[pathId];
 									moves.push( 'MOVE ${myFactory.id} ${path.edges[0].to} $sparableForces' );
 									sparableForces = 0;
 								case Take | Defend:
+									if( !shortestPaths.exists( pathId )) printErr( 'Error: pathId $pathId ${Factory.actionToString( other.action )}' );
 									final path = shortestPaths[pathId];
 									final troopsToSend = Std.int( Math.max( 0, Math.min( sparableForces, other.neededTroops )));
 									moves.push( 'MOVE ${myFactory.id} ${path.edges[0].to} $troopsToSend' );
