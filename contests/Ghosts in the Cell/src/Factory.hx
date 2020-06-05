@@ -9,11 +9,6 @@ enum abstract Action(Int) {
 	var Increase;
 }
 
-enum TroopsToSend {
-	All;
-	Some( troops:Int );
-}
-
 class Factory {
 	
 	public final id:Int;
@@ -26,14 +21,16 @@ class Factory {
 	public final incomingEnemyTroops:Array<Troop> = [];
 
 	public var action:Action;
-	public var troopsToSend = Some( 0 );
+	public var neededTroops = 0;
 
 	public function new( id:Int ) {
 		this.id = id;
 	}
 
 	public function reset() {
+		myIncomingTroops.splice( 0, myIncomingTroops.length );
 		incomingEnemyTroops.splice( 0, incomingEnemyTroops.length );
+		score = 0;
 	}
 
 	public function update( owner:Int, cyborgs:Int, production:Int ) {
@@ -70,6 +67,10 @@ class Factory {
 	function getRequiredToTakeNeutral( turnsToGetThere:Int ) {
 		final fasterEnemyTroops = incomingEnemyTroops.filter( troop -> troop.arrives <= turnsToGetThere );
 		final enemyTroops = fasterEnemyTroops.fold(( troop, sum ) -> sum + troop.cyborgs, 0 );
+		
+		final myFasterTroops = myIncomingTroops.filter( troop -> troop.arrives <= turnsToGetThere );
+		final myTroops = myFasterTroops.fold(( troop, sum ) -> sum + troop.cyborgs, 0 );
+		
 		if( enemyTroops > cyborgs ) {
 			fasterEnemyTroops.sort( Troop.sortByArrives );
 			var turnsUntilTakeover = 0;
@@ -81,9 +82,9 @@ class Factory {
 			}
 			final remainingEnemyTroops = enemyTroops - cyborgs;
 			final productionAfterTakeOver = (turnsToGetThere - turnsUntilTakeover ) * production;
-			return remainingEnemyTroops + productionAfterTakeOver;
+			return remainingEnemyTroops + productionAfterTakeOver - myTroops + 1;
 		} else {
-			return cyborgs;
+			return cyborgs - myTroops + 1;
 		}
 		
 	}
@@ -91,58 +92,72 @@ class Factory {
 	public function calculateScore( turnsToGetThere:Int ) {
 		switch owner {
 			case 1:
-				final defenseScore = calculateDefenseScore( turnsToGetThere );
-				final increaseScore = calculateIncreaseScore();
-				if( defenseScore > increaseScore ) {
-					score = defenseScore;
-					action = Defend;
-				} else {
-					score = increaseScore;
-					action = Increase;
-				}
+				score = calculateDefenseScore( turnsToGetThere );
+				action = Defend;
+				// printErr( '$id ${actionToString( action )} troops $neededTroops score $score' );
 			case -1:
-				calculateEnemyAttackScore( turnsToGetThere );
+				score = calculateEnemyAttackScore( turnsToGetThere );
 				action = Attack;
+				// printErr( '$id ${actionToString( action )} score $score' );
 			default:
-				calculateNeutralScore( turnsToGetThere );
+				score = calculateNeutralScore( turnsToGetThere );
 				action = Take;
+				// printErr( '$id ${actionToString( action )} troops $neededTroops score $score' );
 		}
+
 	}
 
 	function calculateNeutralScore( turnsToGetThere:Int ) {
-		final troops = getRequiredToTakeNeutral( turnsToGetThere );
-		troopsToSend = Some( troops );
-		final s = value / Math.pow( turnsToGetThere, 2 ) * troops;
+		final requiredTroops = getRequiredToTakeNeutral( turnsToGetThere );
+		final myTroopsGoingThere = myIncomingTroops.fold(( troop, sum ) -> sum + troop.cyborgs, 0 );
+		neededTroops = Std.int( Math.max( 0, requiredTroops - myTroopsGoingThere ));
+		final s = value / Math.pow( turnsToGetThere, 2 ) * neededTroops;
 		// printErr( '$id neutral troops $troops $score $s' );
 		return s;
 	}
 
 	function calculateEnemyAttackScore( turnsToGetThere:Int ) {
-		troopsToSend = All;
+		neededTroops = 0;
 		final s = value / ( Math.pow( turnsToGetThere, 2 ) * 8 );
 		// printErr( '$id enemy $score $s' );
 		return s;
 	}
 
 	function calculateDefenseScore( turnsToGetThere:Int ) {
-		final troops = getNeededReinforcements( turnsToGetThere + 5 );
-		troopsToSend = Some( troops );
-		final s = value / ( Math.pow( turnsToGetThere, 2 ) * troops );
+		neededTroops = getNeededReinforcements( turnsToGetThere + 5 );
+		if( neededTroops == 0 ) return 0.0;
+
+		final s = value / ( Math.pow( turnsToGetThere, 2 ) * neededTroops );
 		// printErr( '$id my score $s' );
 		return s;
 	}
 
-	function calculateIncreaseScore() {
+	public function calculateIncreaseScore() {
+		final neededForDefense = getNeededForDefense( 5 );
+		if( production == 3 || cyborgs - neededForDefense < 10 ) {
+			score = 0;
+			return;
+		}
+		
+		neededTroops = 10;
+		score = 1 / Math.pow( 10, 1.6 );
 		action = Increase;
-		final s = 1 / Math.pow( 10, 1.6 );
-		// printErr( '$id my increase $s' );
-		return s;
+		// printErr( '$id ${actionToString( action )} score $score' );
 	}
 
 	public static function sortByScore( f1:Factory, f2:Factory ) {
 		if( f1.score > f2.score ) return -1;
 		if( f1.score < f2.score ) return 1;
 		return 0;
+	}
+
+	public static inline function actionToString( action:Action ) {
+		return switch action {
+			case Take: "Take";
+			case Attack: "Attack";
+			case Defend: "Defend";
+			case Increase: "Increase";
+		}
 	}
 
 }

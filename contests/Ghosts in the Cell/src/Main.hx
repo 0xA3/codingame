@@ -107,36 +107,51 @@ class Main {
 			// init factory value
 			if( turn == 0 ) for( factory in factories ) factory.calculateValue( pathsThrough[factory.id] );
 
+			final myFactoriesCount = Lambda.array( myFactories ).length;
+			final enemyFactoriesCount = Lambda.array( enemyFactories ).length;
+			final myProduction = myFactories.fold(( factory, sum ) -> sum += factory.production, 0 );
+			final enemyProduction = enemyFactories.fold(( factory, sum ) -> sum += factory.production, 0 );
+			// printErr( 'myFactories $myFactoriesCount  enemyFactories $enemyFactoriesCount' );
+			// printErr( 'myProduction $myProduction  enemyProduction $enemyProduction' );
+
 			final moves:Array<String> = [];
 			for( myFactory in myFactories ) {
-				myFactory.score = 0;
+				// printErr( 'factory ${myFactory.id}' );
 				for( other in factories ) {
-					if( other.id != myFactory.id ) {
+					if( other == myFactory ) {
+						myFactory.calculateIncreaseScore();
+					} else {
 						final pathId = '${myFactory.id}-${other.id}';
 						final turnsToGetThere = Std.int( shortestPaths[pathId].length );
 						other.calculateScore( turnsToGetThere );
 					}
 				}
 				factories.sort( Factory.sortByScore );
-				// for( other in factories ) {
-				// 	printErr( '${myFactory.id}-${other.id} score ${other.score}' );
-				// }
+
 				var sparableForces = myFactory.cyborgs - myFactory.getNeededForDefense( 5 );
-				// printErr( 'sparableForces $sparableForces' );
+				// printErr( '${myFactory.id} sparableForces $sparableForces' );
 				if( sparableForces > 0 ) {
 					for( other in factories ) {
-						if( other.id != myFactory.id ) {
-							final pathId = '${myFactory.id}-${other.id}';
-							final path = shortestPaths[pathId];
-							
-							final troopsToSend = switch other.troopsToSend {
-								case All: sparableForces;
-								case Some( troopsToSend ): Std.int( Math.max( 0, Math.min( sparableForces, troopsToSend )));
+						final pathId = other == myFactory ? '${myFactory.id}  ' : '${myFactory.id}-${other.id}';
+						final distance = other == myFactory ? 0 : shortestPaths[pathId].length;
+						// printErr( '$pathId ${Factory.actionToString( other.action )} dist $distance needed ${other.neededTroops} prod ${other.production} score ${other.score}' );
+						if( sparableForces > 0 ) {
+							switch other.action {
+								case Attack:
+									final path = shortestPaths[pathId];
+									moves.push( 'MOVE ${myFactory.id} ${path.edges[0].to} $sparableForces' );
+									sparableForces = 0;
+								case Take | Defend:
+									final path = shortestPaths[pathId];
+									final troopsToSend = Std.int( Math.max( 0, Math.min( sparableForces, other.neededTroops )));
+									moves.push( 'MOVE ${myFactory.id} ${path.edges[0].to} $troopsToSend' );
+									sparableForces -= troopsToSend;
+								case Increase:
+									moves.push( 'INC ${myFactory.id}' );
+									sparableForces -= 10;
 							}
-							moves.push( 'MOVE ${myFactory.id} ${path.edges[0].to} $troopsToSend' );
-							sparableForces -= troopsToSend;
-							if( sparableForces <= 0 ) break;
 						}
+						// if( sparableForces <= 0 ) break;
 					}
 				}
 			}
