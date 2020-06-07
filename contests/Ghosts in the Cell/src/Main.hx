@@ -1,3 +1,4 @@
+import haxe.Timer;
 import PathNode.Neighbor;
 import CodinGame.print;
 import CodinGame.printErr;
@@ -33,6 +34,8 @@ class Main {
 			// printErr( inputs.join(' '));
 		}
 		
+		final stopWatch = new Stopwatch();
+
 		final factories = [for( id in 0...factoryCount) new Factory( id )];
 		final pathNodes = factories.map( factory -> {
 			final id = factory.id;
@@ -52,15 +55,16 @@ class Main {
 		final neutralFactories:Array<Factory> = [];
 
 		var turn = 0;
+		final delta = stopWatch.stamp();
+		printErr( 'stamp ${Stopwatch.d( delta )}' );
 		// game loop
 		while( true ) {
 			for( factory in factories ) factory.reset();
-			
-			final entityCount = parseInt( readline()); // the number of entities( e.g. factories and troops )
-			
 			myFactories.splice( 0, myFactories.length );
 			enemyFactories.splice( 0, enemyFactories.length );
 			neutralFactories.splice( 0, neutralFactories.length );
+			
+			final entityCount = parseInt( readline()); // the number of entities( e.g. factories and troops )
 
 			for( _ in 0...entityCount ) {
 				final inputs = readline().split( ' ' );
@@ -112,7 +116,7 @@ class Main {
 			final myProduction = myFactories.fold(( factory, sum ) -> sum += factory.production, 0 );
 			final enemyProduction = enemyFactories.fold(( factory, sum ) -> sum += factory.production, 0 );
 			// printErr( 'myFactories $myFactoriesCount  enemyFactories $enemyFactoriesCount' );
-			// printErr( 'myProduction $myProduction  enemyProduction $enemyProduction' );
+			printErr( 'myProduction $myProduction  enemyProduction $enemyProduction' );
 
 			final moves:Array<String> = [];
 			for( myFactory in myFactories ) {
@@ -134,8 +138,9 @@ class Main {
 					for( other in factories ) {
 						final pathId = other == myFactory ? '${myFactory.id}  ' : '${myFactory.id}-${other.id}';
 						final distance = other == myFactory ? 0 : shortestPaths[pathId].length;
-						// if( myFactory.id == 0 ) printErr( '$pathId ${Factory.actionToString( other.action )} dist $distance needed ${other.neededTroops} prod ${other.production} score ${other.score}' );
+						final steps = other == myFactory ? "" : shortestPaths[pathId].edges.map( edge -> edge.to ).join( "-" );
 						if( sparableForces > 0 ) {
+							if( myFactory.id == 5 ) printErr( '$pathId ${Factory.actionToString( other.action )} dist $distance path $steps needed ${other.neededTroops} prod ${other.production} score ${other.score}' );
 							switch other.action {
 								case Nothing: // no-op
 								case Attack:
@@ -143,7 +148,6 @@ class Main {
 									moves.push( 'MOVE ${myFactory.id} ${path.edges[0].to} $sparableForces' );
 									sparableForces = 0;
 								case Take | Defend:
-									if( !shortestPaths.exists( pathId )) printErr( 'Error: pathId $pathId ${Factory.actionToString( other.action )}' );
 									final path = shortestPaths[pathId];
 									final troopsToSend = Std.int( Math.max( 0, Math.min( sparableForces, other.neededTroops )));
 									moves.push( 'MOVE ${myFactory.id} ${path.edges[0].to} $troopsToSend' );
@@ -152,15 +156,19 @@ class Main {
 									moves.push( 'INC ${myFactory.id}' );
 									sparableForces -= 10;
 							}
+						} else {
+							if( myFactory.id == 5 ) printErr( 'other $pathId ${Factory.actionToString( other.action )} dist $distance path $steps needed ${other.neededTroops} prod ${other.production} score ${other.score}' );
 						}
 						// if( sparableForces <= 0 ) break;
 					}
 				}
 			}
+			final delta = stopWatch.stamp();
+
 			if( moves.length > 0 ) {
-				print( moves.join( ";" ));
+				print( moves.join( ";" ) + ';MSG ${Stopwatch.d( delta )}' );
 			} else {
-				print( "WAIT" );
+				print( 'WAIT;MSG $delta ms' );
 			}
 			turn++;
 		}
