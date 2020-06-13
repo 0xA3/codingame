@@ -3,5 +3,5 @@
 -D analyzer-optimize
 -D js-es=6
 -dce full
--main Main
+-main MainVolcomix
 --js dest/app.js
