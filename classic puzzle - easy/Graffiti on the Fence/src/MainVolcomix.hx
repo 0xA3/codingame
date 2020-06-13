@@ -23,17 +23,18 @@ class MainVolcomix {
 		for( report in reports ) {
 			final st = report[0];
 			final ed = report[1];
-			// printErr( 'report $st $ed' );
+			printErr( 'next report $st $ed' );
 			if (st > i) {
-				// printErr( 'st > i   $st > $i' );
+				printErr( 'gap between i $i and st $st' );
 				print( '$i $st' );
 				allPainted = false;
 			}
-			// printErr( 'i = max( $i, $ed )  ${Std.int( Math.max( i, ed ))}' );
+			printErr( i >= ed ? 'leave i at $i' : 'set i to ed $ed' );
 			i = Std.int( Math.max( i, ed ));
 		}
+		printErr( 'finished with reports' );
 		if( i < fenceLength ) {
-			// printErr( 'i < fenceLength' );
+			printErr( 'i < fenceLength' );
 			print( '$i $fenceLength' );
 			allPainted = false;
 		}
