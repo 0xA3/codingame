@@ -25,20 +25,25 @@ class Main {
 			// printErr( 'start $st end $ed' );
 			paintedSections.push({ start: st, end: ed, isPainted: true });
 		}
+		paintedSections.sort( sortSections );
 
 		final inputSections = range.concat( paintedSections );
 
-		final cuts = inputSections.flatMap( section -> [section.start, section.end]);
+		// final cuts = inputSections.flatMap( section -> [section.start, section.end]);
+		final cuts:Array<Int> = [];
+		for( inputSection in inputSections ) {
+			if( !cuts.contains( inputSection.start )) cuts.push( inputSection.start );
+			if( !cuts.contains( inputSection.end )) cuts.push( inputSection.end );
+		}
 		cuts.sort(( a, b ) -> a - b );
-		final uniqueCuts = uniquify( cuts );
-		printErr( 'cuts $uniqueCuts' );
-		paintedSections.sort( sortSections );
+		
+		// printErr( 'cuts $cuts' );
 		// printErr( paintedSections.map( s -> sString( s ) ).join( "\n" ));
 
 		final sections:Array<Section> = [];
-		for( i in 0...uniqueCuts.length - 1 ) {
-			final start = uniqueCuts[i];
-			final end = uniqueCuts[i + 1];
+		for( i in 0...cuts.length - 1 ) {
+			final start = cuts[i];
+			final end = cuts[i + 1];
 			var isPainted = false;
 			// printErr( 'compare $start $end' );
 			for( s in paintedSections ) {
@@ -55,13 +60,13 @@ class Main {
 		var s1 = sections[0];
 		for( i in 1...sections.length ) {
 			final s2 = sections[i];
-			printErr( 'compare ${sString( s1 )} ${sString( s2 )}' );
+			// printErr( 'compare ${sString( s1 )} ${sString( s2 )}' );
 			if( s1.isPainted == s2.isPainted ) {
 				s1 = { start: s1.start, end: s2.end, isPainted: s1.isPainted };
-				printErr( 's1 ${sString( s1 )}' );
+				// printErr( 's1 ${sString( s1 )}' );
 			} else {
 				mergedSections.push( s1 );
-				printErr( 'push ${s1.start}:${s1.end} ${s1.isPainted}' );
+				// printErr( 'push ${s1.start}:${s1.end} ${s1.isPainted}' );
 				s1 = s2;
 				
 			}
@@ -70,8 +75,7 @@ class Main {
 
 		// printErr( sections.map( s -> sString( s ) ).join( "\n" ));
 		final unpaintedSections = mergedSections.filter( s -> !s.isPainted );
-		if( unpaintedSections.length == 0 ) print( "All painted" );
-		else print( unpaintedSections.map( s -> '${s.start} ${s.end}' ).join( "\n" ));
+		print( unpaintedSections.length == 0 ? "All painted" : unpaintedSections.map( s -> '${s.start} ${s.end}' ).join( "\n" ));
 	}
 
 	static function startsAt( sections:Array<Section>, start:Int ) {
@@ -87,36 +91,6 @@ class Main {
 	static function sString( s:Section ) {
 		return '[${s.start}:${s.end}] ${s.isPainted}';
 	}
-
-	public static function uniquify<T>( sortedArray:Array<T> ):Array<T> {
-       
-		if( sortedArray.length == 0 ) return [];
-
-        // Create a vector with unique elements.
-        var vec = new Vector( sortedArray.length );
-        vec[0] = sortedArray[0];
-        var len = 0;
-       
-		// Can have trailing elements.
-        for( item in sortedArray ) {
-        	
-			if( item != vec[len] ) {
-            	len++;
-            	vec[len] = item;
-        	} // else {
-				// if( len > 0 ) trace( 'duplicateTimestamp for $pair ${item.timestamp} at ${Date.fromTime( item.timestamp )}' );
-			// }
-        }
-    	// Remove trailing elements.
-    	var out = new Vector( len + 1 );
-    	while( len > -1 ) {
-            out[len] = vec[len];
-            len--;
-        }
-        // Convert to array and return.
-        return out.toArray();
-	}
-
 
 }
 
