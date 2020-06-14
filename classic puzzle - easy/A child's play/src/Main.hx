@@ -19,7 +19,7 @@ class Main {
 		printErr( 'width $w height $h operations $n' );
 		printErr( lines.join( "\n") );
 
-		final directions:Array<Direction> = [
+		final steps:Array<Step> = [
 			{ x: 0, y: -1 },
 			{ x: 1, y: 0 },
 			{ x: 0, y: 1 },
@@ -40,27 +40,27 @@ class Main {
 
 		var dir = 0;
 		var pos = initialPosition;
-		final states:Array<State> = [];
-		for( i in 0...n ) {
-			var frontCell = getNextPosition( pos, directions[dir] );
+		final positions:Array<Position> = [ initialPosition ];
+		for( _ in 0...n ) {
+			var frontCell = getNextPosition( pos, steps[dir] );
 			if( grid[frontCell.y][frontCell.x] ) {
 				printErr( 'obstacle ${frontCell.x}:${frontCell.y}' );
-				dir = ( dir + 1 ) % directions.length;
+				dir = ( dir + 1 ) % steps.length;
 			}
+			pos = getNextPosition( pos, steps[dir] );
 			
-			if( i > 0 && pos.x == initialPosition.x && pos.y == initialPosition.y && dir == 0 ) break;
+			if( pos.x == initialPosition.x && pos.y == initialPosition.y ) break;
 
-			pos = getNextPosition( pos, directions[dir] );
 			printErr( 'push ${pos.x}:${pos.y}:$dir' );
-			states.push({ pos: pos, dir: dir });
+			positions.push( pos );
 		}
-		printErr( 'states ${states.length} endstate id = ${n} % ${states.length} ${n % ( states.length)}' );
-		final endState = states[(n % states.length ) - 1];
+		printErr( 'positions ${positions.length} endstate id = ${n} % ${positions.length} ${n % ( positions.length)}' );
+		final endState = positions[n % positions.length ];
 
-		print( '${endState.pos.x} ${endState.pos.y}' );
+		print( '${endState.x} ${endState.y}' );
 	}
 
-	static inline function getNextPosition( pos:Position, direction:Direction ) {
+	static inline function getNextPosition( pos:Position, direction:Step ) {
 		return { x: pos.x + direction.x, y: pos.y + direction.y };
 	}
 
@@ -76,4 +76,4 @@ typedef Position = {
 	var y:Int;
 }
 
-typedef Direction = Position;
+typedef Step = Position;
