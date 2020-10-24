@@ -2,7 +2,7 @@ using Lambda;
 
 class BreadthFirstSearch {
 	
-	public static function getPath( nodes:Array<PathNode>, start:Int, goal:Int ) {
+	public static function getPath( nodes:Map<Int, PathNode>, start:Int, goal:Int ) {
 		
 		final frontier = new List<Int>();
 		
@@ -12,10 +12,9 @@ class BreadthFirstSearch {
 		while( !frontier.isEmpty()) {
 			final current = frontier.pop();
 			// CodinGame.printErr( 'current $current' );
-			for( edge in nodes[current].neighbors ) {
-				final next = edge.to;
+			for( next in nodes[current].neighbors ) {
 				// CodinGame.printErr( 'check $next' );
-				final nextNode = nodes[edge.to];
+				final nextNode = nodes[next];
 				if( !nextNode.visited ) {
 					nextNode.previous = current;
 					nextNode.visited = true;
@@ -30,7 +29,7 @@ class BreadthFirstSearch {
 		return [];
 	}
 
-	static function backtrack( nodes:Array<PathNode>, start:Int, goal:Int ) {
+	static function backtrack( nodes:Map<Int, PathNode>, start:Int, goal:Int ) {
 		final path = new List<Int>();
 		var i = goal;
 		while( i != start ) {

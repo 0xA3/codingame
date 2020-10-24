@@ -3,42 +3,72 @@ class Maze {
 	public final width:Int;
 	public final height:Int;
 	public final cells:Array<Cell>;
-	public final spaces:Array<Bool>;
-	public var controlRoom:Position;
-	public var start:Position;
+	public final pathNodes:Map<Int, PathNode> = [];
+	public var controlRoom = Undiscovered;
+	public var start = Undiscovered;
 
 	public function new( width:Int, height:Int ) {
 		this.width = width;
 		this.height = height;
 		cells = [for( _ in 0...height * width ) Unknown];
-		spaces = [for( _ in 0...height * width ) false];
 	}
 
 	public function update( lines:Array<String> ) {
+		final frontier = new List<Int>();
 		for( y in 0...lines.length ) {
 			final line = lines[y].split('');
 			for( x in 0...cells.length ) {
+				final c = line[x];
+				if( controlRoom == Undiscovered && c == "C") controlRoom = Position({ x: x, y: y });
+				else if( start == Undiscovered && c == "T") start = Position({ x: x, y: y });
+				
 				final inputCell = parseInput( line[x] );
-				setCell2d( x, y, inputCell );
-				switch inputCell {
-					case ControlRoom if( controlRoom == null ): controlRoom = { x: x, y: y };
-					case StartingPosition if( start == null ): start = { x: x, y: y };
-					case Space: spaces[getCellIndex( x, y )] = true;
-					default: // no-op
+				final cell = getCell2d( x, y );
+				if( inputCell != cell ) {
+					setCell2d( x, y, inputCell );
+					if( inputCell == Space ) {
+						final pathNode = createPathNode( x, y );
+						pathNodes.set( pathNode.id, pathNode );
+						frontier.push( pathNode.id );
+						updateNeighborPathNodes( pathNode );
+					}
 				}
-
 			}
 		}
+		return frontier;
 	}
 
 	function parseInput( s:String ) {
 		return switch s {
 			case "#": Wall;
-			case ".": Space;
-			case "T": StartingPosition;
-			case "C": ControlRoom;
-			default: Unknown;
+			case "?": Unknown;
+			default: Space;
 		}
+	}
+
+	function createPathNode( x:Int, y:Int ) {
+		final neighbors = getNeighbors( x, y );
+		final spaceNeighbors = neighbors.filter( index -> getCell( index ) == Space );
+		
+		final id = getCellIndex( x, y );
+		final pathNode = new PathNode( id, spaceNeighbors );
+		return pathNode;
+	}
+
+	function updateNeighborPathNodes( pathNode:PathNode ) {
+		for( n in pathNode.neighbors ) {
+			final neighborPathNode = pathNodes[n];
+			neighborPathNode.addNeighbor( pathNode.id );
+		}
+	}
+
+	function getNeighbors( x:Int, y:Int ) {
+		final indices:Array<Int> = [];
+		if( y > 0 ) indices.push( getCellIndex( x, y - 1 )); // top
+		if( x > 0 ) indices.push( getCellIndex( x - 1, y )); // left
+		if( y < height - 1 ) indices.push( getCellIndex( x, y + 1 )); // bottom
+		if( x < height - 1 ) indices.push( getCellIndex( x + 1, y )); // right
+		return indices;
 	}
 
 	public inline function getCell( id:Int ) {
@@ -76,15 +106,20 @@ class Maze {
 
 }
 
+enum MaybePosition {
+	Undiscovered;
+	Position( v:Vec2 );
+}
+
 enum Cell {
 	Wall;
 	Space;
-	StartingPosition;
-	ControlRoom;
+	// StartingPosition;
+	// ControlRoom;
 	Unknown;
 }
 
-typedef Position = {
+typedef Vec2 = {
 	final x:Int;
 	final y:Int;
 }
