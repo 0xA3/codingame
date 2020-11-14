@@ -8,7 +8,7 @@ import CodinGame.readline;
 import Std.parseInt;
 
 import game.data.Action;
-import game.data.Board;
+import game.Board;
 
 using Lambda;
 
@@ -17,8 +17,7 @@ class Main {
 	static function main() {
 		
 		final mcts = new MonteCarloTreeSearch();
-		final board = new Board();
-		
+		var board = Board.createEmpty();
 
 		while( true ) {
 			final actionCount = parseInt( readline() ); // the number of spells and recipes in play
@@ -40,14 +39,17 @@ class Main {
 					inputs[9] != '0', // in the first league: always 0, later: 1 if this is a castable player spell
 					inputs[10] != '0' // for the first two leagues: always 0; later: 1 if this is a repeatable player spell
 				);
-				board.addAction( action );
+				board.setAction( action.actionId, action );
 			}
 
 			for( i in 0...2 ) {
 				final inputs = readline().split( ' ' );
-				board.players[i].update( parseInt( inputs[0] ), parseInt( inputs[1] ), parseInt( inputs[2] ), parseInt( inputs[3] ), parseInt( inputs[4] ));
+				board.players[i].update( parseInt( inputs[0] ), parseInt( inputs[1] ), parseInt( inputs[2] ), parseInt( inputs[3] ), parseInt( inputs[4] ), board.players[i].potions );
 			}
 		
+			final action = mcts.findNextAction( board, 1 );
+			print( action.output() );
+			
 			// for( action in actions ) {
 			// 	printErr( '-- action --' );
 			// 	printErr( 'actionId ${action.actionId}' );
@@ -71,7 +73,8 @@ class Main {
 			// 	printErr( 'inv3 ${player.inv3}' );
 			// 	printErr( 'score ${player.score}' );
 			// }
-			
+
+/*			
 			final me = players[0];
 			final castActions = actions.filter( action -> action.actionType == Cast );
 			final brewActions = actions.filter( action -> action.actionType == Brew );
@@ -92,7 +95,7 @@ class Main {
 			} else {
 				print( 'REST' );
 			}
-
+*/
 		}
 
 	}

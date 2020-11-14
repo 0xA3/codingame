@@ -1,7 +1,7 @@
 package mcts.montecarlo;
 
 import haxe.Timer;
-import mcts.tictactoe.Board;
+import game.Board;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -18,7 +18,7 @@ class MonteCarloTreeSearch {
 		return 2 * ( level - 1 ) + 1;
 	}
 
-	public function findNextMove( board:Board, playerNo:Int ) {
+	public function findNextAction( board:Board, playerNo:Int ) {
 		
 		final start = Timer.stamp();
 		final end = start + 0.06 * getMillisForCurrentLevel();
@@ -46,7 +46,7 @@ class MonteCarloTreeSearch {
 		
 		final winnerNode = rootNode.getChildWithMaxScore();
 		tree.root = winnerNode;
-		return winnerNode.state.board;
+		return winnerNode.state.action;
 	}
 
 	function selectPromisingNode( rootNode:Node ) {

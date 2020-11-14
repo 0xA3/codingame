@@ -1,10 +1,12 @@
 package mcts.montecarlo;
 
-import game.data.Board;
+import game.data.Action;
+import game.Board;
 
 class State {
 	
 	public var board:Board;
+	public var action:Action;
 	public var playerNo:Int;
 	public var visitCount:Int;
 	public var winScore:Float;
@@ -41,10 +43,10 @@ class State {
 	public function getAllPossibleStates() {
 		// constructs a list of all possible states from current state
 		final possibleStates:Array<State> = [];
-		final availablePositions = board.getEmptyPositions();
-		for( p in availablePositions ) {
+		final possibleActions = board.getPossibleActions( playerNo );
+		for( p in possibleActions ) {
 			final newState = new State( Board.fromBoard( board ), 3 - playerNo );
-			newState.board.performMove( newState.playerNo, p );
+			newState.board.performAction( newState.playerNo, p );
 			possibleStates.push( newState );
 		}
 		
@@ -62,10 +64,10 @@ class State {
 	}
 
 	public function randomPlay() {
-		final availablePositions = board.getEmptyPositions();
-		final totalPossibilities = availablePositions.length;
+		final possibleActions = board.getPossibleActions( playerNo );
+		final totalPossibilities = possibleActions.length;
 		final selectRandom = Std.int( Math.random() * totalPossibilities );
-		board.performMove( playerNo, availablePositions[selectRandom] );
+		board.performAction( playerNo, possibleActions[selectRandom] );
 	}
 
 	public function togglePlayer() {
