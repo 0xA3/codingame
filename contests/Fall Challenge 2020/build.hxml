@@ -1,0 +1,8 @@
+-lib astar
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D js-es=6
+--dce full
+-main game.Main
+--js dest/app.js
