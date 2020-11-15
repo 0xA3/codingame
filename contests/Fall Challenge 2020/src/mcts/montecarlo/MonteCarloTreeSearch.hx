@@ -7,7 +7,10 @@ import mcts.tree.Tree;
 
 class MonteCarloTreeSearch {
 	
+	public static inline var RANDOM_SEED = 0;
+	
 	public static inline var WIN_SCORE = 10;
+	public static inline var RESPONSE_TIME = 50 / 1000 * 0.9;
 	public var level = 3;
 	public var opponent:Int;
 
@@ -18,10 +21,10 @@ class MonteCarloTreeSearch {
 		return 2 * ( level - 1 ) + 1;
 	}
 
-	public function findNextAction( board:Board, playerNo:Int ) {
+	public function findNextMove( board:Board, playerNo:Int ) {
 		
 		final start = Timer.stamp();
-		final end = start + 0.06 * getMillisForCurrentLevel();
+		final end = start + RESPONSE_TIME * getMillisForCurrentLevel();
 
 		opponent = 3 - playerNo;
 		
@@ -46,7 +49,7 @@ class MonteCarloTreeSearch {
 		
 		final winnerNode = rootNode.getChildWithMaxScore();
 		tree.root = winnerNode;
-		return winnerNode.state.action;
+		return winnerNode.state;
 	}
 
 	function selectPromisingNode( rootNode:Node ) {

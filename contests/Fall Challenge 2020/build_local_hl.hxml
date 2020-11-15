@@ -1,8 +1,8 @@
--lib astar
+-lib seedyrng
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
--D js-es=6
+# -D js-es=6
 --dce full
--main game.Main
---js dest/app.js
+-main MainLocal
+--hl dest/app.hl

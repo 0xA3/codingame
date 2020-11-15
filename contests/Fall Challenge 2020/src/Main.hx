@@ -1,13 +1,12 @@
-package game;
+package;
 
+import game.contexts.ParseAction;
 import mcts.montecarlo.MonteCarloTreeSearch;
-import haxe.ds.Vector;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 
-import game.data.Action;
 import game.Board;
 
 using Lambda;
@@ -21,35 +20,30 @@ class Main {
 
 		while( true ) {
 			final actionCount = parseInt( readline() ); // the number of spells and recipes in play
-			board.clearActions();
+			board.initActions();
 			
 			for( i in 0...actionCount ) {
 				var inputs = readline().split(' ');
-				
-				final action = new Action(
-					parseInt( inputs[0] ), // the unique ID of this spell or recipe
-					inputs[1], // in the first league: BREW, later: CAST, OPPONENT_CAST, LEARN, BREW
-					parseInt( inputs[2] ), // tier-0 ingredient change
-					parseInt( inputs[3] ), // tier-1 ingredient change
-					parseInt( inputs[4] ), // tier-2 ingredient change
-					parseInt( inputs[5] ), // tier-3 ingredient change
-					parseInt( inputs[6] ), // the price in rupees if this is a potion
-					parseInt( inputs[7] ), // in the first two leagues: always 0, later: the index in the tome if this is a tome spell, equal to the read-ahead tax
-					parseInt( inputs[8] ), // in the first two leagues: always 0, later: the amount of taxed tier-0 ingredients you gain from learning this spell
-					inputs[9] != '0', // in the first league: always 0, later: 1 if this is a castable player spell
-					inputs[10] != '0' // for the first two leagues: always 0; later: 1 if this is a repeatable player spell
-				);
+				// printErr( inputs.join(" "));
+				final action = ParseAction.parse( inputs );
 				board.setAction( action.actionId, action );
 			}
 
 			for( i in 0...2 ) {
 				final inputs = readline().split( ' ' );
-				board.players[i].update( parseInt( inputs[0] ), parseInt( inputs[1] ), parseInt( inputs[2] ), parseInt( inputs[3] ), parseInt( inputs[4] ), board.players[i].potions );
+				// printErr( inputs.join(" "));
+				board.updatePlayer( i + 1,  parseInt( inputs[0] ), parseInt( inputs[1] ), parseInt( inputs[2] ), parseInt( inputs[3] ), parseInt( inputs[4] ));
 			}
 		
-			final action = mcts.findNextAction( board, 1 );
-			print( action.output() );
+			// final winnerState = mcts.findNextMove( board, 1 );
+			// board = winnerState.board;
+			// print( winnerState.action.output() );
 			
+			print( "REST" );
+
+
+
+
 			// for( action in actions ) {
 			// 	printErr( '-- action --' );
 			// 	printErr( 'actionId ${action.actionId}' );

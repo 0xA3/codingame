@@ -13,15 +13,29 @@ class Action {
 	public var castable:Bool; // in the first league: always 0; later: 1 if this is a castable player spell
 	public final repeatable:Bool; // for the first two leagues: always 0; later: 1 if this is a repeatable player spell
 	
-	public function new( actionId:Int, actionType:String, delta0 = 0, delta1 = 0, delta2 = 0, delta3 = 0, price = 0, tomeIndex = 0, taxCount = 0, castable = false, repeatable = false ) {
+	public function new( actionId:Int, actionType:ActionType, delta0 = 0, delta1 = 0, delta2 = 0, delta3 = 0, price = 0, tomeIndex = 0, taxCount = 0, castable = false, repeatable = false ) {
 		this.actionId = actionId;
-		this.actionType = createActionType( actionType );
+		this.actionType = actionType;
 		this.delta = [delta0, delta1, delta2, delta3];
 		this.price = price;
 		this.tomeIndex = tomeIndex;
 		this.taxCount = taxCount;
 		this.castable = castable;
 		this.repeatable = repeatable;
+	}
+
+	public static function createType( s:String ) {
+		return switch s {
+			case "BREW": Brew;
+			case "CAST": Cast;
+			case "OPPONENT_CAST": OpponentCast;
+			case "LEARN": Learn;
+			case s: throw 'Error: no actionType $s';
+		}
+	}
+
+	public static function createDefault() {
+		return new Action( -1, Wait );
 	}
 
 	public function checkDoable( player:Player ) {
@@ -70,17 +84,6 @@ class Action {
 		return 'actionId: $actionId, actionType: $actionType, delta: $delta, price: $price, tomeIndex: $tomeIndex, taxCount: $taxCount${castable ? ", castable" : ""}${repeatable ? ", repeatable" : ""}';
 	}
 
-	function createActionType( s:String ) {
-		return switch s {
-			case "BREW": Brew;
-			case "CAST": Cast;
-			case "OPPONENT_CAST": OpponentCast;
-			case "LEARN": Learn;
-			case s: throw 'Error: no actionType $s';
-		}
-
-	}
-
 	public function type() {
 		return switch actionType {
 			case Brew: "BREW";
@@ -93,7 +96,7 @@ class Action {
 	}
 
 	public function copy() {
-		return new Action( actionId, type(), delta[0], delta[1], delta[2], delta[3], price, tomeIndex, taxCount, castable, repeatable );
+		return new Action( actionId, actionType, delta[0], delta[1], delta[2], delta[3], price, tomeIndex, taxCount, castable, repeatable );
 	}
 	
 }

@@ -13,16 +13,16 @@ class Player {
 	public var space(default, null):Int;
 
 	public function new( inv0 = 0, inv1 = 0, inv2 = 0, inv3 = 0, score = 0, potions = 0 ) {
-		update( inv0, inv1, inv2, inv3, score, potions );
+		update( inv0, inv1, inv2, inv3, score );
+		this.potions = potions;
 	}
 
-	public function update( inv0:Int, inv1:Int, inv2:Int, inv3:Int, score:Int, potions:Int ) {
+	public function update( inv0:Int, inv1:Int, inv2:Int, inv3:Int, score:Int ) {
 		inventory[0] = inv0;
 		inventory[1] = inv1;
 		inventory[2] = inv2;
 		inventory[3] = inv3;
 		this.score = score;
-		this.potions = potions;
 
 		space = MAX_INV - inventory.fold(( i, sum ) -> i + sum, 0 );
 	}
@@ -38,7 +38,7 @@ class Player {
 	}
 
 	public function copy() {
-		return new Player( inventory[0], inventory[1], inventory[2], inventory[3], score );
+		return new Player( inventory[0], inventory[1], inventory[2], inventory[3], score, potions );
 	}
 
 }

@@ -1,7 +1,8 @@
 -lib seedyrng
--lib buddy
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
--main test.TestMain
---interp
+-D js-es=6
+--dce full
+-main Main
+--js dest/app.js

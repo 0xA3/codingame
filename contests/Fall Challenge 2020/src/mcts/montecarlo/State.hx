@@ -1,5 +1,6 @@
 package mcts.montecarlo;
 
+import seedyrng.Random;
 import game.data.Action;
 import game.Board;
 
@@ -11,8 +12,9 @@ class State {
 	public var visitCount:Int;
 	public var winScore:Float;
 
-	function new( board:Board, playerNo = 1, visitCount = 0, winScore = 0.0 ) {
+	function new( board:Board, action:Action, playerNo = 1, visitCount = 0, winScore = 0.0 ) {
 		this.board = board;
+		this.action = action;
 		this.playerNo = playerNo;
 		this.visitCount = visitCount;
 		this.winScore = winScore;
@@ -20,20 +22,21 @@ class State {
 
 	public static function createEmpty() {
 		final board = Board.createEmpty();
-		return new State( board );
+		return new State( board, Action.createDefault() );
 	}
 
 	public static function fromState( state:State ) {
 		final board = Board.fromBoard( state.board );
+		final action = state.action.copy();
 		final playerNo = state.playerNo;
 		final visitCount = state.visitCount;
 		final winScore = state.winScore;
 
-		return new State( board, playerNo, visitCount, winScore );
+		return new State( board, action, playerNo, visitCount, winScore );
 	}
 
-	public static function fromBoard( board:Board ) {
-		return new State( Board.fromBoard( board ));
+	public static function fromBoard( board:Board, action:Action ) {
+		return new State( Board.fromBoard( board ), action);
 	}
 
 	public function getOpponent() {
@@ -44,12 +47,15 @@ class State {
 		// constructs a list of all possible states from current state
 		final possibleStates:Array<State> = [];
 		final possibleActions = board.getPossibleActions( playerNo );
-		for( p in possibleActions ) {
-			final newState = new State( Board.fromBoard( board ), 3 - playerNo );
-			newState.board.performAction( newState.playerNo, p );
+		
+		for( action in possibleActions ) {
+			final newState = new State( Board.fromBoard( board ), action, 3 - playerNo );
+			newState.board.performAction( newState.playerNo, action );
 			possibleStates.push( newState );
 		}
 		
+
+
 		return possibleStates;
 	}
 

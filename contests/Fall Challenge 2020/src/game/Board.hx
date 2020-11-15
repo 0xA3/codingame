@@ -13,47 +13,56 @@ class Board {
 	public static inline var P1 = 1;
 	public static inline var P2 = 2;
 	
-	public final players:Array<Player>;
+	static final restAction = new Action( -1, Rest );
+	static final waitAction = new Action( -2, Wait );
+	
+	public final me:Player;
+	public final opponent:Player;
 	public var actions:Map<Int, Action> = [];
 
 	var totalMoves:Int;
 
-	public function new( players:Array<Player>, actions:Map<Int, Action>, totalMoves = 0 ) {
-		this.players = players;
+	public function new( me:Player, opponent:Player, actions:Map<Int, Action>, totalMoves = 0 ) {
+		this.me = me;
+		this.opponent = opponent;
 		this.actions = actions;
 		this.totalMoves = totalMoves;
 	}
 
 	public static function createEmpty() {
-		final players = [new Player(), new Player()];
-		final actions:Map<Int, Action> = [];
-		return new Board( players, actions );
+		return new Board( new Player(), new Player(), [] );
 	}
 
 	public static function fromBoard( board:Board ) {
-		final players = [board.players[0].copy(), board.players[1].copy()];
 		final actions:Map<Int, Action> = [];
 		for( id => action in board.actions ) actions.set( id, action.copy() );
-		return new Board( players, actions, board.totalMoves );
+		return new Board( board.me.copy(), board.opponent.copy(), actions, board.totalMoves );
 	}
 
-	public function clearActions() {
+	public inline function updatePlayer( playerNo:Int, inv0:Int, inv1:Int, inv2:Int, inv3:Int, score:Int ) {
+		final player = playerNo == 1 ? me : opponent;
+		player.update( inv0, inv1, inv2, inv3, score );
+	}
+
+	public function initActions() {
 		actions = [];
-		actions.set( -1, new Action( -1, "LEARN" ));
-		actions.set( -2, new Action( -2, "WAIT" ));
 	}
 	
 	public function setAction( id:Int, action:Action ) {
 		actions.set( id, action );
 	}
 
-	public function performAction( player:Int, action:Action ) {
+	public function performAction( playerNo:Int, action:Action ) {
+		final player = playerNo == 1 ? me : opponent;
 		totalMoves++;
 		switch action.actionType {
-			case Brew: players[player - 1].performAction( action );
+			case Brew:
+				player.performAction( action );
+				player.potions += 1;
 			case Cast:
-				players[player - 1].performAction( action );
+				player.performAction( action );
 				actions[action.actionId].castable = false;
+				actions.set( -1, restAction );
 			case Rest:
 				for( a in actions ) {
 					switch a.actionType {
@@ -68,9 +77,9 @@ class Board {
 	}
 
 	public function checkStatus() {
-		if( players[0].potions == 6 || players[1].potions == 6 || totalMoves == 100 ) {
-			final p1Score = players[0].score + players[0].inventory.fold(( i, sum ) -> i + sum, 0 );
-			final p2Score = players[1].score + players[1].inventory.fold(( i, sum ) -> i + sum, 0 );
+		if( me.potions == 6 || opponent.potions == 6 || totalMoves == 100 ) {
+			final p1Score = me.score + me.inventory.fold(( i, sum ) -> i + sum, 0 );
+			final p2Score = opponent.score + opponent.inventory.fold(( i, sum ) -> i + sum, 0 );
 			if( p1Score > p2Score ) return P1;
 			if( p1Score < p2Score ) return P2;
 			return DRAW;
@@ -79,9 +88,12 @@ class Board {
 		return IN_PROGRESS;
 	}
 
-	public function getPossibleActions( player:Int ) {
+	public function getPossibleActions( playerNo:Int ) {
+		final player = playerNo == 1 ? me : opponent;
 		final possibleActions:Array<Action> = [];
-		for( action in actions ) if( action.checkDoable( players[player - 1] )) possibleActions.push( action );
+		for( action in actions ) if( action.checkDoable( player )) possibleActions.push( action );
+		if( possibleActions.length == 0 ) possibleActions.push( waitAction );
+
 		return possibleActions;
 	}
 

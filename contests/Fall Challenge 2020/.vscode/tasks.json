@@ -2,6 +2,11 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"type": "hxml",
+			"label": "Build Local hl",
+			"file": "build_local_hl.hxml"
+		},
+		{
 			"type": "haxe",
 			"args": "active configuration",
 			"group": {

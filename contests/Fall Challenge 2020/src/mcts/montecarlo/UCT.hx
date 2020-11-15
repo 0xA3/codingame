@@ -19,6 +19,7 @@ class UCT {
 			if( bUct > aUct ) return 1;
 			return 0;
 		});
+		// for( childNode in node.childArray ) trace( '$childNode UTC: ${uctValue( parentVisit, childNode.state.winScore, childNode.state.visitCount )}' );
 		return node.childArray[0];
 	}
 }
