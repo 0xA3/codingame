@@ -77,7 +77,7 @@ class Board {
 	}
 
 	public function checkStatus() {
-		if( me.potions == 6 || opponent.potions == 6 || totalMoves == 100 ) {
+		if( me.potions == 6 || opponent.potions == 6 || totalMoves == 10 ) {
 			final p1Score = me.score + me.inventory.fold(( i, sum ) -> i + sum, 0 );
 			final p2Score = opponent.score + opponent.inventory.fold(( i, sum ) -> i + sum, 0 );
 			if( p1Score > p2Score ) return P1;

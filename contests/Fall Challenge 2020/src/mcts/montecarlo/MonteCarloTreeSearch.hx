@@ -1,9 +1,11 @@
 package mcts.montecarlo;
 
+import CodinGame.printErr;
 import haxe.Timer;
 import game.Board;
 import mcts.tree.Node;
 import mcts.tree.Tree;
+
 
 class MonteCarloTreeSearch {
 	
@@ -19,15 +21,12 @@ class MonteCarloTreeSearch {
 		this.tree = tree;
 	}
 
-	function getMillisForCurrentLevel() {
-		return 2 * ( level - 1 ) + 1;
-	}
-
 	public function findNextMove( playerNo:Int ) {
 		
 		final start = Timer.stamp();
-		final end = start + RESPONSE_TIME * getMillisForCurrentLevel();
+		final end = start + RESPONSE_TIME;
 
+		var playouts = 0;
 		while( Timer.stamp() < end ) {
 			// Phase 1 - Selection
 			final promisingNode = selectPromisingNode( tree.rootNode );
@@ -38,13 +37,14 @@ class MonteCarloTreeSearch {
 			if( promisingNode.childArray.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
 
 			final playoutResult = simulateRandomPlayout( nodeToExplore );
+			playouts++;
 			// Phase 4 - Update
 			backPropagation( nodeToExplore, playoutResult );
 		}
 		
 		final winnerNode = tree.rootNode.getChildWithMaxScore();
 		tree.rootNode = winnerNode;
-		trace( winnerNode.state.action.output() );
+		
 		return winnerNode.state;
 	}
 

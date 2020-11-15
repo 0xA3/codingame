@@ -24,10 +24,10 @@ class Main {
 
 		var board:Board;
 		while( true ) {
-			final actionCount = parseInt( readline() ); // the number of spells and recipes in play
 			board = tree.rootNode.state.board;
 			board.initActions();
 			
+			final actionCount = parseInt( readline() ); // the number of spells and recipes in play
 			for( i in 0...actionCount ) {
 				var inputs = readline().split(' ');
 				// printErr( inputs.join(" "));
