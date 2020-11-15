@@ -15,11 +15,17 @@ class Main {
 	
 	static function main() {
 		
-		final mcts = new MonteCarloTreeSearch();
-		var board = Board.createEmpty();
+		final rootBoard = Board.createEmpty();
+		final rootAction = Board.waitAction;
+		final rootState = mcts.montecarlo.State.fromBoard( rootBoard, rootAction );
+		final rootNode = mcts.tree.Node.fromState( rootState );
+		final tree = new mcts.tree.Tree( rootNode );
+		final mcts = new MonteCarloTreeSearch( tree );
 
+		var board:Board;
 		while( true ) {
 			final actionCount = parseInt( readline() ); // the number of spells and recipes in play
+			board = tree.rootNode.state.board;
 			board.initActions();
 			
 			for( i in 0...actionCount ) {
@@ -35,12 +41,9 @@ class Main {
 				board.updatePlayer( i + 1,  parseInt( inputs[0] ), parseInt( inputs[1] ), parseInt( inputs[2] ), parseInt( inputs[3] ), parseInt( inputs[4] ));
 			}
 		
-			// final winnerState = mcts.findNextMove( board, 1 );
-			// board = winnerState.board;
-			// print( winnerState.action.output() );
+			final winnerState = mcts.findNextMove( 1 );
+			print( winnerState.action.output() );
 			
-			print( "REST" );
-
 
 
 

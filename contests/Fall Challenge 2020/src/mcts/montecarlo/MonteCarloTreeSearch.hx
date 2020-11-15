@@ -7,35 +7,30 @@ import mcts.tree.Tree;
 
 class MonteCarloTreeSearch {
 	
-	public static inline var RANDOM_SEED = 0;
-	
 	public static inline var WIN_SCORE = 10;
 	public static inline var RESPONSE_TIME = 50 / 1000 * 0.9;
+	
+	final tree:Tree;
+	
 	public var level = 3;
 	public var opponent:Int;
 
-	public function new() {
+	public function new( tree:Tree ) {
+		this.tree = tree;
 	}
 
 	function getMillisForCurrentLevel() {
 		return 2 * ( level - 1 ) + 1;
 	}
 
-	public function findNextMove( board:Board, playerNo:Int ) {
+	public function findNextMove( playerNo:Int ) {
 		
 		final start = Timer.stamp();
 		final end = start + RESPONSE_TIME * getMillisForCurrentLevel();
 
-		opponent = 3 - playerNo;
-		
-		final tree = new Tree( Node.createEmpty());
-		final rootNode = tree.root;
-		rootNode.state.board = board;
-		rootNode.state.playerNo = opponent;
-
 		while( Timer.stamp() < end ) {
 			// Phase 1 - Selection
-			final promisingNode = selectPromisingNode( rootNode );
+			final promisingNode = selectPromisingNode( tree.rootNode );
 			// Phase 2 - Expansion
 			if( promisingNode.state.board.checkStatus() == Board.IN_PROGRESS ) expandNode( promisingNode );
 			// Phase 3 - Simulation
@@ -47,8 +42,9 @@ class MonteCarloTreeSearch {
 			backPropagation( nodeToExplore, playoutResult );
 		}
 		
-		final winnerNode = rootNode.getChildWithMaxScore();
-		tree.root = winnerNode;
+		final winnerNode = tree.rootNode.getChildWithMaxScore();
+		tree.rootNode = winnerNode;
+		trace( winnerNode.state.action.output() );
 		return winnerNode.state;
 	}
 

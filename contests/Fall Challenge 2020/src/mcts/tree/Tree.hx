@@ -2,10 +2,10 @@ package mcts.tree;
 
 class Tree {
 	
-	public var root:Node;
+	public var rootNode:Node;
 
-	public function new( root:Node ) {
-		this.root = root;
+	public function new( rootNode:Node ) {
+		this.rootNode = rootNode;
 	}
 
 	public function addChild( parent:Node, child:Node ) {

@@ -14,7 +14,7 @@ class Board {
 	public static inline var P2 = 2;
 	
 	static final restAction = new Action( -1, Rest );
-	static final waitAction = new Action( -2, Wait );
+	public static final waitAction = new Action( -2, Wait );
 	
 	public final me:Player;
 	public final opponent:Player;
