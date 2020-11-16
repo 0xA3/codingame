@@ -16,8 +16,7 @@ class Main {
 	static function main() {
 		
 		final rootBoard = Board.createEmpty();
-		final rootAction = Board.waitAction;
-		final rootState = mcts.montecarlo.State.fromBoard( rootBoard, rootAction );
+		final rootState = new mcts.montecarlo.State( rootBoard );
 		final rootNode = mcts.tree.Node.fromState( rootState );
 		final tree = new mcts.tree.Tree( rootNode );
 		final mcts = new MonteCarloTreeSearch( tree );
@@ -32,7 +31,7 @@ class Main {
 				var inputs = readline().split(' ');
 				// printErr( inputs.join(" "));
 				final action = ParseAction.parse( inputs );
-				board.setAction( action.actionId, action );
+				board.addAction( action );
 			}
 
 			for( i in 0...2 ) {
@@ -41,8 +40,8 @@ class Main {
 				board.updatePlayer( i + 1,  parseInt( inputs[0] ), parseInt( inputs[1] ), parseInt( inputs[2] ), parseInt( inputs[3] ), parseInt( inputs[4] ));
 			}
 		
-			final winnerState = mcts.findNextMove( 1 );
-			print( winnerState.action.output() );
+			final winnerBoard = mcts.findNextMove( 1 );
+			print( winnerBoard.outputAction() );
 			
 
 

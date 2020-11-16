@@ -40,6 +40,7 @@ class Action {
 
 	public function checkDoable( player:Player ) {
 		return switch actionType {
+			case Nothing: false;
 			case Brew: checkBrewable( player );
 			case Cast: checkCastable( player );
 			case OpponentCast: false;
@@ -68,24 +69,13 @@ class Action {
 		return delta.fold(( d, sum ) -> d + sum, 0 );
 	}
 
-	// BREW <id> | CAST <id> [<times>] | LEARN <id> | REST | WAIT
-	public function output() {
-		return switch actionType {
-			case Brew: 'BREW $actionId';
-			case Cast: 'CAST $actionId';
-			case Learn: 'LEARN $actionId';
-			case Rest: "REST";
-			case Wait: "WAIT";
-			case OpponentCast: throw "Error: OpponentCast is no valid output";
-		}
-	}
-
 	public function toString() {
 		return 'actionId: $actionId, actionType: $actionType, delta: $delta, price: $price, tomeIndex: $tomeIndex, taxCount: $taxCount${castable ? ", castable" : ""}${repeatable ? ", repeatable" : ""}';
 	}
 
 	public function type() {
 		return switch actionType {
+			case Nothing: throw "Error: Nothing is no valid input";
 			case Brew: "BREW";
 			case Cast: "CAST";
 			case OpponentCast: "OPPONENT_CAST";
@@ -95,13 +85,14 @@ class Action {
 		}
 	}
 
-	public function copy() {
+	public function clone() {
 		return new Action( actionId, actionType, delta[0], delta[1], delta[2], delta[3], price, tomeIndex, taxCount, castable, repeatable );
 	}
 	
 }
 
 enum ActionType {
+	Nothing;
 	Brew;
 	Cast;
 	OpponentCast;

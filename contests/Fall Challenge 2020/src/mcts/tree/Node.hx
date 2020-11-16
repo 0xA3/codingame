@@ -26,14 +26,6 @@ class Node {
 		return new Node( state, childArray );
 	}
 
-	public static function fromNode( node:Node ) {
-		final childArray = new Array<Node>();
-		final state = State.fromState( node.state );
-		for( child in node.childArray ) childArray.push( Node.fromNode( child ));
-
-		return new Node( state, childArray, node.parent );
-	}
-
 	public function getRandomChildNode() {
 		if( childArray.length == 0 ) throw "Error: childArray is empty";
 		
@@ -45,15 +37,12 @@ class Node {
 
 	public function getChildWithMaxScore() {
 		if( childArray.length == 0 ) throw "Error: childArray is empty";
-		
-		// solution without sorting
-		// var childWithMaxScore = childArray[0];
-		// for( child in childArray ) if( child.state.visitCount > childWithMaxScore.state.visitCount ) childWithMaxScore = child;
-		// return childWithMaxScore;
-
-		// solution with sorting
 		childArray.sort(( a, b ) -> b.state.visitCount - a.state.visitCount );
 		return childArray[0];
+	}
+
+	public function clone() {
+		return new Node( state.clone(), childArray.map( child -> child.clone()), parent );
 	}
 
 }

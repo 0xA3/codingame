@@ -1,4 +1,3 @@
--lib seedyrng
 -lib buddy
 -cp ../../codingame_extension/
 -cp src

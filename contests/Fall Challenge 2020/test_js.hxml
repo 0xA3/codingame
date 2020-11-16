@@ -1,9 +1,0 @@
--lib hxnodejs
--lib astar
--lib buddy
--cp ../../codingame_extension/
--cp src
--D js-es=6
--D analyzer-optimize
--main test.TestMain
---js dest/test.js

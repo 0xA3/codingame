@@ -37,7 +37,7 @@ class Player {
 		space = MAX_INV - inventory.fold(( i, sum ) -> i + sum, 0 );
 	}
 
-	public function copy() {
+	public function clone() {
 		return new Player( inventory[0], inventory[1], inventory[2], inventory[3], score, potions );
 	}
 

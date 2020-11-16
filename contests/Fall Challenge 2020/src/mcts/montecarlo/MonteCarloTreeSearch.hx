@@ -17,6 +17,8 @@ class MonteCarloTreeSearch {
 	public var level = 3;
 	public var opponent:Int;
 
+	var moveNo = 0;
+
 	public function new( tree:Tree ) {
 		this.tree = tree;
 	}
@@ -26,26 +28,33 @@ class MonteCarloTreeSearch {
 		final start = Timer.stamp();
 		final end = start + RESPONSE_TIME;
 
-		var playouts = 0;
+		opponent = 3 - playerNo;
+
+		var exploredNodes = 0;
 		while( Timer.stamp() < end ) {
 			// Phase 1 - Selection
 			final promisingNode = selectPromisingNode( tree.rootNode );
 			// Phase 2 - Expansion
-			if( promisingNode.state.board.checkStatus() == Board.IN_PROGRESS ) expandNode( promisingNode );
+			if( promisingNode.state.checkStatus() == Board.IN_PROGRESS ) expandNode( promisingNode, playerNo );
+
 			// Phase 3 - Simulation
 			var nodeToExplore = promisingNode;
 			if( promisingNode.childArray.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
 
 			final playoutResult = simulateRandomPlayout( nodeToExplore );
-			playouts++;
+			
 			// Phase 4 - Update
 			backPropagation( nodeToExplore, playoutResult );
+			
+			exploredNodes++;
 		}
-		
+		// if( playerNo == 1 ) printErr( 'exploredNodes $exploredNodes');
+
 		final winnerNode = tree.rootNode.getChildWithMaxScore();
 		tree.rootNode = winnerNode;
 		
-		return winnerNode.state;
+		moveNo++;
+		return winnerNode.state.board;
 	}
 
 	function selectPromisingNode( rootNode:Node ) {
@@ -54,11 +63,11 @@ class MonteCarloTreeSearch {
 		return node;
 	}
 
-	function expandNode( node:Node ) {
+	function expandNode( node:Node, playerNo:Int ) {
 		final possibleStates = node.state.getAllPossibleStates();
 		for( state in possibleStates ) {
 			final newNode = new Node( state, [], node );
-			newNode.state.playerNo = node.state.getOpponent();
+			newNode.state.playerNo = playerNo;
 			node.childArray.push( newNode );
 		}
 	}
@@ -73,20 +82,23 @@ class MonteCarloTreeSearch {
 	}
 
 	function simulateRandomPlayout( node:Node ) {
-		final tempNode = Node.fromNode( node );
+		final tempNode = node.clone();
 		final tempState = tempNode.state;
-		var boardStatus = tempState.board.checkStatus();
+		var boardStatus = tempState.checkStatus();
 
 		if( boardStatus == opponent ) {
 			tempNode.parent.state.winScore = Integer.MIN_VALUE;
 			return boardStatus;
 		}
 
+		var playoutNo = 0;
 		while( boardStatus == Board.IN_PROGRESS ) {
 			tempState.togglePlayer();
 			tempState.randomPlay();
-			boardStatus = tempState.board.checkStatus();
+			boardStatus = tempState.checkStatus();
+			playoutNo++;
 		}
+		// printErr( 'random playouts $playoutNo' );
 
 		return boardStatus;
 	}

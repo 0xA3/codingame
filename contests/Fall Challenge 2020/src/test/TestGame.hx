@@ -12,7 +12,7 @@ class TestGame extends buddy.BuddySuite {
 
 			it( "Test 1", {
 
-				final testSet = CreateTestSet.create( Inputs1.INPUT_ACTIONS, Inputs1.PLAYERS );
+				final testSet = CreateTestSet.create( Inputs.INPUT_ACTIONS1, Inputs.PLAYERS );
 				
 				final action = testSet.mcts.findNextAction( testSet.board, 1 );
 				print( action.output() );
