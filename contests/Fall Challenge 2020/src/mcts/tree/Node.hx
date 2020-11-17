@@ -45,4 +45,7 @@ class Node {
 		return new Node( state.clone(), childArray.map( child -> child.clone()), parent );
 	}
 
+	public function toString() {
+		return 'state: $state, childArray: $childArray';
+	}
 }

@@ -7,7 +7,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 
-import game.Board;
+import game.data.Board;
 
 using Lambda;
 

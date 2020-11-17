@@ -1,7 +1,7 @@
 package mcts.montecarlo;
 
 import game.data.Action;
-import game.Board;
+import game.data.Board;
 
 class State {
 	
@@ -10,7 +10,7 @@ class State {
 	public var visitCount:Int;
 	public var winScore:Float;
 
-	public function new( board:Board, playerNo = 1, visitCount = 0, winScore = 0.0 ) {
+	public function new( board:Board, playerNo = 2, visitCount = 0, winScore = 0.0 ) {
 		this.board = board;
 		this.playerNo = playerNo;
 		this.visitCount = visitCount;
@@ -34,7 +34,7 @@ class State {
 		return 3 - playerNo;
 	}
 
-	public function getAllPossibleStates() {
+	public function getAllPossibleStates( playerNo:Int ) {
 		// constructs a list of all possible states from current state
 		final possibleActionIds = board.getPossibleActionIds( playerNo );
 		
@@ -71,6 +71,10 @@ class State {
 
 	public function togglePlayer() {
 		playerNo = 3 - playerNo;
+	}
+
+	public function toString() {
+		return 'board: $board, playerNo: $playerNo, visitCount: $visitCount, winScore: $winScore';
 	}
 
 }

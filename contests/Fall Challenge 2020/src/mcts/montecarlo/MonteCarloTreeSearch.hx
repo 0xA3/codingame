@@ -2,7 +2,7 @@ package mcts.montecarlo;
 
 import CodinGame.printErr;
 import haxe.Timer;
-import game.Board;
+import game.data.Board;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -24,7 +24,6 @@ class MonteCarloTreeSearch {
 	}
 
 	public function findNextMove( playerNo:Int ) {
-		
 		final start = Timer.stamp();
 		final end = start + RESPONSE_TIME;
 
@@ -32,15 +31,16 @@ class MonteCarloTreeSearch {
 
 		var exploredNodes = 0;
 		while( Timer.stamp() < end ) {
+		// while( exploredNodes < 10 ) {
 			// Phase 1 - Selection
 			final promisingNode = selectPromisingNode( tree.rootNode );
 			// Phase 2 - Expansion
-			if( promisingNode.state.checkStatus() == Board.IN_PROGRESS ) expandNode( promisingNode, playerNo );
+			if( promisingNode.state.checkStatus() == InProgress ) expandNode( promisingNode );
 
 			// Phase 3 - Simulation
 			var nodeToExplore = promisingNode;
 			if( promisingNode.childArray.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
-
+			// trace( 'node to explore: ${nodeToExplore.state.board.action.actionId}' );
 			final playoutResult = simulateRandomPlayout( nodeToExplore );
 			
 			// Phase 4 - Update
@@ -48,7 +48,7 @@ class MonteCarloTreeSearch {
 			
 			exploredNodes++;
 		}
-		// if( playerNo == 1 ) printErr( 'exploredNodes $exploredNodes');
+		// printErr( 'player $playerNo exploredNodes $exploredNodes');
 
 		final winnerNode = tree.rootNode.getChildWithMaxScore();
 		tree.rootNode = winnerNode;
@@ -63,42 +63,52 @@ class MonteCarloTreeSearch {
 		return node;
 	}
 
-	function expandNode( node:Node, playerNo:Int ) {
-		final possibleStates = node.state.getAllPossibleStates();
+	function expandNode( node:Node ) {
+		final possibleStates = node.state.getAllPossibleStates( node.state.getOpponent());
 		for( state in possibleStates ) {
 			final newNode = new Node( state, [], node );
-			newNode.state.playerNo = playerNo;
 			node.childArray.push( newNode );
 		}
 	}
 
-	function backPropagation( nodeToExplore:Node, playerNo:Int ) {
+	function backPropagation( nodeToExplore:Node, playoutResult:TBoard ) {
 		var tempNode = nodeToExplore;
 		while( tempNode != null ) {
 			tempNode.state.incrementVisit();
-			if( tempNode.state.playerNo == playerNo ) tempNode.state.addScore( WIN_SCORE );
+			switch playoutResult {
+				case Win( 1, score ): tempNode.state.addScore( score );
+				default: //no-op;
+			}
 			tempNode = tempNode.parent;
 		}
+		// trace( 'winScore ${nodeToExplore.state.winScore}' );
 	}
 
 	function simulateRandomPlayout( node:Node ) {
+		// trace( 'node state ${node.state}' );
 		final tempNode = node.clone();
 		final tempState = tempNode.state;
+		// trace( 'tempState $tempState' );
 		var boardStatus = tempState.checkStatus();
+		// trace( 'boardStatus $boardStatus' );
 
-		if( boardStatus == opponent ) {
-			tempNode.parent.state.winScore = Integer.MIN_VALUE;
-			return boardStatus;
+		switch boardStatus {
+			case Win( 2, _ ):
+				tempNode.parent.state.winScore = Integer.MIN_VALUE;
+				return boardStatus;
+			default: // no-op
 		}
-
-		var playoutNo = 0;
-		while( boardStatus == Board.IN_PROGRESS ) {
+		var playoutSteps = 0;
+		while( boardStatus == InProgress ) {
 			tempState.togglePlayer();
 			tempState.randomPlay();
 			boardStatus = tempState.checkStatus();
-			playoutNo++;
+			playoutSteps++;
 		}
-		// printErr( 'random playouts $playoutNo' );
+		// printErr( 'playoutSteps: $playoutSteps' );
+		// printErr( 'me: ${tempNode.state.board.me.score}' );
+		// printErr( 'opponent: ${tempNode.state.board.opponent.score}' );
+		// printErr( 'boardStatus: $boardStatus' );
 
 		return boardStatus;
 	}

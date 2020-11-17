@@ -1,5 +1,17 @@
 package test;
 
+//  0 the unique ID of this spell or recipe
+//  1 in the first league: BREW, later: CAST, OPPONENT_CAST, LEARN, BREW
+//  2 tier-0 ingredient change
+//  3 tier-1 ingredient change
+//  4 tier-2 ingredient change
+//  5 tier-3 ingredient change
+//  6 the price in rupees if this is a potion
+//  7 the index in the tome if this is a tome spell, equal to the read-ahead tax
+//  8 the amount of taxed tier-0 ingredients you gain from learning this spell
+//  9 1 if this is a castable player spell
+// 10 1 if this is a repeatable player spell
+
 class Inputs {
 
 public static inline var INPUT_ACTIONS_1 =
@@ -13,29 +25,45 @@ public static inline var PLAYERS_1 =
 
 public static inline var INPUT_ACTIONS_2 =
 //0   1   2 3 4 5  6 7 8 9 10
-"51 BREW -3 0 0 0 10 0 0 0 0
-52 BREW 0 -2 0 0 20 0 0 0 0";
+"51 BREW -1 0 0 0 10 0 0 0 0
+52 BREW -1 0 0 0 20 0 0 0 0";
 
 public static inline var PLAYERS_2 =
-"3 2 0 0 0
-3 2 0 0 0";
+"6 0 0 0 0
+6 0 0 0 0";
 
 
 public static inline var INPUT_ACTIONS_3 =
 //0   1   2 3 4 5  6 7 8 9 10
-"1 BREW -3 0 0 0 10 0 0 0 0
-2 BREW 0 -2 0 0 20 0 0 0 0
-3 BREW 0 0 -2 0 20 0 0 0 0
-4 BREW 0 0 0 -1 20 0 0 0 0
-5 BREW 0 0 0 -1 20 0 0 0 0";
+"51 BREW -1 0 0 0 10 0 0 0 0
+52 BREW -1 0 0 0 20 0 0 0 0
+53 BREW -1 0 0 0 30 0 0 0 0
+54 BREW -1 0 0 0 40 0 0 0 0
+55 BREW -1 0 0 0 50 0 0 0 0
+56 BREW -1 0 0 0 60 0 0 0 0";
 
 public static inline var PLAYERS_3 =
-"3 0 0 0 0
-3 0 0 0 0";
+"6 0 0 0 0
+6 0 0 0 0";
+
+public static inline var INPUT_ACTIONS_4 =
+//0   1   2 3 4 5  6 7 8 9 10
+"78 CAST 2 0 0 0 0 -1 -1 1 0
+51 BREW -1 0 0 0 10 0 0 0 0
+52 BREW -1 0 0 0 20 0 0 0 0
+53 BREW -1 0 0 0 30 0 0 0 0
+54 BREW -1 0 0 0 40 0 0 0 0
+55 BREW -1 0 0 0 50 0 0 0 0
+56 BREW -1 0 0 0 60 0 0 0 0";
+
+public static inline var PLAYERS_4 =
+"0 0 0 0 0
+0 0 0 0 0";
 
 
 
 public static inline var INPUT_ACTIONS_B =
+//0   1   2 3 4 5  6 7 8 9 10
 "71 BREW -2 0 -2 -2 20 3 4 0 0
 49 BREW 0 -5 0 0 11 1 4 0 0
 61 BREW 0 0 0 -4 16 0 0 0 0

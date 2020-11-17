@@ -1,20 +1,22 @@
-package game;
+package game.data;
 
 import CodinGame.printErr;
 import game.data.Action;
 
 using Lambda;
 
+enum TBoard {
+	InProgress;
+	Draw( score:Float );
+	Win( playerNo:Int, score:Float );
+}
+
 class Board {
 	
 	public static inline var MAX_MOVES_PER_PLAYER = 100;
 	public static inline var MAX_MOVES = MAX_MOVES_PER_PLAYER * 2;
+	public static inline var POTIONS_TO_WIN = 2;
 
-	public static inline var IN_PROGRESS = -1;
-	public static inline var DRAW = 0;
-	public static inline var P1 = 1;
-	public static inline var P2 = 2;
-	
 	static final restAction = new Action( -1, Rest );
 	public static final waitAction = new Action( -2, Wait );
 	public static final waitActionId = -2;
@@ -23,7 +25,7 @@ class Board {
 	public final opponent:Player;
 	public var actions:Map<Int, Action> = [];
 
-	var action:Action;
+	public var action:Action;
 	var totalMoves:Int;
 
 	public function new( me:Player, opponent:Player, actions:Map<Int, Action>, totalMoves = 0 ) {
@@ -60,6 +62,7 @@ class Board {
 				player.performAction( action );
 				actions.remove( actionId );
 				player.potions += 1;
+				// trace( 'player $playerNo BREW $actionId score ${player.score} potions ${player.potions}' );
 			case Cast:
 				player.performAction( action );
 				action.castable = false;
@@ -93,17 +96,30 @@ class Board {
 		}
 	}
 
-	public function checkStatus( playerNo ) {
-		if( action == waitAction ) return 3 - playerNo;
-		if( me.potions == 2 || opponent.potions == 2 || totalMoves >= MAX_MOVES ) {
-			final p1Score = me.score + me.inventory.fold(( i, sum ) -> i + sum, 0 );
-			final p2Score = opponent.score + opponent.inventory.fold(( i, sum ) -> i + sum, 0 );
-			if( p1Score > p2Score ) return P1;
-			if( p1Score < p2Score ) return P2;
-			return DRAW;
+	public function checkStatus( playerNo:Int ) {
+		
+		if( action != null && action.actionType == Wait ) {
+			final meScore = calculateScore( me );
+			final opponentScore = calculateScore( opponent );
+			if( meScore > opponentScore ) return Win( 1, meScore );
+			if( meScore < opponentScore ) return Win( 2, opponentScore );
+			return Draw( meScore );
+		}
+		
+		if( me.potions == POTIONS_TO_WIN || opponent.potions == POTIONS_TO_WIN || totalMoves >= MAX_MOVES ) {
+			final meScore = calculateScore( me );
+			final opponentScore = calculateScore( opponent );
+			if( meScore > opponentScore ) return Win( 1, meScore );
+			if( meScore < opponentScore ) return Win( 2, opponentScore );
+			return Draw( meScore );
 		}
 
-		return IN_PROGRESS;
+		return InProgress;
+	}
+
+	inline function calculateScore( player:Player ) {
+		// return ( player.score + player.inventory.fold(( i, sum ) -> i + sum, 0 ));
+		return player.score;
 	}
 
 	public function getPossibleActionIds( playerNo:Int ) {
@@ -122,8 +138,12 @@ class Board {
 	
 	public function clone() {
 		final clonedActions:Map<Int, Action> = [];
-		for( actionId => action in actions ) clonedActions.set( actionId, action );
+		for( actionId => action in actions ) clonedActions.set( actionId, action.clone() );
 		return new Board( me.clone(), opponent.clone(), clonedActions, totalMoves );
+	}
+
+	public function toString() {
+		return 'me: $me, opponent: $opponent, action: $action, totalMoves: $totalMoves';
 	}
 
 }

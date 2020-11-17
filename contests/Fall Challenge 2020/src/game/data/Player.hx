@@ -1,6 +1,7 @@
-package game;
+package game.data;
 
 import game.data.Action;
+
 using Lambda;
 
 class Player {
@@ -39,6 +40,10 @@ class Player {
 
 	public function clone() {
 		return new Player( inventory[0], inventory[1], inventory[2], inventory[3], score, potions );
+	}
+
+	public function toString() {
+		return 'inventory: $inventory, score: $score, potions: $potions';
 	}
 
 }

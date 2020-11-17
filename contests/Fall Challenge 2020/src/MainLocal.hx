@@ -1,6 +1,6 @@
 package;
 
-import game.Board;
+import game.data.Board;
 import test.Inputs;
 import test.CreateTestMCTS;
 import CodinGame.print;
@@ -10,14 +10,15 @@ using Lambda;
 class MainLocal {
 	
 	static function main() {
-		final mcts = CreateTestMCTS.create( Inputs.INPUT_ACTIONS_2, Inputs.PLAYERS_2 );
+		final mcts = CreateTestMCTS.create( Inputs.INPUT_ACTIONS_4, Inputs.PLAYERS_4 );
 
 		var playerNo = 1;
 		while( true ) {
 			final winnerBoard = mcts.findNextMove( playerNo );
-			if( playerNo == 1 ) trace( 'player $playerNo ${winnerBoard.outputAction()}' );
-			// playerNo = 3 - playerNo; // ai playing against itself
-			if( winnerBoard.checkStatus( playerNo ) != Board.IN_PROGRESS ) break;
+			trace( 'player $playerNo ${winnerBoard.outputAction()} Score ${playerNo == 1 ? winnerBoard.me.score : winnerBoard.opponent.score}' );
+			playerNo = 3 - playerNo; // ai playing against itself
+			trace( winnerBoard.checkStatus( playerNo ));
+			if( winnerBoard.checkStatus( playerNo ) != InProgress ) break;
 		}
 	}
 

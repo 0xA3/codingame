@@ -9,7 +9,7 @@ class CreateTestMCTS {
 	
 	public static function create( inputActions:String, inputPlayers:String ) {
 		
-		final rootBoard = game.Board.createEmpty();
+		final rootBoard = game.data.Board.createEmpty();
 		final lines = inputActions.split( "\n" );
 		
 		for( line in lines ) {
