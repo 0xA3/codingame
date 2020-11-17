@@ -14,6 +14,7 @@ class MainLocal {
 
 		var playerNo = 1;
 		while( true ) {
+			trace( 'findnextmove for player $playerNo' );
 			final winnerBoard = mcts.findNextMove( playerNo );
 			trace( 'player $playerNo ${winnerBoard.outputAction()} Score ${playerNo == 1 ? winnerBoard.me.score : winnerBoard.opponent.score}' );
 			playerNo = 3 - playerNo; // ai playing against itself

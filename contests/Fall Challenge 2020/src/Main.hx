@@ -40,6 +40,8 @@ class Main {
 				board.updatePlayer( i + 1,  parseInt( inputs[0] ), parseInt( inputs[1] ), parseInt( inputs[2] ), parseInt( inputs[3] ), parseInt( inputs[4] ));
 			}
 		
+			// todo update Tree with new information
+
 			final winnerBoard = mcts.findNextMove( 1 );
 			print( winnerBoard.outputAction() );
 			

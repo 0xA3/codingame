@@ -9,6 +9,7 @@ class Player {
 	static inline var MAX_INV = 10;
 	
 	public var inventory:Array<Int> = [];
+	public var exhaustedSpells:Array<Int> = [];
 	public var score:Int;
 	public var potions:Int;
 	public var space(default, null):Int;

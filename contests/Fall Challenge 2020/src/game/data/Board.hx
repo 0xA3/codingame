@@ -65,15 +65,11 @@ class Board {
 				// trace( 'player $playerNo BREW $actionId score ${player.score} potions ${player.potions}' );
 			case Cast:
 				player.performAction( action );
-				action.castable = false;
+				player.exhaustedSpells.push( actionId );
 				actions.set( restAction.actionId, restAction );
+				trace( 'player $playerNo cast $actionId exhausted ${player.exhaustedSpells}' );
 			case Rest:
-				for( a in actions ) {
-					switch a.actionType {
-						case Cast: a.castable = true;
-						default: // no-op
-					}
-				}
+				player.exhaustedSpells.splice( 0, player.exhaustedSpells.length );
 				actions.remove( actionId );
 			case Nothing: // no-op
 			case OpponentCast: // no-op
@@ -125,9 +121,9 @@ class Board {
 	public function getPossibleActionIds( playerNo:Int ) {
 		final player = playerNo == 1 ? me : opponent;
 		
-		// final possibleActions = actions.filter( action -> action.checkDoable( player ));
 		final possibleActionIds:Array<Int> = [];
 		for( action in actions ) if( action.checkDoable( player )) possibleActionIds.push( action.actionId );
+		trace( 'player $playerNo exhaustedSpells ${player.exhaustedSpells} possibleActionIds $possibleActionIds' );
 		if( possibleActionIds.length == 0 ) {
 			possibleActionIds.push( waitAction.actionId );
 			actions.set( waitAction.actionId, waitAction );
