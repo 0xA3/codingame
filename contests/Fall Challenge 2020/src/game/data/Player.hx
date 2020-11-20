@@ -7,14 +7,18 @@ using Lambda;
 class Player {
 	
 	static inline var MAX_INV = 10;
+	static inline var V1 = 11;
+	static inline var V2 = 11 * 11;
+	static inline var V3 = 11 * 11 * 11;
 	
+	public var name:String;
 	public var inventory:Array<Int> = [];
-	public var exhaustedSpells:Array<Int> = [];
 	public var score:Int;
 	public var potions:Int;
 	public var space(default, null):Int;
 
-	public function new( inv0 = 0, inv1 = 0, inv2 = 0, inv3 = 0, score = 0, potions = 0 ) {
+	public function new( name = "Opponent", inv0 = 0, inv1 = 0, inv2 = 0, inv3 = 0, score = 0, potions = 0 ) {
+		this.name = name;
 		update( inv0, inv1, inv2, inv3, score );
 		this.potions = potions;
 	}
@@ -39,8 +43,12 @@ class Player {
 		space = MAX_INV - inventory.fold(( i, sum ) -> i + sum, 0 );
 	}
 
+	public function getInventoryValue() {
+		return inventory[0] + inventory[1] * V1 + inventory[2] * V2 + inventory[3] * V3;
+	}
+
 	public function clone() {
-		return new Player( inventory[0], inventory[1], inventory[2], inventory[3], score, potions );
+		return new Player( name, inventory[0], inventory[1], inventory[2], inventory[3], score, potions );
 	}
 
 	public function toString() {

@@ -17,8 +17,8 @@ class State {
 		this.winScore = winScore;
 	}
 
-	public static function createEmpty() {
-		final board = Board.createEmpty();
+	public static function createEmpty( name:String ) {
+		final board = Board.createEmpty( name );
 		return new State( board );
 	}
 
@@ -34,7 +34,7 @@ class State {
 		return 3 - playerNo;
 	}
 
-	public function getAllPossibleStates( playerNo:Int ) {
+	public function getAllPossibleStates( playerNo = 1 ) {
 		// constructs a list of all possible states from current state
 		final possibleActionIds = board.getPossibleActionIds( playerNo );
 		
@@ -65,8 +65,9 @@ class State {
 	public function randomPlay() {
 		final possibleActionIds = board.getPossibleActionIds( playerNo );
 		final selectRandom = Std.int( Math.random() * possibleActionIds.length );
-		final randomAction = possibleActionIds[selectRandom];
-		board.performAction( playerNo, randomAction );
+		final randomActionId = possibleActionIds[selectRandom];
+		// trace( 'randomAction $randomActionId' );
+		board.performAction( playerNo, randomActionId );
 	}
 
 	public function togglePlayer() {

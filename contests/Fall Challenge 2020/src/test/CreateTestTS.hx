@@ -6,7 +6,7 @@ import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
 import Std.parseInt;
 
-class CreateTestMCTS {
+class CreateTestTS {
 	
 	public static function create( player1:Player, player2:Player ) {
 		
@@ -17,7 +17,7 @@ class CreateTestMCTS {
 		final rootState = new State( rootBoard );
 		final rootNode = mcts.tree.Node.fromState( rootState );
 		final tree = new mcts.tree.Tree( rootNode );
-		final mcts = new mcts.montecarlo.MonteCarloTreeSearch( tree );
+		final mcts = new mcts.montecarlo.TreeSearch( tree );
 		
 		return mcts;
 	}

@@ -11,4 +11,9 @@ class Tree {
 	public function addChild( parent:Node, child:Node ) {
 		parent.childArray.push( child );
 	}
+
+	public function display( maxDepth = 100 ) {
+		return rootNode.display( rootNode.state.board.totalMoves, maxDepth );
+	}
+
 }

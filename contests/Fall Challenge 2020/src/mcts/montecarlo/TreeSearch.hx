@@ -1,5 +1,6 @@
 package mcts.montecarlo;
 
+import mcts.montecarlo.MonteCarloTreeSearch.ActionDeltaValue;
 import game.data.Action;
 import CodinGame.printErr;
 import haxe.Timer;
@@ -7,7 +8,7 @@ import game.data.Board;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
-class MonteCarloTreeSearch {
+class TreeSearch {
 	
 	public static inline var WIN_SCORE = 10;
 	public static inline var RESPONSE_TIME = 50 / 1000 * 0.95;
@@ -24,91 +25,43 @@ class MonteCarloTreeSearch {
 	}
 
 	public function updateNode( inputActions:Map<Int, Action> ) {
-		start = Timer.stamp();
-		final childArray = tree.rootNode.childArray;
 		final board = tree.rootNode.state.board;
-		final boardActions = tree.rootNode.state.board.actions;
-				
-		// printErr( 'remove obsolete actions ${Timer.stamp() - start}' );
-		// remove obsolete actions
-		for( boardActionId in boardActions.keys()) {
-			// remove action
-			if( !inputActions.exists( boardActionId )) {
-				board.removeAction( boardActionId );
-				// remove node with action
-				for( i in -childArray.length + 1...1 ) {
-					final node = childArray[-i];
-					final action = node.state.board.action;
-					if( action != null && action.actionId == boardActionId ) childArray.remove( node );
-				}
-			}
+		board.initActions();
+		for( action in inputActions ) {
+			board.addAction( action );
 		}
-
-		// printErr( 'add new actions ${Timer.stamp() - start}' );
-		// add new actions
-		final newActions:Array<Action> = [];
-		for( inputActionId in inputActions.keys()) {
-			if( !boardActions.exists( inputActionId )) {
-				final inputAction = inputActions[inputActionId];
-				board.addAction( inputAction );
-				newActions.push( inputAction );
-			}
-		}
-
-		// add new nodes if there already are children of rootNode
-		if( tree.rootNode.childArray.length > 0 ) {
-			final rootState = tree.rootNode.state;
-			final doableActions = newActions.filter( action -> action.checkDoable( rootState.board.me ));
-			for( action in doableActions ) {
-				final node = new Node( rootState.clone(), [], tree.rootNode );
-				final board = node.state.board;
-				
-				board.action = action;
-				board.totalMoves = tree.rootNode.state.board.totalMoves + 1;
-				childArray.push( node );
-				// printErr( 'add $inputActionId ${Timer.stamp() - start}' );
-			}
-		}
-		// printErr( 'update complete ${Timer.stamp() - start}' );
-
 	}
 
 	public function findNextMove( playerNo = 1 ) {
 		
 		end = start + RESPONSE_TIME;
 
-		// opponent = 3 - playerNo;
+		
+		// Phase 1 - Selection
+		final promisingNode = tree.rootNode;
+		// printErr( '$exploredNodes promisingNode ${promisingNode.displayNode()}' );
+		
+		// Phase 2 - Expansion
+		if( promisingNode.state.checkStatus() != InProgress ) return tree.rootNode.state.board;
+		
+		expandNode( promisingNode );
+		// printErr( tree.display());
+		final childNodes = promisingNode.childArray;
 
-		var exploredNodes = 0;
-		// while( Timer.stamp() < end ) {
-		while( exploredNodes < 12 ) {
-			// Phase 1 - Selection
-			final promisingNode = selectPromisingNode( tree.rootNode );
-			// printErr( '$exploredNodes promisingNode ${promisingNode.displayNode()}' );
-			
-			// Phase 2 - Expansion
-			if( promisingNode.state.checkStatus() == InProgress ) expandNode( promisingNode );
-			// printErr( tree.display());
-			
-			// Phase 3 - Simulation
-			var nodeToExplore = promisingNode;
-			if( promisingNode.childArray.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
-			
-			// final playoutResult = simulateRandomPlayout( nodeToExplore );
-			final nodeValue = getNodeValue( nodeToExplore );
-			// trace( nodeValue );
-			// printErr( 'playoutResult $playoutResult' );
-
-			// Phase 4 - Update
-			backPropagation( nodeToExplore, nodeValue );
-			printErr( tree.display());
-			
-			exploredNodes++;
+		// Phase 3 - Simulation
+		for( nodeToExplore in childNodes ) {
+			nodeToExplore.nodeValue = getNodeValue( nodeToExplore );
 		}
-		// printErr( 'exploredNodes $exploredNodes' );
 
-		final winnerNode = tree.rootNode.childArray.length > 0 ? tree.rootNode.getChildWithMaxScore() : tree.rootNode;
-		printErr( tree.display( 1 ));
+		childNodes.sort(( a, b ) -> {
+			if( a.nodeValue < b.nodeValue ) return 1;
+			if( a.nodeValue > b.nodeValue ) return -1;
+			return 0;
+		});
+		
+		printErr( tree.display());
+			
+		final winnerNode = childNodes[0];
 		
 		tree.rootNode = winnerNode;
 		
@@ -149,9 +102,8 @@ class MonteCarloTreeSearch {
 
 		switch action.actionType {
 			case Brew:
-				// final score = me.score / board.maxScore / board.totalMoves;
-				// trace( 'depth ${board.totalMoves} action ${action.actionId} score $score' );
-				return 0.0;
+				final score = me.score / board.maxScore / board.totalMoves;
+				return score;
 			case Cast:
 				final inventoryValue = board.me.getInventoryValue();
 				final potionDeltaValues:Array<ActionDeltaValue> = [];
@@ -170,12 +122,12 @@ class MonteCarloTreeSearch {
 					return 0;
 				});
 				
-				var nodeValue = 0.0;
+				var castNodeValue = 0.0;
 				for( adv in potionDeltaValues ) {
-					if( adv.deltaValue > nodeValue ) nodeValue = adv.deltaValue;
+					if( adv.deltaValue > castNodeValue ) castNodeValue = adv.deltaValue;
 				}
 		
-				return nodeValue;
+				return castNodeValue / 10000;
 			case Learn: return 0.0;
 			default: return 0.0;
 		}
@@ -213,9 +165,4 @@ class MonteCarloTreeSearch {
 		return boardStatus;
 	}
 
-}
-
-typedef ActionDeltaValue = {
-	final action:Action;
-	final deltaValue:Int;
 }
