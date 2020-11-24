@@ -217,5 +217,5 @@ class MonteCarloTreeSearch {
 
 typedef ActionDeltaValue = {
 	final action:Action;
-	final deltaValue:Int;
+	final deltaValue:Float;
 }

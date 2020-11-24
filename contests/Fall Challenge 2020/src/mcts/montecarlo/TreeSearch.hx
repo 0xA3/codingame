@@ -50,7 +50,7 @@ class TreeSearch {
 
 		// Phase 3 - Simulation
 		for( nodeToExplore in childNodes ) {
-			nodeToExplore.nodeValue = getNodeValue( nodeToExplore );
+			nodeToExplore.nodeValue = getNodeValue( promisingNode, nodeToExplore );
 		}
 
 		childNodes.sort(( a, b ) -> {
@@ -86,14 +86,14 @@ class TreeSearch {
 		var tempNode = nodeToExplore;
 		while( tempNode != null ) {
 			tempNode.state.incrementVisit();
-			trace( tempNode.nodeValue );
+			// trace( tempNode.nodeValue );
 			tempNode.state.addScore( tempNode.nodeValue );
 			tempNode = tempNode.parent;
 		}
 		// trace( 'winScore ${nodeToExplore.state.winScore}' );
 	}
 
-	function getNodeValue( node:Node ) {
+	function getNodeValue( parentNode:Node, node:Node ) {
 		final board = node.state.board;
 		final action = board.action;
 		if( action == null ) return 0.0;
@@ -105,29 +105,33 @@ class TreeSearch {
 				final score = me.score / board.maxScore / board.totalMoves;
 				return score;
 			case Cast:
-				final inventoryValue = board.me.getInventoryValue();
-				final potionDeltaValues:Array<ActionDeltaValue> = [];
-				for( action in board.actions ) {
-					if( action.actionType == Brew ) {
-						final deltaValue = action.potionValue - ( action.potionValue - inventoryValue );
-						if( deltaValue >= 0 ) {
-							potionDeltaValues.push({ action: action, deltaValue: deltaValue });
+				final parentInventoryValue = parentNode.state.board.me.getInventoryValue();
+				final brewActions:Array<Action> = [];
+				for( boardAction in board.actions ) {
+					if( boardAction.actionType == Brew ) {
+						if( parentInventoryValue <= boardAction.potionValue ) {
+							brewActions.push( action );
 						}
 					}
 				}
 		
-				potionDeltaValues.sort((a, b) -> {
-					if( a.deltaValue > b.deltaValue ) return 1;
-					if( a.deltaValue < b.deltaValue ) return -1;
+				if( brewActions.length == 0 ) return Integer.MIN_VALUE;
+
+				brewActions.sort((a, b) -> {
+					if( a.potionValue > b.potionValue ) return 1;
+					if( a.potionValue < b.potionValue ) return -1;
 					return 0;
 				});
+				// for( brewAction in brewActions ) {
+				// 	trace( 'brewAction ${brewAction.actionId} potionValue ${brewAction.potionValue}' );
+				// }
+
+				final cheapestBrewAction = brewActions[0];
+				final thisInventoryValue = board.me.getInventoryValue();
+				if( thisInventoryValue > cheapestBrewAction.potionValue ) return Integer.MIN_VALUE;
 				
-				var castNodeValue = 0.0;
-				for( adv in potionDeltaValues ) {
-					if( adv.deltaValue > castNodeValue ) castNodeValue = adv.deltaValue;
-				}
-		
-				return castNodeValue / 10000;
+				return ( cheapestBrewAction.potionValue - thisInventoryValue ) / 10000;
+
 			case Learn: return 0.0;
 			default: return 0.0;
 		}

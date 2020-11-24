@@ -79,8 +79,7 @@ public static inline var INPUT_ACTIONS_1_4 =
 79 CAST -1 1 0 0 0 -1 -1 1 0
 80 CAST 0 -1 1 0 0 -1 -1 1 0
 81 CAST 0 0 -1 1 0 -1 -1 1 0
-51 BREW 0 -1 0 0 10 0 0 0 0
-52 BREW 0 -2 0 0 20 0 0 0 0";
+51 BREW -3 0 0 0 10 0 0 0 0";
 
 
 public static inline var INPUT_ACTIONS_A =
