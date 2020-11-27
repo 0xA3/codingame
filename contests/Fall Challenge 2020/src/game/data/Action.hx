@@ -4,31 +4,33 @@ using Lambda;
 
 class Action {
 	
-	static inline var V1 = 11;
-	static inline var V2 = 11 * 11;
-	static inline var V3 = 11 * 11 * 11;
-	
+	static inline var MAX_INVENTORY = 10;
+
 	public final actionId:Int; // the unique ID of this spell or recipe
 	public final actionType:ActionType; // CAST, OPPONENT_CAST, LEARN, BREW
-	public final delta:Array<Int>; // tier-0 ingredient change
+	public final delta0:Int; // tier-0 ingredient change
+	public final delta1:Int; // tier-0 ingredient change
+	public final delta2:Int; // tier-0 ingredient change
+	public final delta3:Int; // tier-0 ingredient change
 	public final price:Int; // the price in rupees if this is a potion
 	public final tomeIndex:Int; // the index in the tome if this is a tome spell, equal to the read-ahead tax
 	public final taxCount:Int; // the amount of taxed tier-0 ingredients you gain from learning this spell
 	public var castable:Bool; // 1 if this is a castable player spell
 	public final repeatable:Bool; // 1 if this is a repeatable player spell
-	public var potionValue = 0;
 
 	public function new( actionId:Int, actionType:ActionType, delta0 = 0, delta1 = 0, delta2 = 0, delta3 = 0, price = 0, tomeIndex = 0, taxCount = 0, castable = false, repeatable = false ) {
 		this.actionId = actionId;
 		this.actionType = actionType;
-		this.delta = [delta0, delta1, delta2, delta3];
+		this.delta0 = delta0;
+		this.delta1 = delta1;
+		this.delta2 = delta2;
+		this.delta3 = delta3;
 		this.price = price;
 		this.tomeIndex = tomeIndex;
 		this.taxCount = taxCount;
 		this.castable = castable;
 		this.repeatable = repeatable;
 
-		if( actionType == Brew ) potionValue = getPotionValue();
 	}
 
 	public static function createType( s:String ) {
@@ -41,56 +43,46 @@ class Action {
 		}
 	}
 
-	public static function createDefault() {
-		return new Action( -1, Wait );
-	}
-
-	public function checkDoable( player:Player ) {
+	public function checkDoable( inv0:Int, inv1:Int, inv2:Int, inv3:Int ) {
 		return switch actionType {
-			case Nothing: false;
-			case Brew: checkBrewable( player );
-			case Cast: checkCastable( player );
-			case Learn: checkLearnable( player );
+			case Brew: checkBrewable( inv0, inv1, inv2, inv3 );
+			case Cast: checkCastable( inv0, inv1, inv2, inv3 );
+			case Learn: checkLearnable();
 			case OpponentCast: false;
 			case Rest, Wait: true;
 		}
 	}
 
-	public function checkBrewable( player:Player ) {
-		return player.inventory[0] + delta[0] >= 0
-		&& player.inventory[1] + delta[1] >= 0
-		&& player.inventory[2] + delta[2] >= 0
-		&& player.inventory[3] + delta[3] >= 0;
+	inline function checkBrewable( inv0:Int, inv1:Int, inv2:Int, inv3:Int ) {
+		return inv0 + delta0 >= 0
+		&& inv1 + delta1 >= 0
+		&& inv2 + delta2 >= 0
+		&& inv3 + delta3 >= 0;
 	}
 
-	public function checkCastable( player:Player ) {
-		return inventoryChange() <= player.space
-		&& player.inventory[0] + delta[0] >= 0
-		&& player.inventory[1] + delta[1] >= 0
-		&& player.inventory[2] + delta[2] >= 0
-		&& player.inventory[3] + delta[3] >= 0
-		&& castable;
+	inline function checkCastable( inv0:Int, inv1:Int, inv2:Int, inv3:Int ) {
+		return castable
+		&& inv0 + delta0 >= 0
+		&& inv1 + delta1 >= 0
+		&& inv2 + delta2 >= 0
+		&& inv3 + delta3 >= 0
+		&& inventorySum( inv0, inv1, inv2, inv3 ) + inventoryChange() <= MAX_INVENTORY;
 	}
 
-	public function checkLearnable( player:Player ) {
-		return inventoryChange() <= player.space
-		&& player.inventory[0] + delta[0] >= 0
-		&& player.inventory[1] + delta[1] >= 0
-		&& player.inventory[2] + delta[2] >= 0
-		&& player.inventory[3] + delta[3] >= 0
-		&& castable;
+	inline function checkLearnable() {
+		return true; // todo
 	}
 
-	public function inventoryChange() {
-		return delta.fold(( d, sum ) -> d + sum, 0 );
+	inline function inventorySum( inv0:Int, inv1:Int, inv2:Int, inv3:Int ) {
+		return inv0 + inv1 + inv2 + inv3;
+	}
+	inline function inventoryChange() {
+		return delta0 + delta1 + delta2 + delta3;
 	}
 
-	inline function getPotionValue() {
-		return -delta[0] - delta[1] * V1 - delta[2] * V2 - delta[3] * V3;
-	}
 
 	public function toString() {
-		return 'actionId: $actionId, actionType: $actionType, delta: $delta, price: $price, tomeIndex: $tomeIndex, taxCount: $taxCount${castable ? ", castable" : ""}${repeatable ? ", repeatable" : ""}';
+		return 'actionId: $actionId, actionType: $actionType, delta0: $delta0, delta1: $delta1, delta2: $delta2, delta3: $delta3, price: $price, tomeIndex: $tomeIndex, taxCount: $taxCount${castable ? ", castable" : ""}${repeatable ? ", repeatable" : ""}';
 	}
 	
 	// public function toString() {
@@ -99,7 +91,6 @@ class Action {
 
 	public function type() {
 		return switch actionType {
-			case Nothing: throw "Error: Nothing is no valid input";
 			case Brew: "BREW";
 			case Cast: "CAST";
 			case OpponentCast: "OPPONENT_CAST";
@@ -110,13 +101,12 @@ class Action {
 	}
 
 	public function clone() {
-		return new Action( actionId, actionType, delta[0], delta[1], delta[2], delta[3], price, tomeIndex, taxCount, castable, repeatable );
+		return new Action( actionId, actionType, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, castable, repeatable );
 	}
-	
+
 }
 
 enum ActionType {
-	Nothing;
 	Brew;
 	Cast;
 	OpponentCast;

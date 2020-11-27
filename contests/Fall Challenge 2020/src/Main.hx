@@ -1,46 +1,49 @@
 package;
 
+import game.data.State;
+import game.contexts.BeamSearch;
+import haxe.Timer;
 import game.contexts.ParseAction;
-import mcts.montecarlo.MonteCarloTreeSearch;
-import mcts.montecarlo.TreeSearch;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 
-import game.data.Board;
-
 using Lambda;
 
 class Main {
 	
+	public static inline var RESPONSE_TIME = 50 / 1000 * 0.95;
+	public static inline var BEAM_SIZE = 3;
+	
+	public static var start:Float;
+	public static var end:Float;
+
+	public static var rootState:State;
+
 	static function main() {
 		
-		final rootBoard = Board.createEmpty( "Crom" );
-		final rootState = new mcts.montecarlo.State( rootBoard );
-		final rootNode = mcts.tree.Node.fromState( rootState );
-		final tree = new mcts.tree.Tree( rootNode );
-		final mcts = new TreeSearch( tree );
-
-		var board = tree.rootNode.state.board;
 		while( true ) {
 			final actionCount = parseInt( readline() ); // the number of spells and recipes in play
+			start = Timer.stamp();
+			end = start + RESPONSE_TIME;
 			final actions = [for( i in 0...actionCount ) {
 				final line = readline();
 				// printErr( line );
-				final action = ParseAction.parse( line.split(' '));
-				action.actionId => action;
+				ParseAction.parse( line.split(' '));
 			}];
-			mcts.updateNode( actions );
 			
-			for( i in 0...2 ) {
-				final inputs = readline().split( ' ' );
-				// printErr( inputs.join(" "));
-				board.updatePlayer( i + 1,  parseInt( inputs[0] ), parseInt( inputs[1] ), parseInt( inputs[2] ), parseInt( inputs[3] ), parseInt( inputs[4] ));
-			}
-		
-			board = mcts.findNextMove();
-			print( board.outputAction() );
+			final inputsP1 = readline().split( ' ' );
+			final inputsP2 = readline().split( ' ' );
+			
+			rootState = new State(	parseInt( inputsP1[0] ), parseInt( inputsP1[1] ), parseInt( inputsP1[2] ), parseInt( inputsP1[3] ), parseInt( inputsP1[4] ), 0, 0,
+								parseInt( inputsP2[0] ), parseInt( inputsP2[1] ), parseInt( inputsP2[2] ), parseInt( inputsP2[3] ), parseInt( inputsP2[4] ), 0, 0,
+								actions
+			);
+
+			final action = BeamSearch.search( rootState, BEAM_SIZE, end );
+
+			print( action );
 			// print( "WAIT" );
 		}
 

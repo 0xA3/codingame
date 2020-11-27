@@ -14,36 +14,40 @@ package test;
 
 class Inputs {
 
-public static inline var INPUT_ACTIONS_1 =
+public static final INPUT_ACTIONS_1 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
-"51 BREW -3 0 0 0 10 0 0 0 0";
+"51 BREW -3 0 0 0 10 0 0 0 0",
 
-public static inline var PLAYERS_1 =
+players:
 "3 0 0 0 0
-3 0 0 0 0";
+3 0 0 0 0"
+}
 
 
-public static inline var INPUT_ACTIONS_2 =
+public static final INPUT_ACTIONS_2 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
 "51 BREW -1 0 0 0 10 0 0 0 0
-52 BREW -1 0 0 0 20 0 0 0 0";
+52 BREW -1 0 0 0 20 0 0 0 0",
 
-public static inline var PLAYERS_2 =
+players:
 "2 0 0 0 0
-2 0 0 0 0";
+2 0 0 0 0"
+}
 
-public static inline var INPUT_ACTIONS_3 =
+public static final INPUT_ACTIONS_3 =
 //0   1   2 3 4 5  6 7 8 9 10
 "51 BREW -1 0 0 0 10 0 0 0 0
 52 BREW -1 0 0 0 20 0 0 0 0
 53 BREW -1 0 0 0 30 0 0 0 0";
 
-public static inline var PLAYERS_3 =
+public static final PLAYERS_3 =
 "6 0 0 0 0
 6 0 0 0 0";
 
 
-public static inline var INPUT_ACTIONS_6 =
+public static final INPUT_ACTIONS_6 =
 //0   1   2 3 4 5  6 7 8 9 10
 "51 BREW -1 0 0 0 10 0 0 0 0
 52 BREW -1 0 0 0 20 0 0 0 0
@@ -52,28 +56,28 @@ public static inline var INPUT_ACTIONS_6 =
 55 BREW -1 0 0 0 50 0 0 0 0
 56 BREW -1 0 0 0 60 0 0 0 0";
 
-public static inline var PLAYERS_6 =
+public static final PLAYERS_6 =
 "6 0 0 0 0
 6 0 0 0 0";
 
-public static inline var INPUT_ACTIONS_1_2 =
+public static final INPUT_ACTIONS_1_2 =
 //0   1   2 3 4 5  6 7 8 9 10
 "78 CAST 2 0 0 0 0 -1 -1 1 0
 51 BREW -1 0 0 0 10 0 0 0 0
 52 BREW -1 0 0 0 20 0 0 0 0";
 
-public static inline var PLAYERS_EMPTY =
+public static final PLAYERS_EMPTY =
 "0 0 0 0 0
 0 0 0 0 0";
 
-public static inline var INPUT_ACTIONS_1_3 =
+public static final INPUT_ACTIONS_1_3 =
 //0   1   2 3 4 5  6 7 8 9 10
 "78 CAST 2 0 0 0 0 -1 -1 1 0
 79 CAST -1 1 0 0 0 -1 -1 1 0
 51 BREW 0 -1 0 0 10 0 0 0 0
 52 BREW 0 -1 0 0 20 0 0 0 0";
 
-public static inline var INPUT_ACTIONS_1_4 =
+public static final INPUT_ACTIONS_1_4 =
 //0   1   2 3 4 5  6 7 8 9 10
 "78 CAST 2 0 0 0 0 -1 -1 1 0
 79 CAST -1 1 0 0 0 -1 -1 1 0
@@ -82,7 +86,7 @@ public static inline var INPUT_ACTIONS_1_4 =
 51 BREW -3 0 0 0 10 0 0 0 0";
 
 
-public static inline var INPUT_ACTIONS_A =
+public static final INPUT_ACTIONS_A =
 //0   1   2 3 4 5  6 7 8 9 10
 "71 BREW -2 0 -2 -2 20 3 4 0 0
 49 BREW 0 -5 0 0 11 1 4 0 0
@@ -104,7 +108,7 @@ public static inline var INPUT_ACTIONS_A =
 84 OPPONENT_CAST 0 -1 1 0 0 -1 -1 1 0
 85 OPPONENT_CAST 0 0 -1 1 0 -1 -1 1 0";
 
-public static inline var INPUT_ACTIONS_B =
+public static final INPUT_ACTIONS_B =
 //0   1   2 3 4 5  6 7 8 9 10
 "48 BREW 0 -2 -2 0 13 3 4 0 0
 72 BREW 0 -2 -2 -2 20 1 4 0 0
@@ -126,7 +130,7 @@ public static inline var INPUT_ACTIONS_B =
 84 OPPONENT_CAST 0 -1 1 0 0 -1 -1 1 0
 85 OPPONENT_CAST 0 0 -1 1 0 -1 -1 1 0";
 
-public static inline var PLAYERS_CODINGAME =
+public static final PLAYERS_CODINGAME =
 "3 0 0 0 0
 3 0 0 0 0";
 		

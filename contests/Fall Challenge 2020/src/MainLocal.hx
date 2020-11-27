@@ -1,75 +1,52 @@
 package;
 
-import game.data.Action;
-import test.CreateTestTS;
-import test.mcts.CreateActions;
-import game.data.Player;
-import haxe.io.Output;
-import game.data.Board;
-import test.Inputs;
+import haxe.Timer;
+import game.contexts.BeamSearch;
 import test.CreatePlayer;
-import test.CreateTestMCTS;
+import game.data.State;
+import test.CreateActions;
+import test.Inputs;
 import CodinGame.print;
 
 using Lambda;
 
 class MainLocal {
 	
+	public static inline var RESPONSE_TIME = 50 / 1000 * 0.95;
+	public static inline var BEAM_SIZE = 3;
+
+	public static var start:Float;
+	public static var end:Float;
+	
 	static function main() {
-		final name1 = "Crom";
-		final name2 = "Hulk";
-		final actions = CreateActions.create( Inputs.INPUT_ACTIONS_1_4 );
 		
-		// for( action in actions ) if( action.actionType == Cast ) trace( action );
+		final inputs = Inputs.INPUT_ACTIONS_2;
 		
-		var player1 = CreatePlayer.create( Inputs.PLAYERS_EMPTY, 1, name1 );
-		var player2 = CreatePlayer.create( Inputs.PLAYERS_EMPTY, 2, name2 );
-		
-		final mcts1 = CreateTestTS.create( player1, player2 );
-		mcts1.updateNode( actions );
+	
+		final actions = CreateActions.create( inputs.actions );
+		final p1 = CreatePlayer.create( inputs.players, 1, "Crom" );
+		final p2 = CreatePlayer.create( inputs.players, 2, "Hulk" );
 
-		// final mcts2 = CreateTestTS.create( player2, player1 );
-		// mcts2.updateNode( actions );
+		var rootState = new State(
+			p1.inv0, p1.inv1, p1.inv2, p1.inv3, p1.score, 0, 0,
+			p2.inv0, p2.inv1, p2.inv2, p2.inv3, p2.score, 0, 0,
+			actions
+		);
+		trace( rootState );
+		var step = 0;
+		// while( true ) {
+		while( step < 50 ) {
+			
+			start = Timer.stamp();
+			end = start + RESPONSE_TIME;
+			
+			final winnerState = BeamSearch.search( rootState, BEAM_SIZE, end );
+			final output = winnerState.actionOutput();
+			print( 'step $step $output' );
+			if( output == "WAIT") break;
+			rootState = winnerState.createRootState();
 
-		var output1 = "";
-		var output2 = "";
-		
-		while( true ) {
-			
-			// trace( 'findnextmove for $name1' );
-			final winnerBoard1 = mcts1.findNextMove();
-
-			// trace( 'findnextmove for $name2' );
-			// final winnerBoard2 = mcts2.findNextMove();
-			
-			output1 = winnerBoard1.outputAction();
-			// output2 = winnerBoard2.outputAction();
-			trace( '${winnerBoard1.me.name}: $output1 inventory: ${winnerBoard1.me.inventory} score ${winnerBoard1.me.score}' );
-			// trace( 'action ${winnerBoard2.me.name}: $output2 Score: ${winnerBoard2.me.score}' );
-
-			// trace( winnerBoard1.checkStatus());
-			if( winnerBoard1.checkStatus() != InProgress ) {
-				break;
-			}
-
-			// updates
-			
-			final winnerBoardActions:Map<Int, Action> = [];
-			for( action in winnerBoard1.actions ) {
-				winnerBoardActions.set( action.actionId, action );
-			}
-
-			mcts1.updateNode(winnerBoardActions );
-			// for( action in winnerBoard2.actions ) mcts2.updateNode( action );
-			
-			player1 = winnerBoard1.me;
-			// final player2 = winnerBoard2.me;
-			
-			winnerBoard1.updatePlayer( 1, player1.inventory[0], player1.inventory[1], player1.inventory[2], player1.inventory[3], player1.score );
-			// winnerBoard1.updatePlayer( 2, player2.inventory[0], player2.inventory[1], player2.inventory[2], player2.inventory[3], player2.score );
-			
-			// winnerBoard2.updatePlayer( 1, player2.inventory[0], player2.inventory[1], player2.inventory[2], player2.inventory[3], player2.score );
-			// winnerBoard2.updatePlayer( 2, player1.inventory[0], player1.inventory[1], player1.inventory[2], player1.inventory[3], player1.score );
+			step++;
 
 		}
 	}
