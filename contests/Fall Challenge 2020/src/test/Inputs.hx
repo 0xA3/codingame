@@ -36,47 +36,57 @@ players:
 2 0 0 0 0"
 }
 
-public static final INPUT_ACTIONS_3 =
+public static final INPUT_ACTIONS_3 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
 "51 BREW -1 0 0 0 10 0 0 0 0
 52 BREW -1 0 0 0 20 0 0 0 0
-53 BREW -1 0 0 0 30 0 0 0 0";
+53 BREW -1 0 0 0 30 0 0 0 0",
 
-public static final PLAYERS_3 =
+players:
 "6 0 0 0 0
-6 0 0 0 0";
+6 0 0 0 0"
+}
 
-
-public static final INPUT_ACTIONS_6 =
+public static final INPUT_ACTIONS_4 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
 "51 BREW -1 0 0 0 10 0 0 0 0
 52 BREW -1 0 0 0 20 0 0 0 0
 53 BREW -1 0 0 0 30 0 0 0 0
 54 BREW -1 0 0 0 40 0 0 0 0
 55 BREW -1 0 0 0 50 0 0 0 0
-56 BREW -1 0 0 0 60 0 0 0 0";
+56 BREW -1 0 0 0 60 0 0 0 0",
 
-public static final PLAYERS_6 =
+players:
 "6 0 0 0 0
-6 0 0 0 0";
+6 0 0 0 0"
+}
 
-public static final INPUT_ACTIONS_1_2 =
+public static final INPUT_ACTIONS_5 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
 "78 CAST 2 0 0 0 0 -1 -1 1 0
 51 BREW -1 0 0 0 10 0 0 0 0
-52 BREW -1 0 0 0 20 0 0 0 0";
+52 BREW -1 0 0 0 20 0 0 0 0",
 
-public static final PLAYERS_EMPTY =
+players:
 "0 0 0 0 0
-0 0 0 0 0";
+0 0 0 0 0"
+}
 
-public static final INPUT_ACTIONS_1_3 =
+public static final INPUT_ACTIONS_6 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
 "78 CAST 2 0 0 0 0 -1 -1 1 0
 79 CAST -1 1 0 0 0 -1 -1 1 0
 51 BREW 0 -1 0 0 10 0 0 0 0
-52 BREW 0 -1 0 0 20 0 0 0 0";
+52 BREW 0 -1 0 0 20 0 0 0 0",
 
+players:
+"0 0 0 0 0
+0 0 0 0 0"
+}
 public static final INPUT_ACTIONS_1_4 =
 //0   1   2 3 4 5  6 7 8 9 10
 "78 CAST 2 0 0 0 0 -1 -1 1 0

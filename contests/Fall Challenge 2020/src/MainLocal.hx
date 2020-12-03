@@ -20,7 +20,7 @@ class MainLocal {
 	
 	static function main() {
 		
-		final inputs = Inputs.INPUT_ACTIONS_2;
+		final inputs = Inputs.INPUT_ACTIONS_6;
 		
 	
 		final actions = CreateActions.create( inputs.actions );
@@ -32,7 +32,7 @@ class MainLocal {
 			p2.inv0, p2.inv1, p2.inv2, p2.inv3, p2.score, 0, 0,
 			actions
 		);
-		trace( rootState );
+		// trace( rootState );
 		var step = 0;
 		// while( true ) {
 		while( step < 50 ) {
@@ -42,8 +42,9 @@ class MainLocal {
 			
 			final winnerState = BeamSearch.search( rootState, BEAM_SIZE, end );
 			final output = winnerState.actionOutput();
-			print( 'step $step $output' );
-			if( output == "WAIT") break;
+			print( 'step $step - $output Player1 ${winnerState.p1Output()}' );
+			
+			if( winnerState.getNoOfPotionsLeft() == 0 ) break;
 			rootState = winnerState.createRootState();
 
 			step++;

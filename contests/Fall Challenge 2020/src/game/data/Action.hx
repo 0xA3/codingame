@@ -49,7 +49,7 @@ class Action {
 			case Cast: checkCastable( inv0, inv1, inv2, inv3 );
 			case Learn: checkLearnable();
 			case OpponentCast: false;
-			case Rest, Wait: true;
+			case Rest, Wait: false; // don't clone rest and wait actions
 		}
 	}
 

@@ -30,7 +30,7 @@ class BeamSearch {
 			states = candidates.slice( 0, k );
 			if( states[0].action.actionType == Wait ) break;
 
-			for( state in states ) print( 'BeamSearch:33 ${state.toString()}' );
+			// for( state in states ) print( 'BeamSearch:33 ${state.toString()}' );
 
 			loops++;
 		}

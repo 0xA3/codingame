@@ -1,7 +1,11 @@
 package game.data;
 
+using Lambda;
+
 class State {
 	
+	static final restAction = new Action( -2, Rest );
+
 	final p1Inv0:Int;
 	final p1Inv1:Int;
 	final p1Inv2:Int;
@@ -41,7 +45,7 @@ class State {
 		p2Score:Int,
 		p2Potions:Int,
 		p2Spells:Int,
-		
+
 		actions:Array<Action>,
 		depth = 0,
 		?action:Action,
@@ -72,23 +76,42 @@ class State {
 
 	public function getChildStates() {
 		final childStates:Array<State> = [];
+		var isRestable = false;
 		for( action in actions ) {
+			if( action.actionType == Cast && !action.castable ) isRestable = true;
 			if( action.checkDoable( p1Inv0, p1Inv1, p1Inv2, p1Inv3 )) {
 				final childState = getChildState( 1, action );
-				childState.setScore( score );
+				childState.score = childState.calculateScore( score );
+				// trace( 'action ${childState.actionOutput()} score ${childState.score}' );
 				childStates.push( childState );
 			}
 		}
+		
+		if( isRestable ) { // add RestAction if any spell is !castable
+			final childState = getChildState( 1, restAction );
+			childState.score = childState.calculateScore( score );
+			// trace( 'rest score ${childState.score}' );
+			childStates.push( childState );
+		}
+
 		return childStates.length == 0 ? [getWaitState()] : childStates;
 	}
 
 	function getChildState( playerNo:Int, actionToExecute:Action ) {
 		final clonedActions = [];
 		for( action in actions  ) {
+			
 			final clonedAction = action.clone();
 			if( actionToExecute.actionType == Rest && action.actionType == Cast ) clonedAction.castable = true;
 			if( action == actionToExecute ) {
-				if( actionToExecute.actionType != Brew ) clonedActions.push( clonedAction );
+				switch action.actionType {
+					case Cast:
+						clonedAction.castable = false;
+						clonedActions.push( clonedAction );
+					case Brew: // no-op
+					default: clonedActions.push( clonedAction );
+
+				}
 			} else {
 				clonedActions.push( clonedAction );
 			}
@@ -131,9 +154,9 @@ class State {
 		}
 	}
 
-	public function setScore( parentScore:Float ) {
+	public function calculateScore( parentScore:Float ) {
 		final stateScore = p1Score + p1Inv0 + p1Inv1 * 2 + p1Inv2 * 3 + p1Inv3 * 4 + p1Potions * 1.1 + p1Spells * 0.4;
-		score = parentScore * Math.log( stateScore );
+		return parentScore * Math.log( stateScore );
 	}
 
 	public function getWaitState() {
@@ -168,7 +191,16 @@ class State {
 	public function actionOutput() {
 		return switch action.actionType {
 			case Wait: 'WAIT';
+			case Rest: 'REST';
 			default: '${action.type()} ${action.actionId}';
 		}
+	}
+
+	public function p1Output() {
+		return 'inv: $p1Inv0 $p1Inv1 $p1Inv2 $p1Inv3, score: $p1Score, potions: $p1Potions, spells: $p1Spells';
+	}
+
+	public function getNoOfPotionsLeft() {
+		return actions.fold(( action, sum ) -> action.actionType == Brew ? sum + 1 : sum, 0 );
 	}
 }
