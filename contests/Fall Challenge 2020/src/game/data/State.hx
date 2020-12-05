@@ -5,6 +5,7 @@ using Lambda;
 class State {
 	
 	static final restAction = new Action( -2, Rest );
+	static final waitAction = new Action( -1, Rest );
 
 	final p1Inv0:Int;
 	final p1Inv1:Int;
@@ -76,47 +77,31 @@ class State {
 
 	public function getChildStates() {
 		final childStates:Array<State> = [];
-		var isRestable = false;
+		var learnTax = 0;
 		for( action in actions ) {
-			if( action.actionType == Cast && !action.castable ) isRestable = true;
-			if( action.checkDoable( p1Inv0, p1Inv1, p1Inv2, p1Inv3 )) {
+			if( action.checkDoable( p1Inv0, p1Inv1, p1Inv2, p1Inv3, learnTax )) {
 				final childState = getChildState( 1, action );
 				childState.score = childState.calculateScore( score );
 				// trace( 'action ${childState.actionOutput()} score ${childState.score}' );
 				childStates.push( childState );
 			}
+			if( action.actionType == Learn ) learnTax++;
 		}
 		
-		if( isRestable ) { // add RestAction if any spell is !castable
-			final childState = getChildState( 1, restAction );
-			childState.score = childState.calculateScore( score );
-			// trace( 'rest score ${childState.score}' );
-			childStates.push( childState );
-		}
-
 		return childStates.length == 0 ? [getWaitState()] : childStates;
 	}
 
 	function getChildState( playerNo:Int, actionToExecute:Action ) {
-		final clonedActions = [];
-		for( action in actions  ) {
-			
-			final clonedAction = action.clone();
-			if( actionToExecute.actionType == Rest && action.actionType == Cast ) clonedAction.castable = true;
-			if( action == actionToExecute ) {
-				switch action.actionType {
-					case Cast:
-						clonedAction.castable = false;
-						clonedActions.push( clonedAction );
-					case Brew: // no-op
-					default: clonedActions.push( clonedAction );
-
-				}
-			} else {
-				clonedActions.push( clonedAction );
-			}
+		
+		final childStateActions = switch actionToExecute.actionType {
+			case Brew: actions.filter( a -> a != actionToExecute );
+			case Cast: getCastChildActions( actionToExecute );
+			case Learn: getLearnChildActions( actionToExecute );
+			case Rest: getRestChildActions();
+			case OpponentCast: throw "Error: no childStates of OpponentCast actions";
+			case Wait: throw "Error: no childStates of Wait actions";
 		}
-
+		
 		switch playerNo {
 			case 1:
 				final inv0 = p1Inv0 + actionToExecute.delta0;
@@ -129,7 +114,7 @@ class State {
 					actionToExecute.actionType == Brew ? p1Potions + 1 : p1Potions,
 					actionToExecute.actionType == Learn ? p1Spells + 1 : p1Spells,
 					p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
-					clonedActions,
+					childStateActions,
 					depth + 1,
 					actionToExecute,
 					this
@@ -145,7 +130,7 @@ class State {
 					inv0, inv1, inv2, inv3, score,
 					actionToExecute.actionType == Brew ? p2Potions + 1 : p2Potions,
 					actionToExecute.actionType == Learn ? p2Spells + 1 : p2Spells,
-					clonedActions,
+					childStateActions,
 					depth + 1,
 					actionToExecute,
 					this
@@ -154,7 +139,34 @@ class State {
 		}
 	}
 
-	public function calculateScore( parentScore:Float ) {
+	inline function getCastChildActions( actionToExecute:Action ) {
+		final childStateActions:Array<Action> = [];
+		var hasWaitAction = false;
+		for( a in actions ) {
+			if( a.actionType == Wait ) hasWaitAction = true;
+			if( a != actionToExecute ) childStateActions.push( a );
+			if( a == actionToExecute ) childStateActions.push( a.cloneUncastable());
+		}
+		if( !hasWaitAction ) childStateActions.push( waitAction );
+		return childStateActions;
+	}
+
+	inline function getLearnChildActions( actionToExecute:Action ) {
+		final childStateActions = actions.filter( a -> a != actionToExecute );
+		childStateActions.push( actionToExecute.cloneAsCastAction());
+		return childStateActions;
+	}
+
+	inline function getRestChildActions() {
+		final childStateActions:Array<Action> = [];
+		for( a in actions )	{
+			if( a.actionType == Cast && !a.castable ) childStateActions.push( a.cloneCastable());
+			else childStateActions.push( a );
+		}
+		return childStateActions;
+	}
+
+	inline function calculateScore( parentScore:Float ) {
 		final stateScore = p1Score + p1Inv0 + p1Inv1 * 2 + p1Inv2 * 3 + p1Inv3 * 4 + p1Potions * 1.1 + p1Spells * 0.4;
 		return parentScore * Math.log( stateScore );
 	}
@@ -165,12 +177,13 @@ class State {
 			p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
 			[],
 			depth + 1,
-			new Action( -1, Wait ),
+			waitAction,
 			this
 		);
 	}
 
 	public function createRootState() {
+		
 		return new State(
 			p1Inv0, p1Inv1, p1Inv2, p1Inv3, p1Score, p1Potions, p1Spells,
 			p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,

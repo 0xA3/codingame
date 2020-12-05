@@ -12,6 +12,11 @@ package test;
 //  9 1 if this is a castable player spell
 // 10 1 if this is a repeatable player spell
 
+typedef InputAction = {
+	actions:String,
+	players:String
+}
+
 class Inputs {
 
 public static final INPUT_ACTIONS_1 = {
@@ -87,16 +92,34 @@ players:
 "0 0 0 0 0
 0 0 0 0 0"
 }
-public static final INPUT_ACTIONS_1_4 =
+
+public static final INPUT_ACTIONS_7 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
 "78 CAST 2 0 0 0 0 -1 -1 1 0
 79 CAST -1 1 0 0 0 -1 -1 1 0
 80 CAST 0 -1 1 0 0 -1 -1 1 0
 81 CAST 0 0 -1 1 0 -1 -1 1 0
-51 BREW -3 0 0 0 10 0 0 0 0";
+51 BREW -3 0 0 0 10 0 0 0 0",
 
+players:
+"0 0 0 0 0
+0 0 0 0 0"
+}
 
-public static final INPUT_ACTIONS_A =
+public static final INPUT_ACTIONS_8 = {
+actions:
+//0   1   2 3 4 5 6 7 8 9 10
+"78 LEARN 2 0 0 0 0 0 0 0 1
+51 BREW -2 0 0 0 10 0 0 0 0",
+
+players:
+"0 0 0 0 0
+0 0 0 0 0"
+}
+
+public static final INPUT_ACTIONS_80 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
 "71 BREW -2 0 -2 -2 20 3 4 0 0
 49 BREW 0 -5 0 0 11 1 4 0 0
@@ -116,9 +139,14 @@ public static final INPUT_ACTIONS_A =
 82 OPPONENT_CAST 2 0 0 0 0 -1 -1 1 0
 83 OPPONENT_CAST -1 1 0 0 0 -1 -1 1 0
 84 OPPONENT_CAST 0 -1 1 0 0 -1 -1 1 0
-85 OPPONENT_CAST 0 0 -1 1 0 -1 -1 1 0";
+85 OPPONENT_CAST 0 0 -1 1 0 -1 -1 1 0",
+players:
+"3 0 0 0 0
+3 0 0 0 0"
+}
 
-public static final INPUT_ACTIONS_B =
+public static final INPUT_ACTIONS_90 = {
+actions:
 //0   1   2 3 4 5  6 7 8 9 10
 "48 BREW 0 -2 -2 0 13 3 4 0 0
 72 BREW 0 -2 -2 -2 20 1 4 0 0
@@ -138,10 +166,10 @@ public static final INPUT_ACTIONS_B =
 82 OPPONENT_CAST 2 0 0 0 0 -1 -1 1 0
 83 OPPONENT_CAST -1 1 0 0 0 -1 -1 1 0
 84 OPPONENT_CAST 0 -1 1 0 0 -1 -1 1 0
-85 OPPONENT_CAST 0 0 -1 1 0 -1 -1 1 0";
-
-public static final PLAYERS_CODINGAME =
+85 OPPONENT_CAST 0 0 -1 1 0 -1 -1 1 0",
+players:
 "3 0 0 0 0
-3 0 0 0 0";
-		
+3 0 0 0 0"
+}
+
 }

@@ -15,7 +15,7 @@ class Action {
 	public final price:Int; // the price in rupees if this is a potion
 	public final tomeIndex:Int; // the index in the tome if this is a tome spell, equal to the read-ahead tax
 	public final taxCount:Int; // the amount of taxed tier-0 ingredients you gain from learning this spell
-	public var castable:Bool; // 1 if this is a castable player spell
+	public final castable:Bool; // 1 if this is a castable player spell
 	public final repeatable:Bool; // 1 if this is a repeatable player spell
 
 	public function new( actionId:Int, actionType:ActionType, delta0 = 0, delta1 = 0, delta2 = 0, delta3 = 0, price = 0, tomeIndex = 0, taxCount = 0, castable = false, repeatable = false ) {
@@ -43,13 +43,14 @@ class Action {
 		}
 	}
 
-	public function checkDoable( inv0:Int, inv1:Int, inv2:Int, inv3:Int ) {
+	public function checkDoable( inv0:Int, inv1:Int, inv2:Int, inv3:Int, learnTax:Int ) {
 		return switch actionType {
 			case Brew: checkBrewable( inv0, inv1, inv2, inv3 );
 			case Cast: checkCastable( inv0, inv1, inv2, inv3 );
-			case Learn: checkLearnable();
+			case Learn: checkLearnable( inv0, learnTax );
 			case OpponentCast: false;
-			case Rest, Wait: false; // don't clone rest and wait actions
+			case Rest: true;
+			case Wait: false; // don't clone wait actions
 		}
 	}
 
@@ -69,8 +70,8 @@ class Action {
 		&& inventorySum( inv0, inv1, inv2, inv3 ) + inventoryChange() <= MAX_INVENTORY;
 	}
 
-	inline function checkLearnable() {
-		return true; // todo
+	inline function checkLearnable( inv0:Int, learnTax:Int ) {
+		return inv0 >= learnTax;
 	}
 
 	inline function inventorySum( inv0:Int, inv1:Int, inv2:Int, inv3:Int ) {
@@ -79,7 +80,6 @@ class Action {
 	inline function inventoryChange() {
 		return delta0 + delta1 + delta2 + delta3;
 	}
-
 
 	public function toString() {
 		return 'actionId: $actionId, actionType: $actionType, delta0: $delta0, delta1: $delta1, delta2: $delta2, delta3: $delta3, price: $price, tomeIndex: $tomeIndex, taxCount: $taxCount${castable ? ", castable" : ""}${repeatable ? ", repeatable" : ""}';
@@ -100,6 +100,18 @@ class Action {
 		}
 	}
 
+	public function cloneAsCastAction() {
+		return new Action( actionId, Cast, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, true, repeatable );
+	}
+
+	public function cloneCastable() {
+		return new Action( actionId, actionType, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, true, repeatable );
+	}
+	
+	public function cloneUncastable() {
+		return new Action( actionId, actionType, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, false, repeatable );
+	}
+	
 	public function clone() {
 		return new Action( actionId, actionType, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, castable, repeatable );
 	}

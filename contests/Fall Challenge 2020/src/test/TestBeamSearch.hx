@@ -1,25 +1,20 @@
-package game.contexts;
+package test;
 
-import haxe.Timer;
 import game.data.State;
-import CodinGame.print;
-import CodinGame.printErr;
 
-class BeamSearch {
+class TestBeamSearch {
 	
-	public static function search( startState:State, k:Int, end:Float ) {
+	public static function search( startState:State, k:Int, maxLoops:Int ) {
 		
 		var states:Array<State> = [startState];
 		
 		var loops = 0;
 		var nodes = 0;
-		while( Timer.stamp() < end ) {
-		// while( loops < 10 ) {
+		while( loops < maxLoops ) {
 			final candidates:Array<State> = [];
 			for( state in states ) {
 				final childStates = state.getChildStates();
 				for( childState in childStates ) candidates.push( childState );
-				if( Timer.stamp() >= end ) break;
 			}
 			nodes += candidates.length;
 

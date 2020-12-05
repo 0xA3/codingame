@@ -14,7 +14,7 @@ using Lambda;
 class Main {
 	
 	public static inline var RESPONSE_TIME = 50 / 1000 * 0.95;
-	public static inline var BEAM_SIZE = 3;
+	public static inline var BEAM_SIZE = 1000;
 	
 	public static var start:Float;
 	public static var end:Float;
@@ -36,14 +36,15 @@ class Main {
 			final inputsP1 = readline().split( ' ' );
 			final inputsP2 = readline().split( ' ' );
 			
-			rootState = new State(	parseInt( inputsP1[0] ), parseInt( inputsP1[1] ), parseInt( inputsP1[2] ), parseInt( inputsP1[3] ), parseInt( inputsP1[4] ), 0, 0,
-								parseInt( inputsP2[0] ), parseInt( inputsP2[1] ), parseInt( inputsP2[2] ), parseInt( inputsP2[3] ), parseInt( inputsP2[4] ), 0, 0,
-								actions
+			rootState = new State(
+				parseInt( inputsP1[0] ), parseInt( inputsP1[1] ), parseInt( inputsP1[2] ), parseInt( inputsP1[3] ), parseInt( inputsP1[4] ), 0, 0,
+				parseInt( inputsP2[0] ), parseInt( inputsP2[1] ), parseInt( inputsP2[2] ), parseInt( inputsP2[3] ), parseInt( inputsP2[4] ), 0, 0,
+				actions
 			);
 
-			final action = BeamSearch.search( rootState, BEAM_SIZE, end );
+			final winnerState = BeamSearch.search( rootState, BEAM_SIZE, end );
 
-			print( action );
+			print( winnerState.actionOutput() );
 			// print( "WAIT" );
 		}
 
