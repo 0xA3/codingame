@@ -80,7 +80,7 @@ class State {
 		var learnTax = 0;
 		for( action in actions ) {
 			if( action.checkDoable( p1Inv0, p1Inv1, p1Inv2, p1Inv3, learnTax )) {
-				final childState = getChildState( 1, action );
+				final childState = getChildState( action, learnTax );
 				childState.score = childState.calculateScore( score );
 				// trace( 'action ${childState.actionOutput()} score ${childState.score}' );
 				childStates.push( childState );
@@ -91,55 +91,42 @@ class State {
 		return childStates.length == 0 ? [getWaitState()] : childStates;
 	}
 
-	function getChildState( playerNo:Int, actionToExecute:Action ) {
+	inline function getChildState( actionToExecute:Action, learnTax:Int ) {
 		
-		final childStateActions = switch actionToExecute.actionType {
-			case Brew: actions.filter( a -> a != actionToExecute );
-			case Cast: getCastChildActions( actionToExecute );
-			case Learn: getLearnChildActions( actionToExecute );
-			case Rest: getRestChildActions();
-			case OpponentCast: throw "Error: no childStates of OpponentCast actions";
-			case Wait: throw "Error: no childStates of Wait actions";
+		return switch actionToExecute.actionType {
+			case Brew: executeBrew( actionToExecute );
+			case Cast: executeCast( actionToExecute );
+			case Learn: executeLearn( actionToExecute, learnTax );
+			case Rest: executeRest( actionToExecute );
+			case OpponentCast: throw "Error: OpponentCast has no child states";
+			case Wait: throw "Error: Wait has no child states";
 		}
-		
-		switch playerNo {
-			case 1:
-				final inv0 = p1Inv0 + actionToExecute.delta0;
-				final inv1 = p1Inv1 + actionToExecute.delta1;
-				final inv2 = p1Inv2 + actionToExecute.delta2;
-				final inv3 = p1Inv3 + actionToExecute.delta3;
-				final score = p1Score + actionToExecute.price;
-				return new State(
-					inv0, inv1, inv2, inv3, score,
-					actionToExecute.actionType == Brew ? p1Potions + 1 : p1Potions,
-					actionToExecute.actionType == Learn ? p1Spells + 1 : p1Spells,
-					p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
-					childStateActions,
-					depth + 1,
-					actionToExecute,
-					this
-				);
-			case 2:
-				final inv0 = p2Inv0 + actionToExecute.delta0;
-				final inv1 = p2Inv1 + actionToExecute.delta1;
-				final inv2 = p2Inv2 + actionToExecute.delta2;
-				final inv3 = p2Inv3 + actionToExecute.delta3;
-				final score = p1Score + actionToExecute.price;
-				return new State(
-					p1Inv0, p1Inv1, p1Inv2, p1Inv3, p1Score, p1Potions, p1Spells,
-					inv0, inv1, inv2, inv3, score,
-					actionToExecute.actionType == Brew ? p2Potions + 1 : p2Potions,
-					actionToExecute.actionType == Learn ? p2Spells + 1 : p2Spells,
-					childStateActions,
-					depth + 1,
-					actionToExecute,
-					this
-				);
-			default: throw "Error: playerNo must be 1 or 2";
-		}
+
 	}
 
-	inline function getCastChildActions( actionToExecute:Action ) {
+	inline function executeBrew( actionToExecute:Action ) {
+		
+		final childStateActions = actions.filter( a -> a != actionToExecute );
+
+		final inv0 = p1Inv0 + actionToExecute.delta0;
+		final inv1 = p1Inv1 + actionToExecute.delta1;
+		final inv2 = p1Inv2 + actionToExecute.delta2;
+		final inv3 = p1Inv3 + actionToExecute.delta3;
+		final score = p1Score + actionToExecute.price;
+		return new State(
+			inv0, inv1, inv2, inv3, score,
+			p1Potions + 1,
+			p1Spells,
+			p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
+			childStateActions,
+			depth + 1,
+			actionToExecute,
+			this
+		);
+	}
+
+	inline function executeCast( actionToExecute:Action ) {
+		
 		final childStateActions:Array<Action> = [];
 		var hasWaitAction = false;
 		for( a in actions ) {
@@ -148,22 +135,59 @@ class State {
 			if( a == actionToExecute ) childStateActions.push( a.cloneUncastable());
 		}
 		if( !hasWaitAction ) childStateActions.push( waitAction );
-		return childStateActions;
+
+		final inv0 = p1Inv0 + actionToExecute.delta0;
+		final inv1 = p1Inv1 + actionToExecute.delta1;
+		final inv2 = p1Inv2 + actionToExecute.delta2;
+		final inv3 = p1Inv3 + actionToExecute.delta3;
+		final score = p1Score + actionToExecute.price;
+		return new State(
+			inv0, inv1, inv2, inv3, score,
+			p1Potions,
+			p1Spells,
+			p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
+			childStateActions,
+			depth + 1,
+			actionToExecute,
+			this
+		);
 	}
 
-	inline function getLearnChildActions( actionToExecute:Action ) {
+	inline function executeLearn( actionToExecute:Action, learnTax:Int ) {
+		
 		final childStateActions = actions.filter( a -> a != actionToExecute );
 		childStateActions.push( actionToExecute.cloneAsCastAction());
-		return childStateActions;
+
+		final inv0 = p1Inv0 - learnTax;
+		return new State(
+			inv0, p1Inv1, p1Inv2, p1Inv3, p1Score,
+			p1Potions,
+			p1Spells + 1,
+			p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
+			childStateActions,
+			depth + 1,
+			actionToExecute,
+			this
+		);
 	}
 
-	inline function getRestChildActions() {
+	inline function executeRest( actionToExecute:Action ) {
 		final childStateActions:Array<Action> = [];
 		for( a in actions )	{
 			if( a.actionType == Cast && !a.castable ) childStateActions.push( a.cloneCastable());
 			else childStateActions.push( a );
 		}
-		return childStateActions;
+		
+		return new State(
+			p1Inv0, p1Inv1, p1Inv2, p1Inv3, p1Score,
+			p1Potions,
+			p1Spells + 1,
+			p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
+			childStateActions,
+			depth + 1,
+			actionToExecute,
+			this
+		);
 	}
 
 	inline function calculateScore( parentScore:Float ) {
