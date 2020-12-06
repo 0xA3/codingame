@@ -51,8 +51,20 @@ class TestGame extends buddy.BuddySuite {
 			
 			it( "test INPUT_ACTIONS_8", {
 				final commands = CreateGameCommands.create( Inputs.INPUT_ACTIONS_8 );
-				trace( commands );
-				commands.should.be( "LEARN 78, CAST 78, BREW 51" );
+				// trace( commands );
+				commands.should.be( "LEARN 88, CAST 88, BREW 51" );
+			});
+
+			it( "test INPUT_ACTIONS_9", {
+				final commands = CreateGameCommands.create( Inputs.INPUT_ACTIONS_9 );
+				// trace( commands );
+				commands.should.be( "LEARN 88, CAST 88, BREW 51" );
+			});
+
+			it( "test INPUT_ACTIONS_10", {
+				final commands = CreateGameCommands.create( Inputs.INPUT_ACTIONS_10 );
+				// trace( commands );
+				commands.should.be( "CAST 78 3, BREW 51" );
 			});
 
 		});

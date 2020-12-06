@@ -44,7 +44,7 @@ class Main {
 
 			final winnerState = BeamSearch.search( rootState, BEAM_SIZE, end );
 
-			print( winnerState.actionOutput() );
+			print( winnerState.outputCommand() );
 			// print( "WAIT" );
 		}
 

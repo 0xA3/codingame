@@ -33,7 +33,7 @@ class CreateGameCommands {
 			end = start + RESPONSE_TIME;
 			
 			final winnerState = BeamSearch.search( rootState, BEAM_SIZE, end );
-			final output = winnerState.actionOutput();
+			final output = winnerState.outputCommand();
 			outputs.push( output );
 			if( winnerState.getNoOfPotionsLeft() == 0 ) break;
 			rootState = winnerState.createRootState();

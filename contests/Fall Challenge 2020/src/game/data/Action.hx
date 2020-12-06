@@ -43,11 +43,11 @@ class Action {
 		}
 	}
 
-	public function checkDoable( inv0:Int, inv1:Int, inv2:Int, inv3:Int, learnTax:Int ) {
+	public function checkDoable( inv0:Int, inv1:Int, inv2:Int, inv3:Int, times:Int ) {
 		return switch actionType {
 			case Brew: checkBrewable( inv0, inv1, inv2, inv3 );
-			case Cast: checkCastable( inv0, inv1, inv2, inv3 );
-			case Learn: checkLearnable( inv0, learnTax );
+			case Cast: checkCastable( inv0, inv1, inv2, inv3, times );
+			case Learn: checkLearnable( inv0 );
 			case OpponentCast: false;
 			case Rest: true;
 			case Wait: false; // don't clone wait actions
@@ -61,24 +61,26 @@ class Action {
 		&& inv3 + delta3 >= 0;
 	}
 
-	inline function checkCastable( inv0:Int, inv1:Int, inv2:Int, inv3:Int ) {
+	inline function checkCastable( inv0:Int, inv1:Int, inv2:Int, inv3:Int, times:Int ) {
 		return castable
-		&& inv0 + delta0 >= 0
-		&& inv1 + delta1 >= 0
-		&& inv2 + delta2 >= 0
-		&& inv3 + delta3 >= 0
-		&& inventorySum( inv0, inv1, inv2, inv3 ) + inventoryChange() <= MAX_INVENTORY;
+		&& inv0 + delta0 * times >= 0
+		&& inv1 + delta1 * times >= 0
+		&& inv2 + delta2 * times >= 0
+		&& inv3 + delta3 * times >= 0
+		&& inv0 - tomeIndex * times >= 0
+		&& inventorySum( inv0, inv1, inv2, inv3 ) + inventoryChange( times ) <= MAX_INVENTORY;
 	}
 
-	inline function checkLearnable( inv0:Int, learnTax:Int ) {
-		return inv0 >= learnTax;
+	inline function checkLearnable( inv0:Int ) {
+		return inv0 >= tomeIndex;
 	}
 
 	inline function inventorySum( inv0:Int, inv1:Int, inv2:Int, inv3:Int ) {
 		return inv0 + inv1 + inv2 + inv3;
 	}
-	inline function inventoryChange() {
-		return delta0 + delta1 + delta2 + delta3;
+	inline function inventoryChange( times:Int ) {
+		// trace( 'inventoryChange ${( delta0 + delta1 + delta2 + delta3 ) * times}' );
+		return ( delta0 + delta1 + delta2 + delta3 ) * times;
 	}
 
 	public function toString() {
@@ -100,18 +102,22 @@ class Action {
 		}
 	}
 
-	public function cloneAsCastAction() {
+	public function convertToCastAction() {
 		return new Action( actionId, Cast, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, true, repeatable );
 	}
 
-	public function cloneCastable() {
+	public function setCastable() {
 		return new Action( actionId, actionType, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, true, repeatable );
 	}
 	
-	public function cloneUncastable() {
+	public function setUncastable() {
 		return new Action( actionId, actionType, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, false, repeatable );
 	}
 	
+	public function reduceTomeIndex() {
+		return new Action( actionId, actionType, delta0, delta1, delta2, delta3, price, tomeIndex - 1, taxCount, castable, repeatable );
+	}
+
 	public function clone() {
 		return new Action( actionId, actionType, delta0, delta1, delta2, delta3, price, tomeIndex, taxCount, castable, repeatable );
 	}

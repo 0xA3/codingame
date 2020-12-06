@@ -6,6 +6,7 @@ import Std.parseInt;
 class ParseAction {
 	
 	public static inline function parse( inputs:Array<String> ) {
+		// trace( '"${inputs[10]}" != ${inputs[10] != "0"}' );
 		return new Action(
 			parseInt( inputs[0] ), // the unique ID of this spell or recipe
 			Action.createType( inputs[1] ), // in the first league: BREW, later: CAST, OPPONENT_CAST, LEARN, BREW

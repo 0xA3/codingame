@@ -110,12 +110,59 @@ players:
 public static final INPUT_ACTIONS_8 = {
 actions:
 //0   1   2 3 4 5 6 7 8 9 10
-"78 LEARN 2 0 0 0 0 0 0 0 1
-51 BREW -2 0 0 0 10 0 0 0 0",
+"88 LEARN 2 0 0 0 0 0 0 0 1
+51 BREW -4 0 0 0 10 0 0 0 0",
 
 players:
-"0 0 0 0 0
-0 0 0 0 0"
+"3 0 0 0 0
+3 0 0 0 0"
+}
+
+public static final INPUT_ACTIONS_9 = {
+actions:
+//0   1   2 3 4 5 6 7 8 9 10
+"78 CAST 1 0 0 0 0 -1 -1 1 0
+88 LEARN 3 0 0 0 0 0 0 0 1
+51 BREW -6 0 0 0 10 0 0 0 0",
+
+players:
+"3 0 0 0 0
+3 0 0 0 0"
+}
+
+public static final INPUT_ACTIONS_10 = {
+actions:
+//0   1   2 3 4 5 6 7 8 9 10
+"78 CAST -1 1 0 0 0 0 0 1 1
+51 BREW 0 -2 0 0 10 0 0 0 0",
+
+players:
+"3 0 0 0 0
+3 0 0 0 0"
+}
+
+public static final INPUT_ACTIONS_11 = {
+actions:
+//0   1   2 3 4 5 6 7 8 9 10
+"78 CAST 2 0 0 0 0 -1 -1 1 0
+88 LEARN -1 1 0 0 0 0 0 0 1
+51 BREW 0 -1 0 0 10 0 0 0 0",
+
+players:
+"3 0 0 0 0
+3 0 0 0 0"
+}
+
+// potion is unbrewable
+public static final INPUT_ACTIONS_12 = {
+actions:
+//0   1   2 3 4 5 6 7 8 9 10
+"78 CAST 6 0 0 0 0 -1 -1 1 0
+51 BREW 0 -1 0 0 10 0 0 0 0",
+
+players:
+"3 0 0 0 0
+3 0 0 0 0"
 }
 
 public static final INPUT_ACTIONS_80 = {

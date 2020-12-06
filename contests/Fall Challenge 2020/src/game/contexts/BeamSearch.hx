@@ -32,12 +32,15 @@ class BeamSearch {
 			});
 			
 			states = candidates.slice( 0, k );
-			if( states[0].action.actionType == Wait ) break;
+			if( states[0].command.actionType == Wait ) break;
 
-			// for( state in states ) print( 'BeamSearch:33 ${state.toString()}' );
+			// for( state in states ) printErr( 'BeamSearch:37 ${state.toString()}' );
 
 			loops++;
 		}
+
+		// trace state tree
+		// for( i in 0...states.length ) trace( '\nstate $i\n${states[i].outputTree()}' );
 
 		var winnerState = states[0];
 		// printErr( 'nodes $nodes, depth ${winnerState.depth}' );
