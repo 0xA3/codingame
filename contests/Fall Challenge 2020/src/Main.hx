@@ -13,7 +13,8 @@ using Lambda;
 
 class Main {
 	
-	public static inline var RESPONSE_TIME = 50 / 1000 * 0.95;
+	public static inline var END_POTIONS = 6;
+	public static inline var RESPONSE_TIME = 50 / 1000 * 0.94;
 	public static inline var BEAM_SIZE = 1000;
 	
 	public static var start:Float;
@@ -23,6 +24,7 @@ class Main {
 
 	static function main() {
 		
+		var step = 0;
 		while( true ) {
 			final actionCount = parseInt( readline() ); // the number of spells and recipes in play
 			start = Timer.stamp();
@@ -42,7 +44,8 @@ class Main {
 				actions
 			);
 
-			final winnerState = BeamSearch.search( rootState, BEAM_SIZE, end );
+			final winnerState = BeamSearch.search( rootState, BEAM_SIZE, end, step );
+			step++;
 
 			print( winnerState.outputCommand() );
 			// print( "WAIT" );

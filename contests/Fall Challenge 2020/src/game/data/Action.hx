@@ -87,6 +87,10 @@ class Action {
 		return 'actionId: $actionId, actionType: $actionType, delta0: $delta0, delta1: $delta1, delta2: $delta2, delta3: $delta3, price: $price, tomeIndex: $tomeIndex, taxCount: $taxCount${castable ? ", castable" : ""}${repeatable ? ", repeatable" : ""}';
 	}
 	
+	public function outputShort() {
+		return '${type()} $actionId';
+	}
+
 	// public function toString() {
 	// 	return '$actionId $actionType $delta $price $tomeIndex $taxCount${castable ? "1" : " "}${repeatable ? "1" : " "}';
 	// }

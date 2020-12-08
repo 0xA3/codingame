@@ -3,4 +3,5 @@
 -cp src
 -D analyzer-optimize
 -main test.TestMain
+# --interp
 --hl dest/test.hl

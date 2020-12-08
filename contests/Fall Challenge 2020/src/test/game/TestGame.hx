@@ -52,13 +52,13 @@ class TestGame extends buddy.BuddySuite {
 			it( "test INPUT_ACTIONS_8", {
 				final commands = CreateGameCommands.create( Inputs.INPUT_ACTIONS_8 );
 				// trace( commands );
-				commands.should.be( "LEARN 88, CAST 88, BREW 51" );
+				commands.should.be( "LEARN 88, CAST 88 3, BREW 51" );
 			});
 
 			it( "test INPUT_ACTIONS_9", {
 				final commands = CreateGameCommands.create( Inputs.INPUT_ACTIONS_9 );
 				// trace( commands );
-				commands.should.be( "LEARN 88, CAST 88, BREW 51" );
+				commands.should.be( "LEARN 88, CAST 88 2, BREW 51" );
 			});
 
 			it( "test INPUT_ACTIONS_10", {

@@ -105,7 +105,7 @@ class State {
 		}
 	}
 
-	inline function getChildState( inputAction:Action, times:Int ) {
+	/*inline*/ function getChildState( inputAction:Action, times:Int ) {
 		
 		return switch inputAction.actionType {
 			case Brew: executeBrew( inputAction );
@@ -118,7 +118,7 @@ class State {
 
 	}
 
-	inline function executeBrew( inputAction:Action ) {
+	/*inline*/ function executeBrew( inputAction:Action ) {
 		
 		final childActions = actions.filter( a -> a != inputAction );
 
@@ -139,7 +139,7 @@ class State {
 		);
 	}
 
-	inline function executeCast( inputAction:Action, times:Int ) {
+	/*inline*/ function executeCast( inputAction:Action, times:Int ) {
 		
 		final childActions:Array<Action> = [];
 		var hasRestAction = false;
@@ -167,20 +167,21 @@ class State {
 		);
 	}
 
-	inline function executeLearn( inputAction:Action ) {
-		
+	/*inline*/ function executeLearn( inputAction:Action ) {
 		final childActions:Array<Action> = [];
-		for( a in actions ) {
-			if( a == inputAction ) {
+		for( action in actions ) {
+			if( action == inputAction ) {
 				final learnedAction = inputAction.convertToCastAction();
+				// trace( 'push ${learnedAction.outputShort()}' );
 				childActions.push( learnedAction );
-			}
-			else {
-				if( a.actionType == Learn && a.tomeIndex > inputAction.tomeIndex ) {
-					final reducedAction =  inputAction.reduceTomeIndex();
+			} else {
+				if( action.actionType == Learn && action.tomeIndex > inputAction.tomeIndex ) {
+					final reducedAction = action.reduceTomeIndex();
+					// trace( 'push ${reducedAction.outputShort()}' );
 					childActions.push( reducedAction );
 				} else {
-					childActions.push( a );
+					// trace( 'push ${action.outputShort()}' );
+					childActions.push( action );
 				}
 			}
 		}
@@ -198,7 +199,7 @@ class State {
 		);
 	}
 
-	inline function executeRest() {
+	/*inline*/ function executeRest() {
 		final childActions:Array<Action> = [];
 		for( action in actions )	{
 			switch action.actionType {
@@ -220,7 +221,7 @@ class State {
 		);
 	}
 
-	inline function calculateScore( parentScore:Float ) {
+	/*inline*/ function calculateScore( parentScore:Float ) {
 		final stateScore = p1Score + p1Inv0 + p1Inv1 * 2 + p1Inv2 * 3 + p1Inv3 * 4 + p1Potions * 1.1 + p1Spells * 0.4;
 		// trace( 'calculateScore $p1Score + $p1Inv0 + $p1Inv1 * 2 + $p1Inv2 * 3 + $p1Inv3 * 4 + $p1Potions * 1.1 + $p1Spells * 0.4 = $stateScore' );
 		// trace( 'setScore to $parentScore * ${Math.log( 1 + stateScore )} = ${parentScore * Math.log( 1 + stateScore )}' );
@@ -233,7 +234,7 @@ class State {
 		return new State(
 			p1Inv0, p1Inv1, p1Inv2, p1Inv3, p1Score, p1Potions, p1Spells,
 			p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
-			[],
+			actions,
 			depth + 1,
 			waitCommand,
 			this
@@ -246,20 +247,24 @@ class State {
 			p1Inv0, p1Inv1, p1Inv2, p1Inv3, p1Score, p1Potions, p1Spells,
 			p2Inv0, p2Inv1, p2Inv2, p2Inv3, p2Score, p2Potions, p2Spells,
 			actions,
-			0,
-			command,
-			this
+			0
 		);
 	}
 
 	public function toString() {
 		// return 'p1 inv $p1Inv0 $p1Inv1 $p1Inv2 $p1Inv3 score $p1Score potions $p1Potions spells $p1Spells depth $depth\nstatescore $score';
-		final remainingActions = actions.map( a -> '${a.actionType} ${a.actionId}' ).join(", ");
+		
+		// final remainingActions = actions.map( a -> '${a.actionType} ${a.actionId}' ).join(", ");
+		// final thisAction = command == null ? "null" : '${command.actionType} ${command.actionId}';
+		// return 'depth: $depth, action: $thisAction, score: $score, remaining actions: $remainingActions';
+		
 		final thisAction = command == null ? "null" : '${command.actionType} ${command.actionId}';
-		return 'depth: $depth, action: $thisAction, score: $score, remaining actions: $remainingActions';
+		return 'depth: $depth, action: $thisAction, score: $score';
+		
+		// return score;
 	}
 
-	public inline function outputCommand() {
+	public /*inline*/ function outputCommand() {
 		return command.output();
 	}
 
@@ -270,11 +275,15 @@ class State {
 		// return output;
 	}
 
+	public function outputActions() {
+		return '${actions.length} - ' + actions.map( action -> action.outputShort()).join( ", " );
+	}
+
 	public function p1Output() {
 		return 'inv: $p1Inv0 $p1Inv1 $p1Inv2 $p1Inv3, score: $p1Score, potions: $p1Potions, spells: $p1Spells';
 	}
 
-	public function availablePotions() {
+	public function getAvailablePotions() {
 		return actions.fold(( action, sum ) -> action.actionType == Brew ? sum + 1 : sum, 0 );
 	}
 }
