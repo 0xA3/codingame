@@ -7,6 +7,8 @@ import CodinGame.printErr;
 
 class BeamSearch {
 	
+	static var loops:Int;
+	static var nodes:Int;
 	// public static var breakEnd:Float;
 	// public static var recurseStart:Float;
 
@@ -14,8 +16,8 @@ class BeamSearch {
 		
 		final states:Array<State> = [startState];
 		
-		var loops = 0;
-		var nodes = 0;
+		loops = 0;
+		nodes = 0;
 		while( Timer.stamp() < end && loops + step < 100 ) {
 			final candidates = new MaxPriorityQueue<State>( compareStates );
 			for( state in states ) {
@@ -59,6 +61,10 @@ class BeamSearch {
 	static inline function compareStates( a:State, b:State ) {
 		if( a.score > b.score ) return true;
 		return false;
+	}
+
+	public static function getStats() {
+		return 'depth: $loops, nodes: $nodes';
 	}
 }
 

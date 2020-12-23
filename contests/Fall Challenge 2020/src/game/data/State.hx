@@ -10,6 +10,12 @@ class State {
 	static final restCommand = Command.fromAction( restAction );
 	static final waitCommand = Command.fromAction( waitAction );
 
+	public final parent:State;
+	public final depth:Int;
+	public final command:Command;
+
+	public var score = 1.0;
+
 	final p1Inv0:Int;
 	final p1Inv1:Int;
 	final p1Inv2:Int;
@@ -26,13 +32,8 @@ class State {
 	final p2Potions:Int;
 	final p2Spells:Int;
 
-	public final command:Command;
 	final actions:Array<Action>;
-	public final depth:Int;
-	public final parent:State;
 	
-	public var score = 1.0;
-
 	public function new(
 		p1Inv0:Int,
 		p1Inv1:Int,
@@ -226,7 +227,7 @@ class State {
 		// trace( 'calculateScore $p1Score + $p1Inv0 + $p1Inv1 * 2 + $p1Inv2 * 3 + $p1Inv3 * 4 + $p1Potions * 1.1 + $p1Spells * 0.4 = $stateScore' );
 		// trace( 'setScore to $parentScore * ${Math.log( 1 + stateScore )} = ${parentScore * Math.log( 1 + stateScore )}' );
 		
-		return parentScore * Math.log( 1 + stateScore );
+		return stateScore * ( Math.pow( 0.95, depth ));
 		// return stateScore;
 	}
 

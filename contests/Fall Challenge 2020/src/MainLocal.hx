@@ -16,14 +16,14 @@ class MainLocal {
 	public static inline var MAX_RESPONSE_TIME = 50 / 1000;
 	public static inline var RESPONSE_TIME = 50 / 1000 * 0.94;
 	public static inline var BEAM_SIZE = 1000;
-	// public static inline var BEAM_SIZE = 100;
+	// public static inline var BEAM_SIZE = 150;
 
 	public static var start:Float;
 	public static var end:Float;
 	
 	static function main() {
 		
-		final inputs = Inputs.INPUT_ACTIONS_90;
+		final inputs = Inputs.INPUT_ACTIONS_80;
 		
 		final actions = CreateActions.create( inputs.actions );
 		final p1 = CreatePlayer.create( inputs.players, 1, "Crom" );
@@ -44,7 +44,7 @@ class MainLocal {
 			
 			final winnerState = BeamSearch.search( rootState, BEAM_SIZE, end, step );
 			final output = winnerState.outputCommand();
-/*			
+
 			final stamp = Timer.stamp();
 			if( stamp > start + MAX_RESPONSE_TIME ) {
 				print( 'TIMEOUT' );
@@ -52,9 +52,10 @@ class MainLocal {
 				// print( 'breakEnd ${delta( BeamSearch.breakEnd )}\nrecurseStart ${delta( BeamSearch.recurseStart )}\ntime ${delta( stamp )}' );
 				break;
 			}
-*/			
+
 			print( 'step $step - $output      Player1 ${winnerState.p1Output()}' );
-			
+			// printErr( BeamSearch.getStats() );
+
 			if( winnerState.getAvailablePotions() == 0 ) {
 				print( 'All potions brewed\nThe End' );
 				break;

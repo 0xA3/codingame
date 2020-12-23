@@ -11,17 +11,17 @@ class BreadthFirstSearch {
 
 		while( !frontier.isEmpty()) {
 			final current = frontier.pop();
-			// CodinGame.printErr( 'current $current' );
+			// trace( 'current $current' );
 			for( edge in nodes[current].neighbors ) {
 				final next = edge.to;
-				// CodinGame.printErr( 'check $next' );
+				// trace( 'check $next' );
 				final nextNode = nodes[edge.to];
 				if( !nextNode.visited ) {
 					nextNode.previous = current;
 					nextNode.visited = true;
 					frontier.add( next );
 					if( next == goal ) {
-						// CodinGame.printErr( 'found goal' );
+						// trace( 'found goal' );
 						return backtrack( nodes, start, goal );
 					}
 				}

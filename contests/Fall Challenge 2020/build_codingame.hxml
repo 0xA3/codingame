@@ -1,3 +1,4 @@
+# -D source-header=Build 2020-12-11
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize

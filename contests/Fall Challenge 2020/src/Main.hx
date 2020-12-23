@@ -48,7 +48,7 @@ class Main {
 			step++;
 
 			print( winnerState.outputCommand() );
-			// print( "WAIT" );
+			// printErr( BeamSearch.getStats());
 		}
 
 	}
