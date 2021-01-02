@@ -35,6 +35,17 @@ class Main {
 
 	// 1/n = 1/x + 1/y
 	// 1/n - 1/y = 1/x
+
+	// Simplify 1/y - 1/n
+	// https://www.mathway.com/popular-problems/Algebra/205252
+
+	// To write 1/y as a fraction with a common denominator, multiply by n/n
+	// To write 1/n as a fraction with a common denominator, multiply by y/y
+	
+	// 1/y * n/n - 1/n * y/y
+	
+	// Write each expression with a common denominator of ny, by multiplying each by an appropriate factor of 1
+
 	// (y - n)/(yn) = 1/x
 	// unit fraction implies (y-n)|(yn)
 	static function process2( n:Int ) {
