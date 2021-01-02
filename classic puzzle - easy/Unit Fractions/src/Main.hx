@@ -4,8 +4,6 @@ import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
 
-using NumberFormat;
-
 class Main {
 	
 	static function main() {
