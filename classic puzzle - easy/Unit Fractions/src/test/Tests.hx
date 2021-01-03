@@ -24,6 +24,19 @@ class Tests extends buddy.BuddySuite {
 			
 		});
 
+		describe( "Test process2", {
+			
+			it( "Example", { Main.process2( 2 ).should.be( exampleResult ); });
+			it( "12", { Main.process2( 12 ).should.be( _12Result ); });
+			it( "17", { Main.process2( 17 ).should.be( _17Result ); });
+			it( "100", { Main.process2( 100 ).should.be( _100Result ); });
+			it( "102", { Main.process2( 102 ).should.be( _102Result ); });
+			it( "9999", { Main.process2( 9999 ).should.be( _9999Result ); });
+			it( "71339", { Main.process2( 71339 ).should.be( _71339Result ); });
+			it( "104027", { Main.process2( 104027 ).should.be( _104027Result ); });
+			
+		});
+
 	}
 
 	static function parseResult( input:String ) {

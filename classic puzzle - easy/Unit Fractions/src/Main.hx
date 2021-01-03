@@ -27,7 +27,9 @@ class Main {
 
 		final results:Array<String> = [];
 		for( i in 1...n + 1 ) {
-			if(( n * n ) % i == 0) results.push ( '1/$n = 1/${ n * n / i + n } + 1/${ i + n}' );
+			final n64:Int64 = n;
+			final n2 = n64 * n64;
+			if(( n2 ) % i == 0) results.push ( '1/$n = 1/${n2 / i + n} + 1/${i + n}' );
 		}
 		
 		return results.join( "\n" );
@@ -54,7 +56,9 @@ class Main {
 		
 		for( y in n + 1...2 * n + 1 ) {
 			final numerator = y - n;
-			final denominator = y * n;
+			
+			final y64:Int64 = y;
+			final denominator = y64 * n;
 
 			if( denominator % numerator == 0 ) {
 				results.push( '1/$n = 1/${denominator / numerator} + 1/$y' );
