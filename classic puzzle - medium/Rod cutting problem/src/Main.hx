@@ -93,23 +93,25 @@ class Main {
 
 
 
-	static function rodCutting( n:Int, units:Array<Unit> ) {
-		// trace( units );
+	static function rodCutting( n:Int, inputUnits:Array<Unit> ) {
+		
+		// trace( inputUnits );
 		final prices = [for( i in 0...n + 1) 0];
 		for( length in 1...n + 1 ) {
-			// trace( "" );
-			for( i in 1...length + 1 ) {
-				if( i < units.length ) {
-					final tmp = units[i - 1].value + prices[length - i];
-					// trace( 'length: $length, i: $i, value ${units[i - 1].value}, prices[${length - i}]: ${prices[length - i]}' );
+			trace( '\nlength $length' );
+			for( cut in 1...length + 1 ) {
+				if( cut < inputUnits.length ) {
+					final tmp = inputUnits[cut - 1].value + prices[length - cut];
+					trace( 'cut: $cut, value ${inputUnits[cut - 1].value}' );
+					trace( 'remaining: ${length - cut}, price: ${prices[length - cut]}' );
 					if( tmp > prices[length] ) {
-						// trace( 'new max price for length $length: $tmp' );
+						trace( 'new max price for length $length: $tmp' );
 						prices[length] = tmp;
 					}
 				}
 			}
 		}
-		// trace( [for(i in 0...prices.length ) prices[i]].join( ", " ));
+		trace( [for(i in 0...prices.length ) prices[i]].join( ", " ));
 		// trace( [for(i in 0...prices.length ) '$i: ${prices[i]}'].join( ", " ));
 		return prices[n];
 	}

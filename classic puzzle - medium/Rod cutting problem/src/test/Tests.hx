@@ -14,7 +14,7 @@ class Tests extends buddy.BuddySuite {
 		
 		describe( "Test process", {
 			
-			it( "Algorithms with Attitude", {
+			@include it( "Algorithms with Attitude", {
 				final input = algorithmsWithAttitude;
 				Main.process( input.length, input.units ).should.be( 23 );
 			});
