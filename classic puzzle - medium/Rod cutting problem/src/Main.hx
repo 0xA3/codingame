@@ -1,4 +1,3 @@
-import eval.Vector;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
@@ -23,7 +22,7 @@ class Main {
 			final inputs = readline().split(' ');
 			final length = parseInt( inputs[0] );
 			final value = parseInt( inputs[1] );
-			units.push({ length: length, value: value });
+			if( length <= l ) units.push({ length: length, value: value }); // don't push units that are longer than l
 		};
 				
 		final result = process( l, units );
@@ -95,23 +94,30 @@ class Main {
 
 	static function rodCutting( n:Int, inputUnits:Array<Unit> ) {
 		
-		// trace( inputUnits );
+		final units:Map<Int, Int> = [];
+		for( inputUnit in inputUnits ) units.set( inputUnit.length, inputUnit.value );
+		// trace( 'length $n, units $units' );
+		
 		final prices = [for( i in 0...n + 1) 0];
 		for( length in 1...n + 1 ) {
-			trace( '\nlength $length' );
+			// trace( '\nlength $length' );
 			for( cut in 1...length + 1 ) {
-				if( cut < inputUnits.length ) {
-					final tmp = inputUnits[cut - 1].value + prices[length - cut];
-					trace( 'cut: $cut, value ${inputUnits[cut - 1].value}' );
-					trace( 'remaining: ${length - cut}, price: ${prices[length - cut]}' );
+				// trace( 'cut $cut' );
+				if( units.exists( cut )) {
+					
+					final tmp = units[cut] + prices[length - cut];
+					
+					// trace( 'cut: $cut, value ${units[cut]}' );
+					// trace( 'remaining: ${length - cut}, price: ${prices[length - cut]}' );
+					
 					if( tmp > prices[length] ) {
-						trace( 'new max price for length $length: $tmp' );
+						// trace( 'new max price for length $length: $tmp' );
 						prices[length] = tmp;
 					}
 				}
 			}
 		}
-		trace( [for(i in 0...prices.length ) prices[i]].join( ", " ));
+		// trace( [for(i in 0...prices.length ) prices[i]].join( ", " ));
 		// trace( [for(i in 0...prices.length ) '$i: ${prices[i]}'].join( ", " ));
 		return prices[n];
 	}

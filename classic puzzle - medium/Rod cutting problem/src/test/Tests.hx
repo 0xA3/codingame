@@ -14,7 +14,7 @@ class Tests extends buddy.BuddySuite {
 		
 		describe( "Test process", {
 			
-			@include it( "Algorithms with Attitude", {
+			it( "Algorithms with Attitude", {
 				final input = algorithmsWithAttitude;
 				Main.process( input.length, input.units ).should.be( 23 );
 			});
@@ -63,7 +63,7 @@ class Tests extends buddy.BuddySuite {
 			final inputs = lines[i].split(' ');
 			final length = parseInt( inputs[0] );
 			final value = parseInt( inputs[1] );
-			units.push({ length: length, value: value });
+			if( length <= l ) units.push({ length: length, value: value });
 		};
 
 		return { length: l, units:units };
