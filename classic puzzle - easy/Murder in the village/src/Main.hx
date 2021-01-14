@@ -43,11 +43,11 @@ class Main {
 		for( i in 0...notAlonesNotSeens.length ) if( notAlonesNotSeens[i] ) notAloneNotSeenPersons.push( statements[i].person );
 		if( notAloneNotSeenPersons.length == 1 ) return '${notAloneNotSeenPersons[0]} did it!';
 
-		final placesPeople = getPeopleInPlaces( places, statements );
+		final peopleInPlaces = getPeopleInPlaces( places, statements );
 		for( i in 0...alones.length ) {
 			if( alones[i] ) {
 				final placeOfPerson = statements[i].place;
-				final personsAtPlace = placesPeople[placeOfPerson].length;
+				final personsAtPlace = peopleInPlaces[placeOfPerson].length;
 				if( personsAtPlace > 1 ) return return '${statements[i].person} did it!';
 			}
 		}
@@ -109,19 +109,19 @@ class Main {
 	}
 
 	static function getPeopleInPlaces( places:Array<String>, statements:Array<Statement> ) {
-		final placesPeople:Map<String, Array<String>> = [];
+		final peopleInPlaces:Map<String, Array<String>> = [];
 		for( place in places ) {
-			placesPeople.set( place, getPeopleInPlace( place, statements ));
+			peopleInPlaces.set( place, getPeopleInPlace( place, statements ));
 		}
-		return placesPeople;
+		return peopleInPlaces;
 	}
 
 	static function getPeopleInPlace( place:String, statements:Array<Statement> ) {
-		final people = [];
+		final peopleInPlace = [];
 		for( statement in statements) {
-			if( statement.place == place ) people.push( statement.person );
+			if( statement.place == place ) peopleInPlace.push( statement.person );
 		}
-		return people;
+		return peopleInPlace;
 	}
 
 }
