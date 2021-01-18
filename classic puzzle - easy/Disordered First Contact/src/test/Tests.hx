@@ -14,6 +14,18 @@ class Tests extends buddy.BuddySuite {
 		
 		describe( "Test process", {
 			
+			it( "encode ab", {
+				Main.process( -1, "ab" ).should.be( "ba" );
+			});
+			
+			it( "encode abc", {
+				Main.process( -1, "abc" ).should.be( "bca" );
+			});
+			
+			it( "encode abcd", {
+				Main.process( -1, "abcd" ).should.be( "bcad" );
+			});
+			
 			@include it( "Example encoding", {
 				Main.process( -1, "abcdefghi" ).should.be( "ghibcadef" );
 			});
