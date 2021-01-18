@@ -21,16 +21,8 @@ class Main {
 
 	static inline function process( n:Int, message:String ) {
 		
-		var steps = 1;
-		var counter = 0;
-		while( counter < message.length ) {
-			counter += steps;
-			steps++;
-		}
-		trace( 'length ${message.length}  steps ${steps - 1}' );
-		// final mapping = createMapping( message.length );
-
-		return n > 0 ? decode( n, message, steps ) : encode( -n, message, steps );
+		final mapping = createMapping( message.length );
+		return n > 0 ? decode( n, message, mapping ) : encode( -n, message, mapping );
 	}
 
 	static function createMapping( length:Int ) {
@@ -46,47 +38,47 @@ class Main {
 		var start = 0;
 		for( i in 1...steps ) {
 			// trace( 'start: $start i: $i' );
-			final take = [for(t in start...start + i ) if( i < length ) t];
+			final take = [for(t in start...start + i ) if( t < length ) t];
 			start += i;
 			mapping = i % 2 == 0 ? take.concat( mapping ) : mapping.concat( take );
 			// trace( 'take: $take mapping: $mapping' );
 		}
-		// trace( mapping );
 		return mapping;
 	}
 
-	static function decode( n:Int, message:String, steps:Int ) {
+	static function decode( n:Int, message:String, mapping:Array<Int> ) {
 		var result = message;
-		for( i in 0...n ) result = decodeOnce( result, steps );
+		for( i in 0...n ) result = decodeOnce( result, mapping );
 		return result;
-		return "abcdefghi";
 	}
 
-	static function encode( n:Int, message:String, steps:Int ) {
+	static function encode( n:Int, message:String, mapping:Array<Int> ) {
 		var result = message;
-		for( i in 0...n ) result = encodeOnce( result, steps );
+		for( i in 0...n ) result = encodeOnce( result, mapping );
 		return result;
 	}
 	
-	static function decodeOnce( message:String, steps:Int ) {
-
-		var result = "";
-		var start = 0;
-		return "";
+	static function decodeOnce( message:String, mapping:Array<Int> ) {
+		final decoded:Array<String> = [];
+		for( i in 0...mapping.length ) {
+			final c = mapping[i];
+			// trace( 'decoded[$c] = message.charAt( $i ): ${message.charAt( i )}' );
+			decoded[c] = message.charAt( i );
+		}
+		// trace( decoded.join("") );
+		return decoded.join("");
 	}
 
-	static function encodeOnce( message:String, steps:Int ) {
-		
-		var result = "";
-		var start = 0;
-		for( i in 1...steps ) {
-			final take = message.substr( start, i );
-			start += i;
-			result = i % 2 == 0 ?  take + result : result + take;
-			// trace( 'take: "$take" result: "$result"' );
-		}
+	static function encodeOnce( message:String, mapping:Array<Int> ) {
+		return [for( c in mapping ) message.charAt(c)].join("");
 
-		return result;
+		// final encoded:Array<String> = [];
+		// for( i in 0...mapping.length ) {
+		// 	final c = mapping[i];
+		// 	// trace( 'encoded[$i] = message.charAt( $c ): ${message.charAt( c )}' );
+		// 	encoded[i] = message.charAt( c );
+		// }
+		// return encoded.join("");
 	}
 
 }
