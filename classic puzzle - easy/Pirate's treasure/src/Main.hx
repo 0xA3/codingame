@@ -25,7 +25,7 @@ class Main {
 		for( i in 0...grid.length ) {
 			final x = getX( i, width );
 			final y = getY( i, width );
-				if( grid[i] == 0 && getSurrounded( x, y, width, height, grid )) return '$x $y';
+			if( grid[i] == 0 && getSurrounded( x, y, width, height, grid )) return '$x $y';
 		}
 		return '0 0';
 	}
