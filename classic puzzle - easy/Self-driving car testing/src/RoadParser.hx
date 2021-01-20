@@ -17,14 +17,12 @@ class RoadParser {
 	}
 
 	public function getPiece() {
-		final piece = currentRoadPattern.piece;
-		currentRoadPattern.amount--;
 		if( currentRoadPattern.amount == 0 ) {
 			id++;
-			if( id < roadPatterns.length ) {
-				currentRoadPattern = { amount: roadPatterns[id].amount, piece: roadPatterns[id].piece };
-			}
+			currentRoadPattern = { amount: roadPatterns[id].amount, piece: roadPatterns[id].piece };
 		}
+		final piece = currentRoadPattern.piece;
+		currentRoadPattern.amount--;
 		// trace( 'id $id amount ${currentRoadPattern.amount}' );
 		// trace( currentRoadPattern.piece );
 		return piece;
