@@ -38,13 +38,13 @@ class FormulaParser {
 			lines[y].charAt( x + 2 ),
 			
 			// top position
-			y == 0 || lines[y - 1].length <= x + 1 ? " " : lines[y - 1].charAt( x + 1 ),
+			y == 0 || lines[y - 1].length < x + 1 ? " " : lines[y - 1].charAt( x + 1 ),
 			
 			 // left position
 			x == 0 ? " " : lines[y].charAt( x - 2 ),
 
 			// bottom position
-			y == lines.length - 1 || lines[y + 1].length <= x + 1 ? " " : lines[y + 1].charAt( x + 1 ),
+			y == lines.length - 1 || lines[y + 1].length < x + 1 ? " " : lines[y + 1].charAt( x + 1 ),
 			
 			// right position
 			x >= lines[y].length - 3 ? " " : lines[y].charAt( x + 4 )
