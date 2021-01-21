@@ -21,11 +21,7 @@ class Main {
 
 	static function convertToBT( v:Int ) {
 
-		var n:Int;
-		
-		if( v > 0 ) n = v;
-		else n = -v;
-		
+		var n = v > 0 ? v : -v;
 		final isPositive = v > 0;
 
 		// first convert n to ternary
@@ -35,37 +31,30 @@ class Main {
 			n = int( n / 3);
 		} while( n > 0 );
 
-		// reverse Sequence
-		final reverseTernary = [for( i in -ternary.length + 1...1 ) ternary.charAt( -i )].join( "" );
-
 		// calculate overflow
-		var i = 0;
-		var reverseBalancedTernary = "";
+		var i = ternary.length - 1;
+		var balancedTernary = "";
 		var offset = 0;
-		while( i < reverseTernary.length ) {
+		while( i >= 0 ) {
 			if( offset == 0 ) {
-				if( reverseTernary.charAt( i ) == "0" ) reverseBalancedTernary += "0";
-				if( reverseTernary.charAt( i ) == "1" ) reverseBalancedTernary += "1";
-				if( reverseTernary.charAt( i ) == "2" ) {
-					reverseBalancedTernary += "T";
+				if( ternary.charAt( i ) == "0" ) balancedTernary = "0" + balancedTernary;
+				if( ternary.charAt( i ) == "1" ) balancedTernary = "1" + balancedTernary;
+				if( ternary.charAt( i ) == "2" ) {
+					balancedTernary = "T" + balancedTernary;
 					offset = 1;
 				}
 			} else {
-				if( reverseTernary.charAt( i ) == "0" ) {
-					reverseBalancedTernary += "1";
+				if( ternary.charAt( i ) == "0" ) {
+					balancedTernary = "1" + balancedTernary;
 					offset = 0;
 				}
-				if( reverseTernary.charAt( i ) == "1" ) reverseBalancedTernary += "T";
-				if( reverseTernary.charAt( i ) == "2" ) {
-					reverseBalancedTernary += "0";
-					offset = 1;
-				}
+				if( ternary.charAt( i ) == "1" ) balancedTernary = "T" + balancedTernary;
+				if( ternary.charAt( i ) == "2" ) balancedTernary = "0" + balancedTernary;
 			}
-			i++;
+			i--;
 		}
-		if( offset == 1 ) reverseBalancedTernary += "1";
+		if( offset == 1 ) balancedTernary = "1" + balancedTernary;
 
-		final balancedTernary = [for( i in -reverseBalancedTernary.length + 1...1 ) reverseBalancedTernary.charAt( -i )].join( "" );
 		if( isPositive ) return balancedTernary;
 
 		final negativeBalancedTernary = [for( i in 0...balancedTernary.length ) switch balancedTernary.charAt( i ) {
@@ -73,8 +62,8 @@ class Main {
 			case "T": "1";
 			default: "0";
 		}].join( "" );
+		
 		return negativeBalancedTernary;
-
 
 	}
 
