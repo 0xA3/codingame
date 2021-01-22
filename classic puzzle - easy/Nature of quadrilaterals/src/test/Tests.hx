@@ -44,7 +44,7 @@ class Tests extends buddy.BuddySuite {
 			final d = inputs[9];
 			final xD = parseInt(inputs[10]);
 			final yD = parseInt(inputs[11]);
-			[{ id: a, x: xA, y: yA }, { id: b, x: xB, y: yB }, { id: c, x: xC, y: yC }, { id: d, x: xD, y: yD }];
+			{ a: a, xA: xA, yA: yA, b: b, xB: xB, yB: yB, c: c, xC: xC, yC: yC, d: d, xD: xD, yD: yD };
 		}];
 		return quads;
 	}

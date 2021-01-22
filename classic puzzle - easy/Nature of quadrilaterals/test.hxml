@@ -1,5 +1,4 @@
 -lib buddy
--lib hxmath
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
