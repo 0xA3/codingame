@@ -23,47 +23,21 @@ class Main {
 
 	static function process( opBowls:Array<Int>, myBowls:Array<Int>, num:Int ) {
 		
-		var grains = myBowls[num];
-		myBowls[num] = 0;
+		final bowls = myBowls.concat( opBowls );
+		var grains = bowls[num];
+		bowls[num] = 0;
 		// trace( 'take $grains grains from myBowl[$num]' );
-		final myReserve = distribute( opBowls, myBowls, num, grains );
-
-		final opOutput = [for( i in 0...6 ) opBowls[i]].join(" ") + ' [${opBowls[6]}]';
-		final myOutput = [for( i in 0...6 ) myBowls[i]].join(" ") + ' [${myBowls[6]}]';
-		final rows = opOutput + "\n" + myOutput;
 		
-		return myReserve ? rows + "\nREPLAY": rows;
+		var i = num;
+		while( grains-- > 0 ) bowls[++i % 13]++;
 
-	}
-
-	static function distribute( opBowls:Array<Int>, myBowls:Array<Int>, num:Int, grains:Int ) {
+		final result =
+			bowls.slice( 7, 13 ).join(" ") + ' [${bowls[13]}]\n'
+			+ bowls.slice( 0, 6 ).join(" ") + ' [${bowls[6]}]'
+			+ ( i == 6 ? "\nREPLAY" : "" );
 		
-		var myIndex = num + 1;
-		var opIndex = 0;
-		while( grains > 0 ) {
-			while( myIndex < 7 ) {
-				myBowls[myIndex] += 1;
-				// trace( 'myBowls[$myIndex] = ${myBowls[myIndex]}' );
-				grains--;
-				
-				if( grains == 0 ) {
-					// trace( 'final bowl $myIndex' );
-					if( myIndex == 6 ) return true;
-					else return false;
-				}
-				myIndex++;
-			}
-			myIndex = 0;
-			while( opIndex < 6 ) {
-				opBowls[opIndex] += 1;
-				grains--;
-				opIndex++;
-				if( grains == 0 ) return false;
-			}
-			opIndex = 0;
-		}
+		return result;
 
-		return false;
 	}
 
 }
