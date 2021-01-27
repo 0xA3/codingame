@@ -21,22 +21,17 @@ class Main {
 	static function process( intext:String ) {
 		
 		final t1 = intext.toLowerCase();
-		final e2 = ~/\s+([\.,])/g;
-		final t2 = e2.replace( t1, "$1" );
-		final e3 = ~/\s+/g;
-		final t3 = e3.replace( t2, " " );
-		final e4 = ~/([\.,])(\w)/g;
-		final t4 = e4.replace( t3, "$1 $2" );
-		var t5 = t4.charAt( 0 ).toUpperCase() + t4.substr( 1 );
+		final t2 = t1.charAt( 0 ).toUpperCase() + t1.substr( 1 );
+		final t3 = ~/\s+([\.,])/g.replace( t2, "$1" );
+		final t4 = ~/\s+/g.replace( t3, " " );
+		var   t5 = ~/([\.,])(\w)/g.replace( t4, "$1 $2" );
 		final e6 = ~/[\.] [a-z]/g;
 		while( e6.match( t5 )) {
 			final pos = e6.matchedPos().pos;
 			t5 = t5.substr( 0, pos + 2 ) + t5.charAt( pos + 2 ).toUpperCase() + t5.substr( pos + 3 );
 		}
-		final e7 = ~/(\.+)/g;
-		final t7 = e7.replace( t5, "." );
-		final e8 = ~/(,+)/g;
-		final t8 = e8.replace( t7, "," );
+		final t7 = ~/(\.+)/g.replace( t5, "." );
+		final t8 = ~/(,+)/g.replace( t7, "," );
 		
 		// trace( '\nt0 $intext\nt1 $t1\nt2 $t2\nt3 $t3\nt4 $t4\nt5 $t5\nt7 $t7\nt8 $t8' );
 
