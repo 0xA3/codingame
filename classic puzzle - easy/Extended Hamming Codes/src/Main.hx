@@ -33,10 +33,10 @@ class Main {
 		if( int == 0 ) return bits;
 		if( int % 2 == 0 ) return "TWO ERRORS";
 
-		final bin2 = '$lastLines$oddLines$lastColumns$oddColumns';
-		final int2 = binToInt( bin2 );
+		final errorIndexBin = '$lastLines$oddLines$lastColumns$oddColumns';
+		final errorIndex = binToInt( errorIndexBin );
 		
-		final corrected = [for( i in 0...seq.length) i == int2 ? 1 - seq[i] : seq[i]];
+		final corrected = [for( i in 0...seq.length) i == errorIndex ? 1 - seq[i] : seq[i]];
 		// trace( '$bin2: $int2' );
 		
 		return corrected.fold(( i, sum ) -> sum + string( i ), "" );
