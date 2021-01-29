@@ -52,14 +52,9 @@ class Main {
 		return switch call {
 			case "EVEN":
 				if( ball == 0 ) -amount;
-				else if( ball % 2 == 0 ) amount;
-				else -amount;
-			case "ODD":
-				if( ball % 2 == 1 ) amount;
-				else -amount;
-			default: // PLAIN
-				if( ball == number ) amount * 35;
-				else -amount;
+				else ball % 2 == 0 ? amount : -amount;
+			case "ODD":	ball % 2 == 1 ? amount : -amount;
+			default: ball == number ? amount * 35 : -amount; // PLAIN
 		}
 
 	}
