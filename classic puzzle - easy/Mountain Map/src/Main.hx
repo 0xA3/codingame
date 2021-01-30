@@ -8,6 +8,7 @@ import Std.string;
 
 using Lambda;
 using StringTools;
+using StringUtils;
 
 class Main {
 	
@@ -25,32 +26,24 @@ class Main {
 		
 		final maxHeight = int( heights.fold(( h, max ) -> Math.max( max, h ), 0.0 ));
 		
-		final lines:Array<Array<String>> = [for( i in 0...maxHeight ) []];
-
-		var x = 0;
-		for( h in heights ) {
-			for( i in 0...h ) {
-				final y = maxHeight - 1 - i;
-				insert( lines, x, y, "/" );
-				x++;
+		var lines = [];
+		for( h in -maxHeight...0 ) {
+			final y = -h;
+			var output = "";
+			for( mountainHeight in heights ) {
+				if( y > mountainHeight )
+					output += " ".repeat( mountainHeight * 2 );
+				else {
+					output += " ".repeat( y - 1 );
+					output += "/";
+					output += " ".repeat(( mountainHeight - y ) * 2 );
+					output += "\\";
+					output += " ".repeat( y - 1 );
+				}
 			}
-			for( i in -h + 1...1 ) {
-				final y = maxHeight - 1 + i;
-				insert( lines, x, y, "\\" );
-				x++;
-			}
+			lines.push( output.rtrim() );
 		}
-
-		// trace( "\n" + lines.map( cells -> cells.join( "" )).join( "\n" ));
-
-		return lines.map( cells -> cells.join( "" )).join( "\n" );
+		
+		return lines.join( "\n" );
 	}
-
-	static function insert( lines:Array<Array<String>>, x:Int, y:Int, char:String ) {
-		for( i in lines[y].length...x ) {
-			lines[y].push(" ");
-		}
-		lines[y].push( char );
-	}
-
 }
