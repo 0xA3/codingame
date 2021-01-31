@@ -25,20 +25,18 @@ class Main {
 
 	static function process( fruits:Array<Int64> ) {
 		
-		final isDivisable = fruits.map( n -> {
-			var f = n;
+		final divisions = fruits.map( n -> {
 			while( true ) {
 				// trace( 'f $f ');
-				if( f % 5 == 0 ) 		f = f / 5;
-				else if( f % 3 == 0 ) 	f = f / 3;
-				else if( f % 2 == 0 ) 	f = f / 2;
-				else if( f == 1 ) 		return true;
-				else 					return false;
+				if( n % 5 == 0 ) 		n = n / 5;
+				else if( n % 3 == 0 ) 	n = n / 3;
+				else if( n % 2 == 0 ) 	n = n / 2;
+				else return n;
 			}
-			return true;
+			return 1;
 		});
 
-		final result = isDivisable.map( b -> b ? "VICTORY" : "DEFEAT" );
+		final result = divisions.map( b -> b == 1 ? "VICTORY" : "DEFEAT" );
 
 		return result.join( "\n" );
 	}
