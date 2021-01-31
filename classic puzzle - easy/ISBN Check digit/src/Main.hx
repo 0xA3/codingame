@@ -62,7 +62,6 @@ class Main {
 		}
 		
 		// trace( '$isbn sum $sum ${sum % 10 == 0}' );
-
 		return sum % 10 == 0;
 	}
 }
