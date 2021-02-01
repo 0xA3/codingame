@@ -54,10 +54,11 @@ class Main {
 				}
 
 				if( total + tempTotal > 101 ) { // overflow
-					// trace( 'overflow ${total + tempTotal}: total stays at $total' );
+					// trace( 'overflow ${total + tempTotal}: total stays at $total   count $count' );
 					tempTotal = 0;
-					throwCount += count + 1;
+					throwCount += 3 - count; // add counts to end of round
 					count = 0;
+				
 				} else {
 					count++;
 					throwCount++;
