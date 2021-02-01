@@ -15,6 +15,41 @@ class Tests extends buddy.BuddySuite {
 		
 		describe( "Test process", {
 			
+			it( "Direct win", {
+				final input = directWin;
+				Main.process( input.players, input.shoots ).should.be( "Alice" );
+			});
+			
+			it( "Multiplication", {
+				final input = multiplication;
+				Main.process( input.players, input.shoots ).should.be( "Alice" );
+			});
+			
+			it( "Overflow", {
+				final input = overflow;
+				Main.process( input.players, input.shoots ).should.be( "Alice" );
+			});
+			
+			it( "1 miss", {
+				final input = _1Miss;
+				Main.process( input.players, input.shoots ).should.be( "Alice" );
+			});
+			
+			it( "2 misses", {
+				final input = _2Misses;
+				Main.process( input.players, input.shoots ).should.be( "Alice" );
+			});
+			
+			it( "2 consecutive misses", {
+				final input = _2ConsecutiveMisses;
+				Main.process( input.players, input.shoots ).should.be( "Alice" );
+			});
+			
+			it( "3 misses in round", {
+				final input = _3MissesInRound;
+				Main.process( input.players, input.shoots ).should.be( "Alice" );
+			});
+			
 			it( "One", {
 				final input = _2Players;
 				Main.process( input.players, input.shoots ).should.be( "Hugo" );
@@ -82,6 +117,58 @@ class Tests extends buddy.BuddySuite {
 		return input.replace( "\t", "" ).replace( "\r", "" );
 	}
 	
+	final noWinner = parseInput(
+		"2
+		Alice
+		Bob
+		1
+		1"
+	);
+
+	final directWin = parseInput(
+		"2
+		Alice
+		Bob
+		101
+		1"
+	);
+
+	final multiplication = parseInput(
+		"1
+		Alice
+		2*50 1"
+	);
+
+	final overflow = parseInput(
+		"1
+		Alice
+		102 101"
+	);
+
+	final _1Miss = parseInput(
+		"1
+		Alice
+		20 X 101"
+	);
+
+	final _2Misses = parseInput(
+		"1
+		Alice
+		X 40 X 101"
+	);
+
+	final _2ConsecutiveMisses = parseInput(
+		"1
+		Alice
+		50 X X 101"
+	);
+
+	final _3MissesInRound = parseInput(
+		"1
+		Alice
+		1 1 1 X X X 101"
+	);
+
 	final _2Players = parseInput(
 		"2
 		Hugo

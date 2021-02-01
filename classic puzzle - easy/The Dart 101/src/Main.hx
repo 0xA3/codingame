@@ -25,56 +25,80 @@ class Main {
 
 	static function process( players:Array<String>, shootsOfPlayer:Array<Array<String>> ) {
 		
-		final maxShoots = shootsOfPlayer.fold(( shoots, maxShoots ) -> int( max( shoots.length, maxShoots )), 0 );
-		
-		final totals = shootsOfPlayer.map( _ -> 0 );
-		final shootNosOfPlayers = shootsOfPlayer.map( _ -> 0 );
-		while( true ) {
-			for( player in 0...shootsOfPlayer.length ) {
-				final shootNo = shootNosOfPlayers[player];
-				final shoot1 = shootNo < shootsOfPlayer[player].length ? shootsOfPlayer[player][shootNo] : "0";
-				final shoot2 = shootNo + 1 < shootsOfPlayer[player].length ? shootsOfPlayer[player][shootNo + 1] : "0";
-				final shoot3 = shootNo + 2 < shootsOfPlayer[player].length ? shootsOfPlayer[player][shootNo + 2] : "0";
-				// trace( "- " + players[player] + " -" );
-				totals[player] = parseRound( totals[player], [shoot1, shoot2, shoot3], player, shootNosOfPlayers );
+		final decreases = [-20, -30, 0];
+
+		final throwsOfPlayer = shootsOfPlayer.map( shoots -> {
+			final throwScores = shoots.map( shoot -> parseShoot( shoot ));
+			var throwCount = 0;
+			var total = 0;
+			var misses = 0;
+			var count = 0;
+			var tempTotal = 0;
+			for( i in 0...throwScores.length ) {
+				final throwScore = throwScores[i];
+				if( throwScore == -1 ) { // check for consecutive misses
+					// trace( 'miss $misses decrease by ${decreases[misses]}' );
+					tempTotal += decreases[misses];
+					misses++;
+				} else {
+					tempTotal += throwScore;
+					misses = 0;
+				}
+				// trace( '$throwCount $count: ${shoots[throwCount]} = $throwScore  tempTotal $tempTotal' );
+				
+				if( misses == 3 ) { // three misses
+					// trace( 'Three misses' );
+					total = 0;
+					tempTotal = 0;
+					misses = 0;
+				}
+
+				if( total + tempTotal > 101 ) { // overflow
+					// trace( 'overflow ${total + tempTotal}: total stays at $total' );
+					tempTotal = 0;
+					throwCount += count + 1;
+					count = 0;
+				} else {
+					count++;
+					throwCount++;
+					if( count == 3 || i == throwScores.length - 1 ) { // end of round
+						count = 0;
+						misses = 0;
+						// trace( 'end of round $total + $tempTotal = ${total + tempTotal}' );
+						total += tempTotal;
+						tempTotal = 0;
+						if( total == 101 ) {
+							// trace( 'Win after $throwCount throws' );
+							break;
+						}
+					}
+				}
 			}
-			if( totals.contains( 101 )) return players[totals.indexOf( 101 )];
-		}
+			return total == 101 ? throwCount : -1;
+		});
 
-		return players[totals.indexOf( 101 )];
+		final winnerIndex = getMinIndex( throwsOfPlayer );
+		// trace( throwsOfPlayer, winnerIndex );
+
+		return players[winnerIndex];
+	}
+	
+	static function parseShoot( shoot:String ) {
+		if( shoot == "X" ) return -1;
+		if( shoot.contains( "*" )) return shoot.split( "*" ).fold(( s, mult ) -> parseInt( s ) * mult, 1 );
+		return parseInt( shoot );
 	}
 
-	static function parseRound( total:Int, scoresOfRound:Array<String>, player:Int, shootNosOfPlayers:Array<Int> ) {
-		// trace( total + "  + " + scoresOfRound.join( " + " ));
-		var scores = [];
-		switch scoresOfRound {
-			case["X", "X", "X"]: 								shootNosOfPlayers[player] += 3; return 0;
-			case["X", "X", s]:									scores = [-20, -30, parseScore( s )];
-			case [s, "X", "X"]: 								scores = [parseScore( s ), -20, -30];
-			case["X", s, "X"]: 									scores = [-20, parseScore( s ), -20];
-			case["X", s1, s2]:									scores = [-20, parseScore( s1 ), parseScore( s2 )];
-			case [s1, "X", s2]:									scores = [parseScore( s1 ), -20, parseScore( s2 )];
-			case [s1, s2, "X"]: 								scores = [parseScore( s1 ), parseScore( s2 ), -20];
-			case[s1, s2, s3 ]: 									scores = [parseScore( s1 ), parseScore( s2 ), parseScore( s3 )];
-			default: return total;
+	static function getMinIndex( a:Array<Int> ) {
+		var minIndex = -1;
+		var minValue = 999999;
+		for( i in 0...a.length ) {
+			if( a[i] != -1 && a[i] < minValue ) {
+				minValue = a[i];
+				minIndex = i;
+			}
 		}
-		
-		var newTotal = total;
-		for( score in scores ) {
-			shootNosOfPlayers[player]++;
-			newTotal += score;
-			// trace( 'score $score  newTotal $newTotal' );
-			if( newTotal > 101 ) return total;
-		}
-		return newTotal;
-	}
-
-	static function parseScore( score:String ) {
-		if( score.contains( "*" )) {
-			final hitParts = score.split( "*" );
-			return hitParts.fold(( s, mult ) -> parseInt( s ) * mult, 1 );
-		}
-		return parseInt( score );
+		return minIndex;
 	}
 
 }
