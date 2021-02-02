@@ -17,32 +17,32 @@ class Tests extends buddy.BuddySuite {
 			
 			it( "Example", {
 				final ip = example;
-				Main.process( ip.width, ip.height, ip.numbers, ip.grid ).should.be( true );
+				Main.process( ip.numbers, ip.grid ).should.be( true );
 			});
 			
 			it( "Example 2", {
 				final ip = example2;
-				Main.process( ip.width, ip.height, ip.numbers, ip.grid ).should.be( false );
+				Main.process( ip.numbers, ip.grid ).should.be( false );
 			});
 			
 			it( "Test 3", {
 				final ip = test3;
-				Main.process( ip.width, ip.height, ip.numbers, ip.grid ).should.be( true );
+				Main.process( ip.numbers, ip.grid ).should.be( true );
 			});
 			
 			it( "Test 4", {
 				final ip = test4;
-				Main.process( ip.width, ip.height, ip.numbers, ip.grid ).should.be( true );
+				Main.process( ip.numbers, ip.grid ).should.be( true );
 			});
 			
 			it( "Test 5", {
 				final ip = example;
-				Main.process( ip.width, ip.height, ip.numbers, ip.grid ).should.be( true );
+				Main.process( ip.numbers, ip.grid ).should.be( true );
 			});
 			
 			it( "Test 6", {
 				final ip = example;
-				Main.process( ip.width, ip.height, ip.numbers, ip.grid ).should.be( true );
+				Main.process( ip.numbers, ip.grid ).should.be( true );
 			});
 			
 		});
@@ -57,7 +57,7 @@ class Tests extends buddy.BuddySuite {
 		final numbers = [for( i in 0...height ) lines[i + 1].split(" ").map( line -> parseInt( line ))].flatten();
 		final grid = [for( i in 0...height ) lines[height + i + 1].split(" ")].flatten();
 		
-		return { width: width, height: height, numbers: numbers, grid: grid };
+		return { numbers: numbers, grid: grid };
 	}
 	
 	final example = parseInput(

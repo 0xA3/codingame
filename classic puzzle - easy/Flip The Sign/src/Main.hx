@@ -20,11 +20,11 @@ class Main {
 		final numbers = [for( i in 0...height ) readline().split(" ").map( line -> parseInt( line ))].flatten();
 		final grid = [for( i in 0...height ) readline().split(" ")].flatten();
 		
-		final result = process( width, height, numbers, grid );
+		final result = process( numbers, grid );
 		print( result );
 	}
 
-	static function process( width:Int, height:Int, numbers:Array<Int>, grid:Array<String> ) {
+	static function process( numbers:Array<Int>, grid:Array<String> ) {
 		
 		if( numbers.length != grid.length ) throw 'Error: numbers.length ${numbers.length} should be grid.length ${grid.length}';
 		
