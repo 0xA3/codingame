@@ -26,18 +26,15 @@ class Main {
 		// trace( alphabet );
 		
 		final modulo = alphabet.length;
-		final digits = [ Int64.toInt( p % modulo )];
+		final digits = [];
 		var value = p;
-		while( value >= modulo ) {
-			value = value / modulo;
-			final remainder = ( value % modulo ) - 1;
-			// trace( '( $value % $modulo ) - 1 = $remainder' );
-			if( remainder == -1 ) digits.push( modulo - 1 );
-			else digits.push( Int64.toInt( remainder ));
+		while( value >= 0 ) {
+			digits.push( alphabet[Int64.toInt( value % modulo )] );
+			value = ( value - value % modulo ) / modulo - 1;
 			
 		}
 		// trace( digits );
-		final result = digits.map( d -> alphabet[d] ).join("");
+		final result = digits.join("");
 		// trace( result );
 
 		return result;
