@@ -1,9 +1,7 @@
 import haxe.Int64;
-import haxe.ValueException;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Math.pow;
 import Std.parseInt;
 import Std.int;
 import Std.string;
