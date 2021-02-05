@@ -10,9 +10,7 @@ using Lambda;
 class Main {
 	
 	static final numbers = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" ];
-	
 	static final tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
-
 	static final powers = ["", "thousand", "million", "billion", "trillion", "quadrillion", "quintillion"];
 
 	static function main() {
@@ -45,7 +43,6 @@ class Main {
 			[hundredsOfPart, tensOfPart, powersOfPart];
 		});
 
-		
 		return sign + cardinalForms.flatten().filter( s -> s != "" ).join(" ");
 
 	}
@@ -69,18 +66,15 @@ class Main {
 	}
 
 	static function getHundreds( s:String ) {
-		return s.length == 3 && s.charAt( 0 ) != "0" ? numbers[parseInt( s.charAt( 0 ))] + " hundred" : "";
+		final number = int( parseInt( s ) / 100 );
+		return number == 0 ? "" : numbers[number] + " hundred";
 	}
 
 	static function getTens( s:String ) {
-		final withoutHundreds = s.length == 3 ? s.substr( 1 ) : s;
-		final number = parseInt( withoutHundreds );
+		final number = parseInt( s ) % 100;
+		
 		if( number == 0 ) return "";
 		if( number < numbers.length ) return numbers[number];
-		
-		final first = parseInt( withoutHundreds.charAt( 0 ));
-		final second = parseInt( withoutHundreds.charAt( 1 ));
-		
-		return tens[first] + ( second == 0 ? "" : "-" + numbers[second] );
+		return tens[int(number / 10 )] + ( number % 10 == 0 ? "" : "-" + numbers[number % 10] );
 	}
 }
