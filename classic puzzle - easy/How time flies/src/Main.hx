@@ -26,20 +26,14 @@ class Main {
 		final beginDate = parseDate( begin );
 		final endDate = parseDate( end );
 		
-		final years = endDate.getFullYear() - beginDate.getFullYear();
-		final months = endDate.getMonth() - beginDate.getMonth();
-		final days = endDate.getDate() - beginDate.getDate();
+		final totalmonths = ( endDate.getFullYear() - beginDate.getFullYear()) * 12 - beginDate.getMonth() + endDate.getMonth() - ( beginDate.getDate() > endDate.getDate() ? 1 : 0 );
+		final years = int( totalmonths / 12 );
+		final months = totalmonths % 12;
 		final totalDays = int( round(( endDate.getTime() - beginDate.getTime()) / MILLISECONDS_PER_DAY ));
 
-		// trace( years, months, totalDays );
-
-		final deltaYears = months < 0 ? years - 1 : years;
-		final deltaMonths = days < 0 ? months - 1 : months;
-		final realMonths = deltaMonths < 0 ? 12 + deltaMonths : deltaMonths;
-
-		final yearsOutput = deltaYears == 0 ? "" : '$deltaYears' + ( deltaYears == 1 ? " year" : " years" );
-		final monthsOutput = realMonths == 0 ? "" : '$realMonths' + ( realMonths == 1 ? " month" : " months" );
-		final daysOutput = 'total $totalDays ' + ( totalDays == 1 ? "day" : "days" );
+		final yearsOutput = years == 0 ? "" : years == 1 ? "1 year" : '$years years';
+		final monthsOutput = months == 0 ? "" : months == 1 ? "1 month" : '$months months';
+		final daysOutput = totalDays == 1 ? "total 1 day" : 'total $totalDays days';
 
 		final result = [yearsOutput, monthsOutput, daysOutput].filter( s -> s != "" ).join( ", " );
 
@@ -47,11 +41,8 @@ class Main {
 	}
 
 	static function parseDate( s:String ) {
-		final date = Std.parseInt( s.substr( 0, 2 ));
-		final month = Std.parseInt( s.substr( 3, 2 ));
-		final year = s.length < 10 ? Std.parseInt( s.substr( 6, 2 )) + 2000 : Std.parseInt( s.substr( 6, 4 ));
-		
-		return new Date( year, month - 1, date, 0, 0, 0 );
+		final a = s.split( "." ).map( s -> parseInt( s ));
+		return new Date( a[2], a[1] - 1, a[0], 0, 0, 0 );
 	}
 
 }
