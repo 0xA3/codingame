@@ -34,7 +34,6 @@ class Main {
 		final capitals = [for( i in 0...capitalNameGeolocs.length ) createCapital( capitalNameGeolocs[i], messages[i] )];
 		final locations = travelGeolocs.map( travelGeoloc -> createLocation( travelGeoloc ));
 		final closestCapitals = locations.map( location -> getClosestCapitals( location, capitals ));
-
 		final greetings = closestCapitals.map( capitals -> capitals.map( capital -> capital.message ).join( " " )).join( "\n" );
 
 		return greetings;
@@ -53,28 +52,37 @@ class Main {
 		// trace( capitalDistances.map( capitalDistance -> '${capitalDistance.capital.name}: ${capitalDistance.distance}' ).join( ", " ));
 
 		final closestDistance = capitalDistances[0].distance;
-		final closestCapitals = capitalDistances.filter( capitalDistance -> capitalDistance.distance == closestDistance ).map( capitalDistance -> capitalDistance.capital );
+		final closestCapitals = capitalDistances
+			.filter( capitalDistance -> capitalDistance.distance == closestDistance )
+			.map( capitalDistance -> capitalDistance.capital );
 
 		return closestCapitals;
 	}
 
 	static function createCapital( capitalNameGeoloc:String, message:String ) {
 		final parts = capitalNameGeoloc.split(" ");
-		final lat = dmsToDeg( parts[1] ) * PI / 180;
-		final lon = dmsToDeg( parts[2] ) * PI / 180;
+		final capital:Capital = {
+			name: parts[0],
+			location: {
+				lat: dmsToRad( parts[1] ),
+				lon: dmsToRad( parts[2] )
+			},
+			message: message
+		};
 		
-		final capital:Capital = { name: parts[0], location: { lat: lat, lon: lon }, message: message };
 		return capital;
 	}
 
 	static function createLocation( travelGeoloc:String ) {
 		final parts = travelGeoloc.split(" ");
-		final lat = dmsToDeg( parts[0] ) * PI / 180;
-		final lon = dmsToDeg( parts[1] ) * PI / 180;
-		
-		final location:Location = { lat: lat, lon: lon };
+		final location:Location = {
+			lat: dmsToRad( parts[0] ),
+			lon: dmsToRad( parts[1] )
+		};
 		return location;
 	}
+
+	static function dmsToRad( dms:String ) return dmsToDeg( dms ) * PI / 180;
 
 	static function dmsToDeg( dms:String ) {
 		
@@ -86,7 +94,7 @@ class Main {
 		final min = parseInt( dms.substr( p + 1, 2 ));
 		final sec = parseInt( dms.substr( p + 3, 2 ));
 
-		return ( deg + ( min + sec / 60 ) / 60 ) * sign;
+		return sign * ( deg + min / 60 + sec / 3600 );
 	}
 
 	static function getDistance( l1:Location, l2:Location ) {
