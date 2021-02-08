@@ -1,6 +1,6 @@
 import haxe.ds.Vector;
 
-class MinPriorityQueue<T> {
+class MaxPriorityQueue<T> {
 	
 	var pq:Vector<T>;
 	var n:Int;
@@ -12,7 +12,7 @@ class MinPriorityQueue<T> {
 	* @param  initCapacity the initial capacity of this priority queue
 	*/
 	public function new( compare:( a:T, b:T ) -> Bool ) {
-		this.compare = compare; 
+		this.compare = compare;
 		pq = new Vector<T>( 1 );
 		n = 0;
 	}
@@ -52,7 +52,7 @@ class MinPriorityQueue<T> {
 	* @return a smallest key on this priority queue
 	* @throws NoSuchElementException if this priority queue is empty
 	*/
-	public function min() {
+	public function max() {
 		if( isEmpty()) throw "Priority queue underflow";
 		return pq[1];
 	}
@@ -87,14 +87,14 @@ class MinPriorityQueue<T> {
 	
 	public function pop() {
 		if( isEmpty()) throw "Priority queue underflow";
-		final min = pq[1];
+		final max = pq[1];
 		exch( 1, n-- );
 		sink( 1 );
 		pq[n+1] = null; // to avoid loiterig and help with garbage collection
 		if(( n > 0 ) && ( n == ( pq.length - 1 ) / 4 )) resize( Std.int( pq.length / 2 ));
-		return min;
+		return max;
 	}
-
+	
 	/**
 	 * sorts the priority queue.
 	 *
@@ -109,7 +109,7 @@ class MinPriorityQueue<T> {
 	***************************************************************************/
 	
 	function swim( k:Int ) {
-		while( k > 1 && greater( Std.int( k / 2 ), k )) {
+		while( k > 1 && less( Std.int( k / 2 ), k )) {
 			exch( k, Std.int( k / 2 ) );
 			k = Std.int( k / 2 );
 			// trace( 'pq ${pq.toArray()}' );
@@ -119,8 +119,8 @@ class MinPriorityQueue<T> {
 	function sink( k:Int ) {
 		while( 2 * k <= n ) {
 			var j = 2 * k;
-			if( j < n && greater( j, j + 1 )) j++;
-			if( !greater( k, j )) break;
+			if( j < n && less( j, j + 1 )) j++;
+			if( !less( k, j )) break;
 			exch( k, j );
 			k = j;
 		}
@@ -130,8 +130,8 @@ class MinPriorityQueue<T> {
 	* Helper functions for compares and swaps.
 	***************************************************************************/
 
-	function greater( i:Int, j:Int ) {
-		return compare( pq[i], pq[j] );
+	function less( i:Int, j:Int ) {
+		return compare( pq[j], pq[i] );
 	}
 
 	function exch( i:Int, j:Int ) {
@@ -141,31 +141,20 @@ class MinPriorityQueue<T> {
 		pq[j] = swap;
 	}
 
-	// is pq[1..n] a min heap?
-	function isMinHeap() {
+	// is pq[1..n] a max heap?
+	function isMaxHeap() {
 		for( i in 1...n + 1) if( pq[i] == null ) return false;
 		for( i in n + 1...pq.length ) if( pq[i] != null ) return false;
 		if( pq[0] != null ) return false;
-		return isMinHeapOrdered( 1 );
+		return isMaxHeapOrdered( 1 );
 	}
 
-	function isMinHeapOrdered( k:Int ) {
+	function isMaxHeapOrdered( k:Int ) {
 		if( k > n ) return true;
 		final left = 2 * k;
 		final right = 2 * k + 1;
-		if( left <= n && greater( k, left)) return false;
-		if( right <= n  && greater( k, right )) return false;
-		return isMinHeapOrdered( left ) && isMinHeapOrdered( right );
+		if( left <= n && less( k, left)) return false;
+		if( right <= n  && less( k, right )) return false;
+		return isMaxHeapOrdered( left ) && isMaxHeapOrdered( right );
 	}
-
-	public function toString() {
-		return [for( i in 1...n + 1 ) pq[i]].toString();
-
-	}
-	
-	public static function compareInt( a:Int, b:Int ) {
-		if( a > b ) return true;
-		return false;
-	}
-
 }

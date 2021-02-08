@@ -26,7 +26,7 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 				if( nextCost < nextNode.costFromStart ) {
 					nextNode.previous = currentNode.id;
 					nextNode.costFromStart = nextCost;
-					if( !nextNode.visited ) { 
+					if( !nextNode.visited ) {
 						frontier.add( nextNode ); }
 					else {
 						frontier.sort();
