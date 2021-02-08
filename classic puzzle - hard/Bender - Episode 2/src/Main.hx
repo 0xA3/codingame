@@ -5,6 +5,7 @@ import CodinGame.readline;
 import Std.parseInt;
 
 using Lambda;
+using ArrayUtils;
 
 class Main {
 	
@@ -13,10 +14,11 @@ class Main {
 		final n = parseInt( readline() );
 		final rooms = [for( i in 0...n ) readline()];
 				
-		final result = process( rooms );
+		final result = process2( rooms );
 		print( result );
 	}
 
+	// solution with UniformCostSearch and priority queue
 	static function process( rooms:Array<String> ) {
 		
 		final nodes = rooms.map( s -> {
@@ -40,5 +42,25 @@ class Main {
 		return goals[0].moneyFromStart;
 	}
 
+	// simple solution without priority queue
+	static function process2( incomingRooms:Array<String> ) {
+		final rooms:Array<Room> = [for( i in 0...incomingRooms.length) { money: 0, parents: [] }];
+		var max = 0;
+		for( i in 0...incomingRooms.length ) {
+			final a = incomingRooms[i].split(" ").map( s -> parseInt( s ));
+			final parentsMaxMoney = rooms[i].parents.map( room -> room.money ).max();
+			rooms[i].money = parentsMaxMoney;
+			if( max < parentsMaxMoney ) max = parentsMaxMoney;
+			if( a[2] != null ) rooms[a[2]].parents.push( rooms[i] );
+			if( a[3] != null ) rooms[a[3]].parents.push( rooms[i] );
+		}
 
+		return max;
+	}
+
+}
+
+typedef Room = {
+	var money:Int;
+	final parents:Array<Room>;
 }
