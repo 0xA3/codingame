@@ -26,7 +26,7 @@ class Main {
 		// printErr( exit );
 		
 		final tunnel = new Tunnel( lines, exit );
-
+		
 		while( true ) {
 			var inputs = readline().split(' ');
 			final xi = parseInt( inputs[0] );
