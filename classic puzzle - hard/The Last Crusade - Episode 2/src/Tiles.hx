@@ -1,4 +1,4 @@
-var tiles = [
+final tiles = [
 		
 	["···", // 0
 	 "···",
