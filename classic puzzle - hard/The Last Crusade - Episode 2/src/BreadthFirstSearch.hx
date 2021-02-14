@@ -1,8 +1,10 @@
 import Location;
 import Std.int;
 import Tiles;
+import Tunnel.Node;
 
-typedef Path = Array<State>;
+typedef StatePath = Array<State>;
+typedef Path = Array<Node>;
 
 class BreadthFirstSearch {
 
@@ -12,15 +14,16 @@ class BreadthFirstSearch {
 		this.exit = exit;
 	}
 
-	public function getAction( startState:State ) {
+	public function getAction( index:Int, pos:Int, rocks:Array<Location>, tunnel:Tunnel ) {
 		
-		final paths = getPaths( startState );
+		final paths = getPaths( index, pos, rocks, tunnel );
+		
 		return ""; // todo
 	}
 
-	function getPaths( startState:State ) {
+	function getPathStates( startState:State ) {
 		
-		final paths:Array<Path> = [];
+		final paths:Array<StatePath> = [];
 
 		final frontier = new List<State>();
 		frontier.add( startState );
@@ -41,20 +44,60 @@ class BreadthFirstSearch {
 				}
 			}
 		}
+	}
+		
+	function getPaths( index:Int, pos:Int, rocks:Array<Location>, tunnel:Tunnel ) {
+
+		final paths:Array<Path> = [];
+		final startNode:Node = { index: index, pos: pos, tile: tunnel.cells[index] };
+		final frontier = new List<Node>();
+		frontier.add( startNode );
+		while( !frontier.isEmpty()) {
+			final current = frontier.pop();
+			if( current.index == exit ) {
+				final path = backtrackNodes( current );
+				paths.push( path );
+			} else {
+				final nextLocation = tunnel.getNextCellLocation( current, rocks );
+				if( nextLocation != Tunnel.noLocation ) {
+					final rotationTiles = tunnel.getNextCellRotations( nextLocation );
+					final childNodes = tunnel.getChildNodes( current, nextLocation, rotationTiles );
+					for( childNode in childNodes ) {
+						// trace( "\n" + childNode );
+						frontier.add( childNode );
+					}
+				}
+			}
+		}
 
 		return paths;
 	}
 
 	function backtrack( state:State ) {
 		final path = [];
-		var currentState = state;
-		while( currentState != null ) {
-			path.push( currentState );
-			currentState = currentState.parent;
+		var current = state;
+		while( current != null ) {
+			path.push( current );
+			current = current.parent;
 		}
 		path.reverse();
 		final locations = path.map( state -> state.location.index );
 		trace( 'path\n$locations' );
+
+		return path;
+	}
+
+	function backtrackNodes( node:Node ) {
+		
+		final path = [];
+		var current = node;
+		while( current != null ) {
+			path.push( current );
+			current = current.parent;
+		}
+		path.reverse();
+		final locations = path.map( node -> node.index );
+		trace( 'path $locations' );
 
 		return path;
 	}

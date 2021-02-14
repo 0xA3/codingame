@@ -27,6 +27,7 @@ class Main {
 		final locked = lines.flatMap( line -> line.map( cell -> cell < 0 ));
 		final bfs = new BreadthFirstSearch( exit );
 		
+		final tunnel = new Tunnel( cells, locked, w );
 		
 		while( true ) {
 			final indy = parseLocation( readline(), w );
@@ -34,8 +35,7 @@ class Main {
 			final r = parseInt( readline()); // the number of rocks currently in the grid.
 			final rocks = [for( i in 0...r ) parseLocation( readline(), w )];
 			
-			final startState = new State( indy, rocks, cells, locked, w );
-			final action = bfs.getAction( startState );
+			final action = bfs.getAction( indy.index, indy.pos, rocks, tunnel );
 			print( action );
 		}
 

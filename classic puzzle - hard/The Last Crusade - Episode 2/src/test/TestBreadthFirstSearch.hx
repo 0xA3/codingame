@@ -6,46 +6,84 @@ using Lambda;
 using StringTools;
 using buddy.Should;
 
-@:access(State)
+@:access(BreadthFirstSearch)
 class TestBreadthFirstSearch extends buddy.BuddySuite {
 	
 	public function new() {
 		
-		describe( "Test BreadthFirstSearch", {
+		describe( "Test BreadthFirstSearch getPathStates", {
 			
 			it( "Well", {
 				final input = well;
 				final state = new State( input.start, [], input.cells, input.locked, input.width );
 				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getAction( state );
+				bfs.getPathStates( state );
 			});	
-			@include
+			
 			it( "Broken Well", {
 				final input = brokenWell;
 				final state = new State( input.start, [], input.cells, input.locked, input.width );
 				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getAction( state );
+				bfs.getPathStates( state );
 			});	
 			
 			it( "Broken Sewer", {
 				final input = brokenSewer;
 				final state = new State( input.start, [], input.cells, input.locked, input.width );
 				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getAction( state );
+				bfs.getPathStates( state );
 			});
 			
 			it( "Broken secret passages", {
 				final input = brokenSecretPassages;
 				final state = new State( input.start, [], input.cells, input.locked, input.width );
 				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getAction( state );
+				bfs.getPathStates( state );
 			});
 			
 			it( "Broken mausoleum", {
 				final input = brokenMausoleum;
 				final state = new State( input.start, [], input.cells, input.locked, input.width );
 				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getAction( state );
+				bfs.getPathStates( state );
+			});
+
+		});
+		describe( "Test BreadthFirstSearch getPaths", {
+			
+			it( "Well", {
+				final input = well;
+				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final bfs = new BreadthFirstSearch( input.exit );
+				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+			});	
+			@include
+			it( "Broken Well", {
+				final input = brokenWell;
+				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final bfs = new BreadthFirstSearch( input.exit );
+				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+			});	
+			
+			it( "Broken Sewer", {
+				final input = brokenSewer;
+				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final bfs = new BreadthFirstSearch( input.exit );
+				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+			});
+			
+			it( "Broken secret passages", {
+				final input = brokenSecretPassages;
+				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final bfs = new BreadthFirstSearch( input.exit );
+				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+			});
+			
+			it( "Broken mausoleum", {
+				final input = brokenMausoleum;
+				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final bfs = new BreadthFirstSearch( input.exit );
+				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
 			});
 
 		});
