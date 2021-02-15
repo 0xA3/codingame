@@ -1,101 +1,97 @@
 package test;
 
+import BreadthFirstSearch.Path;
+import BreadthFirstSearch.breadthFirstSearch;
+import CheckRotations;
 import test.ParseInput;
 
 using Lambda;
 using StringTools;
 using buddy.Should;
 
-@:access(BreadthFirstSearch)
 class TestBreadthFirstSearch extends buddy.BuddySuite {
 	
 	public function new() {
 		
-		describe( "Test BreadthFirstSearch getPathStates", {
-			
-			it( "Well", {
-				final input = well;
-				final state = new State( input.start, [], input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPathStates( state );
-			});	
-			
-			it( "Broken Well", {
-				final input = brokenWell;
-				final state = new State( input.start, [], input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPathStates( state );
-			});	
-			
-			it( "Broken Sewer", {
-				final input = brokenSewer;
-				final state = new State( input.start, [], input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPathStates( state );
-			});
-			
-			it( "Broken secret passages", {
-				final input = brokenSecretPassages;
-				final state = new State( input.start, [], input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPathStates( state );
-			});
-			
-			it( "Broken mausoleum", {
-				final input = brokenMausoleum;
-				final state = new State( input.start, [], input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPathStates( state );
-			});
-
-		});
 		describe( "Test BreadthFirstSearch getPaths", {
 			
 			it( "Well", {
 				final input = well;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				paths.length.should.be( 1 );
+				paths[0].map( node -> node.index ).join(" ").should.be( "2 7 12" );
 			});	
-			@include
+
 			it( "Broken Well", {
 				final input = brokenWell;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				paths.length.should.be( 1 );
+				paths[0].map( node -> node.index ).join(" ").should.be( "2 7 12" );
 			});	
 			
 			it( "Broken Sewer", {
 				final input = brokenSewer;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				paths.length.should.be( 1 );
+				paths[0].map( node -> node.index ).join(" ").should.be( "1 9 10 11 12 13 14 22 30 29 28 27 26 25" );
+			});
+			
+			it( "Broken Sewer 1 1 LEFT", {
+				final input = brokenSewer;
+				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				tunnel.cells[9] = 11;
+				final paths = breadthFirstSearch( 9, 0, [], tunnel, input.exit );
+				paths.length.should.be( 1 );
+				paths[0].map( node -> node.index ).join(" ").should.be( "9 10 11 12 13 14 22 30 29 28 27 26 25" );
 			});
 			
 			it( "Broken secret passages", {
 				final input = brokenSecretPassages;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				paths.length.should.be( 6 );
+				paths[0].map( node -> node.index ).join(" ").should.be( "5 11 10 9 8 7 6 12 18 19 20 21 22 28 34 35 41 40 46 45 51" );
 			});
 			
 			it( "Broken mausoleum", {
 				final input = brokenMausoleum;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final bfs = new BreadthFirstSearch( input.exit );
-				bfs.getPaths( input.start.index, input.start.pos, [], tunnel );
+				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				final validPaths = paths.filter( path -> checkRotations( tunnel, path ));
+				validPaths.sort(( a, b ) -> a.length - b.length );
+				validPaths.length.should.be( 12 );
+				validPaths[0].map( node -> node.index ).join(" ").should.be( "0 13 14 27 28 29 30 31 32 33 34 47 60 59 58 71 84 85 86 87 88 89 90 103 102 101 100 99 98 111 110 109 108 107 106 119" );
+				// trace( "\n" + validPaths.map( path -> pathToString( path )).join( "\n" ));
+				// trace( "\n" + pathTiles( validPaths[0] ));
+				// trace( "\n" + pathDiffs( validPaths[0] ));
+				// trace( "\n" + outputPath( tunnel, validPaths[0] ));
 			});
 
 		});
+		
+	}
+
+	function pathTiles( path:Path ) return path.map( node -> node.tile ).join(" ");
+	function pathDiffs( path:Path ) return path.map( node -> node.diff ).join(" ");
+	
+
+	function outputPath( tunnel:Tunnel, path:Path ) {
+		final cells = tunnel.cells;
+		for( node in path ) cells[node.index] = node.tile;
+		return tunnel.toString();
 	}
 
 	final well = parseInput(
-	"3 3
-	0 3 0
-	0 3 0
-	0 3 0
-	1
-	1 0 TOP" );
+	"5 3
+	0 0 3 0 0
+	0 0 3 0 0
+	0 0 3 0 0
+	2
+	2 0 TOP
+	0" );
 
 	final brokenWell = parseInput(
 	"5 3

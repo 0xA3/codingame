@@ -1,14 +1,8 @@
+import BreadthFirstSearch.Path;
 import Location;
 import Std.int;
 import Tiles;
 import Transformations;
-
-typedef Node = {
-	final ?parent:Node;
-	final index:Int;
-	final tile:Int;
-	final pos:Int;
-}
 
 class Tunnel {
 	
@@ -60,15 +54,54 @@ class Tunnel {
 		
 		final childNodes = [];
 		for( tile in rotationTiles ) {
-			final node:Node = { parent: parent, index: nextLocation.index, pos: nextLocation.pos, tile: tile };
+			final srcTile = cells[nextLocation.index];
+			final diff = tileRotations[srcTile].indexOf( tile );
+			final modDiff = (( diff + 1 ) % 4 ) - 1;
+			final node:Node = { parent: parent, index: nextLocation.index, pos: nextLocation.pos, tile: tile, diff: modDiff };
 			childNodes.push( node );
 		}
 
 		return childNodes;
 	}
 
-	inline function getX( id:Int ) return id % width;
+	public function getNextAction( path:Path ) {
+		// trace( "\n" + path.map( node -> '${node.index} tile ${node.tile} diff ${node.diff}').join( "\n" ));
+		var action = "";
+		for( node in path ) {
+			final index = node.index;
+			final diff = node.diff;
+			if( diff < 0 ) {
+				turnTileLeft( index, node.tile, diff  );
+				action = xy( index ) + ' LEFT';
+				break;
+			} else if( diff > 0 ) {
+				turnTileRight( index, node.tile, diff );
+				action = xy( index ) + ' RIGHT';
+				break;
+			} else action = "WAIT";
+		}
+		return action;
+	}
+	
+	function turnTileLeft( index:Int, tile:Int, diff:Int ) {
+		final currentTile = cells[index];
+		final tiles = tileRotations[currentTile];
+		// trace( 'tile $index (${cells[index]}) turn left -> ${tiles[tiles.length - 1]}' );
+		cells[index] = tiles[tiles.length - 1]; // last tile of rotations
+	}
+
+	function turnTileRight( index:Int, tile:Int, diff:Int ) {
+		final currentTile = cells[index];
+		final tiles = tileRotations[currentTile];
+		// printErr( 'tile $index (${tunnel.cells[index]}) turn right -> ${tiles[1]}' );
+		cells[index] = tiles[1]; // next tile of rotations
+	}
+
+
+	public inline function getX( id:Int ) return id % width;
+	public inline function getY( id:Int ) return int( id / width );
 	inline function getIndex( x:Int, y:Int ) return y * width + x;
+	inline function xy( index:Int ) return '${getX( index)} ${getY( index)}';
 
 	public function toString() {
 		var output = "";

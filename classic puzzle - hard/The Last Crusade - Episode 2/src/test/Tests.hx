@@ -4,5 +4,6 @@ import buddy.Buddy;
 
 class Tests implements Buddy<[
 	TestState,
+	TestTunnel,
 	TestBreadthFirstSearch
 ]>{}
