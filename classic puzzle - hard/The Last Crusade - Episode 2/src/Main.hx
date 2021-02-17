@@ -35,7 +35,7 @@ class Main {
 			final r = parseInt( readline()); // the number of rocks currently in the grid.
 			final rocks = [for( i in 0...r ) parseLocation( readline(), w )];
 			
-			final paths = breadthFirstSearch( indy.index, indy.pos, rocks, tunnel, exit );
+			final paths = breadthFirstSearch( indy, rocks, tunnel, exit );
 			final validPaths = paths.filter( path -> checkRotations( tunnel, path ));
 			if( validPaths.length == 0 ) throw "Error: no path found.";
 			validPaths.sort(( a, b ) -> a.length - b.length );

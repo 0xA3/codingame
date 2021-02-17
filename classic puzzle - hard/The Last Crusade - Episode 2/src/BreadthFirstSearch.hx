@@ -1,27 +1,24 @@
 import Location;
 import Node;
 
-typedef StatePath = Array<State>;
 typedef Path = Array<Node>;
 
-function breadthFirstSearch( index:Int, pos:Int, rocks:Array<Location>, tunnel:Tunnel, exit:Int ) {
+function breadthFirstSearch( indy:Location, rocks:Array<Location>, tunnel:Tunnel, exit:Int ) {
 
 	final paths:Array<Path> = [];
-	final startNode:Node = { index: index, pos: pos, tile: tunnel.cells[index], diff: 0 };
+	final startNode:Node = { indy: indy, rocks: rocks, index: indy.index, tile: tunnel.cells[indy.index], diff: 0 };
 	final frontier = new List<Node>();
 	frontier.add( startNode );
 	while( !frontier.isEmpty()) {
-		final current = frontier.pop();
-		if( current.index == exit ) {
-			final path = backtrackNodes( current );
+		final currentNode = frontier.pop();
+		if( currentNode.indy.index == exit ) {
+			final path = backtrackNodes( currentNode );
 			paths.push( path );
 		} else {
-			final nextLocation = tunnel.getNextCellLocation( current, rocks );
-			if( nextLocation != Tunnel.noLocation ) {
-				final rotationTiles = tunnel.getNextCellRotations( nextLocation );
-				final childNodes = tunnel.getChildNodes( current, nextLocation, rotationTiles );
+			final nextNode = tunnel.getNextNode( currentNode );
+			if( nextNode.indy != Tunnel.noLocation ) {
+				final childNodes = tunnel.getChildNodes( currentNode, nextNode );
 				for( childNode in childNodes ) {
-					// trace( "\n" + childNode );
 					frontier.add( childNode );
 				}
 			}
@@ -34,10 +31,10 @@ function breadthFirstSearch( index:Int, pos:Int, rocks:Array<Location>, tunnel:T
 function backtrackNodes( node:Node ) {
 	
 	final path = [];
-	var current = node;
-	while( current != null ) {
-		path.push( current );
-		current = current.parent;
+	var currentNode = node;
+	while( currentNode != null ) {
+		path.push( currentNode );
+		currentNode = currentNode.parent;
 	}
 	path.reverse();
 	final locations = path.map( node -> node.index );

@@ -18,7 +18,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 			it( "Well", {
 				final input = well;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
 				paths.length.should.be( 1 );
 				paths[0].map( node -> node.index ).join(" ").should.be( "2 7 12" );
 			});	
@@ -26,7 +26,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 			it( "Broken Well", {
 				final input = brokenWell;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
 				paths.length.should.be( 1 );
 				paths[0].map( node -> node.index ).join(" ").should.be( "2 7 12" );
 			});	
@@ -34,7 +34,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 			it( "Broken Sewer", {
 				final input = brokenSewer;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
 				paths.length.should.be( 1 );
 				paths[0].map( node -> node.index ).join(" ").should.be( "1 9 10 11 12 13 14 22 30 29 28 27 26 25" );
 			});
@@ -43,7 +43,8 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 				final input = brokenSewer;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
 				tunnel.cells[9] = 11;
-				final paths = breadthFirstSearch( 9, 0, [], tunnel, input.exit );
+				final indy:Location = { index: 9, pos: 0 };
+				final paths = breadthFirstSearch( indy, [], tunnel, input.exit );
 				paths.length.should.be( 1 );
 				paths[0].map( node -> node.index ).join(" ").should.be( "9 10 11 12 13 14 22 30 29 28 27 26 25" );
 			});
@@ -51,7 +52,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 			it( "Broken secret passages", {
 				final input = brokenSecretPassages;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
 				paths.length.should.be( 6 );
 				paths[0].map( node -> node.index ).join(" ").should.be( "5 11 10 9 8 7 6 12 18 19 20 21 22 28 34 35 41 40 46 45 51" );
 			});
@@ -59,7 +60,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 			it( "Broken mausoleum", {
 				final input = brokenMausoleum;
 				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.start.index, input.start.pos, [], tunnel, input.exit );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
 				final validPaths = paths.filter( path -> checkRotations( tunnel, path ));
 				validPaths.sort(( a, b ) -> a.length - b.length );
 				validPaths.length.should.be( 12 );

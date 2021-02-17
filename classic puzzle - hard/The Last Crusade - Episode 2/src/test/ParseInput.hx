@@ -23,7 +23,7 @@ function parseInput( input:String ) {
 
 	final location = inputLines[1 + h + 1];
 	
-	final start = Main.parseLocation( location, w );
+	final indy = Main.parseLocation( location, w );
 
-	return { cells: cells, width: w, locked: locked, exit: exit, start: start };
+	return { cells: cells, width: w, locked: locked, exit: exit, indy: indy };
 }
