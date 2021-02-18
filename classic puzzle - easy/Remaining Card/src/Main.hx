@@ -3,6 +3,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import Std.int;
+import Math.log;
 
 using Lambda;
 
@@ -31,15 +32,13 @@ function processReference( n:Int  ) {
 
 }
 
+function log2( n:Int ) return log( n ) / log( 2 );
+
 function process( n:Int ) {
 	
 	if( n == 1 ) return 1;
 
-	final log2 = Math.log( n ) / Math.log( 2 );
-	final base = int( log2 );
-
-	final diff = int( n - Math.pow( 2, base ));
-	// trace( 'log2 $log2 base $base difference $diff' );
-	
-	return diff == 0 ? n : diff * 2;
+	final base = int( log2( n ));
+	final offset = int( n - Math.pow( 2, base ));
+	return offset == 0 ? n : offset * 2;
 }
