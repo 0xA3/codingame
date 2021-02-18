@@ -1,12 +1,13 @@
+import CodinGame.printErr;
 import Location;
 import Node;
 
 typedef Path = Array<Node>;
 
-function breadthFirstSearch( indy:Location, rocks:Array<Location>, tunnel:Tunnel, exit:Int ) {
+function breadthFirstSearch( indy:Location, rocks:Array<Location>, tunnel:Tunnel, cells:Array<Int>, exit:Int ) {
 
 	final paths:Array<Path> = [];
-	final startNode:Node = { indy: indy, rocks: rocks, index: indy.index, tile: tunnel.cells[indy.index], diff: 0 };
+	final startNode:Node = { cells: cells, indy: indy, rocks: rocks, index: indy.index, tile: cells[indy.index], diff: 0 };
 	final frontier = new List<Node>();
 	frontier.add( startNode );
 	while( !frontier.isEmpty()) {
@@ -24,7 +25,7 @@ function breadthFirstSearch( indy:Location, rocks:Array<Location>, tunnel:Tunnel
 			}
 		}
 	}
-
+	printErr( 'paths ${paths.length}' );
 	return paths;
 }
 

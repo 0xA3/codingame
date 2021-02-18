@@ -23,17 +23,17 @@ class TestTunnelNextAction extends buddy.BuddySuite {
 			
 			it( "Simple", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
+				final tunnel = new Tunnel( input.locked, input.width );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.cells, input.exit );
 				paths.length.should.be( 1 );
 				final path = paths[0];
-				tunnel.getNextAction( path ).should.be( "WAIT" );
+				tunnel.getNextAction( input.cells, path ).should.be( "WAIT" );
 			});
 			
 			it( "Rotate cell left", {
 				final input = rotateCellLeft;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
+				final tunnel = new Tunnel( input.locked, input.width );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.cells, input.exit );
 				paths.length.should.be( 1 );
 				// final path = paths[0];
 				// tunnel.getNextAction( path ).should.be( "1 1 LEFT" );
@@ -41,20 +41,20 @@ class TestTunnelNextAction extends buddy.BuddySuite {
 			
 			it( "Rotate cell right", {
 				final input = rotateCellRight;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
+				final tunnel = new Tunnel( input.locked, input.width );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.cells, input.exit );
 				paths.length.should.be( 1 );
 				final path = paths[0];
-				tunnel.getNextAction( path ).should.be( "1 1 RIGHT" );
+				tunnel.getNextAction( input.cells, path ).should.be( "1 1 RIGHT" );
 			});
 			
 			it( "Rotate cell twice", {
 				final input = rotateCellTwice;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final paths = breadthFirstSearch( input.indy, [], tunnel, input.exit );
+				final tunnel = new Tunnel( input.locked, input.width );
+				final paths = breadthFirstSearch( input.indy, [], tunnel, input.cells, input.exit );
 				paths.length.should.be( 1 );
 				final path = paths[0];
-				tunnel.getNextAction( path ).should.be( "1 1 RIGHT" );
+				tunnel.getNextAction( input.cells, path ).should.be( "1 1 RIGHT" );
 			});
 			
 		});

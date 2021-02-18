@@ -24,26 +24,26 @@ class TestTunnel extends buddy.BuddySuite {
 			
 			it( "Simple", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final resultLocation = tunnel.incrementLocation( input.indy );
+				final tunnel = new Tunnel( input.locked, input.width );
+				final resultLocation = tunnel.incrementLocation( input.cells, input.indy );
 				resultLocation.index.should.be( 4 );
 				resultLocation.pos.should.be( 0 );
 			});
 			
 			it( "Turn Left", {
 				final input = turnLeft;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width );
 				final location:Location = { index: 7, pos: 0 };
-				final resultLocation = tunnel.incrementLocation( location );
+				final resultLocation = tunnel.incrementLocation( input.cells, location );
 				resultLocation.index.should.be( 6 );
 				resultLocation.pos.should.be( 2 );
 			});
 			
 			it( "Turn Right", {
 				final input = turnRight;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width );
 				final location:Location = { index: 7, pos: 0 };
-				final resultLocation = tunnel.incrementLocation( location );
+				final resultLocation = tunnel.incrementLocation( input.cells, location );
 				resultLocation.index.should.be( 8 );
 				resultLocation.pos.should.be( 1 );
 			});
@@ -54,48 +54,48 @@ class TestTunnel extends buddy.BuddySuite {
 			
 			it( "No collision", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width );
 				final rocks = [for( i in 0...4 ) {
 					final rock:Location = { index: i, pos: 1 };
 					rock;
 				}];
-				tunnel.removeRockRockCollision( rocks );
+				tunnel.removeCollidedRocks( rocks );
 				rocks.length.should.be( 4 );
 			});
 			
 			it( "1 collision", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width );
 				final indices = [1, 2, 1, 4, 3];
 				final rocks = indices.map( i -> {
 					final rock:Location = { index: i, pos: 1 };
 					rock;
 				});
-				tunnel.removeRockRockCollision( rocks );
+				tunnel.removeCollidedRocks( rocks );
 				rocks.length.should.be( 3 );
 			});
 			
 			it( "2 collisions", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width );
 				final indices = [1, 2, 1, 4, 1];
 				final rocks = indices.map( i -> {
 					final rock:Location = { index: i, pos: 1 };
 					rock;
 				});
-				tunnel.removeRockRockCollision( rocks );
+				tunnel.removeCollidedRocks( rocks );
 				rocks.length.should.be( 2 );
 			});
 			
 			it( "3 collisions", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width );
 				final indices = [1, 2, 1, 1, 1];
 				final rocks = indices.map( i -> {
 					final rock:Location = { index: i, pos: 1 };
 					rock;
 				});
-				tunnel.removeRockRockCollision( rocks );
+				tunnel.removeCollidedRocks( rocks );
 				rocks.length.should.be( 1 );
 			});
 			
@@ -105,7 +105,7 @@ class TestTunnel extends buddy.BuddySuite {
 			
 			it( "No collision", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width );
 				final indy:Location = { index: 0, pos: 1 };
 				final indices = [1, 2, 3];
 				final rocks = indices.map( i -> {
@@ -117,7 +117,7 @@ class TestTunnel extends buddy.BuddySuite {
 			
 			it( "Collision", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width );
 				final indy:Location = { index: 1, pos: 1 };
 				final indices = [1, 2, 3];
 				final rocks = indices.map( i -> {
@@ -128,13 +128,13 @@ class TestTunnel extends buddy.BuddySuite {
 			});
 
 		});
-		@include
+		
 		describe( "Test Tunnel getChildNodes", {
 			
 			it( "Simple", {
 				final input = simple;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final currentNode:Node = { indy: input.indy, rocks: [], index: input.indy.index, tile: tunnel.cells[input.indy.index], diff: 0 };
+				final tunnel = new Tunnel( input.locked, input.width );
+				final currentNode:Node = { cells: input.cells, indy: input.indy, rocks: [], index: input.indy.index, tile: input.cells[input.indy.index], diff: 0 };
 				final nextNode = tunnel.getNextNode( currentNode );
 				final childNodes = tunnel.getChildNodes( currentNode, nextNode );
 				childNodes.length.should.be( 1 );
@@ -143,8 +143,8 @@ class TestTunnel extends buddy.BuddySuite {
 			
 			it( "Turn left", {
 				final input = turnLeft;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final currentNode:Node = { indy: input.indy, rocks: [], index: input.indy.index, tile: tunnel.cells[input.indy.index], diff: 0 };
+				final tunnel = new Tunnel( input.locked, input.width );
+				final currentNode:Node = { cells: input.cells, indy: input.indy, rocks: [], index: input.indy.index, tile: input.cells[input.indy.index], diff: 0 };
 				final nextNode = tunnel.getNextNode( currentNode );
 				final childNodes = tunnel.getChildNodes( currentNode, nextNode );
 				// trace( childNodes.map( node -> '${node.index} ${node.tile}' ));
@@ -155,24 +155,68 @@ class TestTunnel extends buddy.BuddySuite {
 			
 			it( "Turn left 2", {
 				final input = turnLeft;
-				final tunnel = new Tunnel( input.cells, input.locked, input.width );
-				final currentNode:Node = { indy: input.indy, rocks: [], index: input.indy.index, tile: tunnel.cells[input.indy.index], diff: 0 };
+				final tunnel = new Tunnel( input.locked, input.width );
+				final currentNode:Node = { cells: input.cells, indy: input.indy, rocks: [], index: input.indy.index, tile: input.cells[input.indy.index], diff: 0 };
 				final nextNode = tunnel.getNextNode( currentNode );
 				final childNodes = tunnel.getChildNodes( currentNode, nextNode );
-				trace( "childnodes " + childNodes.map( node -> '${node.index}: ${node.tile}' ));
+				// trace( "childnodes " + childNodes.map( node -> '${node.index}: ${node.tile}' ));
 				
 				final childNodes2 = childNodes.flatMap( currentNode -> {
-					trace( 'currentNode ${currentNode.index}: ${currentNode.tile}' );
+				// 	trace( 'currentNode ${currentNode.index}: ${currentNode.tile}' );
 					final nextNode = tunnel.getNextNode( currentNode );
-					trace( 'nextNode ${nextNode.index}: ${nextNode.tile}' );
+				// 	trace( 'nextNode ${nextNode.index}: ${nextNode.tile}' );
 					final childNodes = tunnel.getChildNodes( currentNode, nextNode );
 					return childNodes;
 				});
 
-				trace( "childNodes2 " + childNodes2.map( node -> '${node.index}: ${node.tile}' ));
+				childNodes2.length.should.be( 1 );
+				childNodes2[0].index.should.be( 6 );
+				// trace( "childNodes2 " + childNodes2.map( node -> '${node.index}: ${node.tile}' ));
 			});
 			
-		});	
+			it( "Horizontal Well With Rocks", {
+				final input = horizontalWell;
+				final tunnel = new Tunnel( input.locked, input.width );
+				final rock:Location = { index: 9, pos: 2 };
+				final currentNode:Node = { cells: input.cells, indy: input.indy, rocks: [rock], index: input.indy.index, tile: input.cells[input.indy.index], diff: 0 };
+				final nextNode = tunnel.getNextNode( currentNode );
+				final childNodes = tunnel.getChildNodes( currentNode, nextNode );
+				// trace( "childnodes " + childNodes.map( node -> 'index ${node.index} tile ${node.tile}' ));
+				
+				var childNodes2 = [];
+				for( currentNode in childNodes ) {
+					// trace( 'currentNode index ${currentNode.index} tile ${currentNode.tile}' );
+					final nextNode = tunnel.getNextNode( currentNode );
+					if( nextNode.indy != Tunnel.noLocation ) {
+						final childNodes = tunnel.getChildNodes( currentNode, nextNode );
+						// trace( 'childNodes\n' + childNodes.map( node -> 'index ${node.index} tile ${node.tile}' ).join( "\n" ));
+						childNodes2 = childNodes2.concat( childNodes );
+					}
+				}
+
+				// childNodes2.length.should.be( 1 );
+				// childNodes2[0].index.should.be( 6 );
+				trace( "childNodes2 " + childNodes2.map( node -> 'index ${node.index} tile ${node.tile}' ));
+				
+				var childNodes3 = [];
+				for( currentNode in childNodes2 ) {
+					// trace( 'currentNode index ${currentNode.index} tile ${currentNode.tile}' );
+					final nextNode = tunnel.getNextNode( currentNode );
+					if( nextNode.indy != Tunnel.noLocation ) {
+						final childNodes = tunnel.getChildNodes( currentNode, nextNode );
+						// trace( 'childNodes\n' + childNodes.map( node -> 'index ${node.index} tile ${node.tile}' ).join( "\n" ));
+						childNodes3 = childNodes3.concat( childNodes );
+					}
+				}
+				childNodes3.length.should.be( 3 );
+				childNodes3[0].index.should.be( 12 );
+
+				trace( "childNodes3 " + childNodes3.map( node -> 'index ${node.index} tile ${node.tile}' ));
+				trace( "\n" + tunnel.cellsToString( Main.combineWithLock( input.cells, input.locked )));
+
+			});
+		});
+
 	}
 
 	final simple = parseInput(
@@ -205,6 +249,14 @@ class TestTunnel extends buddy.BuddySuite {
 	0 0 0 0 0
 	2
 	2 0 TOP" );
+	
+	final horizontalWell = parseInput(
+	"5 3
+	0 0 0 0 0
+	2 2 8 2 2
+	0 0 3 0 0
+	2
+	0 1 LEFT" );
 	
 }
 

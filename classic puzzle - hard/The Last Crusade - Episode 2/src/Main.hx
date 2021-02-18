@@ -7,6 +7,7 @@ import Math.abs;
 import Std.int;
 import Std.parseInt;
 import Transformations;
+import haxe.Timer;
 
 using Lambda;
 
@@ -20,29 +21,34 @@ class Main {
 		final lines = [for( i in 0...h ) readline().split(" ").map( a -> parseInt( a ))]; // represents a line in the grid and contains W integers. Each integer represents one room of a given type.
 		final exit = ( h - 1 ) * w + parseInt( readline() ); // the coordinate along the X axis of the exit (not useful for this first mission, but must be read).
 
+		printErr( '$w $h' );
 		// printErr( inputs.join(" "));
 		// printErr( lines.map( line -> line.join(" ")).join( "\n") );
 		// printErr( exit );
 
-		final cells = lines.flatMap( line -> line.map( cell -> int( abs( cell ))));
+		var cells = lines.flatMap( line -> line.map( cell -> int( abs( cell ))));
 		final locked = lines.flatMap( line -> line.map( cell -> cell < 0 ));
 		
-		final tunnel = new Tunnel( cells, locked, w );
+		final tunnel = new Tunnel( locked, w );
 		
 		while( true ) {
+			final start = Timer.stamp();
 			final indy = parseLocation( readline(), w );
-
 			final r = parseInt( readline()); // the number of rocks currently in the grid.
 			final rocks = [for( i in 0...r ) parseLocation( readline(), w )];
 			
-			final paths = breadthFirstSearch( indy, rocks, tunnel, exit );
+			printErr( tunnel.cellsToString( combineWithLock( cells, locked )) );
+			printErr( 'Indy ${tunnel.locationToString( indy )}' );
+			printErr( 'Rocks\n' + rocks.map( rock -> tunnel.locationToString( rock )).join( "\n" ));
+			
+			final paths = breadthFirstSearch( indy, rocks, tunnel, cells, exit );
 			final validPaths = paths.filter( path -> checkRotations( tunnel, path ));
 			if( validPaths.length == 0 ) throw "Error: no path found.";
 			validPaths.sort(( a, b ) -> a.length - b.length );
 			final path = validPaths[0];
 			
-			final action = tunnel.getNextAction( path );
-
+			final action = tunnel.getNextAction( cells, path );
+			printErr( 'time ${Timer.stamp() - start )}' );
 			print( action );
 
 		}
@@ -58,4 +64,8 @@ class Main {
 		return l;
 	}
 
+	public static function combineWithLock( cells:Array<Int>, locked:Array<Bool> ) {
+		return cells.mapi(( i, cell ) -> locked[i] ? -cell : cell );
+	}
+	
 }
