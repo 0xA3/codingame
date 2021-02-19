@@ -1,15 +1,15 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Std.parseInt;
-import Std.int;
 import Math.log;
+import Std.int;
+import Std.parseInt;
 
 using Lambda;
 
 function main() {
 	
-	final n = parseInt( readline() ); // number of capitals
+	final n = parseInt( readline() );
 	
 	final result = process( n );
 	print( result );

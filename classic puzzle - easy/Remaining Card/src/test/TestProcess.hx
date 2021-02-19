@@ -1,8 +1,8 @@
 package test;
 
 import Main;
-import Std.parseInt;
 import Std.parseFloat;
+import Std.parseInt;
 
 using buddy.Should;
 
