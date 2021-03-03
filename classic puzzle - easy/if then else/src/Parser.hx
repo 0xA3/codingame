@@ -18,7 +18,7 @@ class Parser {
 
 	function parseExpression() {
 		final blocks:Array<Block> = [];
-		while( true ) { trace( 'parseExpression $lineNo' );
+		while( true ) { // trace( 'parseExpression $lineNo' );
 			var tk = token();
 			switch tk {
 				case "if": blocks.push( parseIf());
@@ -32,7 +32,7 @@ class Parser {
 
 	function parseIf() {
 		final ifContent:Array<Block> = [];
-		while( true ) { trace( 'parseIf content $lineNo' );
+		while( true ) { // trace( 'parseIf content $lineNo' );
 			var tk = token();
 			switch tk {
 				case "if": ifContent.push( parseIf());
@@ -48,7 +48,7 @@ class Parser {
 
 	function parseElse() {
 		final elseContent:Array<Block> = [];
-		while( true ) { trace( 'parseElse content $lineNo' );
+		while( true ) { // trace( 'parseElse content $lineNo' );
 			var tk = token();
 			switch tk {
 				case "if": elseContent.push( parseIf());
@@ -60,7 +60,7 @@ class Parser {
 	}
 
 	function token() {
-		var tk = expressions[lineNo]; trace( ': $tk :' );
+		var tk = expressions[lineNo]; // trace( ': $tk :' );
 		lineNo++;
 		return tk;
 	}

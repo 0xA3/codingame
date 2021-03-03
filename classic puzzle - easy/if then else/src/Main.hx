@@ -1,6 +1,7 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
+import Parser.Block;
 import Std.parseInt;
 
 using Lambda;
@@ -20,45 +21,24 @@ function process( lines:Array<String> ) {
 	
 	final parser = new Parser();
 	final tree = parser.parse( expressions );
-	
-	trace( tree );
+	// trace( tree );
 
-	return Math.pow( 1, tree.length );
+	final sum = count( tree );
+
+	return sum;
 }
 
-/*
-i()
-e()
--> 1 expression 1 * 2 = 2
-
-i()e()
-i()e()
--> 2 sequencial 2 * 2 = 4
-
-i()
-e(
-	i()
-	e()
-)
--> 1 * 1 + 1 * 2 = 3
-
-i(
-	i()
-	e()
-)
-e()
-i()
-e()
--> (1 * 2 + 1 * 1) * 2
-
-i(
-	i()
-	e()
-)
-e(
-	i()
-	e()
-)
--> 1 * 2 + 1 * 2 = 4
-
-*/
+function count( blocks:Array<Block> ):Float {
+	
+	var counts:Array<Float> = [];
+	for( block in blocks ) {
+		final cIf = count( block.l );
+		final cElse = count( block.r );
+		final sum = cIf + cElse;
+		counts.push( sum );
+	}
+	var mul = 1.0;
+	for( v in counts ) mul *= v;
+	
+	return mul;
+}
