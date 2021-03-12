@@ -2,7 +2,6 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Math.pow;
-import Parser.Block;
 import Std.int;
 import Std.parseInt;
 import Std.string;
@@ -27,14 +26,9 @@ function process( m:Int, bars:Array<Int> ) {
 	
 	final validLengths = [];
 	for( i in 0...c ) {
-		final bin = dec2bin( i );
-		bin.reverse();
-
-		final barSet = barsOfBin( bin, bars );
+		final barSet =barsOfCombinationId( i, bars );
 		final length = barSet.fold(( bar, sum ) -> sum + bar, 0 );
-		
 		if( length <= m ) validLengths.push( [length, barSet.length, i] );
-
 	}
 
 	validLengths.sort(( a, b ) -> {
@@ -52,11 +46,7 @@ function process( m:Int, bars:Array<Int> ) {
 		}
 	}
 
-	final resultsBars = results.map( result -> {
-		final bin = dec2bin( result[2] );
-		bin.reverse();
-		return barsOfBin( bin, bars );
-	});
+	final resultsBars = results.map( result -> barsOfCombinationId( result[2], bars ));
 
 	resultsBars.sort(( a, b ) -> {
 		final aString = string( a );
@@ -67,6 +57,12 @@ function process( m:Int, bars:Array<Int> ) {
 	});
 	
 	return resultsBars[0].join(" ");
+}
+
+function barsOfCombinationId( i:Int, bars:Array<Int> ) {
+	final bin = dec2bin( i );
+	bin.reverse();
+	return barsOfBin( bin, bars );
 }
 
 function barsOfBin( reversedBin:Array<Int>, bars:Array<Int> ) {
