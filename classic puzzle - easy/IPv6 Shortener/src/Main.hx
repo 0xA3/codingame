@@ -17,7 +17,7 @@ function process( ip:String ) {
 	final ipParts = ip.split( ":" );
 	final ipParts2 = ipParts.map( s -> s.replace( ~/^0+([1-9a-f]+)/, "$1" ));
 
-	final zeroBlocks:Array<ZeroBlocks> = [];
+	final zeroBlocks:Array<ZeroBlockStreak> = [];
 	var i = 0;
 	while( i < ipParts2.length ) {
 		final part = ipParts2[i];
@@ -60,7 +60,7 @@ function process( ip:String ) {
 	return result;
 }
 
-typedef ZeroBlocks = {
+typedef ZeroBlockStreak = {
 	final start:Int;
 	final length:Int;
 }
