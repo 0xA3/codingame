@@ -2,6 +2,7 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Parser.Block;
+import Std.int;
 import Std.parseInt;
 
 using Lambda;
@@ -25,7 +26,7 @@ function process( lines:Array<String> ) {
 
 	final sum = count( tree );
 
-	return sum;
+	return int( sum );
 }
 
 function count( blocks:Array<Block> ):Float {
