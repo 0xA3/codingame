@@ -6,8 +6,8 @@ import CodinGame.readline;
 import Math.abs;
 import Std.int;
 import Std.parseInt;
-import Transformations;
 import haxe.Timer;
+import parser.ParseLocation;
 
 using Lambda;
 
@@ -21,7 +21,7 @@ class Main {
 		final lines = [for( i in 0...h ) readline().split(" ").map( a -> parseInt( a ))]; // represents a line in the grid and contains W integers. Each integer represents one room of a given type.
 		final exit = ( h - 1 ) * w + parseInt( readline() ); // the coordinate along the X axis of the exit (not useful for this first mission, but must be read).
 
-		printErr( '$w $h' );
+		// printErr( '$w $h' );
 		// printErr( inputs.join(" "));
 		// printErr( lines.map( line -> line.join(" ")).join( "\n") );
 		// printErr( exit );
@@ -30,16 +30,15 @@ class Main {
 		final locked = lines.flatMap( line -> line.map( cell -> cell < 0 ));
 		
 		final tunnel = new Tunnel( locked, w );
-		
 		while( true ) {
 			final start = Timer.stamp();
 			final indy = parseLocation( readline(), w );
 			final r = parseInt( readline()); // the number of rocks currently in the grid.
 			final rocks = [for( i in 0...r ) parseLocation( readline(), w )];
 			
-			printErr( tunnel.cellsToString( combineWithLock( cells, locked )) );
-			printErr( 'Indy ${tunnel.locationToString( indy )}' );
-			printErr( 'Rocks\n' + rocks.map( rock -> tunnel.locationToString( rock )).join( "\n" ));
+			// printErr( tunnel.cellsToString( combineWithLock( cells, locked )) );
+			// printErr( 'Indy ${tunnel.locationToString( indy )}' );
+			// printErr( 'Rocks\n' + rocks.map( rock -> tunnel.locationToString( rock )).join( "\n" ));
 			
 			final paths = breadthFirstSearch( indy, rocks, tunnel, cells, exit );
 			final validPaths = paths.filter( path -> checkRotations( tunnel, path ));
@@ -48,20 +47,11 @@ class Main {
 			final path = validPaths[0];
 			
 			final action = tunnel.getNextAction( cells, path );
-			printErr( 'time ${Timer.stamp() - start )}' );
+			// printErr( 'time ${Timer.stamp() - start )}' );
 			print( action );
 
 		}
 
-	}
-
-	static function parseLocation( s:String, width:Int ) {
-		final inputs = s.split(' ');
-		final x = parseInt( inputs[0] );
-		final y = parseInt( inputs[1] );
-		final pos = posMap[inputs[2]];
-		final l:Location = { index: y * width + x, pos: pos };
-		return l;
 	}
 
 	public static function combineWithLock( cells:Array<Int>, locked:Array<Bool> ) {

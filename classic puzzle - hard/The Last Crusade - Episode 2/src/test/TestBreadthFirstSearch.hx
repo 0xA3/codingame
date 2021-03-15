@@ -4,7 +4,7 @@ import BreadthFirstSearch.Path;
 import BreadthFirstSearch.breadthFirstSearch;
 import CheckRotations;
 import haxe.Timer;
-import test.ParseInput;
+import test.ParseLevel;
 
 using Lambda;
 using StringTools;
@@ -119,7 +119,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 		return tunnel.cellsToStringUtf8( cells );
 	}
 
-	final well = parseInput(
+	final well = parseLevel(
 	"5 3
 	0 0 3 0 0
 	0 0 3 0 0
@@ -128,7 +128,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 	2 0 TOP
 	0" );
 
-	final brokenWell = parseInput(
+	final brokenWell = parseLevel(
 	"5 3
 	0 0 -3 0 0
 	0 0 2 0 0
@@ -137,7 +137,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 	2 0 TOP
 	0" );
 
-	final brokenSewer = parseInput(
+	final brokenSewer = parseLevel(
 	"8 4
 	0 -3 0 0 0 0 0 0
 	0 12 3 3 2 3 12 0
@@ -147,7 +147,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 	1 0 TOP
 	0" );
 
-	final brokenSecretPassages = parseInput(
+	final brokenSecretPassages = parseLevel(
 	"6 9
 	0 0 0 0 0 -3
 	8 3 3 2 2 10
@@ -162,7 +162,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 	5 0 TOP
 	0" );
 
-	final brokenMausoleum = parseInput(
+	final brokenMausoleum = parseLevel(
 	"13 10
 	-3 12 8 6 3 2 7 2 7 0 0 0 0
 	11 5 13 0 0 0 3 0 3 0 0 0 0
@@ -178,7 +178,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 	0 0 TOP
 	0" );
 
-	final rocks1Frame5 = parseInput(
+	final rocks1Frame5 = parseLevel(
 	"10 8
 	0 0 0 0 0 0 0 0 -3 0
 	0 7 -2 2 -2 2 -2 2 10 0

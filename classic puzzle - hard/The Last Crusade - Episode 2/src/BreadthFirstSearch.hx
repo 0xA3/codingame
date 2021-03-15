@@ -1,6 +1,6 @@
 import CodinGame.printErr;
-import Location;
-import Node;
+import data.Location;
+import data.Node;
 
 typedef Path = Array<Node>;
 

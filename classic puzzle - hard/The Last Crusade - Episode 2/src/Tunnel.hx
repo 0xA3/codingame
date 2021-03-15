@@ -1,9 +1,10 @@
 import BreadthFirstSearch.Path;
-import Location;
 import Std.int;
-import Tiles;
-import TilesUtf8;
-import Transformations;
+import data.Location;
+import data.Node;
+import data.Tiles;
+import data.TilesUtf8;
+import data.Transformations;
 
 class Tunnel {
 	

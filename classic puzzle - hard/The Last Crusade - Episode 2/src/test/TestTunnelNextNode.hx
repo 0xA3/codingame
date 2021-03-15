@@ -1,6 +1,6 @@
 package test;
 
-import test.ParseInput;
+import test.ParseLevel;
 
 using Lambda;
 using StringTools;
@@ -191,26 +191,26 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 		
 	}
 
-	final simple = parseInput(
+	final simple = parseLevel(
 	"3 2
 	0 3 0
 	0 3 0
 	1
 	1 0 TOP" );
 	
-	final turnLeft = parseInput(
+	final turnLeft = parseLevel(
 	"3 1
 	2 10 0
 	1
 	1 0 TOP" );
 	
-	final turnRight = parseInput(
+	final turnRight = parseLevel(
 	"3 1
 	0 11 2
 	1
 	1 0 TOP" );
 	
-	final allTiles = parseInput(
+	final allTiles = parseLevel(
 	"3 15
 	0 0 0
 	0 1 0
@@ -230,105 +230,105 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 	1
 	1 0 TOP" );
 	
-	final rotation1 = parseInput(
+	final rotation1 = parseLevel(
 	"3 2
 	0 3 0
 	0 1 0
 	1
 	1 0 TOP" );
 	
-	final rotation2 = parseInput(
+	final rotation2 = parseLevel(
 	"3 2
 	0 3 0
 	0 2 0
 	1
 	1 0 TOP" );
 	
-	final rotation3 = parseInput(
+	final rotation3 = parseLevel(
 	"3 2
 	0 3 0
 	0 3 0
 	1
 	1 0 TOP" );
 	
-	final rotation4 = parseInput(
+	final rotation4 = parseLevel(
 	"3 2
 	0 3 0
 	0 4 0
 	1
 	1 0 TOP" );
 	
-	final rotation5 = parseInput(
+	final rotation5 = parseLevel(
 	"3 2
 	0 3 0
 	0 5 0
 	1
 	1 0 TOP" );
 	
-	final rotation6 = parseInput(
+	final rotation6 = parseLevel(
 	"3 2
 	0 3 0
 	0 6 0
 	1
 	1 0 TOP" );
 	
-	final rotation7 = parseInput(
+	final rotation7 = parseLevel(
 	"3 2
 	0 3 0
 	0 7 0
 	1
 	1 0 TOP" );
 	
-	final rotation8 = parseInput(
+	final rotation8 = parseLevel(
 	"3 2
 	0 3 0
 	0 8 0
 	1
 	1 0 TOP" );
 	
-	final rotation9 = parseInput(
+	final rotation9 = parseLevel(
 	"3 2
 	0 3 0
 	0 9 0
 	1
 	1 0 TOP" );
 	
-	final rotation10 = parseInput(
+	final rotation10 = parseLevel(
 	"3 2
 	0 3 0
 	0 10 0
 	1
 	1 0 TOP" );
 	
-	final rotation11 = parseInput(
+	final rotation11 = parseLevel(
 	"3 2
 	0 3 0
 	0 11 0
 	1
 	1 0 TOP" );
 	
-	final rotation12 = parseInput(
+	final rotation12 = parseLevel(
 	"3 2
 	0 3 0
 	0 12 0
 	1
 	1 0 TOP" );
 	
-	final rotation13 = parseInput(
+	final rotation13 = parseLevel(
 	"3 2
 	0 3 0
 	0 13 0
 	1
 	1 0 TOP" );
 	
-	final lockedRotation11 = parseInput(
+	final lockedRotation11 = parseLevel(
 	"3 2
 	0 3 0
 	0 -11 0
 	1
 	1 0 TOP" );
 	
-	final lockedRotation13 = parseInput(
+	final lockedRotation13 = parseLevel(
 	"3 2
 	0 3 0
 	0 -13 0

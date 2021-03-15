@@ -15,9 +15,9 @@ extern class CodinGame
 class CodinGame
 {
 	#if nodejs
-	static public function print(output:Dynamic):Void { trace(output); }
-	static public function printErr(output:Dynamic):Void { trace(output); }
-	static public inline function readline():String { return ""; }
+	static public function print(output:Dynamic):Void { Sys.println(output); }
+	static public function printErr(output:Dynamic):Void { Sys.stderr().writeString(output + "\n"); }
+	static public inline function readline():String { return Sys.stdin().readLine(); }
 	#elseif js
 	static public function print(output:Dynamic):Void { js.Syntax.code('print(output)'); }
 	static public function printErr(output:Dynamic):Void { js.Syntax.code('printErr(output)'); }
@@ -28,7 +28,7 @@ class CodinGame
 	static public inline function readline():String { return untyped __php__('fscanf(STDIN, "%d", $N);'); }
 	#elseif python
 	static public function print(output:Dynamic):Void { python.Syntax.code('print(output)'); }
-	static public function printErr(output:Dynamic) { 
+	static public function printErr(output:Dynamic) {
         python.Syntax.code('print(output, file=python_lib_Sys.stderr)');
         return python.lib.Sys.platform; // to force import of sys in python script
     }
@@ -39,12 +39,12 @@ class CodinGame
 	static public inline function readline():String { return untyped __lua__('io.read()'); }
 	#elseif interp
 	static public function print(output:Dynamic):Void { Sys.println(output); }
-	static public function printErr(output:Dynamic):Void { Sys.println(output); }
+	static public function printErr(output:Dynamic):Void { Sys.stderr().writeString(output + "\n"); }
 	static public inline function readline():String { return ""; }
 	#elseif sys
 	static public function print(output:Dynamic):Void { Sys.println(output); }
-	static public function printErr(output:Dynamic):Void { Sys.println(output); }
-	static public inline function readline():String { return ""; }
+	static public function printErr(output:Dynamic):Void { Sys.stderr().writeString(output + "\n"); }
+	static public inline function readline():String { return Sys.stdin().readLine(); }
 	#else
 	static public function print(output:Dynamic):Void { trace(output); }
 	static public function printErr(output:Dynamic):Void { trace(output); }

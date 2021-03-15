@@ -1,7 +1,15 @@
+package data;
+
 final posMap = [
 	"TOP" => 0,
 	"LEFT" => 1,
 	"RIGHT" => 2
+];
+
+final posStringMap = [
+	0 => "TOP",
+	1 => "LEFT",
+	2 => "RIGHT"
 ];
 
 final tileMovements = [

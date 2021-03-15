@@ -1,3 +1,5 @@
+package data;
+
 typedef Node = {
 	final ?parent:Node;
 	final cells:Array<Int>;

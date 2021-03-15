@@ -1,3 +1,5 @@
+package data;
+
 final tilesUtf8 = [
 	// " ", // 0
 	// "┼", // 1

@@ -1,5 +1,6 @@
 import Math.abs;
 import Std.int;
+import data.Node;
 
 function checkRotations( tunnel:Tunnel, path:Array<Node> ) {
 	

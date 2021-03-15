@@ -1,3 +1,5 @@
+package data;
+
 final tiles = [
 		
 	["···", // 0

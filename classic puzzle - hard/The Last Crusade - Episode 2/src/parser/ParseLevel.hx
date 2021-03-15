@@ -1,15 +1,15 @@
-package test;
-import Main;
+package parser;
+
 import Math.abs;
 import Std.int;
 import Std.parseInt;
-import Transformations;
+import data.Level;
+import parser.ParseLocation;
 
 using Lambda;
 using StringTools;
 
-@:access(Main)
-function parseInput( input:String ) {
+function parseLevel( input:String ) {
 	
 	final inputLines = input.replace( "\t", "" ).replace( "\r", "" ).split( "\n" );
 	var inputs = inputLines[0].split(' ');
@@ -23,7 +23,8 @@ function parseInput( input:String ) {
 
 	final location = inputLines[1 + h + 1];
 	
-	final indy = Main.parseLocation( location, w );
+	final indy = parseLocation( location, w );
 
-	return { cells: cells, width: w, locked: locked, exit: exit, indy: indy };
+	final level:Level = { cells: cells, width: w, height: h, locked: locked, exit: exit, indy: indy };
+	return level;
 }

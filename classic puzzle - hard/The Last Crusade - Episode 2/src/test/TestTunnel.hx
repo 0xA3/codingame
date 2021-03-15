@@ -1,7 +1,7 @@
 package test;
 
 import BreadthFirstSearch;
-import test.ParseInput;
+import test.ParseLevel;
 
 using Lambda;
 using StringTools;
@@ -219,14 +219,14 @@ class TestTunnel extends buddy.BuddySuite {
 
 	}
 
-	final simple = parseInput(
+	final simple = parseLevel(
 	"3 2
 	0 3 0
 	0 3 0
 	1
 	1 0 TOP" );
 	
-	final turnLeft = parseInput(
+	final turnLeft = parseLevel(
 	"5 3
 	0 0 3 0 0
 	0 12 10 0 0
@@ -234,7 +234,7 @@ class TestTunnel extends buddy.BuddySuite {
 	1
 	2 0 TOP" );
 	
-	final turnRight = parseInput(
+	final turnRight = parseLevel(
 	"5 3
 	0 0 3 0 0
 	0 0 11 13 0
@@ -242,7 +242,7 @@ class TestTunnel extends buddy.BuddySuite {
 	3
 	2 0 TOP" );
 	
-	final horizontal = parseInput(
+	final horizontal = parseLevel(
 	"5 3
 	0 0 0 0 0
 	2 2 2 2 2
@@ -250,7 +250,7 @@ class TestTunnel extends buddy.BuddySuite {
 	2
 	2 0 TOP" );
 	
-	final horizontalWell = parseInput(
+	final horizontalWell = parseLevel(
 	"5 3
 	0 0 0 0 0
 	2 2 8 2 2
