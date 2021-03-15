@@ -138,11 +138,11 @@ class Tunnel {
 			final index = node.index;
 			final diff = node.diff;
 			if( diff < 0 ) {
-				turnTileLeft( cells, index, node.tile, diff  );
+				turnTileLeft( cells, index  );
 				action = xy( index ) + ' LEFT';
 				break;
 			} else if( diff > 0 ) {
-				turnTileRight( cells, index, node.tile, diff );
+				turnTileRight( cells, index );
 				action = xy( index ) + ' RIGHT';
 				break;
 			} else action = "WAIT";
@@ -150,14 +150,14 @@ class Tunnel {
 		return action;
 	}
 	
-	function turnTileLeft( cells:Array<Int>, index:Int, tile:Int, diff:Int ) {
+	public function turnTileLeft( cells:Array<Int>, index:Int ) {
 		final currentTile = cells[index];
 		final tiles = tileRotations[currentTile];
 		// trace( 'tile $index (${cells[index]}) turn left -> ${tiles[tiles.length - 1]}' );
 		cells[index] = tiles[tiles.length - 1]; // last tile of rotations
 	}
 
-	function turnTileRight( cells:Array<Int>, index:Int, tile:Int, diff:Int ) {
+	public function turnTileRight( cells:Array<Int>, index:Int ) {
 		final currentTile = cells[index];
 		final tiles = tileRotations[currentTile];
 		// printErr( 'tile $index (${tunnel.cells[index]}) turn right -> ${tiles[1]}' );
@@ -195,14 +195,18 @@ class Tunnel {
 		return output;
 	}
 
-	public function cellsToString3x3( cells:Array<Int> ) {
+	public function cellsToString3x3( cells:Array<Int>, indy:Location ) {
 		var output = "";
 		final height = int( cells.length / width );
 		for( y in 0...height ) {
 			for( i in 0...3 ) {
 				for( x in 0...width ) {
-					final cell = cells[getIndex(x, y)];
-					output += tiles[cell][i];
+					final index = getIndex(x, y);
+					final cell = cells[index];
+					final tile = tiles[cell][i];
+					if( i == 1 && indy.index == index ) {
+						output += tile.charAt( 0 ) + "@" + tile.charAt( 2 );
+					} else output += tile;
 				}
 				output += "\n";
 			}

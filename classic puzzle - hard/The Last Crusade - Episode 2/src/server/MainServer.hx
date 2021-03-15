@@ -4,6 +4,7 @@ import Std.int;
 import Std.parseInt;
 import Std.string;
 import Sys.println;
+import data.Level;
 import data.Location;
 import data.Transformations.posStringMap;
 import parser.ParseLevel.parseLevel;
@@ -23,24 +24,65 @@ function main() {
 	final pout = process.stdout;
 	final perr = process.stderr;
 	
-	final levelContent = File.getContent( "./dest/levels/simple.txt" );
+	final levelContent = File.getContent( "./dest/levels/broken_well.txt" );
 	final level = parseLevel( levelContent );
+	final cells = level.cells;
+	final tunnel = new Tunnel( level.locked, level.width );
 	
 	final initializationInput = createInitializationInput( levelContent );
 	
 	pin.writeString( initializationInput );
 	
+
 	var indy = level.indy;
 	final rocks = 0;
-	// for( i in 0...100 ) {
+	for( _ in 0...100 ) {
 		pin.writeString( locationToString( indy, level.width ) + string( rocks ) + "\n" );
-		final response = pout.readLine();
-	// }
+		
+		while( true ) {
+			final response = pout.readLine();
+			if( response == "WAIT" ) {
+				println( response );
+				break;
+			} else if( response.indexOf( "LEFT" ) != -1 ) {
+				final index = getResponseIndex( response, tunnel.width );
+				tunnel.turnTileLeft( cells, index );
+				println( response );
+				break;
+			} else if( response.indexOf( "RIGHT" ) != -1 ) {
+				final index = getResponseIndex( response, tunnel.width );
+				tunnel.turnTileRight( cells, index );
+				println( response );
+				break;
+			} else {
+				println( response );
+			}
+		}
+		println( tunnel.cellsToString3x3( cells, indy ));
+		final nextLocation = tunnel.incrementLocation( cells, indy );
+		if( nextLocation.index == indy.index ) {
+			println( 'Indy crashed' );
+			break;
+		}
+		if( indy.index == level.exit ) {
+			println( "Indy reached the exit" );
+			break;
+		}
+		indy = nextLocation;
+		final char = Sys.getChar( false );
+		if( char == 27 || char == 3 ) break;
 
-	trace( response );
-	
+	}
+
 	process.kill();
-	
+}
+
+function getResponseIndex( response:String, width:Int ) {
+	final parts = response.split(" ");
+	final x = parseInt( parts[0] );
+	final y = parseInt( parts[1] );
+	final index = y * width + x;
+	return index;
 }
 
 function createInitializationInput( levelContent:String ) {
