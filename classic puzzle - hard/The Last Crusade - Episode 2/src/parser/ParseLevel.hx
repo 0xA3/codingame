@@ -5,6 +5,7 @@ import Std.int;
 import Std.parseInt;
 import data.Level;
 import parser.ParseLocation;
+import parser.ParseRockLocation;
 
 using Lambda;
 using StringTools;
@@ -24,7 +25,10 @@ function parseLevel( input:String ) {
 	final location = inputLines[1 + h + 1];
 	
 	final indy = parseLocation( location, w );
+	final rocksNo = parseInt( inputLines[1 + h + 2] );
+	final rocksStart = 1 + h + 3;
+	final rocks = [for( i in rocksStart...rocksStart + rocksNo ) parseRockLocation( inputLines[i], w )];
 
-	final level:Level = { cells: cells, width: w, height: h, locked: locked, exit: exit, indy: indy };
+	final level:Level = { cells: cells, width: w, height: h, locked: locked, exit: exit, indy: indy, rocks: rocks };
 	return level;
 }

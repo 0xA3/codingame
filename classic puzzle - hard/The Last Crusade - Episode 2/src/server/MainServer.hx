@@ -2,11 +2,11 @@ package server;
 
 import Std.int;
 import Std.parseInt;
-import Std.string;
+import Sys.print;
 import Sys.println;
-import data.Level;
 import data.Location;
 import data.Transformations.posStringMap;
+import haxe.Timer;
 import parser.ParseLevel.parseLevel;
 import sys.io.File;
 import sys.io.Process;
@@ -15,7 +15,7 @@ function main() {
 	
 	final args = Sys.args();
 	if( args.length != 2 ) {
-		println( 'Usage: hl dest/server.hl hl dest/app.js');
+		println( 'Usage: hl dest/server.hl node dest/client_app.js');
 		return;
 	}
 
@@ -24,8 +24,9 @@ function main() {
 	final pout = process.stdout;
 	final perr = process.stderr;
 	
-	final levelContent = File.getContent( "./dest/levels/broken_well.txt" );
+	final levelContent = File.getContent( "./dest/levels/rocks_1.txt" );
 	final level = parseLevel( levelContent );
+
 	final cells = level.cells;
 	final tunnel = new Tunnel( level.locked, level.width );
 	
@@ -35,9 +36,18 @@ function main() {
 	
 
 	var indy = level.indy;
-	final rocks = 0;
-	for( _ in 0...100 ) {
-		pin.writeString( locationToString( indy, level.width ) + string( rocks ) + "\n" );
+	var rollingRocks:Array<Location> = [];
+	for( i in 0...100 ) {
+		for( rockLocation in level.rocks ) {
+			if( rockLocation.start == i ) rollingRocks.push({ index: rockLocation.index, pos: rockLocation.pos });
+		}
+
+		final rocksString = rollingRocks.map( rock -> locationToString( rock, level.width )).join( "\n" ) + "\n";
+		final clientInput = '${locationToString( indy, level.width )}\n${rollingRocks.length}\n' + ( rollingRocks.length > 0 ? rocksString : "" );
+		print( 'clientInput\n$clientInput' );
+		
+		final startTime = Timer.stamp();
+		pin.writeString( clientInput );
 		
 		while( true ) {
 			final response = pout.readLine();
@@ -58,17 +68,22 @@ function main() {
 				println( response );
 			}
 		}
-		println( tunnel.cellsToString3x3( cells, indy ));
+		println( 'time ${Timer.stamp() - startTime}' );
+		println( tunnel.cellsToString3x3( cells, indy, rollingRocks ));
+		
 		final nextLocation = tunnel.incrementLocation( cells, indy );
-		if( nextLocation.index == indy.index ) {
-			println( 'Indy crashed' );
-			break;
-		}
+		
 		if( indy.index == level.exit ) {
 			println( "Indy reached the exit" );
 			break;
 		}
+		if( nextLocation == Tunnel.noLocation ) {
+			println( 'Indy crashed' );
+			break;
+		}
 		indy = nextLocation;
+		rollingRocks = rollingRocks.map( rock -> tunnel.incrementLocation( cells, rock )).filter( rock -> rock != Tunnel.noLocation );
+		
 		final char = Sys.getChar( false );
 		if( char == 27 || char == 3 ) break;
 
@@ -97,5 +112,5 @@ function locationToString( location:Location, width:Int ) {
 	final x = location.index % width;
 	final y = int( location.index / width );
 	final pos = posStringMap[location.pos];
-	return '$x $y $pos\n';
+	return '$x $y $pos';
 }

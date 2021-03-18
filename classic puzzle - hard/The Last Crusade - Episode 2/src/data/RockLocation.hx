@@ -1,6 +1,7 @@
 package data;
 
-typedef Location = {
+typedef RockLocation = {
 	final index:Int;
 	final pos:Int;
+	final ?start:Int;
 }

@@ -9,6 +9,7 @@ function parseLocation( s:String, width:Int ) {
 	final x = parseInt( inputs[0] );
 	final y = parseInt( inputs[1] );
 	final pos = posMap[inputs[2]];
+	final start = inputs.length > 3 ? parseInt( inputs[3] ) : 0;
 	final l:Location = { index: y * width + x, pos: pos };
 	return l;
 }

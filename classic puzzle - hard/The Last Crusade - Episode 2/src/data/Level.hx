@@ -1,5 +1,7 @@
 package data;
 
+import data.RockLocation;
+
 typedef Level = {
 	final width:Int;
 	final height:Int;
@@ -7,4 +9,5 @@ typedef Level = {
 	final locked:Array<Bool>;
 	final exit:Int;
 	final indy:Location;
+	final rocks:Array<RockLocation>;
 }

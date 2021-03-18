@@ -6,6 +6,8 @@ import data.Tiles;
 import data.TilesUtf8;
 import data.Transformations;
 
+using Lambda;
+
 class Tunnel {
 	
 	public static final noLocation:Location = { index: -1, pos: -1 };
@@ -195,7 +197,7 @@ class Tunnel {
 		return output;
 	}
 
-	public function cellsToString3x3( cells:Array<Int>, indy:Location ) {
+	public function cellsToString3x3( cells:Array<Int>, indy:Location, rocks:Array<Location> ) {
 		var output = "";
 		final height = int( cells.length / width );
 		for( y in 0...height ) {
@@ -204,9 +206,13 @@ class Tunnel {
 					final index = getIndex(x, y);
 					final cell = cells[index];
 					final tile = tiles[cell][i];
-					if( i == 1 && indy.index == index ) {
-						output += tile.charAt( 0 ) + "@" + tile.charAt( 2 );
-					} else output += tile;
+					
+					final isIndyPosition = indy.index == index;
+					final isRockPosition = rocks.fold(( rock, isPosition ) -> isPosition || rock.index == index, false );
+					
+					if( i == 1 && isIndyPosition) output += tile.charAt( 0 ) + "@" + tile.charAt( 2 );
+					else if( i == 1 && isRockPosition ) output += tile.charAt( 0 ) + "O" + tile.charAt( 2 );
+					else output += tile;
 				}
 				output += "\n";
 			}
