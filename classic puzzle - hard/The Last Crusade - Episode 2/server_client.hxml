@@ -1,7 +1,7 @@
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
--main server.MainServer
+-main MainServer
 --hl dest/server.hl
 
 --next

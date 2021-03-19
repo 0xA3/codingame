@@ -65,7 +65,7 @@ class Tunnel {
 			i--;
 			if( rocks[i].index == startIndex ) {
 				rocks.remove( rocks[i + 1] );
-				while( rocks[i].index == startIndex ) {
+				while( rocks.length > 0 && rocks[i].index == startIndex ) {
 					rocks.remove( rocks[i] );
 					i--;
 				}

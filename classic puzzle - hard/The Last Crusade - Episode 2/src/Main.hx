@@ -1,12 +1,10 @@
-import BreadthFirstSearch;
-import CheckRotations;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Math.abs;
+import Process;
 import Std.int;
 import Std.parseInt;
-import data.Location;
 import parser.ParseLocation;
 
 using Lambda;
@@ -37,26 +35,8 @@ class Main {
 			
 			final action = process( indy, rocks, tunnel, cells, exit );
 			print( action );
-
 		}
 
 	}
 
-	static inline function process( indy:Location, rocks:Array<Location>, tunnel:Tunnel, cells:Array<Int>, exit:Int ) {
-
-		// printErr( tunnel.cellsToString( tunnel.combineWithLocked( cells, locked )) );
-		// printErr( 'Indy ${tunnel.locationToString( indy )}' );
-		// printErr( 'Rocks\n' + rocks.map( rock -> tunnel.locationToString( rock )).join( "\n" ));
-		
-		final paths = breadthFirstSearch( indy, rocks, tunnel, cells, exit );
-		final validPaths = paths.filter( path -> checkRotations( tunnel, path ));
-		if( validPaths.length == 0 ) throw "Error: no path found.";
-		validPaths.sort(( a, b ) -> a.length - b.length );
-		final path = validPaths[0];
-		
-		final action = tunnel.getNextAction( cells, path );
-		return action;
-	}
-
-	
 }

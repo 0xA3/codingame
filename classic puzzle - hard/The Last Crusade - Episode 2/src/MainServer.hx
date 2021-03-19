@@ -1,17 +1,14 @@
-package server;
-
-import Std.int;
 import Std.parseInt;
 import Sys.print;
 import Sys.println;
 import data.Level;
 import data.Location;
-import data.Transformations.posStringMap;
 import haxe.Timer;
-import hl.UI.Window;
 import parser.ParseLevel.parseLevel;
 import sys.io.File;
 import sys.io.Process;
+
+// Simulation of CodinGame Server
 
 function main() {
 	

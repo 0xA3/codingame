@@ -2,8 +2,9 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "haxe",
-			"args": "active configuration",
+			"type": "hxml",
+			"label": "Build",
+			"file": "simulator.hxml",
 			"group": {
 				"kind": "build",
 				"isDefault": true
