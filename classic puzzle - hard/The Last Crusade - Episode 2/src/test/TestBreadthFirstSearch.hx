@@ -3,8 +3,10 @@ package test;
 import BreadthFirstSearch.Path;
 import BreadthFirstSearch.breadthFirstSearch;
 import CheckRotations;
+import data.Location;
 import haxe.Timer;
-import test.ParseLevel;
+import parser.ParseLevel;
+import parser.ParseLocation;
 
 using Lambda;
 using StringTools;
@@ -91,9 +93,16 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 			it( "Rocks 1 Frame 5", {
 				final input = rocks1Frame5;
 				final tunnel = new Tunnel( input.locked, input.width );
-				final rocks = parseRocks( rocks1Frame5Rocks, input.width );
 				final start = Timer.stamp();
-				final paths = breadthFirstSearch( input.indy, rocks, tunnel, input.cells, input.exit );
+				final paths = breadthFirstSearch( input.indy, input.rocks, tunnel, input.cells, input.exit );
+				trace( 'paths ${paths.length} time ${Timer.stamp() - start}' );
+			});
+			
+			it( "Rocks 2 Frame 4", {
+				final input = rocks2Frame4;
+				final tunnel = new Tunnel( input.locked, input.width );
+				final start = Timer.stamp();
+				final paths = breadthFirstSearch( input.indy, input.rocks, tunnel, input.cells, input.exit );
 				trace( 'paths ${paths.length} time ${Timer.stamp() - start}' );
 			});
 			
@@ -104,10 +113,10 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 	function pathTiles( path:Path ) return path.map( node -> node.tile ).join(" ");
 	function pathDiffs( path:Path ) return path.map( node -> node.diff ).join(" ");
 	
-	static function parseRocks( input:String, width:Int ) {
-		final inputLines = input.replace( "\t", "" ).replace( "\r", "" ).split( "\n" );
-		return inputLines.map( line -> Main.parseLocation( line, width ));
-	}
+	// static function parseRocks( input:String, width:Int ) {
+	// 	final inputLines = input.replace( "\t", "" ).replace( "\r", "" ).split( "\n" );
+	// 	return inputLines.map( line -> parseLocation( line, width ));
+	// }
 	
 	function outputPath( tunnel:Tunnel, cells:Array<Int>, path:Path ) {
 		for( node in path ) cells[node.index] = node.tile;
@@ -189,13 +198,28 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 	0 -7 -2 2 2 2 2 2 2 -2
 	0 -3 0 0 0 0 0 0 0 0
 	1
-	5 1 RIGHT" );
-
-	final rocks1Frame5Rocks =
-	"6 2 RIGHT
+	5 1 RIGHT
+	4
+	6 2 RIGHT
 	7 3 RIGHT
 	8 4 RIGHT
-	9 5 RIGHT";
+	9 5 RIGHT" );
 	
+	final rocks2Frame4 = parseLevel(
+		"10 8
+		0 -3 0 -3 0 -3 0 -3 -3 0
+		0 7 -2 3 -2 2 -2 2 10 0
+		0 -7 -2 -2 -2 -2 2 -2 2 -2
+		0 6 -2 -2 -2 -2 -2 2 -2 -2
+		0 -7 -2 -2 -2 -2 2 -2 2 -2
+		0 8 -2 -2 -2 -2 -2 2 -2 -2
+		0 -7 -2 -2 -2 -2 2 -2 2 -2
+		0 -3 0 0 0 0 0 0 0 0
+		1
+		6 1 RIGHT
+		3
+		7 2 RIGHT
+		8 3 RIGHT
+		9 4 RIGHT" );
 }
 

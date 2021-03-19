@@ -1,7 +1,7 @@
 package test;
 
 import BreadthFirstSearch;
-import test.ParseLevel;
+import parser.ParseLevel;
 
 using Lambda;
 using StringTools;
@@ -66,7 +66,8 @@ class TestTunnelNextAction extends buddy.BuddySuite {
 	0 3 0
 	0 3 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotateCellLeft = parseLevel(
 	"5 3
@@ -74,7 +75,8 @@ class TestTunnelNextAction extends buddy.BuddySuite {
 	0 13 10 0 0
 	0 3 0 0 0
 	1
-	2 0 TOP" );
+	2 0 TOP
+	0" );
 	
 	final rotateCellRight = parseLevel(
 	"5 3
@@ -82,7 +84,8 @@ class TestTunnelNextAction extends buddy.BuddySuite {
 	0 10 10 0 0
 	0 3 0 0 0
 	1
-	2 0 TOP" );
+	2 0 TOP
+	0" );
 	
 	final rotateCellTwice = parseLevel(
 	"5 3
@@ -90,7 +93,8 @@ class TestTunnelNextAction extends buddy.BuddySuite {
 	0 11 10 0 0
 	0 3 0 0 0
 	1
-	2 0 TOP" );
+	2 0 TOP
+	0" );
 	
 }
 

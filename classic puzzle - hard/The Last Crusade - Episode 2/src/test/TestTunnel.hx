@@ -1,7 +1,9 @@
 package test;
 
 import BreadthFirstSearch;
-import test.ParseLevel;
+import data.Location;
+import data.Node;
+import parser.ParseLevel;
 
 using Lambda;
 using StringTools;
@@ -196,7 +198,7 @@ class TestTunnel extends buddy.BuddySuite {
 
 				// childNodes2.length.should.be( 1 );
 				// childNodes2[0].index.should.be( 6 );
-				trace( "childNodes2 " + childNodes2.map( node -> 'index ${node.index} tile ${node.tile}' ));
+				// trace( "childNodes2 " + childNodes2.map( node -> 'index ${node.index} tile ${node.tile}' ));
 				
 				var childNodes3 = [];
 				for( currentNode in childNodes2 ) {
@@ -211,8 +213,8 @@ class TestTunnel extends buddy.BuddySuite {
 				childNodes3.length.should.be( 3 );
 				childNodes3[0].index.should.be( 12 );
 
-				trace( "childNodes3 " + childNodes3.map( node -> 'index ${node.index} tile ${node.tile}' ));
-				trace( "\n" + tunnel.cellsToString( Main.combineWithLock( input.cells, input.locked )));
+				// trace( "childNodes3 " + childNodes3.map( node -> 'index ${node.index} tile ${node.tile}' ));
+				// trace( "\n" + tunnel.cellsToString( input.cells ));
 
 			});
 		});
@@ -224,7 +226,8 @@ class TestTunnel extends buddy.BuddySuite {
 	0 3 0
 	0 3 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final turnLeft = parseLevel(
 	"5 3
@@ -232,7 +235,8 @@ class TestTunnel extends buddy.BuddySuite {
 	0 12 10 0 0
 	0 3 0 0 0
 	1
-	2 0 TOP" );
+	2 0 TOP
+	0" );
 	
 	final turnRight = parseLevel(
 	"5 3
@@ -240,7 +244,8 @@ class TestTunnel extends buddy.BuddySuite {
 	0 0 11 13 0
 	0 0 0 3 0
 	3
-	2 0 TOP" );
+	2 0 TOP
+	0" );
 	
 	final horizontal = parseLevel(
 	"5 3
@@ -248,7 +253,8 @@ class TestTunnel extends buddy.BuddySuite {
 	2 2 2 2 2
 	0 0 0 0 0
 	2
-	2 0 TOP" );
+	2 0 TOP
+	0" );
 	
 	final horizontalWell = parseLevel(
 	"5 3
@@ -256,7 +262,8 @@ class TestTunnel extends buddy.BuddySuite {
 	2 2 8 2 2
 	0 0 3 0 0
 	2
-	0 1 LEFT" );
+	0 1 LEFT
+	0" );
 	
 }
 

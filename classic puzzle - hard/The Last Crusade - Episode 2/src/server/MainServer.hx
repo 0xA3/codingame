@@ -4,9 +4,11 @@ import Std.int;
 import Std.parseInt;
 import Sys.print;
 import Sys.println;
+import data.Level;
 import data.Location;
 import data.Transformations.posStringMap;
 import haxe.Timer;
+import hl.UI.Window;
 import parser.ParseLevel.parseLevel;
 import sys.io.File;
 import sys.io.Process;
@@ -24,7 +26,7 @@ function main() {
 	final pout = process.stdout;
 	final perr = process.stderr;
 	
-	final levelContent = File.getContent( "./dest/levels/rocks_1.txt" );
+	final levelContent = File.getContent( "./dest/levels/rocks_2.txt" );
 	final level = parseLevel( levelContent );
 
 	final cells = level.cells;
@@ -42,29 +44,46 @@ function main() {
 			if( rockLocation.start == i ) rollingRocks.push({ index: rockLocation.index, pos: rockLocation.pos });
 		}
 
-		final rocksString = rollingRocks.map( rock -> locationToString( rock, level.width )).join( "\n" ) + "\n";
-		final clientInput = '${locationToString( indy, level.width )}\n${rollingRocks.length}\n' + ( rollingRocks.length > 0 ? rocksString : "" );
+		final rocksString = rollingRocks.map( rock -> tunnel.locationToString( rock )).join( "\n" ) + "\n";
+		final clientInput = '${tunnel.locationToString( indy )}\n${rollingRocks.length}\n' + ( rollingRocks.length > 0 ? rocksString : "" );
 		print( 'clientInput\n$clientInput' );
 		
 		final startTime = Timer.stamp();
-		pin.writeString( clientInput );
+		
+		try { pin.writeString( clientInput ); }
+		catch( e ) {
+			println( '\nError: $e' );
+			printCurrentState( tunnel, level, indy, rollingRocks );
+			break;
+		}
 		
 		while( true ) {
-			final response = pout.readLine();
+			
+			var response = "";
+			try { response = pout.readLine(); }
+			catch( e ) {
+				println( 'Error $e' );
+				printCurrentState( tunnel, level, indy, rollingRocks );
+				break;
+			}
+
 			if( response == "WAIT" ) {
 				println( response );
 				break;
+
 			} else if( response.indexOf( "LEFT" ) != -1 ) {
-				final index = getResponseIndex( response, tunnel.width );
+				final index = tunnel.getIndexOfAction( response );
 				tunnel.turnTileLeft( cells, index );
 				println( response );
 				break;
+
 			} else if( response.indexOf( "RIGHT" ) != -1 ) {
-				final index = getResponseIndex( response, tunnel.width );
+				final index = tunnel.getIndexOfAction( response );
 				tunnel.turnTileRight( cells, index );
 				println( response );
 				break;
-			} else {
+				
+			} else { // Response is no command. Print it and continue while loop
 				println( response );
 			}
 		}
@@ -92,14 +111,6 @@ function main() {
 	process.kill();
 }
 
-function getResponseIndex( response:String, width:Int ) {
-	final parts = response.split(" ");
-	final x = parseInt( parts[0] );
-	final y = parseInt( parts[1] );
-	final index = y * width + x;
-	return index;
-}
-
 function createInitializationInput( levelContent:String ) {
 	final lines = levelContent.split( "\n" );
 	final wh = lines[0].split(' ');
@@ -108,9 +119,12 @@ function createInitializationInput( levelContent:String ) {
 	return lines.slice( 0, h + 2 ).join( "\n" ) + "\n";
 }
 
-function locationToString( location:Location, width:Int ) {
-	final x = location.index % width;
-	final y = int( location.index / width );
-	final pos = posStringMap[location.pos];
-	return '$x $y $pos';
+function printCurrentState( tunnel:Tunnel, level:Level, indy:Location, rollingRocks:Array<Location> ) {
+	println( "Current state" );
+	println( '${level.width} ${level.height}' );
+	println( tunnel.cellsToString( level.cells ));
+	println( tunnel.getX( level.exit ));
+	println( tunnel.locationToString( indy ));
+	println( rollingRocks.length );
+	for( rock in rollingRocks ) println( tunnel.locationToString( rock ));
 }

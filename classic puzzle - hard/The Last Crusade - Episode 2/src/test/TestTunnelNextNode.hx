@@ -1,6 +1,8 @@
 package test;
 
-import test.ParseLevel;
+import data.Node;
+import parser.ParseLevel;
+import parser.ParseLocation;
 
 using Lambda;
 using StringTools;
@@ -49,7 +51,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 0", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 0 TOP", input.width );
+				final indy = parseLocation( "1 0 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -59,7 +61,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 1", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 1 TOP", input.width );
+				final indy = parseLocation( "1 1 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -69,7 +71,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 2", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 2 LEFT", input.width );
+				final indy = parseLocation( "1 2 LEFT", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -79,7 +81,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 3", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 3 TOP", input.width );
+				final indy = parseLocation( "1 3 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -89,7 +91,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 4", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 4 TOP", input.width );
+				final indy = parseLocation( "1 4 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -99,7 +101,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 5", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 5 TOP", input.width );
+				final indy = parseLocation( "1 5 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -109,7 +111,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 6", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 6 LEFT", input.width );
+				final indy = parseLocation( "1 6 LEFT", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -119,7 +121,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 7", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 7 TOP", input.width );
+				final indy = parseLocation( "1 7 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -129,7 +131,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 8", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 8 LEFT", input.width );
+				final indy = parseLocation( "1 8 LEFT", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -139,7 +141,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 9", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 9 TOP", input.width );
+				final indy = parseLocation( "1 9 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -149,7 +151,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 10", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 10 TOP", input.width );
+				final indy = parseLocation( "1 10 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -159,7 +161,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 11", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 11 TOP", input.width );
+				final indy = parseLocation( "1 11 TOP", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -169,7 +171,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 12", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 12 RIGHT", input.width );
+				final indy = parseLocation( "1 12 RIGHT", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -179,7 +181,7 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 			
 			it( "Tile 13", {
 				final input = allTiles;
-				final indy = Main.parseLocation( "1 13 LEFT", input.width );
+				final indy = parseLocation( "1 13 LEFT", input.width );
 				final tunnel = new Tunnel( input.locked, input.width );
 				final currentNode:Node = { cells: input.cells, indy: indy, rocks: [], index: indy.index, tile: input.cells[indy.index], diff: 0 };
 				final node = tunnel.getNextNode( currentNode );
@@ -196,19 +198,22 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 	0 3 0
 	0 3 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final turnLeft = parseLevel(
 	"3 1
 	2 10 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final turnRight = parseLevel(
 	"3 1
 	0 11 2
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final allTiles = parseLevel(
 	"3 15
@@ -228,112 +233,128 @@ class TestTunnelNextNode extends buddy.BuddySuite {
 	0 13 0
 	0 3 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation1 = parseLevel(
 	"3 2
 	0 3 0
 	0 1 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation2 = parseLevel(
 	"3 2
 	0 3 0
 	0 2 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation3 = parseLevel(
 	"3 2
 	0 3 0
 	0 3 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation4 = parseLevel(
 	"3 2
 	0 3 0
 	0 4 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation5 = parseLevel(
 	"3 2
 	0 3 0
 	0 5 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation6 = parseLevel(
 	"3 2
 	0 3 0
 	0 6 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation7 = parseLevel(
 	"3 2
 	0 3 0
 	0 7 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation8 = parseLevel(
 	"3 2
 	0 3 0
 	0 8 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation9 = parseLevel(
 	"3 2
 	0 3 0
 	0 9 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation10 = parseLevel(
 	"3 2
 	0 3 0
 	0 10 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation11 = parseLevel(
 	"3 2
 	0 3 0
 	0 11 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation12 = parseLevel(
 	"3 2
 	0 3 0
 	0 12 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final rotation13 = parseLevel(
 	"3 2
 	0 3 0
 	0 13 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final lockedRotation11 = parseLevel(
 	"3 2
 	0 3 0
 	0 -11 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 	final lockedRotation13 = parseLevel(
 	"3 2
 	0 3 0
 	0 -13 0
 	1
-	1 0 TOP" );
+	1 0 TOP
+	0" );
 	
 }
 

@@ -1,5 +1,6 @@
 import BreadthFirstSearch.Path;
 import Std.int;
+import Std.parseInt;
 import data.Location;
 import data.Node;
 import data.Tiles;
@@ -166,7 +167,6 @@ class Tunnel {
 		cells[index] = tiles[1]; // next tile of rotations
 	}
 
-
 	public inline function getX( id:Int ) return id % width;
 	public inline function getY( id:Int ) return int( id / width );
 	inline function getIndex( x:Int, y:Int ) return y * width + x;
@@ -180,21 +180,32 @@ class Tunnel {
 	}
 	inline function xy( index:Int ) return '${getX( index)} ${getY( index)}';
 
-	public function locationToString( location:Location ) {
-		return xy( location.index ) + " " + getPos( location.pos );
+	public function locationToString( location:Location ) return xy( location.index ) + " " + getPos( location.pos );
+
+	public function getIndexOfAction( action:String ) {
+		final parts = action.split(" ");
+		final x = parseInt( parts[0] );
+		final y = parseInt( parts[1] );
+		final index = y * width + x;
+		return index;
 	}
 
 	public function cellsToString( cells:Array<Int> ) {
-		var output = "";
-		final height = int( cells.length / width );
+		final cellsWithLocked = combineWithLocked( cells );
+		var lines = [];
+		final height = int( cellsWithLocked.length / width );
 		for( y in 0...height ) {
 			final line = [];
 			for( x in 0...width ) {
-				line.push( cells[getIndex(x, y)] );
+				line.push( cellsWithLocked[getIndex(x, y)] );
 			}
-			output += line.join(" " ) + "\n";
+			lines.push( line.join(" "));
 		}
-		return output;
+		return lines.join( "\n" );
+	}
+	
+	function combineWithLocked( cells:Array<Int> ) {
+		return cells.mapi(( i, cell ) -> locked[i] ? -cell : cell );
 	}
 
 	public function cellsToString3x3( cells:Array<Int>, indy:Location, rocks:Array<Location> ) {
