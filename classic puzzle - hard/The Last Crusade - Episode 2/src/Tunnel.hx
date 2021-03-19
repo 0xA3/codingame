@@ -31,9 +31,9 @@ class Tunnel {
 		
 		final cells = current.cells;
 		final nextIndy = incrementLocation( cells, current.indy );
+		
 		final nextRocks = current.rocks.map( rock -> incrementLocation( cells, rock ));
 		final existingNextRocks = nextRocks.filter( rock -> rock != noLocation ); // remove destroyed rocks
-
 		return { parent: current, cells: current.cells, indy: nextIndy, rocks: existingNextRocks, tile: cells[nextIndy.index], index: nextIndy.index, diff: 0 };
 	}
 
@@ -98,7 +98,7 @@ class Tunnel {
 			final node = createNode( current, nextNode.indy, nextNode.rocks, indyIndex, indyPos, rotationTile );
 			childNodes.push( node );
 		}
-
+		
 		final tileIndices = [indyIndex];
 
 		for( rock in nextNode.rocks ) {

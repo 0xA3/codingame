@@ -20,6 +20,7 @@ function main() {
 	// final levelContent = File.getContent( "./dest/levels/rocks_1.txt" );
 	// final levelContent = File.getContent( "./dest/levels/rocks_2.txt" );
 	final levelContent = File.getContent( "./dest/levels/rocks_2_test.txt" );
+	// final levelContent = File.getContent( "./dest/levels/simple.txt" );
 	// final levelContent = File.getContent( "./dest/levels/underground_complex.txt" );
 	
 	final level = parseLevel( levelContent );
@@ -31,11 +32,14 @@ function main() {
 
 	var indy:Location = { index: level.indy.index, pos: level.indy.pos };
 	var rollingRocks:Array<Location> = [];
+	
 	for( i in 0...100 ) {
 		for( rockLocation in level.rocks ) {
 			if( rockLocation.start == i ) rollingRocks.push({ index: rockLocation.index, pos: rockLocation.pos });
 		}
 
+		println( tunnel.cellsToString3x3( cells, indy, rollingRocks ));
+	
 		final startTime = Timer.stamp();
 		final action = crusade.getAction( indy, rollingRocks );
 		
@@ -56,17 +60,17 @@ function main() {
 			println( action );
 		}
 		
-		println( 'time ${Timer.stamp() - startTime}' );
-		println( tunnel.cellsToString3x3( cells, indy, rollingRocks ));
-		
+		// println( 'time ${Timer.stamp() - startTime}' );
 		final nextLocation = tunnel.incrementLocation( cells, indy );
 		
 		if( indy.index == level.exit ) {
 			println( "Indy reached the exit" );
+			println( tunnel.cellsToString3x3( cells, indy, rollingRocks ));
 			break;
 		}
 		if( nextLocation == Tunnel.noLocation ) {
 			println( 'Indy crashed' );
+			println( tunnel.cellsToString3x3( cells, indy, rollingRocks ));
 			break;
 		}
 		indy = nextLocation;
