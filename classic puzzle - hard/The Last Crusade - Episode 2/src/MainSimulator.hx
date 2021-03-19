@@ -1,5 +1,3 @@
-import Process;
-import Sys.print;
 import Sys.println;
 import data.Location;
 import haxe.Timer;
@@ -18,17 +16,19 @@ function main() {
 	// final levelContent = File.getContent( "./dest/levels/multiple_choice_and_rocks.txt" );
 	// final levelContent = File.getContent( "./dest/levels/only_one_way_validator.txt" );
 	// final levelContent = File.getContent( "./dest/levels/only_one_way.txt" );
-	final levelContent = File.getContent( "./dest/levels/rock_interception.txt" );
+	// final levelContent = File.getContent( "./dest/levels/rock_interception.txt" );
 	// final levelContent = File.getContent( "./dest/levels/rocks_1.txt" );
 	// final levelContent = File.getContent( "./dest/levels/rocks_2.txt" );
+	final levelContent = File.getContent( "./dest/levels/rocks_2_test.txt" );
 	// final levelContent = File.getContent( "./dest/levels/underground_complex.txt" );
 	
 	final level = parseLevel( levelContent );
 	final cells = level.cells.copy();
 	final exit = level.exit;
-
 	final tunnel = new Tunnel( level.locked, level.width );
-	
+
+	final crusade = new Crusade( level.cells.copy(), tunnel, exit );
+
 	var indy:Location = { index: level.indy.index, pos: level.indy.pos };
 	var rollingRocks:Array<Location> = [];
 	for( i in 0...100 ) {
@@ -37,17 +37,19 @@ function main() {
 		}
 
 		final startTime = Timer.stamp();
-		final action = process( indy, rollingRocks, tunnel, cells, exit );
+		final action = crusade.getAction( indy, rollingRocks );
 		
 		if( action == "WAIT" ) {
 			println( action );
 
 		} else if( action.indexOf( "LEFT" ) != -1 ) {
 			final index = tunnel.getIndexOfAction( action );
+			tunnel.turnTileLeft( cells, index );
 			println( action );
 
 		} else if( action.indexOf( "RIGHT" ) != -1 ) {
 			final index = tunnel.getIndexOfAction( action );
+			tunnel.turnTileRight( cells, index );
 			println( action );
 			
 		} else { // Response is no command. Print it and continue while loop

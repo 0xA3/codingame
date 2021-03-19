@@ -25,7 +25,7 @@ function breadthFirstSearch( indy:Location, rocks:Array<Location>, tunnel:Tunnel
 			}
 		}
 	}
-	// printErr( 'paths ${paths.length}' );
+	printErr( 'paths ${paths.length}' );
 	return paths;
 }
 
