@@ -3,7 +3,7 @@ import data.Location;
 import data.Node;
 import data.Path;
 
-function breadthFirstSearch( indy:Location, rocks:Array<Location>, tunnel:Tunnel, cells:Array<Int>, exit:Int ) {
+function breadthFirstSearch( indy:Location, tunnel:Tunnel, cells:Array<Int>, exit:Int ) {
 	
 	final paths:Array<Path> = [];
 	final startLocation = tunnel.incrementLocation( indy.index, indy.pos, cells );

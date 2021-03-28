@@ -57,7 +57,7 @@ class Tunnel {
 			final rotationTiles = tileRotations[tile];
 			for( r in rotationSteps ) {
 				final rotationTile = rotationTiles[(rotationTiles.length + r) % rotationTiles.length];
-				if( rotationTile >= tileMovements.length ) throw 'Error: rotationTile $rotationTile is out of bounds of $rotationTiles';
+				if( rotationTile >= tileMovements.length ) break;
 				final nextPos = tileMovements[rotationTile][pos];
 				if( nextPos[0] == dx && nextPos[1] == dy) {
 					final rotation:Rotation = { index: index, value: r };
@@ -171,11 +171,9 @@ class Tunnel {
 	// 	return node;
 	// }
 
-	public function getNextAction( rotations:Array<Rotation>, cells:Array<Int> ) {
-		if( rotations.length == 0 ) return "WAIT";
+	public function getNextAction( rotation:Rotation, cells:Array<Int> ) {
 		// trace( "\n" + path.map( node -> '${node.index} tile ${node.tile} diff ${node.diff}').join( "\n" ));
 		
-		final rotation = rotations[0];
 		switch rotation.value {
 			case -1:
 				turnTileLeft( cells, rotation.index );

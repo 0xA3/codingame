@@ -9,8 +9,8 @@ import sys.io.File;
 function main() {
 	
 	// final levelContent = File.getContent( "./dest/levels/avoiding_rocks.txt" );
-	final levelContent = File.getContent( "./dest/levels/broken_mausoleum.txt" );
-	// final levelContent = File.getContent( "./dest/levels/broken_secret_passages.txt" );
+	// final levelContent = File.getContent( "./dest/levels/broken_mausoleum.txt" );
+	final levelContent = File.getContent( "./dest/levels/broken_secret_passages.txt" );
 	// final levelContent = File.getContent( "./dest/levels/broken_sewer.txt" );
 	// final levelContent = File.getContent( "./dest/levels/broken_well.txt" );
 	// final levelContent = File.getContent( "./dest/levels/multiple_choice_and_rocks.txt" );
@@ -41,8 +41,8 @@ function main() {
 		println( tunnel.cellsToString3x3( cells, indy, rollingRocks ));
 	
 		final startTime = Timer.stamp();
-		
 		final action = crusade.getAction( indy, rollingRocks );
+		println( 'time ${Timer.stamp() - startTime}' );
 		
 		if( action == "WAIT" ) {
 			println( action );
@@ -61,7 +61,6 @@ function main() {
 			println( action );
 		}
 		
-		// println( 'time ${Timer.stamp() - startTime}' );
 		final nextLocation = tunnel.incrementLocation( indy.index, indy.pos, cells );
 		
 		if( indy.index == level.exit ) {
