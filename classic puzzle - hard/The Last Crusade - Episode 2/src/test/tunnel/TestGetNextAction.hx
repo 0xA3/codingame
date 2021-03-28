@@ -1,4 +1,4 @@
-package test;
+package test.tunnel;
 
 import BreadthFirstSearch;
 import parser.ParseLevel;
@@ -7,7 +7,7 @@ using Lambda;
 using StringTools;
 using buddy.Should;
 
-class TestTunnelNextAction extends buddy.BuddySuite {
+class TestGetNextAction extends buddy.BuddySuite {
 
 	static final colLeft = 0;
 	static final colCenter = 1;

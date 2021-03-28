@@ -1,5 +1,4 @@
 import BreadthFirstSearch;
-import CheckRotations;
 import CodinGame.printErr;
 import data.Location;
 
@@ -9,7 +8,6 @@ class Crusade {
 	final tunnel:Tunnel;
 	final exit:Int;
 	var step = 0;
-	// final paths:Array<Path> = [];
 
 	public function new( cells:Array<Int>, tunnel:Tunnel, exit:Int ) {
 		this.cells = cells;
@@ -25,16 +23,14 @@ class Crusade {
 		
 		final paths = breadthFirstSearch( indy, rocks, tunnel, cells, exit );
 		if( paths.length == 0 ) return "No path found.";
-		final validPaths = paths.filter( path -> checkRotations( tunnel, path ));
+		final pathsRotations = paths.map( path -> tunnel.getRotations( path, cells ));
+		final validPaths = pathsRotations.filter( rotations -> tunnel.checkRotations( rotations ));
 		if( validPaths.length == 0 ) return "No valid path found.";
-		validPaths.sort(( a, b ) -> a.length - b.length );
-		final path = validPaths[0];
+		// validPaths.sort(( a, b ) -> a.length - b.length );
+		// final path = validPaths[0];
 		
-		// final possibleActions = validPaths.map( path -> tunnel.getNextAction( cells, path ));
-
-		step++;
-		
-		final action = tunnel.getNextAction( cells, path );
-		return action;
+		// final action = tunnel.getNextAction( cells, path );
+		// return action;
+		return "WAIT";
 	}
 }

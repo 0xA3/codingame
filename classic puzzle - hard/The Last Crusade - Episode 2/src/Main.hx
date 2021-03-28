@@ -21,10 +21,10 @@ class Main {
 		final lines = [for( i in 0...h ) readline().split(" ").map( a -> parseInt( a ))]; // represents a line in the grid and contains W integers. Each integer represents one room of a given type.
 		final exit = ( h - 1 ) * w + parseInt( readline() ); // the coordinate along the X axis of the exit (not useful for this first mission, but must be read).
 
-		printErr( 'w $w h $h' );
-		printErr( inputs.join(" "));
-		printErr( lines.map( line -> line.join(" ")).join( "\n") );
-		printErr( exit );
+		// printErr( 'w $w h $h' );
+		// printErr( inputs.join(" "));
+		// printErr( lines.map( line -> line.join(" ")).join( "\n") );
+		// printErr( exit );
 
 		var cells = lines.flatMap( line -> line.map( cell -> int( abs( cell ))));
 		final locked = lines.flatMap( line -> line.map( cell -> cell < 0 ));

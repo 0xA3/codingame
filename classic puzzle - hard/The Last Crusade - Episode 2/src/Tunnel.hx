@@ -12,6 +12,7 @@ using Lambda;
 class Tunnel {
 	
 	public static final noLocation:Location = { index: -1, pos: -1 };
+	public static final rotationSteps = [0, 1, -1, 2];
 
 	public final locked:Array<Bool>;
 	public final width:Int;
@@ -21,26 +22,24 @@ class Tunnel {
 		this.width = width;
 	}
 
-	public function getNextNode( current:Node ):Node {
+	// public function getNextNode( current:Node ):Node {
 		
-		var isCrushed = checkIndyRockCollision( current.indy, current.rocks );
+		// var isCrushed = checkIndyRockCollision( current.indy, current.rocks );
 		// if( isCrushed ) trace( 'IndyRock collision at ${current.indy.index}' );
-		if( isCrushed ) return { parent: current, cells: current.cells, indy: noLocation, rocks: current.rocks, tile: 0, index: -1, diff: 0 };
+		// if( isCrushed ) return { parent: current, cells: current.cells, indy: noLocation, rocks: current.rocks, tile: 0, index: -1, diff: 0 };
 		
-		removeCollidedRocks( current.rocks );
+		// removeCollidedRocks( current.rocks );
 		
-		final cells = current.cells;
-		final nextIndy = incrementLocation( cells, current.indy );
+		// final cells = current.cells;
+		// final nextIndy = incrementLocation( cells, current.indy );
 		
-		final nextRocks = current.rocks.map( rock -> incrementLocation( cells, rock ));
-		final existingNextRocks = nextRocks.filter( rock -> rock != noLocation ); // remove destroyed rocks
-		return { parent: current, cells: current.cells, indy: nextIndy, rocks: existingNextRocks, tile: cells[nextIndy.index], index: nextIndy.index, diff: 0 };
-	}
+		// final nextRocks = current.rocks.map( rock -> incrementLocation( cells, rock ));
+		// final existingNextRocks = nextRocks.filter( rock -> rock != noLocation ); // remove destroyed rocks
+		// return { parent: current, cells: current.cells, indy: nextIndy, tile: cells[nextIndy.index], index: nextIndy.index, diff: 0 };
+	// }
 
-	public function incrementLocation( cells:Array<Int>, location:Location ) {
+	public function incrementLocation( index:Int, pos:Int, cells:Array<Int> ) {
 		
-		final index = location.index;
-		final pos = location.pos;
 		final tile = cells[index];
 		final delta = tileMovements[tile][pos];
 		// trace( 'index $index pos $pos tile $tile delta $delta' );
@@ -55,6 +54,43 @@ class Tunnel {
 		final nextLocation:Location = { index: nextIndex, pos: nextPos };
 
 		return nextLocation;
+	}
+
+	public function getRotations( path:Path, cells:Array<Int> ) {
+		
+		final rotations = [];
+		for( i in 0...path.length - 1 ) {
+			final index = path[i].index;
+			final pos = path[i].pos;
+			final tile = cells[index];
+			
+			final destinationIndex = path[i + 1].index;
+			final deltaIndex = destinationIndex - index;
+			final dx = deltaIndex > 1 ? 0 : deltaIndex;
+			final dy = deltaIndex > 1 ? 1 : 0;
+
+			final rotationTiles = tileRotations[tile];
+			for( r in rotationSteps ) {
+				final rotationTile = rotationTiles[(rotationTiles.length + r) % rotationTiles.length];
+				if( rotationTile >= tileMovements.length ) throw 'Error: rotationTile $rotationTile is out of bounds of $rotationTiles';
+				final nextPos = tileMovements[rotationTile][pos];
+				if( nextPos[0] == dx && nextPos[1] == dy) {
+					rotations.push( r );
+					break;
+				}
+			}
+		}
+		return rotations;
+	}
+
+	public function checkRotations( rotations:Array<Int> ) {
+		var sum = 0;
+		for( rotation in rotations ) {
+			sum += rotation;
+			sum -= 1;
+			if( sum > 0 ) return false;
+		}
+		return true;
 	}
 
 	function removeCollidedRocks( rocks:Array<Location> ) {
@@ -78,63 +114,57 @@ class Tunnel {
 		return false;
 	}
 
-	public function getChildNodes( current:Node, nextNode:Node ) {
-
-		final currentRockIndices = current.rocks.map( rock -> rock.index );
-
-		final cells = nextNode.cells;
-		final indyIndex = nextNode.indy.index;
-		final indyPos = nextNode.indy.pos;
-		final indyRotationTiles = locked[indyIndex] ? [cells[indyIndex]] // don't rotate locked tiles
-			: currentRockIndices.contains( indyIndex ) ? [cells[indyIndex]] // don't rotate tiles of rocks
-			: tileRotations[cells[indyIndex]];
-		final validIndyRotationTiles = indyRotationTiles.filter( rotationTile -> { // filter for rotations that can be entered
-			final delta = tileMovements[rotationTile][indyPos];
-			return delta[0] != 0 || delta[1] != 0;
-		});
+	public function getChildNodes( currentNode:Node, cells:Array<Int> ) {
 		
+		final index = currentNode.index;
+		if( index == -1 ) return [];
+		final pos = currentNode.pos;
+		final tile = cells[index];
 		final childNodes = [];
-		for( rotationTile in validIndyRotationTiles ) {
-			final node = createNode( current, nextNode.indy, nextNode.rocks, indyIndex, indyPos, rotationTile );
-			childNodes.push( node );
-		}
-		
-		final tileIndices = [indyIndex];
-
-		for( rock in nextNode.rocks ) {
-			final rockIndex = rock.index;
-			if( !tileIndices.contains( rockIndex )) { // check if the tile is already rotated
-				tileIndices.push( rockIndex );
-				final rockPos = rock.pos;
-			
-				final rockRotationTiles = locked[rockIndex] ? [cells[rockIndex]] // don't rotate locked tiles
-					: rockIndex == indyIndex ? [cells[rockIndex]] // don't rotate indy tile
-					: currentRockIndices.contains( rockIndex ) ? [cells[rockIndex]] // don't rotate tiles of other rocks
-					: tileRotations[cells[rockIndex]];
-		
-				for( rotationTile in rockRotationTiles ) {
-					final node = createNode( current, nextNode.indy, nextNode.rocks, rockIndex, rockPos, rotationTile );
-					childNodes.push( node );
+		// trace( 'currentNode index $index pos $pos tile $tile' );
+		if( locked[index] ) {
+			final location = incrementLocation( index, pos, cells );
+			if( location.index != -1 ) {
+				final node:Node = { parent: currentNode, index: location.index, pos: location.pos };
+				childNodes.push( node );
+			}
+		} else {
+			final toDirections = movements[tile][pos];
+			// trace( 'index $index pos $pos tile $tile direction $directions' );
+			for( direction in toDirections ) {
+				switch direction {
+					case Below:
+						final node:Node = { parent: currentNode, index: index + width, pos: 0 };
+						childNodes.push( node );
+					case Left:
+						if( getX( index ) > 0 ) {
+							final node:Node = { parent: currentNode, index: index - 1, pos: 2 };
+							childNodes.push( node );
+						}
+					case Right:
+						if( getX( index ) < width - 1 ) {
+							final node:Node = { parent: currentNode, index: index + 1, pos: 1 };
+							childNodes.push( node );
+						}
 				}
 			}
 		}
-
 		return childNodes;
 	}
 
-	function createNode( parent:Node, indy:Location, rocks:Array<Location>, index:Int, pos:Int, tile:Int ) {
+	// function createNode( parent:Node, indy:Location, index:Int, pos:Int, tile:Int ) {
 		
-		final cells = parent.cells.copy();
-		final srcTile = cells[index];
-		final diff = tileRotations[srcTile].indexOf( tile );
-		final modDiff = (( diff + 1 ) % 4 ) - 1;
-		cells[index] = tile;
-		final node:Node = { parent: parent, cells: cells, indy: indy, rocks:rocks, index: index, tile: tile, diff: modDiff };
+	// 	final cells = parent.cells.copy();
+	// 	final srcTile = cells[index];
+	// 	final diff = tileRotations[srcTile].indexOf( tile );
+	// 	final modDiff = (( diff + 1 ) % 4 ) - 1;
+	// 	cells[index] = tile;
+	// 	final node:Node = { parent: parent, cells: cells, indy: indy, index: index, tile: tile, diff: modDiff };
 		
-		return node;
-	}
+	// 	return node;
+	// }
 
-	public function getNextAction( cells:Array<Int>, path:Path ) {
+/*	public function getNextAction( cells:Array<Int>, path:Path ) {
 		// trace( "\n" + path.map( node -> '${node.index} tile ${node.tile} diff ${node.diff}').join( "\n" ));
 		var action = "";
 		for( node in path ) {
@@ -152,7 +182,7 @@ class Tunnel {
 		}
 		return action;
 	}
-	
+*/	
 	public function turnTileLeft( cells:Array<Int>, index:Int ) {
 		final currentTile = cells[index];
 		final tiles = tileRotations[currentTile];
