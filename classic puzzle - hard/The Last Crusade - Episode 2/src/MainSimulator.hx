@@ -9,10 +9,10 @@ import sys.io.File;
 function main() {
 	
 	// final levelContent = File.getContent( "./dest/levels/avoiding_rocks.txt" );
-	// final levelContent = File.getContent( "./dest/levels/broken_mausoleum.txt" );
+	final levelContent = File.getContent( "./dest/levels/broken_mausoleum.txt" );
 	// final levelContent = File.getContent( "./dest/levels/broken_secret_passages.txt" );
 	// final levelContent = File.getContent( "./dest/levels/broken_sewer.txt" );
-	final levelContent = File.getContent( "./dest/levels/broken_well.txt" );
+	// final levelContent = File.getContent( "./dest/levels/broken_well.txt" );
 	// final levelContent = File.getContent( "./dest/levels/multiple_choice_and_rocks.txt" );
 	// final levelContent = File.getContent( "./dest/levels/only_one_way_validator.txt" );
 	// final levelContent = File.getContent( "./dest/levels/only_one_way.txt" );

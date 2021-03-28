@@ -24,13 +24,13 @@ class Crusade {
 		final paths = breadthFirstSearch( indy, rocks, tunnel, cells, exit );
 		if( paths.length == 0 ) return "No path found.";
 		final pathsRotations = paths.map( path -> tunnel.getRotations( path, cells ));
-		final validPaths = pathsRotations.filter( rotations -> tunnel.checkRotations( rotations ));
-		if( validPaths.length == 0 ) return "No valid path found.";
-		// validPaths.sort(( a, b ) -> a.length - b.length );
-		// final path = validPaths[0];
-		
-		// final action = tunnel.getNextAction( cells, path );
-		// return action;
-		return "WAIT";
+		final validRotations = pathsRotations.filter( rotations -> tunnel.checkRotations( rotations ));
+		if( validRotations.length == 0 ) return "No valid path found.";
+		validRotations.sort(( a, b ) -> a.length - b.length );
+		final rotations = validRotations[0];
+		final singleRotations = tunnel.convertToSingleRotations( rotations );
+		final action = tunnel.getNextAction( singleRotations, cells );
+		return action;
+		// return "WAIT";
 	}
 }

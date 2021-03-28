@@ -1,12 +1,9 @@
-import BreadthFirstSearch;
-import CheckRotations;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Math.abs;
 import Std.int;
 import Std.parseInt;
-import data.Location;
 import parser.ParseLocation;
 
 using Lambda;

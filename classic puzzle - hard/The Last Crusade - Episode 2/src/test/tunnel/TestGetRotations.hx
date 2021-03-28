@@ -24,7 +24,7 @@ class TestGetRotations extends buddy.BuddySuite {
 				final pathsRotations = paths.map( path -> tunnel.getRotations( path, input.cells ));
 				pathsRotations.length.should.be( 1 );
 				pathsRotations[0].length.should.be( 2 );
-				pathsRotations[0].join(" ").should.be( "0 1" );
+				pathsRotations[0].map( rotation -> rotation.value ).join(" ").should.be( "0 1" );
 			});	
 			
 			it( "Initial Double Rotate", {
@@ -35,7 +35,7 @@ class TestGetRotations extends buddy.BuddySuite {
 				final pathsRotations = paths.map( path -> tunnel.getRotations( path, input.cells ));
 				pathsRotations.length.should.be( 1 );
 				pathsRotations[0].length.should.be( 2 );
-				pathsRotations[0].join(" ").should.be( "2 0" );
+				pathsRotations[0].map( rotation -> rotation.value ).join(" ").should.be( "2 0" );
 			});	
 			
 			it( "Later Double Rotate", {
@@ -46,7 +46,7 @@ class TestGetRotations extends buddy.BuddySuite {
 				final pathsRotations = paths.map( path -> tunnel.getRotations( path, input.cells ));
 				pathsRotations.length.should.be( 1 );
 				pathsRotations[0].length.should.be( 2 );
-				pathsRotations[0].join(" ").should.be( "0 2" );
+				pathsRotations[0].map( rotation -> rotation.value ).join(" ").should.be( "0 2" );
 			});	
 			
 		});

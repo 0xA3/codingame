@@ -1,11 +1,14 @@
-import BreadthFirstSearch.Path;
+import CodinGame.printErr;
 import Std.int;
 import Std.parseInt;
 import data.Location;
 import data.Node;
+import data.Path;
+import data.Rotation;
 import data.Tiles;
 import data.TilesUtf8;
 import data.Transformations;
+import haxe.ds.GenericStack;
 
 using Lambda;
 
@@ -22,24 +25,7 @@ class Tunnel {
 		this.width = width;
 	}
 
-	// public function getNextNode( current:Node ):Node {
-		
-		// var isCrushed = checkIndyRockCollision( current.indy, current.rocks );
-		// if( isCrushed ) trace( 'IndyRock collision at ${current.indy.index}' );
-		// if( isCrushed ) return { parent: current, cells: current.cells, indy: noLocation, rocks: current.rocks, tile: 0, index: -1, diff: 0 };
-		
-		// removeCollidedRocks( current.rocks );
-		
-		// final cells = current.cells;
-		// final nextIndy = incrementLocation( cells, current.indy );
-		
-		// final nextRocks = current.rocks.map( rock -> incrementLocation( cells, rock ));
-		// final existingNextRocks = nextRocks.filter( rock -> rock != noLocation ); // remove destroyed rocks
-		// return { parent: current, cells: current.cells, indy: nextIndy, tile: cells[nextIndy.index], index: nextIndy.index, diff: 0 };
-	// }
-
 	public function incrementLocation( index:Int, pos:Int, cells:Array<Int> ) {
-		
 		final tile = cells[index];
 		final delta = tileMovements[tile][pos];
 		// trace( 'index $index pos $pos tile $tile delta $delta' );
@@ -57,7 +43,6 @@ class Tunnel {
 	}
 
 	public function getRotations( path:Path, cells:Array<Int> ) {
-		
 		final rotations = [];
 		for( i in 0...path.length - 1 ) {
 			final index = path[i].index;
@@ -75,7 +60,8 @@ class Tunnel {
 				if( rotationTile >= tileMovements.length ) throw 'Error: rotationTile $rotationTile is out of bounds of $rotationTiles';
 				final nextPos = tileMovements[rotationTile][pos];
 				if( nextPos[0] == dx && nextPos[1] == dy) {
-					rotations.push( r );
+					final rotation:Rotation = { index: index, value: r };
+					rotations.push( rotation );
 					break;
 				}
 			}
@@ -83,14 +69,35 @@ class Tunnel {
 		return rotations;
 	}
 
-	public function checkRotations( rotations:Array<Int> ) {
+	public function checkRotations( rotations:Array<Rotation> ) {
 		var sum = 0;
 		for( rotation in rotations ) {
-			sum += rotation;
+			sum += rotation.value;
 			sum -= 1;
 			if( sum > 0 ) return false;
 		}
 		return true;
+	}
+
+	public function convertToSingleRotations( rotations:Array<Rotation> ) {
+		final compressedRotations = [];
+		var i = rotations.length - 1;
+		var stack = new GenericStack();
+		while( i >= 0 ) {
+			final rotation = rotations[i];
+			switch rotation.value {
+				case 0:
+					compressedRotations.push( stack.isEmpty() ? rotation : stack.pop() );
+				case 2:
+					compressedRotations.push({ index: rotation.index, value: 1 });
+					stack.add({ index: rotation.index, value: 1 });
+				default:
+					compressedRotations.push( rotation );
+			}
+			i--;
+		}
+		compressedRotations.reverse();
+		return compressedRotations;
 	}
 
 	function removeCollidedRocks( rocks:Array<Location> ) {
@@ -117,7 +124,7 @@ class Tunnel {
 	public function getChildNodes( currentNode:Node, cells:Array<Int> ) {
 		
 		final index = currentNode.index;
-		if( index == -1 ) return [];
+		if( index == -1 || index >= cells.length ) return [];
 		final pos = currentNode.pos;
 		final tile = cells[index];
 		final childNodes = [];
@@ -130,7 +137,7 @@ class Tunnel {
 			}
 		} else {
 			final toDirections = movements[tile][pos];
-			// trace( 'index $index pos $pos tile $tile direction $directions' );
+			// printErr( 'pos ${xy( index )} pos $pos tile $tile direction $toDirections' );
 			for( direction in toDirections ) {
 				switch direction {
 					case Below:
@@ -164,25 +171,23 @@ class Tunnel {
 	// 	return node;
 	// }
 
-/*	public function getNextAction( cells:Array<Int>, path:Path ) {
+	public function getNextAction( rotations:Array<Rotation>, cells:Array<Int> ) {
+		if( rotations.length == 0 ) return "WAIT";
 		// trace( "\n" + path.map( node -> '${node.index} tile ${node.tile} diff ${node.diff}').join( "\n" ));
-		var action = "";
-		for( node in path ) {
-			final index = node.index;
-			final diff = node.diff;
-			if( diff < 0 ) {
-				turnTileLeft( cells, index  );
-				action = xy( index ) + ' LEFT';
-				break;
-			} else if( diff > 0 ) {
-				turnTileRight( cells, index );
-				action = xy( index ) + ' RIGHT';
-				break;
-			} else action = "WAIT";
+		
+		final rotation = rotations[0];
+		switch rotation.value {
+			case -1:
+				turnTileLeft( cells, rotation.index );
+				return '${xy( rotation.index )} LEFT';
+			case 1:
+				turnTileRight( cells, rotation.index );
+				return '${xy( rotation.index )} RIGHT';
+			
+			default: return "WAIT";
 		}
-		return action;
 	}
-*/	
+	
 	public function turnTileLeft( cells:Array<Int>, index:Int ) {
 		final currentTile = cells[index];
 		final tiles = tileRotations[currentTile];

@@ -1,8 +1,7 @@
 import CodinGame.printErr;
 import data.Location;
 import data.Node;
-
-typedef Path = Array<Node>;
+import data.Path;
 
 function breadthFirstSearch( indy:Location, rocks:Array<Location>, tunnel:Tunnel, cells:Array<Int>, exit:Int ) {
 	

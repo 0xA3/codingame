@@ -18,12 +18,12 @@ class TestCheckRotations extends buddy.BuddySuite {
 			
 			it( "0 2", {
 				final tunnel = new Tunnel( [], 0 );
-				tunnel.checkRotations( [0, 2] ).should.be( true );
+				tunnel.checkRotations([{ index: 0, value: 0 } , { index: 1, value: 2 }]).should.be( true );
 			});	
 			
 			it( "2 0", {
 				final tunnel = new Tunnel( [], 0 );
-				tunnel.checkRotations( [2, 0] ).should.be( false );
+				tunnel.checkRotations([{ index: 0, value: 2 } , { index: 1, value: 0 }]).should.be( false );
 			});	
 			
 		});
