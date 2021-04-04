@@ -24,25 +24,25 @@ class Crusade {
 		final paths = breadthFirstSearch( indy, tunnel, cells, exit );
 		if( paths.length == 0 ) return "No path found.";
 		
-		final cellRotations = paths.map( path -> tunnel.getRotations( path, cells ));
+		final pathRotations = paths.map( path -> { path: path, rotations: tunnel.getRotations( path, cells ) });
 		
-		final validCellRotations = cellRotations.filter( rotations -> tunnel.checkRotations( rotations ));
-		if( validCellRotations.length == 0 ) return "No valid path found.";
+		final validPathRotations = pathRotations.filter( pr -> tunnel.checkRotations( pr.rotations ));
+		if( validPathRotations.length == 0 ) return "No valid path found.";
 		
-		final validSingleRotations = validCellRotations.map( rotations -> tunnel.convertToSingleRotations( rotations ));
-		validSingleRotations.sort(( a, b ) -> a.length - b.length );
-		if( validSingleRotations.length == 0 ) return "WAIT";
+		final validPathSingleRotations = validPathRotations.map( pr -> { path: pr.path, rotations: tunnel.convertToSingleRotations( pr.rotations )});
+		validPathSingleRotations.sort(( a, b ) -> a.path.length - b.path.length );
+		if( validPathSingleRotations.length == 0 ) return "WAIT";
 		
-		final rotations = validSingleRotations[0];
-		if( rotations.length == 0 ) return "WAIT";
+		final vpr = validPathSingleRotations[0];
+		if( vpr.path.length == 0 ) return "WAIT";
 		
 		
-		final rotation = rotations[0];
+		final rotation = vpr.rotations[0];
 		if( rotation.value != 0 ) {
 			final action = tunnel.getNextAction( rotation, cells );
 			return action;
 		} else if( rocks.length > 0 ) {
-			
+			final rockPaths = rocks.map( rock -> tunnel.getRockPaths( rock, cells ));
 			
 			return "WAIT";
 		} else {

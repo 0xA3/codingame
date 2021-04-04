@@ -100,6 +100,16 @@ class Tunnel {
 		return compressedRotations;
 	}
 
+	public function getRockPaths( rock:Location, cells:Array<Int> ) {
+		var location = rock;
+		final path = [];
+		while( location != noLocation ) {
+			path.push( location );
+			location = incrementLocation( location.index, location.pos, cells );
+		}
+		return path;
+	}
+
 	function removeCollidedRocks( rocks:Array<Location> ) {
 		rocks.sort(( a, b ) -> b.index - a.index );
 		var i = rocks.length - 1;
