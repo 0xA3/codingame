@@ -18,7 +18,7 @@ class TestGetRotations extends buddy.BuddySuite {
 			
 			it( "Longer Broken Well", {
 				final input = longerBrokenWell;
-				final tunnel = new Tunnel( input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
 				final startNode:Node = { index: input.indy.index, pos: input.indy.pos };
 				final paths = breadthFirstSearch( startNode, tunnel, input.cells, input.exit );
 				final pathsRotations = paths.map( path -> tunnel.getRotations( path, input.cells ));
@@ -29,7 +29,7 @@ class TestGetRotations extends buddy.BuddySuite {
 			
 			it( "Initial Double Rotate", {
 				final input = initialDoubleRotate;
-				final tunnel = new Tunnel( input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
 				final startNode:Node = { index: input.indy.index, pos: input.indy.pos };
 				final paths = breadthFirstSearch( startNode, tunnel, input.cells, input.exit );
 				final pathsRotations = paths.map( path -> tunnel.getRotations( path, input.cells ));
@@ -40,7 +40,7 @@ class TestGetRotations extends buddy.BuddySuite {
 			
 			it( "Later Double Rotate", {
 				final input = laterDoubleRotate;
-				final tunnel = new Tunnel( input.locked, input.width );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
 				final startNode:Node = { index: input.indy.index, pos: input.indy.pos };
 				final paths = breadthFirstSearch( startNode, tunnel, input.cells, input.exit );
 				final pathsRotations = paths.map( path -> tunnel.getRotations( path, input.cells ));

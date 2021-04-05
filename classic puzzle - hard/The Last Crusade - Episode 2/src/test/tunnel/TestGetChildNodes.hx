@@ -25,8 +25,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 0", {
 				final input = type0;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 0 );
@@ -34,8 +34,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 1", {
 				final input = type1;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 1 );
@@ -44,8 +44,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 2", {
 				final input = type2;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 1 );
@@ -54,8 +54,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 3", {
 				final input = type3;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 1 );
@@ -64,8 +64,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 4", {
 				final input = type4;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 2 );
@@ -75,8 +75,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 4 locked", {
 				final input = type4Locked;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 1 );
@@ -86,8 +86,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 
 			it( "Type 6 Top", {
 				final input = type6Top;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 1 );
@@ -96,8 +96,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 6 Left", {
 				final input = type6Left;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 2 );
@@ -107,8 +107,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 6 Right", {
 				final input = type6Right;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 2 );
@@ -118,8 +118,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 10 Top", {
 				final input = type10Top;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 2 );
@@ -129,8 +129,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 10 Left", {
 				final input = type10Left;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 1 );
@@ -139,8 +139,8 @@ class TestGetChildNodes extends buddy.BuddySuite {
 			
 			it( "Type 10 Right", {
 				final input = type10Right;
-				final tunnel = new Tunnel( input.locked, input.width );
-				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells );
+				final tunnel = new Tunnel( input.locked, input.width, input.height );
+				final startLocation = tunnel.incrementLocation( input.indy.index, input.indy.pos, input.cells[input.indy.index] );
 				final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
 				final childNodes = tunnel.getChildNodes( startNode, input.cells );
 				childNodes.length.should.be( 1 );
