@@ -6,8 +6,7 @@ import data.Path;
 function breadthFirstSearch( indy:Location, tunnel:Tunnel, cells:Array<Int>, exit:Int ) {
 	
 	final paths:Array<Path> = [];
-	final startLocation = tunnel.incrementLocation( indy.index, indy.pos, cells[indy.index] );
-	final startNode:Node = { index: startLocation.index, pos: startLocation.pos };
+	final startNode:Node = { index: indy.index, pos: indy.pos };
 	final frontier = new List<Node>();
 	frontier.add( startNode );
 

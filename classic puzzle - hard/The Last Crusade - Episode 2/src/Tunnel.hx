@@ -1,3 +1,4 @@
+import BreadthFirstSearch;
 import CodinGame.printErr;
 import Std.int;
 import Std.parseInt;
@@ -15,6 +16,7 @@ using Lambda;
 class Tunnel {
 	
 	public static final noLocation:Location = { index: -1, pos: -1 };
+	public static final noRotation:Rotation = { index: 0, value: 0 };
 	public static final rotationSteps = [0, 1, -1, 2];
 
 	public final locked:Array<Bool>;
@@ -43,41 +45,82 @@ class Tunnel {
 		return nextLocation;
 	}
 
-	public function getRotations( path:Path, cells:Array<Int> ) {
-		final rotations = [];
-		for( i in 0...path.length - 1 ) {
-			final index = path[i].index;
-			final pos = path[i].pos;
-			final tile = cells[index];
-			
-			final destinationIndex = path[i + 1].index;
-			final deltaIndex = destinationIndex - index;
-			final dx = deltaIndex > 1 ? 0 : deltaIndex;
-			final dy = deltaIndex > 1 ? 1 : 0;
+	public function getRotationPaths( path:Path, cells:Array<Int> ) {
+		final startRotNode:Node = { index: path[0].index, pos: path[0].pos, tile: cells[path[0].index] };
+		var rotNodes = [startRotNode];
+		for( i in 1...path.length - 1 ) {
+			var tempRotNodes = [];
+			for( parentNode in rotNodes ) {
+				final index = path[i].index;
+				final tile = cells[index];
+				final pos = path[i].pos;
+	
+				final destinationIndex = path[i + 1].index;
+				final deltaIndex = destinationIndex - index;
+				final dx = deltaIndex > 1 ? 0 : deltaIndex;
+				final dy = deltaIndex > 1 ? 1 : 0;
 
-			final rotationTiles = tileRotations[tile];
-			for( r in rotationSteps ) {
-				final rotationTile = rotationTiles[(rotationTiles.length + r) % rotationTiles.length];
-				if( rotationTile >= tileMovements.length ) break;
-				final nextPos = tileMovements[rotationTile][pos];
-				if( nextPos[0] == dx && nextPos[1] == dy) {
-					final rotation:Rotation = { index: index, value: r };
-					rotations.push( rotation );
-					break;
+				final rotationTiles = tileRotations[tile];
+				// trace( rotationTiles );
+				for( rotationTile in rotationTiles ) {
+					final nextPos = tileMovements[rotationTile][pos];
+					// trace( 'pos ${xy( index )} rotationTile $rotationTile' );
+					if( nextPos[0] == dx && nextPos[1] == dy) {
+						final rotNode:Node = { parent: parentNode, index: index, pos: pos, tile: rotationTile };
+						tempRotNodes.push( rotNode );
+					}
 				}
 			}
+			rotNodes = tempRotNodes;
 		}
-		return rotations;
+
+		final paths = rotNodes.map( node -> backtrackNodes( node ));
+		return paths;
 	}
 
-	public function checkRotations( rotations:Array<Rotation> ) {
+	public function validatePath( path:Path, cells:Array<Int> ) {
 		var sum = 0;
-		for( rotation in rotations ) {
-			sum += rotation.value;
+		for( i in 1...path.length ) {
+			final node = path[i];
+			final currentTile = cells[node.index];
+			final rotations = tileRotations[currentTile];
+			final difference = rotations.indexOf( node.tile );
+			sum += switch difference {
+				case 0: 0;
+				case 1: 1;
+				case 2: 2;
+				case 3: 1;
+				default: throw 'Error no rotation possible from $currentTile to ${node.tile}';
+			}
 			sum -= 1;
-			if( sum > 0 ) return false;
+			// trace( 'index ${node.index} currentTile $currentTile difference $difference sum $sum' );
+			if( sum > 0) return false;
 		}
 		return true;
+	}
+
+	public function getNextRotation( path:Path, cells:Array<Int> ) {
+		for( node in path ) {
+			final currentTile = cells[node.index];
+			final rotations = tileRotations[currentTile];
+			final difference = rotations.indexOf( node.tile );
+			// trace( 'node ${node.index} tile ${node.tile} difference $difference' );
+			if( difference != 0 ) {
+				final value = switch difference {
+					case 1: 1;
+					case 2: 1;
+					case 3: -1;
+					default: throw 'Error no rotation possible from $currentTile to ${node.tile}';
+				}
+				final rotation:Rotation = { index: node.index, value: value };
+				return rotation;
+			}
+		}
+		return noRotation;
+	}
+
+	public function convertToSingleRotationPath( path:Path ) {
+		return [];
 	}
 
 	public function convertToSingleRotations( rotations:Array<Rotation> ) {
@@ -191,22 +234,11 @@ class Tunnel {
 		return childNodes;
 	}
 
-	// function createNode( parent:Node, indy:Location, index:Int, pos:Int, tile:Int ) {
-		
-	// 	final cells = parent.cells.copy();
-	// 	final srcTile = cells[index];
-	// 	final diff = tileRotations[srcTile].indexOf( tile );
-	// 	final modDiff = (( diff + 1 ) % 4 ) - 1;
-	// 	cells[index] = tile;
-	// 	final node:Node = { parent: parent, cells: cells, indy: indy, index: index, tile: tile, diff: modDiff };
-		
-	// 	return node;
-	// }
-
 	public function getNextAction( rotation:Rotation, cells:Array<Int> ) {
 		// trace( "\n" + path.map( node -> '${node.index} tile ${node.tile} diff ${node.diff}').join( "\n" ));
 		
 		switch rotation.value {
+			case 0: return "WAIT";
 			case -1:
 				turnTileLeft( cells, rotation.index );
 				return '${xy( rotation.index )} LEFT';
@@ -214,7 +246,7 @@ class Tunnel {
 				turnTileRight( cells, rotation.index );
 				return '${xy( rotation.index )} RIGHT';
 			
-			default: return "WAIT";
+			default: throw 'Error: illegal rotation value ${rotation.value}';
 		}
 	}
 	
