@@ -26,13 +26,12 @@ class Main {
 		var cells = lines.flatMap( line -> line.map( cell -> int( abs( cell ))));
 		final locked = lines.flatMap( line -> line.map( cell -> cell < 0 ));
 		
-		final tunnel = new Tunnel( locked, w );
+		final tunnel = new Tunnel( locked, w, h );
 		final crusade = new Crusade( cells, tunnel, exit );
 		while( true ) {
 			final indy = parseLocation( readline(), w );
 			final r = parseInt( readline()); // the number of rocks currently in the grid.
 			final rocks = [for( i in 0...r ) parseLocation( readline(), w )];
-			
 			final action = crusade.getAction( indy, rocks );
 			print( action );
 		}

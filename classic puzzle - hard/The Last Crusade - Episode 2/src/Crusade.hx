@@ -34,17 +34,17 @@ class Crusade {
 		if( validPathSingleRotations.length == 0 ) return "WAIT";
 		
 		final vpr = validPathSingleRotations[0];
-		if( vpr.path.length == 0 ) return "WAIT";
 		
-		
+		if( vpr.rotations.length == 0 ) return "WAIT";
 		final rotation = vpr.rotations[0];
+		// trace( rotation );
 		if( rotation.value != 0 ) {
 			final action = tunnel.getNextAction( rotation, cells );
 			return action;
 		} else if( rocks.length > 0 ) {
-			final rockPaths = rocks.map( rock -> tunnel.getRockPaths( rock, cells ));
-			
-			return "WAIT";
+			final rockRotation = tunnel.getRockRotation( rocks, cells );
+			final action = tunnel.getNextAction( rockRotation, cells );
+			return action;
 		} else {
 			return "WAIT";
 		}

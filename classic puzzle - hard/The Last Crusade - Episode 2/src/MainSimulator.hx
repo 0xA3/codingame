@@ -17,8 +17,8 @@ function main() {
 	// final levelContent = File.getContent( "./dest/levels/only_one_way_validator.txt" );
 	// final levelContent = File.getContent( "./dest/levels/only_one_way.txt" );
 	// final levelContent = File.getContent( "./dest/levels/rock_interception.txt" );
-	final levelContent = File.getContent( "./dest/levels/rocks_1.txt" );
-	// final levelContent = File.getContent( "./dest/levels/rocks_2.txt" );
+	// final levelContent = File.getContent( "./dest/levels/rocks_1.txt" );
+	final levelContent = File.getContent( "./dest/levels/rocks_2.txt" );
 	// final levelContent = File.getContent( "./dest/levels/rocks_2_test.txt" );
 	// final levelContent = File.getContent( "./dest/levels/simple.txt" );
 	// final levelContent = File.getContent( "./dest/levels/underground_complex.txt" );
@@ -26,7 +26,7 @@ function main() {
 	final level = parseLevel( levelContent );
 	final cells = level.cells.copy();
 	final exit = level.exit;
-	final tunnel = new Tunnel( level.locked, level.width );
+	final tunnel = new Tunnel( level.locked, level.width, level.height );
 
 	final crusade = new Crusade( level.cells.copy(), tunnel, exit );
 
@@ -42,27 +42,43 @@ function main() {
 	
 		final startTime = Timer.stamp();
 		final action = crusade.getAction( indy, rollingRocks );
-		println( 'time ${Timer.stamp() - startTime}' );
+		// println( 'time ${Timer.stamp() - startTime}' );
 		
 		if( action == "WAIT" ) {
 			println( action );
 
-		} else if( action.indexOf( "LEFT" ) != -1 ) {
+		} else {
 			final index = tunnel.getIndexOfAction( action );
-			tunnel.turnTileLeft( cells, index );
-			println( action );
-
-		} else if( action.indexOf( "RIGHT" ) != -1 ) {
-			final index = tunnel.getIndexOfAction( action );
-			tunnel.turnTileRight( cells, index );
-			println( action );
+			if( index == indy.index ) {
+				println( 'Invalid instruction: you cannot rotate cell ($action) as Indy is currently in it' );
+				break;
+			}
+			final occupiedIndices = rollingRocks.map( rock -> rock.index );
+			if( occupiedIndices.contains( index )) {
+				println( 'Invalid instruction: you cannot rotate cell ($action) as a rock is currently in it' );
+				break;
+			}
+			if( action.indexOf( "LEFT" ) != -1 ) {
+				tunnel.turnTileLeft( cells, index );
+				println( action );
+			} else if( action.indexOf( "RIGHT" ) != -1 ) {
+				tunnel.turnTileRight( cells, index );
+				println( action );
 			
-		} else { // Response is no command. Print it and continue while loop
-			println( action );
+			} else { // Response is no command. Print it and continue while loop
+				println( action );
+			}
 		}
 		
-		final nextLocation = tunnel.incrementLocation( indy.index, indy.pos, cells );
+		final nextLocation = tunnel.incrementLocation( indy.index, indy.pos, cells[indy.index] );
 		
+		for( rock in rollingRocks ) {
+			if( indy.index == rock.index ) {
+				println( "Indy crashed with rock" );
+				return;
+			}
+		}
+
 		if( indy.index == level.exit ) {
 			println( "Indy reached the exit" );
 			println( tunnel.cellsToString3x3( cells, indy, rollingRocks ));
@@ -74,7 +90,7 @@ function main() {
 			break;
 		}
 		indy = nextLocation;
-		rollingRocks = rollingRocks.map( rock -> tunnel.incrementLocation( rock.index, rock.pos, cells )).filter( rock -> rock != Tunnel.noLocation );
+		rollingRocks = rollingRocks.map( rock -> tunnel.incrementLocation( rock.index, rock.pos, cells[rock.index] )).filter( rock -> rock != Tunnel.noLocation );
 		
 		final char = Sys.getChar( false );
 		if( char == 27 || char == 3 ) break;

@@ -19,14 +19,15 @@ class Tunnel {
 
 	public final locked:Array<Bool>;
 	public final width:Int;
+	public final totalCells:Int;
 	
-	public function new( locked:Array<Bool>, width:Int ) {
+	public function new( locked:Array<Bool>, width:Int, height:Int ) {
 		this.locked = locked;
 		this.width = width;
+		totalCells = width * height;
 	}
 
-	public function incrementLocation( index:Int, pos:Int, cells:Array<Int> ) {
-		final tile = cells[index];
+	public function incrementLocation( index:Int, pos:Int, tile:Int ) {
 		final delta = tileMovements[tile][pos];
 		// trace( 'index $index pos $pos tile $tile delta $delta' );
 		final x = getX( index );
@@ -34,7 +35,7 @@ class Tunnel {
 		
 		final nextIndex = index + delta[0] + delta[1] * width;
 		if( nextIndex == index ) return noLocation;
-		if( nextIndex >= cells.length ) return noLocation;
+		if( nextIndex >= totalCells ) return noLocation;
 		
 		final nextPos = directions[tile][pos];
 		final nextLocation:Location = { index: nextIndex, pos: nextPos };
@@ -100,14 +101,35 @@ class Tunnel {
 		return compressedRotations;
 	}
 
-	public function getRockPaths( rock:Location, cells:Array<Int> ) {
-		var location = rock;
-		final path = [];
-		while( location != noLocation ) {
-			path.push( location );
-			location = incrementLocation( location.index, location.pos, cells );
+	public function getRockRotation( rocks:Array<Location>, cells:Array<Int> ) {
+		for( rock in rocks ) {
+			var nextIndex = rock.index;
+			var nextPos = rock.pos;
+			// trace( 'rock xy ${xy( rock.index )}' );
+			while( true ) {
+				final nextLocation = incrementLocation( nextIndex, nextPos, cells[nextIndex] );
+				final index = nextLocation.index;
+				// trace( 'nextLocation xy ${xy( nextLocation.index )} tile ${cells[index]} locked ${locked[index]}' );
+				if( !locked[index] ) {
+					final tile = cells[index];
+					final testLocation = incrementLocation( nextIndex, nextPos, tile ); {
+						if( testLocation == noLocation ) break;
+					}
+					final rotations = tileRotations[tile];
+					for( rotationTile in rotations ) {
+						final testLocation = incrementLocation( nextIndex, nextPos, rotationTile );
+						// trace( 'rotationTile $rotationTile testLocation ${testLocation}' );
+						if( testLocation == noLocation ) {
+							final rotation:Rotation = { index: index, value: 1 };
+							return rotation;
+						}
+					}
+				}
+				nextIndex = nextLocation.index;
+				nextPos = nextLocation.pos;
+			}
 		}
-		return path;
+		return { index: 0, value: 0 };
 	}
 
 	function removeCollidedRocks( rocks:Array<Location> ) {
@@ -140,7 +162,7 @@ class Tunnel {
 		final childNodes = [];
 		// trace( 'currentNode index $index pos $pos tile $tile' );
 		if( locked[index] ) {
-			final location = incrementLocation( index, pos, cells );
+			final location = incrementLocation( index, pos, cells[index] );
 			if( location.index != -1 ) {
 				final node:Node = { parent: currentNode, index: location.index, pos: location.pos };
 				childNodes.push( node );
@@ -221,7 +243,7 @@ class Tunnel {
 			case i: throw 'Error pos $i is not possible';
 		}
 	}
-	inline function xy( index:Int ) return '${getX( index)} ${getY( index)}';
+	inline function xy( index:Int ) return '${getX( index )} ${getY( index )}';
 
 	public function locationToString( location:Location ) return xy( location.index ) + " " + getPos( location.pos );
 
