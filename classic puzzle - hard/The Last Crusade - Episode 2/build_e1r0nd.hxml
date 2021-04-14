@@ -1,6 +1,6 @@
--lib compiletime
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
--main MainSimulator
---hl dest/simulator.hl
+-D js-es=6
+-main MainE1r0nd
+--js dest/app_e1r0nd.js

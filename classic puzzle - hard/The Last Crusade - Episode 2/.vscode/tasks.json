@@ -25,6 +25,15 @@
 				"kind": "build",
 				"isDefault": false
 			}
+		},
+		{
+			"type": "hxml",
+			"label": "Build",
+			"file": "simulator_e1r0nd.hxml",
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			}
 		}
 	]
 }

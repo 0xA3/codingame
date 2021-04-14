@@ -8,20 +8,20 @@ import sys.io.File;
 
 function main() {
 	
-	// final levelContent = File.getContent( "./dest/levels/avoiding_rocks.txt" );
-	// final levelContent = File.getContent( "./dest/levels/broken_mausoleum.txt" );
-	// final levelContent = File.getContent( "./dest/levels/broken_secret_passages.txt" );
-	final levelContent = File.getContent( "./dest/levels/broken_sewer.txt" );
-	// final levelContent = File.getContent( "./dest/levels/broken_well.txt" );
-	// final levelContent = File.getContent( "./dest/levels/multiple_choice_and_rocks.txt" );
-	// final levelContent = File.getContent( "./dest/levels/only_one_way_validator.txt" );
-	// final levelContent = File.getContent( "./dest/levels/only_one_way.txt" );
-	// final levelContent = File.getContent( "./dest/levels/rock_interception.txt" );
-	// final levelContent = File.getContent( "./dest/levels/rocks_1.txt" );
-	// final levelContent = File.getContent( "./dest/levels/rocks_2.txt" );
-	// final levelContent = File.getContent( "./dest/levels/rocks_2_test.txt" );
-	// final levelContent = File.getContent( "./dest/levels/simple.txt" );
-	// final levelContent = File.getContent( "./dest/levels/underground_complex.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/avoiding_rocks.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/broken_mausoleum.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/broken_secret_passages.txt" );
+	final levelContent = CompileTime.readFile( "./dest/levels/broken_sewer.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/broken_well.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/multiple_choice_and_rocks.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/only_one_way_validator.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/only_one_way.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/rock_interception.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_1.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_2.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_2_test.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/simple.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/underground_complex.txt" );
 	
 	final level = parseLevel( levelContent );
 	final cells = level.cells.copy();
@@ -74,7 +74,7 @@ function main() {
 		
 		for( rock in rollingRocks ) {
 			if( indy.index == rock.index ) {
-				println( "Indy crashed with rock" );
+				println( "Indy was crashed by a rock and died" );
 				return;
 			}
 		}
@@ -92,8 +92,8 @@ function main() {
 		indy = nextLocation;
 		rollingRocks = rollingRocks.map( rock -> tunnel.incrementLocation( rock.index, rock.pos, cells[rock.index] )).filter( rock -> rock != Tunnel.noLocation );
 		
-		final char = Sys.getChar( false );
-		if( char == 27 || char == 3 ) break;
+		// final char = Sys.getChar( false );
+		// if( char == 27 || char == 3 ) break;
 
 	}
 

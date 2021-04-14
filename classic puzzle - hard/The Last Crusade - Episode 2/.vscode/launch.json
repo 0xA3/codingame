@@ -8,6 +8,14 @@
 			"hxml": "simulator.hxml",
 			"program": "${workspaceFolder}/dest/simulator.hl",
 			"preLaunchTask": "Build"
+		},
+		{
+			"name": "Simulator E1R0nd",
+			"request": "launch",
+			"type": "hl",
+			"hxml": "simulator_e1r0nd.hxml",
+			"program": "${workspaceFolder}/dest/simulatorE1r0nd.hl",
+			"preLaunchTask": "Build"
 		}
 	]
 }

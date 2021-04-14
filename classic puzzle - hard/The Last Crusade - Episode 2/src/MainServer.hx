@@ -23,11 +23,24 @@ function main() {
 	final pout = process.stdout;
 	final perr = process.stderr;
 	
-	final levelContent = File.getContent( "./dest/levels/rocks_2.txt" );
+	// final levelContent = File.getContent( "./dest/levels/avoiding_rocks.txt" );
+	// final levelContent = File.getContent( "./dest/levels/broken_mausoleum.txt" );
+	// final levelContent = File.getContent( "./dest/levels/broken_secret_passages.txt" );
+	// final levelContent = File.getContent( "./dest/levels/broken_sewer.txt" );
+	// final levelContent = File.getContent( "./dest/levels/broken_well.txt" );
+	// final levelContent = File.getContent( "./dest/levels/multiple_choice_and_rocks.txt" );
+	// final levelContent = File.getContent( "./dest/levels/only_one_way_validator.txt" );
+	// final levelContent = File.getContent( "./dest/levels/only_one_way.txt" );
+	// final levelContent = File.getContent( "./dest/levels/rock_interception.txt" );
+	// final levelContent = File.getContent( "./dest/levels/rocks_1.txt" );
+	// final levelContent = File.getContent( "./dest/levels/rocks_2.txt" );
+	// final levelContent = File.getContent( "./dest/levels/rocks_2_test.txt" );
+	final levelContent = File.getContent( "./dest/levels/simple.txt" );
+	// final levelContent = File.getContent( "./dest/levels/underground_complex.txt" );
 	final level = parseLevel( levelContent );
 
 	final cells = level.cells;
-	final tunnel = new Tunnel( level.locked, level.width );
+	final tunnel = new Tunnel( level.locked, level.width, level.height );
 	
 	final initializationInput = createInitializationInput( levelContent );
 	
@@ -87,7 +100,7 @@ function main() {
 		println( 'time ${Timer.stamp() - startTime}' );
 		println( tunnel.cellsToString3x3( cells, indy, rollingRocks ));
 		
-		final nextLocation = tunnel.incrementLocation( cells, indy );
+		final nextLocation = tunnel.incrementLocation( indy.index, indy.pos, cells[indy.index] );
 		
 		if( indy.index == level.exit ) {
 			println( "Indy reached the exit" );
@@ -98,7 +111,7 @@ function main() {
 			break;
 		}
 		indy = nextLocation;
-		rollingRocks = rollingRocks.map( rock -> tunnel.incrementLocation( cells, rock )).filter( rock -> rock != Tunnel.noLocation );
+		rollingRocks = rollingRocks.map( rock -> tunnel.incrementLocation( rock.index, rock.pos, cells[rock.index] )).filter( rock -> rock != Tunnel.noLocation );
 		
 		final char = Sys.getChar( false );
 		if( char == 27 || char == 3 ) break;
