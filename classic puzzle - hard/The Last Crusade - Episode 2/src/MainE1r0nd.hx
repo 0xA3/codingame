@@ -4,6 +4,7 @@ import CodinGame.readline;
 import Math.abs;
 import Std.parseInt;
 import Std.string;
+import haxe.ds.ArraySort;
 
 using ArrayUtils;
 
@@ -74,6 +75,8 @@ class MainE1r0nd {
 		'13R' => 10
 	];
 
+	static final rocksblocked:Array<Pos> = [];
+
 	static function findPos( pos:Pos, map:Array<Array<Int>> ):Array<Pos> {
 		// printErr( 'findPos $pos map $map' );
 		final stone = map[pos.y][pos.x];
@@ -93,10 +96,6 @@ class MainE1r0nd {
 			final turnsStoneR = string( turns[ sStone + 'R'] );
 			final dirsTurnsStoneR = dirs[turnsStoneR + pos.dir];
 			
-			// trace( 'dirsTurnsStoneL $dirsTurnsStoneL' );
-			// trace( 'dirsDoubleTurnsStoneL $dirsDoubleTurnsStoneL' );
-			// trace( 'dirsTurnsStoneR $dirsTurnsStoneR' );
-
 			newPath.push({
 				turn: 'LEFT',
 				move: dirsTurnsStoneL
@@ -143,12 +142,15 @@ class MainE1r0nd {
 		return null;
 	}
 
-	static function findRockRoute( pos:Pos, ?newPath:Array<Pos>, map:Array<Array<Int>> ) {
+	static function findRockRoute( pos:Pos, indy:Pos, map:Array<Array<Int>>, ?newPath:Array<Pos> ) {
 		if( newPath == null ) newPath = [];
 		if( pos.y >= map.length || pos.x < 0 || pos.x >= map[0].length ) return newPath;
+		if( pos.x == indy.x && pos.y == indy.y ) return newPath;
 
 		newPath.push({ x: pos.x, y: pos.y, dir: pos.dir });
-		final move = dirs[string( abs( map[pos.y][pos.x])) + pos.dir];
+		// printErr( 'push ${pos.x}:${pos.y} dir ${pos.dir}' );
+		final tile = abs( map[pos.y][pos.x] );
+		final move = dirs['$tile${pos.dir}'];
 		if( move == null ) return newPath;
 
 		final nextMove:Pos = {
@@ -156,24 +158,27 @@ class MainE1r0nd {
 			y: pos.y + ( move.y == null ? 0 : move.y ),
 			dir: move.dir
 		}
-		return findRockRoute( nextMove, newPath, map );
+		return findRockRoute( nextMove, indy, map, newPath );
 	}
 
-	static function findStone( path:Array<Pos>, map:Array<Array<Int>> ) {
+	static function findRockTurns( path:Array<Pos>, map:Array<Array<Int>> ) { // find all turns that distroy the rock
 		final path2 = path.slice( 1 );
-		final stones = path2.map( pos -> {
-			final stone = map[pos.y][pos.x];
-			if( stone > 1 ) {
-				if( dirs[string( turns[string( stone ) + 'L'] ) + pos.dir] == null ) {
-					final pos:Pos = { x: pos.x, y: pos.y, dir: pos.dir, turn: 'LEFT'};
-					return pos;
+		final rockTurns = path2.map( pos -> {
+			final tile = map[pos.y][pos.x];
+			if( tile > 1 ) {
+				final turn = turns[string( tile ) + 'L'];
+				// printErr( '${pos.x}:${pos.y} tile $tile turn $turn  dir ' + dirs['$turn${pos.dir}'] );
+				if( dirs['$turn${pos.dir}'] == null ) {
+					final turnPos:Pos = { x: pos.x, y: pos.y, dir: pos.dir, turn: 'LEFT'};
+					return turnPos;
 				}
-				final pos:Pos = { x: pos.x, y: pos.y, dir: pos.dir, turn: 'RIGHT'};
-				return pos;
+				final turnPos:Pos = { x: pos.x, y: pos.y, dir: pos.dir, turn: 'RIGHT'};
+				return turnPos;
 			}
 			return null;
 		}).filter( s -> s != null );
-		return stones;
+		// for( rockTurn in rockTurns ) trace( rockTurn );
+		return rockTurns;
 	}
 	
 	static function main() {
@@ -205,31 +210,38 @@ class MainE1r0nd {
 				rock;
 			}];
 			
-			final output = process( indy, inputRocks, exit, map, rocksblocked );
+			final output = process( indy, inputRocks, exit, map );
 			print( output );
 		}
 
 	}
 	
-	public static inline function process( indy:Pos, inputRocks:Array<Pos>, exit:Int, map:Array<Array<Int>>, rocksblocked:Array<Pos> ) {
+	public static inline function process( indy:Pos, inputRocks:Array<Pos>, exit:Int, map:Array<Array<Int>> ) {
 		
-		final rockPaths = inputRocks.map( rock -> findRockRoute( rock, map ));
-		final rocks = rockPaths.map( rockPath -> findStone( rockPath, map )).filter( x -> x.length > 0 );
+		// printErr( 'inputRocks ' + inputRocks.map( rock -> '${rock.x}:${rock.y}' ).join( ", " ));
 		
+		final rockRoutes = inputRocks.map( rock -> findRockRoute( rock, indy, map ));
+		final rockRouteTurns = rockRoutes.map( rockPath -> findRockTurns( rockPath, map )).filter( x -> x.length > 0 );
+		// for( rockRouteTurn in rockRouteTurns ) trace( rockRouteTurn );
 		final path = findExit( indy, exit, map );
 		if( path == null ) throw "Error: no path found";
-		var turnable = path.find( x -> x.turn != null );
+		var turnable = path.find( x -> x.turn != null ); // find first turnable pos
 
-		while( rocks.length > 0 && path.indexOf( turnable ) > 1 ) {
-			rocks.sort(( a, b ) -> a.length - b.length );
-			final crushed = rocks[0];
-			final curr = crushed[0];
-			final rocksblock = rocksblocked.find(( pos ) -> pos.x == curr.x && pos.y == curr.y );
+		while( rockRouteTurns.length > 0 && path.indexOf( turnable ) > 1 ) { // if there are rocks and next indy pos doesn't need to be turned
+			ArraySort.sort( rockRouteTurns, ( a, b ) -> a.length - b.length ); // sort rock routes by length
+			final shortestRockRoute = rockRouteTurns[0]; // pick shortest rock route
+			
+			// printRockRoutes( rockRouteTurns );
+			
+			final firstRockPos = shortestRockRoute[0]; // get first rock pos
+			final rocksblock = rocksblocked.find(( pos ) -> pos.x == firstRockPos.x && pos.y == firstRockPos.y ); // check if first rock pos is blocked by another rock
+			
 			final found = rocksblock != null;
-			if( indy.x == curr.x && indy.y == curr.y || found ) {
-				rocks.splice( rocks.indexOf( crushed ), 1 );
+			if( indy.x == firstRockPos.x && indy.y == firstRockPos.y || found ) { // check if indy or other rock is at nearest rock pos
+				rockRouteTurns.splice( rockRouteTurns.indexOf( shortestRockRoute ), 1 ); // remove rock pos from rock route
 			} else {
-				turnable = curr;
+				turnable = firstRockPos;
+				// printErr( 'set turnable to ${firstRockPos.x}:${firstRockPos.y}' );
 				rocksblocked.push( turnable );
 			}
 		}
@@ -242,6 +254,13 @@ class MainE1r0nd {
 			return '$x $y $turn';
 		} else {
 			return 'WAIT';
+		}
+	}
+
+	static function printRockRoutes( rockRoutes:Array<Array<Pos>> ) {
+		for( i in 0...rockRoutes.length ) {
+			final route = rockRoutes[i];
+			printErr( 'rockRoute $i ' + route.map( pos -> '${pos.x}:${pos.y}' ).join(", "));
 		}
 	}
 

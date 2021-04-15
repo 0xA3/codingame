@@ -29,13 +29,13 @@ function main() {
 	// final levelContent = CompileTime.readFile( "./dest/levels/broken_secret_passages.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/broken_sewer.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/broken_well.txt" );
-	final levelContent = CompileTime.readFile( "./dest/levels/double_turn.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/double_turn.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/multiple_choice_and_rocks.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/only_one_way_validator.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/only_one_way.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/rock_interception.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_1.txt" );
-	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_2.txt" );
+	final levelContent = CompileTime.readFile( "./dest/levels/rocks_2.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_2_test.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/simple.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/underground_complex.txt" );
@@ -71,13 +71,11 @@ function main() {
 		println( cellsToString3x3( map, w, indy, rollingRocks ));
 	
 		final startTime = Timer.stamp();
-		final action = process( indy, rollingRocks, exit, clientMap, [] );
+		final action = process( indy, rollingRocks, exit, clientMap );
+		println( action );
 		// println( 'time ${Timer.stamp() - startTime}' );
 		
-		if( action == "WAIT" ) {
-			println( action );
-
-		} else {
+		if( action != "WAIT" ) {
 			final actionPosition = getPosOfAction( action );
 			if( actionPosition.x == indy.x && actionPosition.y == indy.y ) {
 				println( 'Invalid instruction: you cannot rotate cell ($action) as Indy is currently in it' );
@@ -89,15 +87,10 @@ function main() {
 					break;
 				}
 			}
-			
-			if( action == "WAIT" ) println( action );
-			else {
-				map[actionPosition.y][actionPosition.x] = turns[ string( map[actionPosition.y][actionPosition.x] ) + actionPosition.dir.charAt(0)];
-			}
-			
+			map[actionPosition.y][actionPosition.x] = turns[ string( map[actionPosition.y][actionPosition.x] ) + actionPosition.dir.charAt(0)];
 		}
 		
-		final nextPos = getNextPos( indy, map[indy.y][indy.x] );
+		final nextPos = getNextPos( indy, map );
 		
 		for( rock in rollingRocks ) {
 			if( indy.x == rock.x && indy.y == rock.y ) {
@@ -116,8 +109,10 @@ function main() {
 			break;
 		}
 		indy = nextPos;
-		rollingRocks = rollingRocks.map( rock -> getNextPos( rock, map[rock.y][rock.x] )).filter( rock -> rock != null );
-		
+
+		rollingRocks = rollingRocks.map( rock -> getNextPos( rock, map )).filter( rock -> rock != null );
+		// for( i in 0...rollingRocks.length ) trace( 'rock $i ${rollingRocks[i].x}:${rollingRocks[i].y}' );
+
 		final char = Sys.getChar( false );
 		if( char == 27 || char == 3 ) break;
 
@@ -137,15 +132,19 @@ function getPosOfAction( action:String ) {
 	return p;
 }
 
-function getNextPos( pos:Pos, cell:Int ) {
-	final dir = string( int( abs( cell )));
-	final nextDir = dirs[dir + pos.dir];
+function getNextPos( pos:Pos, map:Array<Array<Int>> ) {
+	final tile = int( abs( map[pos.y][pos.x] ));
+	final nextDir = dirs['$tile${pos.dir}'];
+	
 	if( nextDir == null ) return null; //throw 'Error: dirs[$dir${pos.dir}] is null';
 	final nextPos:Pos = {
 		x: pos.x + nextDir.x,
 		y: pos.y + nextDir.y,
 		dir: nextDir.dir
 	}
+	if( nextPos.y >= map.length ) return null;
+	final nextTile = int( abs( map[nextPos.y][nextPos.x] ));
+	if( dirs['$nextTile${nextDir.dir}'] == null ) return null;
 	return nextPos;
 }
 
