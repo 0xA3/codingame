@@ -29,11 +29,12 @@ function main() {
 	// final levelContent = CompileTime.readFile( "./dest/levels/broken_secret_passages.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/broken_sewer.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/broken_well.txt" );
+	final levelContent = CompileTime.readFile( "./dest/levels/double_turn.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/multiple_choice_and_rocks.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/only_one_way_validator.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/only_one_way.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/rock_interception.txt" );
-	final levelContent = CompileTime.readFile( "./dest/levels/rocks_1.txt" );
+	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_1.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_2.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/rocks_2_test.txt" );
 	// final levelContent = CompileTime.readFile( "./dest/levels/simple.txt" );

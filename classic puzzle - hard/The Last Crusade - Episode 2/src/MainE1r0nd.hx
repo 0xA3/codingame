@@ -87,12 +87,16 @@ class MainE1r0nd {
 			final turnsStoneL = string( turns[ sStone + 'L'] );
 			final dirsTurnsStoneL = dirs[turnsStoneL + pos.dir];
 			
-			final doubleTurnsStoneL = string( turns[ turnsStoneL ]);
+			final doubleTurnsStoneL = string( turns[ turnsStoneL + 'L' ]);
 			final dirsDoubleTurnsStoneL = dirs[doubleTurnsStoneL + pos.dir];
 			
 			final turnsStoneR = string( turns[ sStone + 'R'] );
 			final dirsTurnsStoneR = dirs[turnsStoneR + pos.dir];
 			
+			// trace( 'dirsTurnsStoneL $dirsTurnsStoneL' );
+			// trace( 'dirsDoubleTurnsStoneL $dirsDoubleTurnsStoneL' );
+			// trace( 'dirsTurnsStoneR $dirsTurnsStoneR' );
+
 			newPath.push({
 				turn: 'LEFT',
 				move: dirsTurnsStoneL
@@ -211,9 +215,9 @@ class MainE1r0nd {
 		
 		final rockPaths = inputRocks.map( rock -> findRockRoute( rock, map ));
 		final rocks = rockPaths.map( rockPath -> findStone( rockPath, map )).filter( x -> x.length > 0 );
-
-		final path = findExit( indy, exit, map );
 		
+		final path = findExit( indy, exit, map );
+		if( path == null ) throw "Error: no path found";
 		var turnable = path.find( x -> x.turn != null );
 
 		while( rocks.length > 0 && path.indexOf( turnable ) > 1 ) {
