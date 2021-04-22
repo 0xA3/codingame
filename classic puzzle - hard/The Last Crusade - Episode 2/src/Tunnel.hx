@@ -41,16 +41,16 @@ class Tunnel {
 		
 		final nextPos = directions[tile][pos];
 		final nextLocation:Location = { index: nextIndex, pos: nextPos };
-
+		
 		return nextLocation;
 	}
 
-	public function getRotationPaths( path:Path, cells:Array<Int> ) {
+	public function extendPathWithVariations( path:Path, cells:Array<Int> ) {
 		final startRotNode:Node = { index: path[0].index, pos: path[0].pos, tile: cells[path[0].index] };
-		var rotNodes = [startRotNode];
+		var frontierNodes = [startRotNode];
 		for( i in 1...path.length - 1 ) {
-			var tempRotNodes = [];
-			for( parentNode in rotNodes ) {
+			final tempFrontierNodes = [];
+			for( parentNode in frontierNodes ) {
 				final index = path[i].index;
 				final tile = cells[index];
 				final pos = path[i].pos;
@@ -60,6 +60,7 @@ class Tunnel {
 				final dx = deltaIndex > 1 ? 0 : deltaIndex;
 				final dy = deltaIndex > 1 ? 1 : 0;
 
+				// final rotationTiles = locked[index] ? [tile] : tileRotations[tile];
 				final rotationTiles = tileRotations[tile];
 				// trace( rotationTiles );
 				for( rotationTile in rotationTiles ) {
@@ -67,14 +68,20 @@ class Tunnel {
 					// trace( 'pos ${xy( index )} rotationTile $rotationTile' );
 					if( nextPos[0] == dx && nextPos[1] == dy) {
 						final rotNode:Node = { parent: parentNode, index: index, pos: pos, tile: rotationTile };
-						tempRotNodes.push( rotNode );
+						tempFrontierNodes.push( rotNode );
 					}
 				}
 			}
-			rotNodes = tempRotNodes;
+			frontierNodes = tempFrontierNodes;
+		}
+		final exitNodes = [];
+		for( parentNode in frontierNodes ) {
+			final lastPathNode = path[path.length - 1];
+			final rotNode:Node = { parent: parentNode, index: lastPathNode.index, pos: lastPathNode.pos, tile: cells[lastPathNode.index] };
+			exitNodes.push( rotNode );
 		}
 
-		final paths = rotNodes.map( node -> backtrackNodes( node ));
+		final paths = exitNodes.map( node -> backtrackNodes( node ));
 		return paths;
 	}
 
@@ -99,29 +106,29 @@ class Tunnel {
 		return true;
 	}
 
-	public function getNextRotation( path:Path, cells:Array<Int> ) {
+	public function getRotations( path:Path, cells:Array<Int> ) {
+		final rotationsPath = [];
 		for( node in path ) {
 			final currentTile = cells[node.index];
 			final rotations = tileRotations[currentTile];
 			final difference = rotations.indexOf( node.tile );
 			// trace( 'node ${node.index} tile ${node.tile} difference $difference' );
-			if( difference != 0 ) {
 				final value = switch difference {
+					case 0: 0;
 					case 1: 1;
-					case 2: 1;
+					case 2: 2;
 					case 3: -1;
 					default: throw 'Error no rotation possible from $currentTile to ${node.tile}';
 				}
 				final rotation:Rotation = { index: node.index, value: value };
-				return rotation;
-			}
+				rotationsPath.push( rotation );
 		}
-		return noRotation;
+		return rotationsPath;
 	}
 
-	public function convertToSingleRotationPath( path:Path ) {
-		return [];
-	}
+	// public function convertToSingleRotationPath( path:Path ) {
+	// 	return [];
+	// }
 
 	public function convertToSingleRotations( rotations:Array<Rotation> ) {
 		final compressedRotations = [];
@@ -144,35 +151,34 @@ class Tunnel {
 		return compressedRotations;
 	}
 
-	public function getRockRotation( rocks:Array<Location>, cells:Array<Int> ) {
-		for( rock in rocks ) {
-			var nextIndex = rock.index;
-			var nextPos = rock.pos;
-			// trace( 'rock xy ${xy( rock.index )}' );
-			while( true ) {
-				final nextLocation = incrementLocation( nextIndex, nextPos, cells[nextIndex] );
-				final index = nextLocation.index;
-				// trace( 'nextLocation xy ${xy( nextLocation.index )} tile ${cells[index]} locked ${locked[index]}' );
-				if( !locked[index] ) {
-					final tile = cells[index];
-					final testLocation = incrementLocation( nextIndex, nextPos, tile ); {
-						if( testLocation == noLocation ) break;
-					}
-					final rotations = tileRotations[tile];
-					for( rotationTile in rotations ) {
-						final testLocation = incrementLocation( nextIndex, nextPos, rotationTile );
-						// trace( 'rotationTile $rotationTile testLocation ${testLocation}' );
-						if( testLocation == noLocation ) {
-							final rotation:Rotation = { index: index, value: 1 };
-							return rotation;
-						}
-					}
-				}
-				nextIndex = nextLocation.index;
-				nextPos = nextLocation.pos;
-			}
+	public function getRockPath( location:Location, indy:Location, cells:Array<Int> ) {
+		var tempLocation = location;
+		final path = [];
+		while( tempLocation != noLocation && tempLocation.index != indy.index ) {
+			path.push( tempLocation );
+			tempLocation = incrementLocation( tempLocation.index, tempLocation.pos, cells[tempLocation.index] );
 		}
-		return { index: 0, value: 0 };
+		return path.slice( 1 );
+	}
+
+	public function getRockBlockRotations( rockPath:Array<Location>, cells:Array<Int> ) {
+		final blockRotations = rockPath.map( location -> getBlockRotation( location, cells[location.index] ));
+		return blockRotations;
+	}
+
+	function getBlockRotation( location:Location, tile:Int ):Rotation {
+		// trace( 'index ${location.index} tile $tile locked ${locked[location.index]}' );
+		if( locked[location.index] || tile < 2 || incrementLocation( location.index, location.pos, tile ) == noLocation ) return { index: location.index, value: 0 };
+
+		final rotationTiles = tileRotations[tile];
+		final tileRight = rotationTiles[1];
+		// trace( 'tileRight $tileRight incrementLocation ${incrementLocation( location.index, location.pos, tileRight )  == noLocation}' );
+		if( incrementLocation( location.index, location.pos, tileRight ) == noLocation ) return { index: location.index, value: 1 };
+
+		final tileLeft = rotationTiles[rotationTiles.length - 1];
+		if( incrementLocation( location.index, location.pos, tileLeft ) == noLocation ) return { index: location.index, value: -1 };
+
+		return { index: location.index, value: 0 };
 	}
 
 	function removeCollidedRocks( rocks:Array<Location> ) {

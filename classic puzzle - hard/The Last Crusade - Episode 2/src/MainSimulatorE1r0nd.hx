@@ -1,5 +1,4 @@
 import MainE1r0nd.dirs;
-import MainE1r0nd.process;
 import MainE1r0nd.turns;
 import MainE1r0nd;
 import Math.abs;
@@ -71,7 +70,7 @@ function main() {
 		println( cellsToString3x3( map, w, indy, rollingRocks ));
 	
 		final startTime = Timer.stamp();
-		final action = process( indy, rollingRocks, exit, clientMap );
+		final action = MainE1r0nd.process( indy, rollingRocks, exit, clientMap );
 		println( action );
 		// println( 'time ${Timer.stamp() - startTime}' );
 		

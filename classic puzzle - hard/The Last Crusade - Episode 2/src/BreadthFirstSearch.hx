@@ -35,7 +35,7 @@ function backtrackNodes( node:Node ) {
 		currentNode = currentNode.parent;
 	}
 	path.reverse();
-	final locPoses = path.map( node -> '${node.index}' );
+	// final locPoses = path.map( node -> '${node.index}' );
 	// trace( 'path $locPoses' );
 
 	return path;

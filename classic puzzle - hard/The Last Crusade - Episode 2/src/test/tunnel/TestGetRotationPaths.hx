@@ -9,19 +9,19 @@ using Lambda;
 using buddy.Should;
 
 @:access(Main)
-class TestGetRotationPaths extends buddy.BuddySuite {
+class TestextendPath extends buddy.BuddySuite {
 
 
 	public function new() {
 		
-		describe( "Test Tunnel getRotationPaths", {
+		describe( "Test Tunnel extendPath", {
 			
 			it( "Broken Well", {
 				final input = brokenWell;
 				final tunnel = new Tunnel( input.locked, input.width, input.height );
 				final startNode:Node = { index: input.indy.index, pos: input.indy.pos };
 				final paths = breadthFirstSearch( startNode, tunnel, input.cells, input.exit );
-				final rotationPaths = paths.flatMap( path -> tunnel.getRotationPaths( path, input.cells ));
+				final rotationPaths = paths.flatMap( path -> tunnel.extendPath( path, input.cells ));
 				// trace( "\n" + rotationPaths.map( path -> path.map( node -> 'index ${node.index} rot ${node.tile}' ).join(" ")).join( "\n" ));
 				rotationPaths.length.should.be( 1 );
 			});	
@@ -31,7 +31,7 @@ class TestGetRotationPaths extends buddy.BuddySuite {
 				final tunnel = new Tunnel( input.locked, input.width, input.height );
 				final startNode:Node = { index: input.indy.index, pos: input.indy.pos };
 				final paths = breadthFirstSearch( startNode, tunnel, input.cells, input.exit );
-				final rotationPaths = paths.flatMap( path -> tunnel.getRotationPaths( path, input.cells ));
+				final rotationPaths = paths.flatMap( path -> tunnel.extendPath( path, input.cells ));
 				trace( "\n" + rotationPaths.map( path -> path.map( node -> 'index ${node.index} tile ${node.tile}' ).join(" ")).join( "\n" ));
 				rotationPaths.length.should.be( 2 );
 			});	
