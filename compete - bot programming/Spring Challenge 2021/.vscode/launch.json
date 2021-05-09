@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "hl",
+			"name": "Debug Local hl",
+			"request": "launch",
+			"program": "${workspaceFolder}/dest/app.hl",
+			"preLaunchTask": "Build Local hl"
+		},
+		{
+			"name": "Haxe Interpreter",
+			"type": "haxe-eval",
+			"request": "launch"
+		}
+	]
+}
