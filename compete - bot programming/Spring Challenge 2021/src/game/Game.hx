@@ -70,6 +70,10 @@ class Game {
 
 	}
 
+	public function play() {
+		
+	}
+
 	public static function getExpected() {
 		if( !ENABLE_GROW && !ENABLE_SEED ) {
 			return "COMPLETE <idx> | WAIT";

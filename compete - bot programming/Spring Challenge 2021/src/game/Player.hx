@@ -29,6 +29,6 @@ class Player extends AbstractMultiplayerPlayer {
 
 	public function addSun( sun:Int ) this.sun += sun;
 	public function removeSun( amount:Int ) this.sun = int( max( 0, sun - amount ));
-	public function getVonusScore() return bonusScore > 0 ? '${score - bonusScore} points and $bonusScore trees' : "";
+	public function getBonusScore() return bonusScore > 0 ? '${score - bonusScore} points and $bonusScore trees' : "";
 
 }

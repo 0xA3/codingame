@@ -8,19 +8,18 @@ class BoardGenerator {
 	static var index = 0;
 
 	public static function generateCell( coord:CubeCoord, richness:Int ) {
-		final cell = new Cell( index++ );
-		cell.richness = richness;
+		final cell = new Cell( index++, richness );
 		board.set( coord, cell );
 	}
 
 	public static function generate() {
-		final centre = new CubeCoord( 0, 0, 0 );
+		final center = new CubeCoord( 0, 0, 0 );
 		
-		generateCell( centre, Constants.RICHNESS_LUSH );
+		generateCell( center, Constants.RICHNESS_LUSH );
 
-		var coord = centre.neighbor( 0 );
+		var coord = center.neighbor( 0 );
 
-		for( distance in 1...Config.MAP_RING_COUNT ) {
+		for( distance in 1...Config.MAP_RING_COUNT + 1 ) {
 			for( orientation in 0...6 ) {
 				for( _ in 0...distance ) {
 					if( distance == Config.MAP_RING_COUNT ) generateCell( coord, Constants.RICHNESS_POOR );
