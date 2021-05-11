@@ -40,7 +40,7 @@ COMPLETE: removes the tree from the forest and scores you points.
 WAIT: Spend the rest of the day asleep - ends the day
 
 Seed action
-cost = number of seeds, number of size 0 trees
+cost = number of seeds (size 0 trees)
 tree + seed = dormant
 
 Grow action

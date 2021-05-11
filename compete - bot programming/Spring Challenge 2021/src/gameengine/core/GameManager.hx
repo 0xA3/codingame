@@ -2,7 +2,7 @@ package gameengine.core;
 
 import game.Player;
 
-class GameManager<T> {
+class GameManager {
 	
 	static final VIEW_DATA_TOTAL_SOFT_QUOTA = 512 * 1024;
 	static final VIEW_DATA_TOTAL_HARD_QUOTA = 1024 * 1024;
@@ -13,13 +13,13 @@ class GameManager<T> {
 	static final MAX_TURN_TIME = GAME_DURATION_SOFT_QUOTA;
 	static final MIN_TURN_TIME = 50;
 
-    public var players:Array<T>;
+    public final players:Array<Player>;
     public var maxTurns = 200;
     var turnMaxTime = 50;
     var firstTurnMaxTime = 1000;
     var turn:Null<Int> = null;
     var frame = 0;
-    var gameEnd = false;
+    public var gameEnd = false;
     
     var newTurn:Bool;
 	
@@ -37,7 +37,9 @@ class GameManager<T> {
 	var viewWarning:Bool;
 	var summaryWarning:Bool;
 	
-	public function new() {}
+	public function new( players:Array<Player> ) {
+		this.players = players;
+	}
 
 	public static function formatErrorMessage( message:String ) return message;
 

@@ -11,4 +11,9 @@ class Board {
 		indexedCoords.sort(( a, b ) -> a.index - b.index );
 		coords = indexedCoords.map( indexedCoord -> indexedCoord.coord );
 	}
+
+	public function copy( ) {
+		final mapCopy = [for( coord => cell in map ) coord => cell];
+		return new Board( mapCopy );
+	}
 }

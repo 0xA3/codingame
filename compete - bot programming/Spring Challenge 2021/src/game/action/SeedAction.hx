@@ -9,4 +9,7 @@ class SeedAction extends Action {
 	}
 	override function isSeed() return true;
 
+	override function toString():String {
+		return 'SEED from $sourceId to $targetId';
+	}
 }

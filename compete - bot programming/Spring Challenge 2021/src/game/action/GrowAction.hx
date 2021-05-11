@@ -9,4 +9,7 @@ class GrowAction extends Action {
 	
 	override function isGrow() return true;
 	
+	override function toString():String {
+		return 'GROW $targetId';
+	}
 }

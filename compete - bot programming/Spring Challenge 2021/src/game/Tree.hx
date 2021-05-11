@@ -15,4 +15,8 @@ class Tree {
 	public function grow() size++;
 	public function setDormant() isDormant = true;
 	public function reset() isDormant = false;
+
+	public function toString() {
+		return 'size:$size dormant:$isDormant';
+	}
 }

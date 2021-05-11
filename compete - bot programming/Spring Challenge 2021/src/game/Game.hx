@@ -22,12 +22,13 @@ import gameengine.core.GameManager;
 import xa3.ArrayUtils;
 import xa3.MTRandom;
 
+using Lambda;
 using xa3.MapUtils;
 
 class Game {
 	
-	final gameManager = new GameManager();
-	final gameSummaryManager = new GameSummaryManager();
+	final gameManager:GameManager;
+	final gameSummaryManager:GameSummaryManager;
 
 	var nutrients = Config.STARTING_NUTRIENTS;
 
@@ -41,7 +42,7 @@ class Game {
 	public static var STARTING_TREE_DISTANCE = 2;
 	public static var STARTING_TREES_ON_EDGES = true;
 
-	var board:Board;
+	public var board:Board;
 	var trees:Map<Int, Tree> = [];
 	var dyingTrees:Array<CubeCoord> = [];
 	var availableSun:Array<Int> = [];
@@ -51,15 +52,13 @@ class Game {
 	var cells:Array<Cell> = [];
 	var round = 0;
 	var turn = 0;
-	var currentFrameType = FrameType.INIT;
+	public var currentFrameType = FrameType.INIT;
 	var nextFrameType = FrameType.GATHERING;
 
-	static function main() {
-		final game = new Game();
-		game.init( 0 );
+	public function new( gameManager:GameManager, gameSummaryManager:GameSummaryManager ) {
+		this.gameManager = gameManager;
+		this.gameSummaryManager = gameSummaryManager;
 	}
-
-	public function new() {}
 
 	public function init( seed:Int ) {
 		MTRandom.initializeRandGenerator( seed );
@@ -67,11 +66,6 @@ class Game {
 		initStartingTrees();
 
 		if( ENABLE_SHADOW ) calculateShadows();
-
-	}
-
-	public function play() {
-		
 	}
 
 	public static function getExpected() {
@@ -92,17 +86,18 @@ class Game {
 	function initStartingTrees() {
 		
 		final startingCoords1 = STARTING_TREES_ON_EDGES ? getBoardEdges() : board.coords;
-		final startingCoords2 = startingCoords1.filter( coord -> coord.x == 0 && coord.y == 0 && coord.z == 0 );
-		final startingCoords = startingCoords2.filter( coord -> board.map[coord].richness == Constants.RICHNESS_NULL );
-
+		final startingCoords2 = startingCoords1.filter( coord -> coord.x != 0 || coord.y != 0 || coord.z == 0 );
+		final startingCoords = startingCoords2.filter( coord -> board.map[coord].richness != Constants.RICHNESS_NULL );
+		
 		var validCoords:Array<CubeCoord> = [];
 		while( validCoords.length < STARTING_TREE_COUNT * 2 ) {
-			validCoords = tryInitStartingTrees(startingCoords);
+			validCoords = tryInitStartingTrees( startingCoords );
 		}
-
+		
+		
 		for( i in 0...STARTING_TREE_COUNT ) {
 			placeTree( gameManager.players[0], board.map[validCoords[2 * i]].index, STARTING_TREE_SIZE );
-			placeTree( gameManager.players[0], board.map[validCoords[2 * i + 1]].index, STARTING_TREE_SIZE );
+			placeTree( gameManager.players[1], board.map[validCoords[2 * i + 1]].index, STARTING_TREE_SIZE );
 		}
 
 	}
@@ -111,12 +106,12 @@ class Game {
 		final coordinates:Array<CubeCoord> = [];
 		
 		var availableCoords = startingCoords.copy();
-		for( i in 0...STARTING_TREE_COUNT ) {
+		for( _ in 0...STARTING_TREE_COUNT ) {
 			if( availableCoords.length == 0 ) return coordinates;
 			
 			final r = MTRandom.quickIntRand( availableCoords.length );
 			final normalCoord = availableCoords[r];
-			final oppositeCoord = normalCoord.getOpposite();
+			final oppositeCoord = normalCoord.getOppositeFromArray( availableCoords );
 
 			availableCoords = availableCoords.filter( coord ->
 				coord.distanceTo( normalCoord ) <= STARTING_TREE_DISTANCE ||
@@ -126,6 +121,7 @@ class Game {
 			coordinates.push( oppositeCoord );
 
 		}
+		
 		return coordinates;
 	}
 
@@ -165,6 +161,18 @@ class Game {
 		lines.push( string( possibleMoves.length ));
 		
 		return lines;
+	}
+
+	public function getCurrentFrameDatasetFor( player:Player ) {
+		final other = gameManager.players[2 - player.index];
+		return {
+			day: round,
+			nutrients: nutrients,
+			myInputs: [ string( player.sun ), string( player.score )],
+			otherInputs: [ string( other.sun), string( other.score ), string( other.isWaiting ? 1 : 0 )],
+			treesInputs: [for( index => tree in trees ) [string( index ), string( tree.size ), string( tree.owner == player ? 1 : 0 ), string( tree.isDormant ? 1 : 0 )]],
+			possibleActions: getPossibleMoves( player )
+		}
 	}
 
 	function cubeAdd( a:CubeCoord, b:CubeCoord ) return new CubeCoord( a.x + b.x, a.y + b.y, a.z + b.z );
@@ -215,8 +223,10 @@ class Game {
 				}
 			}
 		}
-
-		return lines;
+		// trace( 'player ${player.index} possible seeds ' + possibleSeeds );
+		// trace( 'player ${player.index} possible grows ' + possibleGrows );
+		// trace( 'player ${player.index} possible completes ' + possibleCompletes );
+		return [lines, possibleSeeds, possibleGrows, possibleCompletes].flatten();
 	}
 
 	inline function playerCanSeedFrom( player:Player, tree:Tree, seedCost:Int ) {
@@ -251,12 +261,12 @@ class Game {
 		return orderedNeighborIds;
 	}
 
-	public function resetGameTurnDate() {
+	public function resetGameTurnData() {
 		dyingTrees.splice( 0, dyingTrees.length );
 		availableSun.splice( 0, availableSun.length );
 		sentSeeds.splice( 0, sentSeeds.length );
 		for( p in gameManager.players ) {
-			availableSun.push( p.sun );
+			availableSun[p.index] = p.sun;
 			p.reset();
 		}
 		currentFrameType = nextFrameType;
@@ -280,9 +290,11 @@ class Game {
 		
 		final costOfGrowth = getGrowthCost( targetTree );
 		final currentSun = availableSun[player.index];
+		// trace( 'targetTree $targetTree cost $costOfGrowth sun $currentSun' );
 		if( currentSun < costOfGrowth ) throw new NotEnoughSunException( costOfGrowth, player.sun );
 		
 		availableSun[player.index] = currentSun - costOfGrowth;
+
 
 		targetTree.grow();
 		gameSummaryManager.addGrowTree( player, cell );
@@ -441,6 +453,7 @@ class Game {
 
 	public function performActionUpdate() {
 		for( player in gameManager.players ) {
+			// trace( 'performActionUpdate player ${player.index} isWaiting ${player.isWaiting}' );
 			if( !player.isWaiting ) {
 				try {
 					final action = player.action;
@@ -452,6 +465,7 @@ class Game {
 						gameSummaryManager.addWait( player );
 					}
 				} catch ( e:GameException ) {
+					// trace( Error player ${player.index}: ${e.message}' );
 					gameSummaryManager.addError( player.index + ": " + e.message );
 					player.isWaiting = true;
 				}
@@ -515,6 +529,7 @@ class Game {
 
 	function gameOver() {
 		final activePlayers = gameManager.players.filter( p -> p.isActive );
+		// trace( 'activePlayers ${activePlayers.length} round $round max_rounds $MAX_ROUNDS' );
 		return activePlayers.length <= 1 || round >= MAX_ROUNDS;
 	}
 

@@ -2,5 +2,5 @@
 -cp src
 -D analyzer-optimize
 --dce full
--main game.Game
---hl dest/app.hl
+-main game.Referee
+--hl bin/app.hl

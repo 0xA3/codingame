@@ -9,4 +9,7 @@ class CompleteAction extends Action {
 	
 	override function isComplete() return true;
 
+	override function toString():String {
+		return 'COMPLETE $targetId';
+	}
 }

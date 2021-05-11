@@ -44,4 +44,10 @@ class CubeCoord {
 	public function toString() return '$x $y $z';
 
 	public function getOpposite() return new CubeCoord( -x, -y, -z );
+
+	public function getOppositeFromArray( coords:Array<CubeCoord> ) {
+		final opposite = getOpposite();
+		for( c in coords ) if( c.equals( opposite )) return c;
+		throw 'Error: opposite of $this not found in array $coords';
+	}
 }

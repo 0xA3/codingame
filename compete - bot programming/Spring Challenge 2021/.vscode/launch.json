@@ -2,11 +2,12 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"type": "hl",
-			"name": "Debug Local hl",
+			"name": "Debug Referee",
 			"request": "launch",
-			"program": "${workspaceFolder}/dest/app.hl",
-			"preLaunchTask": "Build Local hl"
+			"type": "hl",
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/bin/app.hl",
+			"preLaunchTask": "Build Referee"
 		},
 		{
 			"name": "Haxe Interpreter",

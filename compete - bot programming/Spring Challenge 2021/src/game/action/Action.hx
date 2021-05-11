@@ -12,4 +12,7 @@ class Action {
     public function isSeed() return false;
     public function isWait() return false;
 
+	public function toString() {
+		return '';
+	}
 }

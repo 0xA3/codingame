@@ -3,8 +3,8 @@
 	"tasks": [
 		{
 			"type": "hxml",
-			"label": "Build Local hl",
-			"file": "build_local_hl.hxml"
+			"label": "Build Referee",
+			"file": "build_referee.hxml"
 		},
 		{
 			"type": "haxe",
