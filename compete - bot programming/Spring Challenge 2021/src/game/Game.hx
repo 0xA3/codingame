@@ -1,5 +1,6 @@
 package game;
 
+import CodinGame.printErr;
 import Math.floor;
 import Math.max;
 import Math.min;
@@ -79,7 +80,7 @@ class Game {
 	}
 
 	function getCoordByIndex( index:Int ) {
-		for( coord => cell in board.map ) if( cell.index == index ) return coord;
+		for( coord => cell in board.cubeMap ) if( cell.index == index ) return coord;
 		throw new CellNotFoundException( index );
 	}
 
@@ -87,7 +88,7 @@ class Game {
 		
 		final startingCoords1 = STARTING_TREES_ON_EDGES ? getBoardEdges() : board.coords;
 		final startingCoords2 = startingCoords1.filter( coord -> coord.x != 0 || coord.y != 0 || coord.z == 0 );
-		final startingCoords = startingCoords2.filter( coord -> board.map[coord].richness != Constants.RICHNESS_NULL );
+		final startingCoords = startingCoords2.filter( coord -> board.map[coord.s].richness != Constants.RICHNESS_NULL );
 		
 		var validCoords:Array<CubeCoord> = [];
 		while( validCoords.length < STARTING_TREE_COUNT * 2 ) {
@@ -96,8 +97,8 @@ class Game {
 		
 		
 		for( i in 0...STARTING_TREE_COUNT ) {
-			placeTree( gameManager.players[0], board.map[validCoords[2 * i]].index, STARTING_TREE_SIZE );
-			placeTree( gameManager.players[1], board.map[validCoords[2 * i + 1]].index, STARTING_TREE_SIZE );
+			placeTree( gameManager.players[0], board.map[validCoords[2 * i].s].index, STARTING_TREE_SIZE );
+			placeTree( gameManager.players[1], board.map[validCoords[2 * i + 1].s].index, STARTING_TREE_SIZE );
 		}
 
 	}
@@ -111,7 +112,7 @@ class Game {
 			
 			final r = MTRandom.quickIntRand( availableCoords.length );
 			final normalCoord = availableCoords[r];
-			final oppositeCoord = normalCoord.getOppositeFromArray( availableCoords );
+			final oppositeCoord = normalCoord.getOpposite();
 
 			availableCoords = availableCoords.filter( coord ->
 				coord.distanceTo( normalCoord ) <= STARTING_TREE_DISTANCE ||
@@ -131,8 +132,8 @@ class Game {
 			final coord = board.coords[index];
 			for( i in 1...tree.size ) {
 				final tempCoord = coord.neighbor( sun.orientation, i );
-				if( board.map.exists( tempCoord )) {
-					shadows.compute( board.map[tempCoord].index, ( key:Int, value:Null<Int> ) -> value == null ? tree.size : int( max( value, tree.size )));
+				if( board.map.exists( tempCoord.s )) {
+					shadows.compute( board.map[tempCoord.s].index, ( key:Int, value:Null<Int> ) -> value == null ? tree.size : int( max( value, tree.size )));
 				}
 			}
 		}
@@ -164,12 +165,12 @@ class Game {
 	}
 
 	public function getCurrentFrameDatasetFor( player:Player ) {
-		final other = gameManager.players[2 - player.index];
+		final other = gameManager.players[1 - player.index];
 		return {
 			day: round,
 			nutrients: nutrients,
 			myInputs: [ string( player.sun ), string( player.score )],
-			otherInputs: [ string( other.sun), string( other.score ), string( other.isWaiting ? 1 : 0 )],
+			otherInputs: [ string( other.sun ), string( other.score ), string( other.isWaiting ? 1 : 0 )],
 			treesInputs: [for( index => tree in trees ) [string( index ), string( tree.size ), string( tree.owner == player ? 1 : 0 ), string( tree.isDormant ? 1 : 0 )]],
 			possibleActions: getPossibleMoves( player )
 		}
@@ -204,12 +205,19 @@ class Game {
 		for( index => tree in trees ) if( tree.owner == player ) playerTrees.set( index, tree );
 		for( index => tree in playerTrees ) {
 			final coord = board.coords[index];
-
+			// trace( 'tree $index playerCanSeedFrom ${playerCanSeedFrom( player, tree, seedCost )}' );
 			if( playerCanSeedFrom( player, tree, seedCost )) {
-				for( targetCoord in getCoordsInRange( coord, tree.size )) {
-					final targetCell = board.map.getOrDefault( targetCoord, Cell.NoCell );
+				
+				final targetCoords = getCoordsInRange( coord, tree.size );
+				// final indices = targetCoords.map( targetCoord -> board.map.getOrDefault( targetCoord, Cell.NoCell ))
+											// .map( cell -> cell.index );
+				
+				// trace( 'targetCoords ${targetCoords}' );
+				for( targetCoord in targetCoords ) {
+					final targetCell = board.map.getOrDefault( targetCoord.s, Cell.NoCell );
+					// trace( 'target $index playerCanSeedTo ${playerCanSeedTo( targetCell, player )}' );
 					if( playerCanSeedTo( targetCell, player )) {
-						possibleSeeds.push( '$index ${targetCell.index}' );
+						possibleSeeds.push( 'SEED $index ${targetCell.index}' );
 					}
 				}
 			}
@@ -246,7 +254,7 @@ class Game {
 		final lines:Array<String> = [];
 		lines.push( string( board.coords.length ));
 		for( coord in board.coords ) {
-			final cell = board.map[coord];
+			final cell = board.map[coord.s];
 			lines.push( '${cell.index} ${cell.richness} ${getNeighborIds( coord )}');
 		}
 
@@ -256,7 +264,7 @@ class Game {
 	function getNeighborIds( coord:CubeCoord ) {
 		final orderedNeighborIds:Array<Int> = [];
 		for( i in 0...CubeCoord.directions.length ) { // TODO test this -java uses ++i
-			orderedNeighborIds.push( board.map.getOrDefault( coord.neighbor( i ), Cell.NoCell ).index );
+			orderedNeighborIds.push( board.map.getOrDefault( coord.neighbor( i ).s, Cell.NoCell ).index );
 		}
 		return orderedNeighborIds;
 	}
@@ -281,7 +289,7 @@ class Game {
 	
 	function doGrow( player:Player, action:Action ) {
 		final coord = getCoordByIndex( action.targetId );
-		final cell = board.map.get( coord );
+		final cell = board.map.get( coord.s );
 		final targetTree = trees[cell.index];
 		if( targetTree == null ) throw new TreeNotFoundException( cell.index );
 		if( targetTree.owner != player ) throw new NotOwnerOfTreeException( cell.index, targetTree.owner );
@@ -304,7 +312,7 @@ class Game {
 
 	function doComplete( player:Player, action:Action ) {
 		final coord = getCoordByIndex( action.targetId );
-		final cell = board.map.get( coord );
+		final cell = board.map.get( coord.s );
 		final targetTree = trees[cell.index];
 		if( targetTree == null) throw new TreeNotFoundException( cell.index );
 		if( targetTree.owner != player ) throw new NotOwnerOfTreeException( cell.index, targetTree.owner );
@@ -333,8 +341,8 @@ class Game {
 		final targetCoord = getCoordByIndex( action.targetId );
 		final sourceCoord = getCoordByIndex( action.sourceId );
 
-		final targetCell = board.map[targetCoord];
-		final sourceCell = board.map[sourceCoord];
+		final targetCell = board.map[targetCoord.s];
+		final sourceCell = board.map[sourceCoord.s];
 
 		if( aTreeIsOn( targetCell )) throw new CellNotEmptyException( targetCell.index );
 		
@@ -345,7 +353,7 @@ class Game {
 		if( sourceTree.isDormant ) throw new AlreadyActivatedTree( sourceCell.index );
 		
 
-		final distance = sourceCoord.distanceTo(targetCoord);
+		final distance = sourceCoord.distanceTo( targetCoord );
 		if( distance > sourceTree.size ) throw new TreeTooFarException( sourceCell.index, targetCell.index );
 		if( targetCell.richness == Constants.RICHNESS_NULL ) throw new CellNotValidException( targetCell.index );
 		
@@ -364,8 +372,11 @@ class Game {
 	inline function aTreeIsOn( cell:Cell ) return trees.exists( cell.index );
 
 	function giveSun() {
-		final givenToPlayer:Array<Int> = [];
+		final givenToPlayer:Map<Int, Int> = [];
+		for( player in gameManager.players ) givenToPlayer.set( player.index, 0 );
+		
 		for( index => tree in trees ) {
+			// trace( 'index $index owner ${tree.owner}' );
 			if( !shadows.exists( index ) || shadows.get( index ) < tree.size ) {
 				final owner = tree.owner;
 				owner.addSun( tree.size );
@@ -380,11 +391,11 @@ class Game {
 
 	function removeDyingTrees() {
 		for( coord in dyingTrees ) {
-			final cell = board.map.get(coord);
+			final cell = board.map.get( coord.s );
 			final points = nutrients;
-			if( cell.richness == Constants.RICHNESS_OK) {
+			if( cell.richness == Constants.RICHNESS_OK ) {
 				points += Constants.RICHNESS_BONUS_OK;
-			} else if( cell.richness == Constants.RICHNESS_LUSH) {
+			} else if( cell.richness == Constants.RICHNESS_LUSH ) {
 				points += Constants.RICHNESS_BONUS_LUSH;
 			}
 			final player = trees.get(cell.index).owner;
@@ -465,7 +476,7 @@ class Game {
 						gameSummaryManager.addWait( player );
 					}
 				} catch ( e:GameException ) {
-					// trace( Error player ${player.index}: ${e.message}' );
+					if( player.index == 2 ) printErr( 'Error player ${player.index}: ${e.message}' );
 					gameSummaryManager.addError( player.index + ": " + e.message );
 					player.isWaiting = true;
 				}
@@ -499,13 +510,14 @@ class Game {
 	}
 
 	function plantSeed( player:Player, index:Int, fatherIndex:Int ) {
-		final seed = placeTree( player, index, Constants.TREE_SEED );
-		seed.setDormant();
-		seed.fatherIndex = fatherIndex;
+		if( player == null ) throw "Error: player is null";
+		final tree = placeTree( player, index, Constants.TREE_SEED );
+		tree.setDormant();
+		tree.fatherIndex = fatherIndex;
 	}
 
 	function placeTree( player:Player, index:Int, size:Int ) {
-		final tree = new Tree( player, index );
+		final tree = new Tree( player );
 		tree.size = size;
 
 		trees.set( index, tree );

@@ -7,12 +7,17 @@ class CubeCoord {
 	public final x:Int;
 	public final y:Int;
 	public final z:Int;
+	public final s:String;
 
 	public function new( x:Int, y:Int, z:Int ) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		s = toS( x, y, z );
 	}
+
+	inline function toS( x:Int, y:Int, z:Int ) return '$x$y$z';
+
 
 	public function hashCode() {
 		final prime = 31;
@@ -45,9 +50,15 @@ class CubeCoord {
 
 	public function getOpposite() return new CubeCoord( -x, -y, -z );
 
-	public function getOppositeFromArray( coords:Array<CubeCoord> ) {
-		final opposite = getOpposite();
-		for( c in coords ) if( c.equals( opposite )) return c;
-		throw 'Error: opposite of $this not found in array $coords';
-	}
+	// public function getFromArray( coords:Array<CubeCoord> ) {
+	// 	for( c in coords ) if( c.equals( this )) return c;
+	// 	// throw 'Error: $this not found in array $coords';
+	// 	return new CubeCoord( -1, -1, -1 );
+	// }
+
+	// public function getOppositeFromArray( coords:Array<CubeCoord> ) {
+	// 	final opposite = getOpposite();
+	// 	for( c in coords ) if( c.equals( opposite )) return c;
+	// 	throw 'Error: opposite of $this not found in array $coords';
+	// }
 }

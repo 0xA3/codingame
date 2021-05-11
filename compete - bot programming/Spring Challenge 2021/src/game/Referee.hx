@@ -1,7 +1,6 @@
 package game;
 
 import agent.Agent;
-import agent.WaitAgent;
 import gameengine.core.GameManager;
 
 class Referee {
@@ -9,8 +8,8 @@ class Referee {
 	static var gameSummaryManager:GameSummaryManager;
 	static var commandManager:CommandManager;
 	static var game:Game;
-	static var agent1:Agent;
-	static var agent2:Agent;
+	static var agentOpp:Agent;
+	static var agentMe:Agent;
 	static var agents:Array<Agent> = [];
 
 	static function main() {
@@ -20,9 +19,11 @@ class Referee {
 	}
 
 	static function init() {
+		final oppName ="Oldie";
+		final myName = "Cr0m";
 		// manager
-		final managerPlayer0 = new Player( 1 );
-		final managerPlayer1 = new Player( 2 );
+		final managerPlayer0 = new Player( 0, oppName );
+		final managerPlayer1 = new Player( 1, myName );
 		gameManager = new GameManager([ managerPlayer0, managerPlayer1 ]);
 		gameSummaryManager = new GameSummaryManager();
 		commandManager = new CommandManager();
@@ -32,16 +33,16 @@ class Referee {
 		game.init( 0 );
 		
 		// agents
-		final agentPlayer1 = new Player( 1 );
-		final agentPlayer2 = new Player( 2 );
+		final agentPlayer1 = new Player( 0, oppName );
+		final agentPlayer2 = new Player( 1, myName );
 		final boardPlayer1 = game.board.copy();
 		final boardPlayer2 = game.board.copy();
 		
-		agent1 = new Agent( agentPlayer1, agentPlayer2, boardPlayer1 );
-		agent2 = new WaitAgent( agentPlayer2, agentPlayer1, boardPlayer2 );
+		agentOpp = new agent.Agent1( agentPlayer1, agentPlayer2, boardPlayer1 );
+		agentMe = new agent.Agent2( agentPlayer2, agentPlayer1, boardPlayer2 );
 		
-		agents.push( agent1 );
-		agents.push( agent2 );
+		agents.push( agentOpp );
+		agents.push( agentMe );
 		
 	}
 
@@ -53,6 +54,7 @@ class Referee {
 			if( game.currentFrameType == FrameType.ACTIONS ) actionTurn++;
 			gameTurn();
 		}
+		onEnd();
 	}
 
 	static function abort() {
@@ -71,7 +73,7 @@ class Referee {
 					// final lines = game.getCurrentFrameInfoFor( player );
 					final d = game.getCurrentFrameDatasetFor( player );
 					final output = agents[i].process( d.day, d.nutrients, d.myInputs, d.otherInputs, d.treesInputs, d.possibleActions );
-					// trace( 'player ${player.index}: $output' );
+					trace( 'player ${player.index}: $output' );
 					player.setOutputs( [output] );
 				}
 			}
@@ -95,7 +97,9 @@ class Referee {
 	}
 
 	static function onEnd() {
-		
+		for( player in gameManager.players ) {
+			trace( '${player.name} score: ${player.score}' );
+		}
 	}
 
 }

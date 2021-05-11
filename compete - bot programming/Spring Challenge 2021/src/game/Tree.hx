@@ -2,14 +2,14 @@ package game;
 
 class Tree {
 	
+	public final owner:Player;
+	
 	public var size = 0;
-	public var owner:Player;
 	public var fatherIndex = -1;
 	public var isDormant:Bool;
 
-	public function new( owner:Player, fatherIndex:Int ) {
+	public function new( owner:Player ) {
 		this.owner = owner;
-		this.fatherIndex = fatherIndex;
 	}
 
 	public function grow() size++;

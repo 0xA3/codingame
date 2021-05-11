@@ -12,6 +12,7 @@ import game.CubeCoord;
 import game.Player;
 import game.Tree;
 import haxe.Timer;
+import xa3.MTRandom;
 
 using Lambda;
 
@@ -23,7 +24,10 @@ class Agent {
 	final board:Board;
 	final cells:Array<Cell> = [];
 	final trees:Map<Int, Tree> = [];
-
+	var day:Int;
+	var nutrients:Int;
+	var possibleActions:Array<String>;
+	
 	var step = 0;
 
 	/*
@@ -31,6 +35,8 @@ class Agent {
 	*/
 	static function main() {
 		
+		MTRandom.initializeRandGenerator( 0 );
+
 		final cubeCoords = generateCubeCoords( Config.MAP_RING_COUNT );
 		final cellsMap:Map<CubeCoord, Cell> = [];
 		
@@ -43,8 +49,12 @@ class Agent {
 			cellsMap.set( cubeCoords[i], cell );
 		}
 		
-		final agent = new Agent( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
+		//
+		// Add Agent
+		//
+		final agent = new Agent2( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
 		
+
 		// game loop
 		while ( true ) {
 			final day = parseInt( readline() ); // the game lasts 24 days: 0-23
@@ -68,6 +78,8 @@ class Agent {
 		Startup for local referee
 	*/
 	public function new( me:Player, opp:Player, board:Board ) {
+		MTRandom.initializeRandGenerator( 0 );
+		
 		this.me = me;
 		this.opp = opp;
 		this.board = board;
@@ -75,7 +87,10 @@ class Agent {
 		cells.sort(( a, b ) -> a.index - b.index );
 	}
 
-	public function process( day:Int, nutrients:Int, myInputs:Array<String>, oppInputs:Array<String>, treesInputs:Array<Array<String>>, possibleActions:Array<String> ) {
+	public inline function process(day:Int, nutrients:Int, myInputs:Array<String>, oppInputs:Array<String>, treesInputs:Array<Array<String>>, possibleActions:Array<String>):String {
+		
+		this.day = day;
+		this.nutrients = nutrients;
 
 		me.sun = parseInt( myInputs[0] ); // your sun points
 		me.score = parseInt( myInputs[1] ); // your current score
@@ -90,34 +105,19 @@ class Agent {
 			final size = parseInt( inputs[1] ); // size of this tree: 0-3
 			final isMine = inputs[2] == '1'; // 1 if this is your tree
 			final isDormant = inputs[3] == '1'; // 1 if this tree is dormant
-			final tree = new Tree( isMine ? me : opp, cellIndex );
+			final tree = new Tree( isMine ? me : opp );
 			tree.size = size;
 			tree.isDormant = isDormant;
 			
 			trees.set( cellIndex, tree );
 		}
-
-		final myTrees = [for( index => tree in trees ) if( tree.owner.index == me.index ) index => tree ];
-		final treesRichness = myTrees.map( tree -> { richness: cells[tree.fatherIndex].richness, tree: tree });
-
-		treesRichness.sort(( a, b ) -> b.richness - a.richness );
-		step++;
+		this.possibleActions = possibleActions;
 		
-		final treeOutput = [for( index => tree in myTrees ) 'tree:$index $tree'].join( ", " );
-		printErr( 'day:$day sun:${me.sun} score:${me.score}  [ $treeOutput ]  possibleActions $possibleActions' );
-		
-		// GROW cellIdx | SEED sourceIdx targetIdx | COMPLETE cellIdx | WAIT <message>
-		if( treesRichness.length > 0 ) {
-			final p1Tree = treesRichness[0].tree;
-			if( p1Tree.size == 3 ) {
-				return 'COMPLETE ${p1Tree.fatherIndex}';
-			} else {
-				return 'GROW ${p1Tree.fatherIndex}';
-			}
-		} else {
-			return 'WAIT';
-		}
-		
+		return takeAction();
+	}
+	
+	public function takeAction() {
+		return 'WAIT';
 	}
 
 	static inline function generateCubeCoords( ringCount:Int ) {
