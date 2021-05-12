@@ -4,12 +4,14 @@ import xa3.MTRandom;
 
 class BoardGenerator {
 
-	static var board:Map<CubeCoord, Cell> = [];
+	static var coordCellMap:Map<CubeCoord, Cell> = [];
+	static var stringCellMap:Map<String, Cell> = [];
 	static var index = 0;
 
 	public static function generateCell( coord:CubeCoord, richness:Int ) {
 		final cell = new Cell( index++, richness );
-		board.set( coord, cell );
+		coordCellMap.set( coord, cell );
+		stringCellMap.set( coord.s, cell );
 	}
 
 	public static function generate() {
@@ -31,7 +33,7 @@ class BoardGenerator {
 			coord = coord.neighbor( 0 );
 		}
 		
-		final coordList = [for( coord in board.keys()) coord];
+		final coordList = [for( coord in coordCellMap.keys()) coord];
 		final coordListSize = coordList.length;
 		final wantedEmptyCells = Game.ENABLE_HOLES ? MTRandom.quickIntRand( Config.MAX_EMPTY_CELLS + 1 ) : 0;
 		var actualEmptyCells = 0;
@@ -39,16 +41,16 @@ class BoardGenerator {
 		while( actualEmptyCells < wantedEmptyCells - 1 ) {
 			final randIndex = MTRandom.quickIntRand( coordListSize );
 			final randCoord = coordList[randIndex];
-			if( board[randCoord].richness != Constants.RICHNESS_NULL ) {
-				board[randCoord].richness = Constants.RICHNESS_NULL;
+			if( coordCellMap[randCoord].richness != Constants.RICHNESS_NULL ) {
+				coordCellMap[randCoord].richness = Constants.RICHNESS_NULL;
 				actualEmptyCells++;
 				if( !randCoord.equals( randCoord.getOpposite())) {
-					board[randCoord.getOpposite()].richness = Constants.RICHNESS_NULL;
+					stringCellMap[randCoord.getOpposite().s].richness = Constants.RICHNESS_NULL;
 					actualEmptyCells++;
 				}
 			}
 		}
 
-		return new Board( board );
+		return new Board( coordCellMap );
 	}
 }

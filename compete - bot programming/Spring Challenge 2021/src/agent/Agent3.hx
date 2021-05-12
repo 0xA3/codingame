@@ -6,7 +6,7 @@ import game.Constants;
 
 using Lambda;
 
-class Agent2 extends Agent {
+class Agent3 extends Agent {
 
 	final growActions:Array<Int> = [];
 	final completeActions:Array<Int> = [];
@@ -48,18 +48,30 @@ class Agent2 extends Agent {
 		// printErr( treeInfo );
 		// trace( 'possibleActions ${possibleActions.length}' );
 
-		if( myTrees3.length > 1 ) {
-			if( me.sun >= completeCosts ) return 'COMPLETE ${myTrees3[0]}';
-		} else if( myTrees2.length > 1 ) {
-			if( me.sun >= t3Costs )	return 'GROW ${myTrees2[0]}';
-		} else if( myTrees1.length > 1 ) {
-			if( me.sun >= t2Costs )	return 'GROW ${myTrees1[0]}';
-		} else if( mySeeds.length > 1 ) {
-			if( me.sun >= t1Costs )	return 'GROW ${mySeeds[0]}';
-		} else if( seedActions.length > 0 ) {
-			seedActions.sort(( a, b ) -> a[1] - b[1] );
-			// printErr( seedActions );
-			return 'SEED ${seedActions[0][0]} ${seedActions[0][1]}';
+		// 19 94.15
+		// 18 98.55
+		// 21 94.48
+		if( day < 18 ) {
+			if( myTrees2.length > 1 ) {
+				if( me.sun >= t3Costs )	return 'GROW ${myTrees2[0]}';
+			} else if( myTrees1.length > 1 ) {
+				if( me.sun >= t2Costs )	return 'GROW ${myTrees1[0]}';
+			} else if( mySeeds.length > 1 ) {
+				if( me.sun >= t1Costs )	return 'GROW ${mySeeds[0]}';
+			} else if( seedActions.length > 0 && day < 18 ) {
+				seedActions.sort(( a, b ) -> a[1] - b[1] );
+				return 'SEED ${seedActions[0][0]} ${seedActions[0][1]}';
+			}
+		} else {
+			if( myTrees3.length > 0 ) {
+				if( me.sun >= completeCosts ) return 'COMPLETE ${myTrees3[0]}';
+			} else if( myTrees2.length > 1 ) {
+				if( me.sun >= t3Costs )	return 'GROW ${myTrees2[0]}';
+			} else if( myTrees1.length > 1 ) {
+				if( me.sun >= t2Costs )	return 'GROW ${myTrees1[0]}';
+			} else if( mySeeds.length > 1 ) {
+				if( me.sun >= t1Costs )	return 'GROW ${mySeeds[0]}';
+			}	
 		}
 		return "WAIT";
 

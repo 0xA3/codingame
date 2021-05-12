@@ -8,6 +8,7 @@ import Std.string;
 import game.Board;
 import game.Cell;
 import game.Config;
+import game.Constants;
 import game.CubeCoord;
 import game.Player;
 import game.Tree;
@@ -24,6 +25,8 @@ class Agent {
 	final board:Board;
 	final cells:Array<Cell> = [];
 	final trees:Map<Int, Tree> = [];
+	final myTrees:Map<Int, Tree> = [];
+	final oppTrees:Map<Int, Tree> = [];
 	var day:Int;
 	var nutrients:Int;
 	var possibleActions:Array<String>;
@@ -35,7 +38,7 @@ class Agent {
 	*/
 	static function main() {
 		
-		MTRandom.initializeRandGenerator( 0 );
+		MTRandom.initializeRandGenerator( 1234 );
 
 		final cubeCoords = generateCubeCoords( Config.MAP_RING_COUNT );
 		final cellsMap:Map<CubeCoord, Cell> = [];
@@ -52,7 +55,7 @@ class Agent {
 		//
 		// Add Agent
 		//
-		final agent = new Agent2( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
+		final agent = new Agent3( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
 		
 
 		// game loop
@@ -139,6 +142,20 @@ class Agent {
 		}
 		// trace( "\n" + [for( i in 0...coords.length ) '$i : ${coords[i]}'].join( "\n" ));
 		return coords;
+	}
+	
+	function getGrowthCost( targetTree:Tree ) {
+		final targetSize = targetTree.size + 1;
+		return targetSize > Constants.TREE_TALL ? Constants.LIFECYCLE_END_COST : getCostFor( targetSize, targetTree.owner );
+	}
+
+	function getSeedCost( player:Player ) return getCostFor( 0, player );
+
+	function getCostFor( size:Int, owner:Player ) {
+		final baseCost = Constants.TREE_BASE_COST[size];
+		final sameTreeCount = [for( tree in trees ) tree].filter( t -> t.size == size && t.owner == owner ).length;
+		
+		return baseCost + sameTreeCount;
 	}
 
 }

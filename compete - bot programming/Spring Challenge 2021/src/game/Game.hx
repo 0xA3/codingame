@@ -89,12 +89,9 @@ class Game {
 		final startingCoords1 = STARTING_TREES_ON_EDGES ? getBoardEdges() : board.coords;
 		final startingCoords2 = startingCoords1.filter( coord -> coord.x != 0 || coord.y != 0 || coord.z == 0 );
 		final startingCoords = startingCoords2.filter( coord -> board.map[coord.s].richness != Constants.RICHNESS_NULL );
-		
+
 		var validCoords:Array<CubeCoord> = [];
-		while( validCoords.length < STARTING_TREE_COUNT * 2 ) {
-			validCoords = tryInitStartingTrees( startingCoords );
-		}
-		
+		while( validCoords.length < STARTING_TREE_COUNT * 2 ) validCoords = tryInitStartingTrees( startingCoords );
 		
 		for( i in 0...STARTING_TREE_COUNT ) {
 			placeTree( gameManager.players[0], board.map[validCoords[2 * i].s].index, STARTING_TREE_SIZE );
@@ -113,14 +110,11 @@ class Game {
 			final r = MTRandom.quickIntRand( availableCoords.length );
 			final normalCoord = availableCoords[r];
 			final oppositeCoord = normalCoord.getOpposite();
-
-			availableCoords = availableCoords.filter( coord ->
-				coord.distanceTo( normalCoord ) <= STARTING_TREE_DISTANCE ||
-				coord.distanceTo( oppositeCoord ) <= STARTING_TREE_DISTANCE );
-
+			availableCoords = availableCoords.filter( coord ->  coord.distanceTo( normalCoord ) > STARTING_TREE_DISTANCE &&
+				coord.distanceTo( oppositeCoord ) > STARTING_TREE_DISTANCE );
+			
 			coordinates.push( normalCoord );
 			coordinates.push( oppositeCoord );
-
 		}
 		
 		return coordinates;
@@ -180,8 +174,8 @@ class Game {
 	
 	function getCoordsInRange( center:CubeCoord, n:Int ) {
 		final results:Array<CubeCoord> = [];
-		for( x in -n...n ) {
-			for( y in int( max( -n, -x -n ))...int( min( n, -x + n ))) {
+		for( x in -n...n + 1 ) {
+			for( y in int( max( -n, -x -n ))...int( min( n, -x + n ) + 1)) {
 				final z = -x - y;
 				results.push( cubeAdd( center, new CubeCoord( x, y, z )));
 			}
@@ -205,18 +199,19 @@ class Game {
 		for( index => tree in trees ) if( tree.owner == player ) playerTrees.set( index, tree );
 		for( index => tree in playerTrees ) {
 			final coord = board.coords[index];
-			// trace( 'tree $index playerCanSeedFrom ${playerCanSeedFrom( player, tree, seedCost )}' );
+			// if( player.index == 1 ) trace( 'tree $index playerCanSeedFrom ${playerCanSeedFrom( player, tree, seedCost )}' );
 			if( playerCanSeedFrom( player, tree, seedCost )) {
 				
 				final targetCoords = getCoordsInRange( coord, tree.size );
-				// final indices = targetCoords.map( targetCoord -> board.map.getOrDefault( targetCoord, Cell.NoCell ))
-											// .map( cell -> cell.index );
+				// final indices = targetCoords.map( targetCoord -> board.map.getOrDefault( targetCoord.s, Cell.NoCell )).map( cell -> cell.index );
 				
 				// trace( 'targetCoords ${targetCoords}' );
 				for( targetCoord in targetCoords ) {
 					final targetCell = board.map.getOrDefault( targetCoord.s, Cell.NoCell );
-					// trace( 'target $index playerCanSeedTo ${playerCanSeedTo( targetCell, player )}' );
+					// trace( 'targetCoord $targetCoord targetCell ${targetCell.index}' );
+					// trace( 'playerCanSeedTo $index ${playerCanSeedTo( targetCell, player )}' );
 					if( playerCanSeedTo( targetCell, player )) {
+						// if( player.index == 1 ) trace( 'add possible seed' );
 						possibleSeeds.push( 'SEED $index ${targetCell.index}' );
 					}
 				}
@@ -231,6 +226,7 @@ class Game {
 				}
 			}
 		}
+		
 		// trace( 'player ${player.index} possible seeds ' + possibleSeeds );
 		// trace( 'player ${player.index} possible grows ' + possibleGrows );
 		// trace( 'player ${player.index} possible completes ' + possibleCompletes );
@@ -245,6 +241,7 @@ class Game {
 	}
 
 	inline function playerCanSeedTo( targetCell:Cell, player:Player ) {
+		// if( player.index == 1 ) trace( 'playerCanSeedTo ${targetCell.index}: ${targetCell.isValid} ${targetCell.richness} ${!trees.exists( targetCell.index )}' );
 		return 	targetCell.isValid &&
 				targetCell.richness != Constants.RICHNESS_NULL &&
 				!trees.exists( targetCell.index );
