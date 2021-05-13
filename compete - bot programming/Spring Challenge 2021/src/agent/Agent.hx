@@ -23,14 +23,18 @@ class Agent {
 	public final opp:Player;
 	
 	final board:Board;
-	final cells:Array<Cell> = [];
+	// final cells:Array<Cell> = [];
 	final trees:Map<Int, Tree> = [];
 	final myTrees:Map<Int, Tree> = [];
 	final oppTrees:Map<Int, Tree> = [];
 	var day:Int;
 	var nutrients:Int;
 	var possibleActions:Array<String>;
-	
+
+	final growActions:Array<Int> = [];
+	final completeActions:Array<Int> = [];
+	final seedActions:Array<Array<Int>> = [];
+
 	var step = 0;
 
 	/*
@@ -55,7 +59,7 @@ class Agent {
 		//
 		// Add Agent
 		//
-		final agent = new Agent3( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
+		final agent = new Agent4( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
 		
 
 		// game loop
@@ -86,8 +90,6 @@ class Agent {
 		this.me = me;
 		this.opp = opp;
 		this.board = board;
-		this.cells = [for( cell in board.map ) cell];
-		cells.sort(( a, b ) -> a.index - b.index );
 	}
 
 	public inline function process(day:Int, nutrients:Int, myInputs:Array<String>, oppInputs:Array<String>, treesInputs:Array<Array<String>>, possibleActions:Array<String>):String {
@@ -156,6 +158,46 @@ class Agent {
 		final sameTreeCount = [for( tree in trees ) tree].filter( t -> t.size == size && t.owner == owner ).length;
 		
 		return baseCost + sameTreeCount;
+	}
+
+	function getAverageShadowOfCoord( coord:CubeCoord, size:Int ) {
+		var sum = 0;
+		for( orientation in 0...5 ) sum += getShadowOfCoord( coord, size, orientation );
+		return sum / 6;
+	}
+
+	function getShadowOfCoord( coord:CubeCoord, size:Int, orientation:Int ) {
+		for( i in 1...4 ) {
+			final neighbor = coord.neighbor(( orientation + 3 ) % 6, i );
+			if( board.map.exists( neighbor.s )) {
+				final index = board.map[neighbor.s].index;
+				if( trees.exists( index )) {
+					final tree = trees[index];
+					return tree.size >= size && tree.size >= i ? 1 : 0;
+				}
+			}
+		}
+		return 0;
+		
+	}
+
+	function parsePossibleActions( possibleActions:Array<String> ) {
+		growActions.splice( 0, growActions.length );
+		completeActions.splice( 0, completeActions.length );
+		seedActions.splice( 0, seedActions.length );
+
+		for( action in possibleActions ) {
+			if( action != "WAIT" ) {
+				final parts = action.split(" ");
+				final command = parts[0];
+				switch command {
+				case "GROW": growActions.push( parseInt( parts[1] ));
+				case "COMPLETE": completeActions.push( parseInt( parts[1] ));
+				case "SEED": seedActions.push( [parseInt( parts[1] ), parseInt( parts[2] )] );
+				default: throw 'Error unknown command $action';
+				}
+			}
+		}
 	}
 
 }

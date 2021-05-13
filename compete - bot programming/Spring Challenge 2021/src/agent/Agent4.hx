@@ -6,7 +6,26 @@ import game.Constants;
 
 using Lambda;
 
-class Agent3 extends Agent {
+/* Decisions
+when not enough sun points WAIT
+grow or seed or complete
+phases
+1 expand
+2 complete
+
+phase 1 optimize grows for cost / sun points
+mix in percentage of seeding
+complete to reduce t3 costs
+where loss of sun points is minimal
+
+phase 2 optimize for points
+calculate costs to grow gemaining trees
+use sun overhead to seed
+complete in order of max points
+
+*/
+
+class Agent4 extends Agent {
 
 	final mySeeds:Array<Int>  = [];
 	final myTrees1:Array<Int>  = [];
@@ -44,9 +63,6 @@ class Agent3 extends Agent {
 		// printErr( treeInfo );
 		// trace( 'possibleActions ${possibleActions.length}' );
 
-		// 19 94.15
-		// 18 98.55
-		// 21 94.48
 		if( day < 18 ) {
 			if( myTrees2.length > 1 ) {
 				if( me.sun >= t3Costs )	return 'GROW ${myTrees2[0]}';

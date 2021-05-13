@@ -4,9 +4,9 @@ import xa3.MTRandom;
 
 class BoardGenerator {
 
-	static var coordCellMap:Map<CubeCoord, Cell> = [];
-	static var stringCellMap:Map<String, Cell> = [];
-	static var index = 0;
+	static var coordCellMap:Map<CubeCoord, Cell>;
+	static var stringCellMap:Map<String, Cell>;
+	static var index:Int;
 
 	public static function generateCell( coord:CubeCoord, richness:Int ) {
 		final cell = new Cell( index++, richness );
@@ -15,6 +15,10 @@ class BoardGenerator {
 	}
 
 	public static function generate() {
+		coordCellMap = [];
+		stringCellMap = [];
+		index = 0;
+		
 		final center = new CubeCoord( 0, 0, 0 );
 		
 		generateCell( center, Constants.RICHNESS_LUSH );

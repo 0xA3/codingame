@@ -3,7 +3,7 @@ package test;
 import buddy.Buddy;
 
 class Tests implements Buddy<[
-	test.xa3.TestMapUtils,
+	test.agent.TestAgent,
 	test.game.TestCubeCoord,
-	test.agent.TestAgent
+	test.xa3.TestMapUtils
 ]>{}

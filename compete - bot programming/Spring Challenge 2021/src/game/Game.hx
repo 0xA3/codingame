@@ -44,7 +44,7 @@ class Game {
 	public static var STARTING_TREES_ON_EDGES = true;
 
 	public var board:Board;
-	var trees:Map<Int, Tree> = [];
+	public var trees:Map<Int, Tree> = [];
 	var dyingTrees:Array<CubeCoord> = [];
 	var availableSun:Array<Int> = [];
 	var sentSeeds:Array<Seed> = [];
@@ -61,12 +61,13 @@ class Game {
 		this.gameSummaryManager = gameSummaryManager;
 	}
 
-	public function init( seed:Int ) {
+	public function init( seed:Int, grid:Array<String> ) {
 		MTRandom.initializeRandGenerator( seed );
 		board = BoardGenerator.generate();
 		initStartingTrees();
 
 		if( ENABLE_SHADOW ) calculateShadows();
+		trace( shadows );
 	}
 
 	public static function getExpected() {
