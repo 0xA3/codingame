@@ -4,6 +4,7 @@ import agent.Agent;
 import game.Config;
 import game.Player;
 import game.Tree;
+import haxe.rtti.CType.Platforms;
 
 using buddy.Should;
 
@@ -60,6 +61,21 @@ class TestAgent extends buddy.BuddySuite {
 				agent.trees.set( 0, new Tree( me ));
 				agent.trees[0].size = 1;
 				agent.getAverageShadowOfCoord( agent.board.coords[1], 1 ).should.beCloseTo( 1 / 6 );
+			});
+			@include
+			it( "get shadow for cell 1", {
+				final opp = new Player( 0 );
+				final me = new Player( 1 );
+				final agent = new Agent( opp, me, BoardTestGenerator.generate( 3 ));
+				agent.trees.set( 24, new Tree( me ));
+				agent.trees[24].size = 2;
+				agent.trees.set( 19, new Tree( me ));
+				agent.trees[19].size = 2;
+				agent.trees.set( 28, new Tree( opp ));
+				agent.trees[28].size = 2;
+				agent.trees.set( 33, new Tree( opp ));
+				agent.trees[33].size = 2;
+				agent.getAverageShadowOfCoord( agent.board.coords[1], 0 ).should.be( 0 );
 			});
 			
 		});

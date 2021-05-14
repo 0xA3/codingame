@@ -5,6 +5,7 @@ class Board {
 	public final cubeMap:Map<CubeCoord, Cell>;
 	public final map:Map<String, Cell>;
 	public final coords:Array<CubeCoord>;
+	public final cells:Array<Cell>;
 
 	public function new( map:Map<CubeCoord, Cell> ) {
 		this.cubeMap = map;
@@ -12,6 +13,9 @@ class Board {
 		final indexedCoords = [for( coord => cell in map ) { index: cell.index, coord: coord }];
 		indexedCoords.sort(( a, b ) -> a.index - b.index );
 		coords = indexedCoords.map( indexedCoord -> indexedCoord.coord );
+
+		cells = [for( cell in map ) cell];
+		cells.sort(( a, b ) -> a.index - b.index );
 	}
 
 	public function copy( ) {

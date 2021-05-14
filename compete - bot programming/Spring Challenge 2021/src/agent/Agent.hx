@@ -30,12 +30,13 @@ class Agent {
 	var day:Int;
 	var nutrients:Int;
 	var possibleActions:Array<String>;
+	// var deltaIncome = 0.0;
 
 	final growActions:Array<Int> = [];
 	final completeActions:Array<Int> = [];
 	final seedActions:Array<Array<Int>> = [];
 
-	var step = 0;
+	// var step = 0;
 
 	/*
 		Startup for submitting the agent to CodinGame
@@ -59,7 +60,7 @@ class Agent {
 		//
 		// Add Agent
 		//
-		final agent = new Agent4( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
+		final agent = new Agent6( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
 		
 
 		// game loop
@@ -86,7 +87,6 @@ class Agent {
 	*/
 	public function new( me:Player, opp:Player, board:Board ) {
 		MTRandom.initializeRandGenerator( 0 );
-		
 		this.me = me;
 		this.opp = opp;
 		this.board = board;
@@ -97,7 +97,8 @@ class Agent {
 		this.day = day;
 		this.nutrients = nutrients;
 
-		me.sun = parseInt( myInputs[0] ); // your sun points
+		final sun = parseInt( myInputs[0] ); // your sun points
+		me.sun = sun;
 		me.score = parseInt( myInputs[1] ); // your current score
 	
 		opp.sun = parseInt( oppInputs[0] ); // opp's sun points
@@ -117,7 +118,7 @@ class Agent {
 			trees.set( cellIndex, tree );
 		}
 		this.possibleActions = possibleActions;
-		
+
 		return takeAction();
 	}
 	
@@ -158,6 +159,10 @@ class Agent {
 		final sameTreeCount = [for( tree in trees ) tree].filter( t -> t.size == size && t.owner == owner ).length;
 		
 		return baseCost + sameTreeCount;
+	}
+
+	function getAverageShadowOfIndex( index:Int, size:Int ) {
+		return getAverageShadowOfCoord( board.coords[index], size );
 	}
 
 	function getAverageShadowOfCoord( coord:CubeCoord, size:Int ) {

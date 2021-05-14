@@ -58,25 +58,30 @@ class Referee {
 	static var game:Game;
 
 	static var repeats:Int;
+	static var currentRepeat:Int;
 	static var scores:Array<Array<Int>> = [];
+	static var completes:Array<Array<String>> = [];
 
 	static function main() {
 		
 		final args = Sys.args();
 		repeats = args[0] == null ? 1 : parseInt( args[0] );
-		for( _ in 0...repeats ) {
-			init();
+		for( i in 0...repeats ) {
+			currentRepeat = i;
+			init( currentRepeat );
 			run();
 		}
 		outputScoreAverages();
 	}
 
-	static function init() {
+	static function init( currentRepeat:Int ) {
+		completes[currentRepeat] = [for( i in 0...Config.MAX_ROUNDS ) "."];
+		
 		final gridFile = CompileTime.readFile( "src/grid.txt" );
 		grid = gridFile.replace( "\r", "" ).split( "\n" );
 
-		final oppName ="Agent3";
-		final myName = "Agent4";
+		final oppName ="Agent5";
+		final myName = "Agent6";
 		// manager
 		final managerPlayer0 = new Player( 0, oppName );
 		final managerPlayer1 = new Player( 1, myName );
@@ -86,7 +91,7 @@ class Referee {
 		
 		// game
 		game = new Game( gameManager, gameSummaryManager );
-		game.init( 1 + scores.length, grid );
+		game.init( Std.random( 999 ) + currentRepeat, grid );
 		
 		// agents
 		final agentPlayer1 = new Player( 0, oppName );
@@ -94,8 +99,8 @@ class Referee {
 		final boardPlayer1 = game.board.copy();
 		final boardPlayer2 = game.board.copy();
 		
-		agentOpp = new agent.Agent3( agentPlayer1, agentPlayer2, boardPlayer1 );
-		agentMe = new agent.Agent4( agentPlayer2, agentPlayer1, boardPlayer2 );
+		agentOpp = new agent.Agent5( agentPlayer1, agentPlayer2, boardPlayer1 );
+		agentMe = new agent.Agent6( agentPlayer2, agentPlayer1, boardPlayer2 );
 		
 		agents.push( agentOpp );
 		agents.push( agentMe );
@@ -122,6 +127,7 @@ class Referee {
 		game.resetGameTurnData();
 
 		if( game.currentFrameType == FrameType.ACTIONS ) {
+			if( repeats == 1 ) outputGrid();
 			// Give input to players
 			for( i in 0...gameManager.players.length ) {
 				final player = gameManager.players[i];
@@ -129,7 +135,9 @@ class Referee {
 					// final lines = game.getCurrentFrameInfoFor( player );
 					final d = game.getCurrentFrameDatasetFor( player );
 					final output = agents[i].process( d.day, d.nutrients, d.myInputs, d.otherInputs, d.treesInputs, d.possibleActions );
-					// if( player.index == 1 ) trace( 'day ${d.day} sun ${player.sun} player ${player.index}: $output' );
+					
+					if( repeats == 1 && player.index == 1 ) trace( 'day ${d.day} sun ${player.sun} player ${player.index}: $output' );
+					
 					player.setOutputs( [output] );
 				}
 			}
@@ -137,7 +145,6 @@ class Referee {
 			handlePlayerCommands();
 			
 			if( repeats == 1 ) {
-				outputGrid();
 				final char = Sys.getChar( false );
 				if( char == 27 || char == 3 ) Sys.exit( 0 );
 			}
@@ -151,7 +158,7 @@ class Referee {
 		for( player in gameManager.players ) {
 			if( !player.isWaiting ) {
 				try {
-					commandManager.parseCommands( player, player.getOutputs(), game );
+					commandManager.parseCommands( player, player.getOutputs(), game, completes[currentRepeat] );
 				} catch( e:Dynamic ) {
 					throw 'Error wrong command ${player.getOutputs()}: $e';
 				}
@@ -160,6 +167,7 @@ class Referee {
 	}
 
 	static function onEnd() {
+		Sys.println( completes[currentRepeat].join( "" ) + '  ${gameManager.players[1].score}');
 		final pScores = [];
 		for( player in gameManager.players ) {
 			pScores.push( player.score );
@@ -169,7 +177,7 @@ class Referee {
 	}
 
 	static function outputScoreAverages() {
-		trace( '-- Averages-- ' );
+		trace( '-- Result --' );
 		for( i in 0...gameManager.players.length ) {
 			final sum = scores.fold(( pScores, sum ) -> sum + pScores[i], 0 );
 			trace( '${gameManager.players[i].name} ${sum / scores.length}' );

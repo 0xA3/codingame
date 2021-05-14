@@ -51,7 +51,7 @@ class Game {
 	var sun = new Sun();
 	var shadows:Map<Int, Int> = [];
 	var cells:Array<Cell> = [];
-	var round = 0;
+	public var round = 0;
 	var turn = 0;
 	public var currentFrameType = FrameType.INIT;
 	var nextFrameType = FrameType.GATHERING;
@@ -67,7 +67,6 @@ class Game {
 		initStartingTrees();
 
 		if( ENABLE_SHADOW ) calculateShadows();
-		trace( shadows );
 	}
 
 	public static function getExpected() {

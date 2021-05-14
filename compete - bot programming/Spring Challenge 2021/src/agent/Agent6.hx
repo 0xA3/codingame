@@ -13,26 +13,7 @@ import haxe.ds.ArraySort;
 
 using Lambda;
 
-/* Decisions
-when not enough sun points WAIT
-grow or seed or complete
-phases
-1 expand
-2 complete
-
-phase 1 optimize grows for cost / sun points
-mix in percentage of seeding
-complete to reduce t3 costs
-where loss of sun points is minimal
-
-phase 2 optimize for points
-calculate costs to grow gemaining trees
-use sun overhead to seed
-complete in order of max points
-
-*/
-
-class Agent5 extends Agent {
+class Agent6 extends Agent {
 
 	var startupStep = 0;
 	final startupActions = [Grow, Grow];
@@ -265,14 +246,14 @@ class Agent5 extends Agent {
 		ArraySort.sort( actions, ( a, b ) -> {
 			final targetIdA = a[1];
 			final targetIdB = b[1];
-			final avgShadowA = getAverageShadowOfIndex( targetIdA, 0 );
-			final avgShadowB = getAverageShadowOfIndex( targetIdB, 0 );
-			if( avgShadowA < avgShadowB ) return -1; // lowest shadow
-			if( avgShadowA > avgShadowB ) return 1;
 			final richnessA = board.cells[targetIdA].richness;
 			final richnessB = board.cells[targetIdB].richness;
 			if( richnessA < richnessB ) return 1; // highest richness
 			if( richnessA > richnessB ) return -1;
+			final avgShadowA = getAverageShadowOfIndex( targetIdA, 0 );
+			final avgShadowB = getAverageShadowOfIndex( targetIdB, 0 );
+			if( avgShadowA < avgShadowB ) return -1; // lowest shadow
+			if( avgShadowA > avgShadowB ) return 1;
 			return 0;
 		});
 	}
@@ -320,7 +301,7 @@ class Agent5 extends Agent {
 		for( treeIndex in treeIndices ) {
 			final richness = board.cells[treeIndex].richness;
 			final loss = getAverageLoss( treeIndex );
-			printErr( 'tree $treeIndex richness $richness loss $loss' );
+			// printErr( 'tree $treeIndex richness $richness loss $loss' );
 		}
 	}
 
