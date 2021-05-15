@@ -1,4 +1,5 @@
 # -D source-header=Build 2020-12-11
+-lib xa3.format
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize

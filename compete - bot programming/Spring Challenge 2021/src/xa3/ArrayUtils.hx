@@ -22,7 +22,7 @@ class ArrayUtils {
 	/**
 	 * Return the first Element of `this` Array
 	 */
-	 public static function last<T>( a:Array<T> ):T {
+	public static function last<T>( a:Array<T> ):T {
 		return a[a.length - 1];
 	}
 
@@ -31,7 +31,7 @@ class ArrayUtils {
 	 *
 	 * The Array must be sorted
 	 */
-	 public static function uniquify<T>( sortedArray:Array<T> ):Array<T> {
+	public static function uniquify<T>( sortedArray:Array<T> ):Array<T> {
        
 		if( sortedArray.length == 0 ) return [];
 
@@ -66,7 +66,7 @@ class ArrayUtils {
 	 *
 	 * The Array must be sorted
 	 */
-	 public static function uniquifyBy<T>( sortedArray:Array<T>, f:( T, T )->Int ):Array<T> {
+	public static function uniquifyBy<T>( sortedArray:Array<T>, f:( T, T )->Int ):Array<T> {
        
 		if( sortedArray.length == 0 ) return [];
 
@@ -98,7 +98,7 @@ class ArrayUtils {
 	 * Sorts the new array
 	 * Returns a new array with double elements removed
 	 */
-	 public static function intMergeAndUniquify( a:Array<Int>, b:Array<Int> ) {
+	public static function intMergeAndUniquify( a:Array<Int>, b:Array<Int> ) {
 		final c = a.concat( b );
 		c.sort(( a, b ) -> a - b );
 		return uniquify( c );
@@ -109,9 +109,36 @@ class ArrayUtils {
 	 * Sorts the new array according to the comparison function `f`
 	 * Returns a new array with double elements removed the comparison function `f`
 	 */
-	 public static function mergeAndUniquify<T>( a:Array<T>, b:Array<T>, f:( T, T )->Int ):Array<T> {
+	public static function mergeAndUniquify<T>( a:Array<T>, b:Array<T>, f:( T, T )->Int ):Array<T> {
 		final c = a.concat( b );
 		c.sort( f );
 		return uniquifyBy( c, f );
 	}
+
+	public static function maxIndex( a:Array<Float> ) {
+		var max = 0.0;
+		var maxIndex = -1;
+		for( i in 0...a.length ) {
+			final v = a[i];
+			if( v > max ) {
+				max = v;
+				maxIndex = i;
+			}
+		}
+		return maxIndex;
+	}
+	
+	public static function minIndex( a:Array<Float> ) {
+		var min = Math.POSITIVE_INFINITY;
+		var minIndex = -1;
+		for( i in 0...a.length ) {
+			final v = a[i];
+			if( v < min ) {
+				min = v;
+				minIndex = i;
+			}
+		}
+		return minIndex;
+	}
+	
 }

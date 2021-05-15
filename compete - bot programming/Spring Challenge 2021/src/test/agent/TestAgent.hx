@@ -62,7 +62,7 @@ class TestAgent extends buddy.BuddySuite {
 				agent.trees[0].size = 1;
 				agent.getAverageShadowOfCoord( agent.board.coords[1], 1 ).should.beCloseTo( 1 / 6 );
 			});
-			@include
+			
 			it( "get shadow for cell 1", {
 				final opp = new Player( 0 );
 				final me = new Player( 1 );
@@ -75,7 +75,7 @@ class TestAgent extends buddy.BuddySuite {
 				agent.trees[28].size = 2;
 				agent.trees.set( 33, new Tree( opp ));
 				agent.trees[33].size = 2;
-				agent.getAverageShadowOfCoord( agent.board.coords[1], 0 ).should.be( 0 );
+				agent.getAverageShadowOfCoord( agent.board.coords[1], 0 ).should.beCloseTo( 0.16666 );
 			});
 			
 		});

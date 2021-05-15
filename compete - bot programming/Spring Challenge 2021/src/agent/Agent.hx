@@ -21,6 +21,7 @@ class Agent {
 	
 	public final me:Player;
 	public final opp:Player;
+	static var sunWeights = createSunWeights();
 	
 	final board:Board;
 	// final cells:Array<Cell> = [];
@@ -167,8 +168,53 @@ class Agent {
 
 	function getAverageShadowOfCoord( coord:CubeCoord, size:Int ) {
 		var sum = 0;
-		for( orientation in 0...5 ) sum += getShadowOfCoord( coord, size, orientation );
+		for( orientation in 0...6 ) sum += getShadowOfCoord( coord, size, orientation );
 		return sum / 6;
+	}
+
+	function getAverageFutureShadowOfIndex( index:Int, size:Int ) {
+		return getAverageFutureShadowOfCoord( board.coords[index], size );
+	}
+
+	static function createSunWeights() {
+		final totalWeights = [];
+		var weightsSum = 0;
+		for( i in 0...6 ) {
+			final v = 6 - i;
+			totalWeights[i] = v;
+			weightsSum += v;
+		};
+		var sunWeights = totalWeights.map( v -> v / weightsSum );
+		
+		return sunWeights;
+	}
+	
+	function getAverageWeightedShadowOfIndex( index:Int, size:Int ) {
+		return getAverageWeightedShadowOfCoord( board.coords[index], size );
+	}
+
+	function getAverageWeightedShadowOfCoord( coord:CubeCoord, size:Int ) {
+		final currentOri = day % 6;
+		var sum = 0.0;
+		for( i in 0...6 ) {
+			final shadow = getShadowOfCoord( coord, size, ( currentOri + i ) % 6 );
+			final weightedShadow = shadow * sunWeights[i];
+			// trace( 'dir ${( currentOri + i ) % 6} cell ${board.cubeMap[coord].index} shadow $shadow weight ${sunWeights[i]}: $weightedShadow' );
+			sum += weightedShadow;
+		}
+		return sum;
+	}
+
+	function getAverageFutureShadowOfCoord( coord:CubeCoord, size:Int ) {
+		final currentOri = day % 6;
+		final shadowValues = [];
+		for( i in 0...6 ) {
+			final orientation = ( currentOri + i ) % 6;
+			shadowValues[orientation] = getShadowOfCoord( coord, size, orientation );
+		}
+		final sum = 0.0;
+		for( i in day + 1...Config.MAX_ROUNDS ) sum += shadowValues[i % 6];
+		return sum / ( Config.MAX_ROUNDS - (day + 1));
 	}
 
 	function getShadowOfCoord( coord:CubeCoord, size:Int, orientation:Int ) {
@@ -182,8 +228,8 @@ class Agent {
 				}
 			}
 		}
-		return 0;
 		
+		return 0;
 	}
 
 	function parsePossibleActions( possibleActions:Array<String> ) {

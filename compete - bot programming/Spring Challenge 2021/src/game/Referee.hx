@@ -54,7 +54,7 @@ class Referee {
 	static var grid:Array<String>;
 	static var agentOpp:Agent;
 	static var agentMe:Agent;
-	static var agents:Array<Agent> = [];
+	static var agents:Array<Agent>;
 	static var game:Game;
 
 	static var repeats:Int;
@@ -91,19 +91,18 @@ class Referee {
 		
 		// game
 		game = new Game( gameManager, gameSummaryManager );
-		game.init( Std.random( 999 ) + currentRepeat, grid );
+		game.init( repeats == 1 ? 1 : Std.random( 99999 ), grid );
 		
 		// agents
-		final agentPlayer1 = new Player( 0, oppName );
-		final agentPlayer2 = new Player( 1, myName );
-		final boardPlayer1 = game.board.copy();
-		final boardPlayer2 = game.board.copy();
+		final agentPlayer0 = new Player( 0, oppName );
+		final agentPlayer1 = new Player( 1, myName );
+		final board0 = game.board.copy();
+		final board1 = game.board.copy();
 		
-		agentOpp = new agent.Agent5( agentPlayer1, agentPlayer2, boardPlayer1 );
-		agentMe = new agent.Agent6( agentPlayer2, agentPlayer1, boardPlayer2 );
+		agentOpp = new agent.Agent5( agentPlayer0, agentPlayer1, board0 );
+		agentMe = new agent.Agent6( agentPlayer1, agentPlayer0, board1 );
 		
-		agents.push( agentOpp );
-		agents.push( agentMe );
+		agents = [agentOpp, agentMe];
 		
 	}
 
@@ -136,7 +135,7 @@ class Referee {
 					final d = game.getCurrentFrameDatasetFor( player );
 					final output = agents[i].process( d.day, d.nutrients, d.myInputs, d.otherInputs, d.treesInputs, d.possibleActions );
 					
-					if( repeats == 1 && player.index == 1 ) trace( 'day ${d.day} sun ${player.sun} player ${player.index}: $output' );
+					if( repeats == 1 && player.index == 1 ) trace( 'day ${d.day} sun ${player.sun} ${player.name}: $output' );
 					
 					player.setOutputs( [output] );
 				}
@@ -167,13 +166,13 @@ class Referee {
 	}
 
 	static function onEnd() {
-		Sys.println( completes[currentRepeat].join( "" ) + '  ${gameManager.players[1].score}');
 		final pScores = [];
 		for( player in gameManager.players ) {
 			pScores.push( player.score );
 			// trace( '${player.name} score: ${player.score}' );
 		}
 		scores.push( pScores );
+		Sys.println( completes[currentRepeat].join( "" ) + '  ${gameManager.players[1].score}');
 	}
 
 	static function outputScoreAverages() {
@@ -200,6 +199,12 @@ class Referee {
 			}
 			final point = gridCoords[index];
 			gc[point.y] = insertChar( gc[point.y], point.x, symbol );
+		}
+		for( cell in game.board.cells ) {
+			if( cell.richness == 0 ) {
+				final point = gridCoords[cell.index];
+				gc[point.y] = insertChar( gc[point.y], point.x, "-" );
+			}
 		}
 
 		Sys.println( "\n" + gc.join( "\n" ));
