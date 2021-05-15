@@ -125,21 +125,19 @@ class Agent6 extends Agent {
 		if( myTrees3.length > 0 ) {
 			final incomesWithoutTree = myTrees3.map( treeId -> getIncomeWithout( treeId, myTrees ));
 			final losses = incomesWithoutTree.map( incomeWithout -> income - incomeWithout );
-			final lossOutput = [for( i in 0...myTrees3.length ) 'without tree ${myTrees3[i]} loss ${losses[i]}'];
+			// final lossOutput = [for( i in 0...myTrees3.length ) 'without tree ${myTrees3[i]} loss ${losses[i]}'];
 			// trace( 'state $state income $income - ' + lossOutput.join("  "));
 			
 			final lowestLossIndex = losses.minIndex();
 			final lowestLoss = losses[lowestLossIndex];
 			final remainingIncome = income - lowestLoss;
 
-			// trace( game.Config.MAX_ROUNDS - day );
-
 			switch state {
 				case Expansion: // no-op
 				case Sustain: if( remainingIncome > 12 ) return Complete( myTrees3[lowestLossIndex] );
-				case Contraction:
-					final remainingDays = Config.MAX_ROUNDS - day;
-					if( myTrees3.length >= remainingDays ) return Complete( myTrees3[lowestLossIndex] );
+				case Contraction: return Complete( myTrees3[lowestLossIndex] );
+					// final remainingDays = Config.MAX_ROUNDS - day;
+					// if( myTrees3.length >= remainingDays ) return Complete( myTrees3[lowestLossIndex] );
 			}
 			
 		}
@@ -157,7 +155,6 @@ class Agent6 extends Agent {
 	function rateGrowCell( treeId:Int, growCosts:Array<Int> ) {
 		final tree = trees[treeId];
 		final cost = growCosts[tree.size];
-		// final avgSun = 1 - getAverageShadowOfIndex( treeId, tree.size + 1 );
 		final nextIncome = getIncomeWithGrown( treeId, myTrees );
 		final sunPerCost = nextIncome / cost;
 		final richness = board.cells[treeId].richness;
@@ -188,13 +185,9 @@ class Agent6 extends Agent {
 		final sourceId = seedAction[0];
 		final targetId = seedAction[1];
 		final avgSun = 1 - getAverageShadowOfIndex( targetId, 0 );
-		// final avgFutureSun = 1 - getAverageFutureShadowOfIndex( targetId, 0 );
-		// final avgWeightedSun = 1 - getAverageWeightedShadowOfIndex( targetId, 0 );
 		final distance = board.coords[sourceId].distanceTo( board.coords[targetId] );
 		final richness = board.cells[targetId].richness;
 		
-		// trace( 'targetId $targetId  avgSun $avgSun  avgFSun $avgFutureSun avgWSun $avgWeightedSun' );
-		// printErr( 'rateSeedCell $sourceId to $targetId: sun $avgSun  dist $distance  richness $richness' );
 		return avgSun * 2 + distance + richness * 0.1;
 	}
 	
@@ -206,41 +199,6 @@ class Agent6 extends Agent {
 			return 0;
 		});
 		for( c in combined ) printErr( 'seed ${c.action[0]} to ${c.action[1]}: ${c.rating}' );
-	}
-
-	function sortByTreeSize( actions:Array<Array<Int>> ) { // highest first
-		ArraySort.sort( seedActions, ( a, b ) -> {
-			final sourceIdA = a[0];
-			final sourceIdB = b[0];
-			final heightA = trees[sourceIdA].size;
-			final heightB = trees[sourceIdB].size;
-			if( heightA < heightB ) return 1;
-			if( heightA > heightB ) return -1;
-			return 0;
-		});
-	}
-
-	function sortCompleteAction( treeIndices:Array<Int> ) {
-		treeIndices.sort(( a, b ) -> {
-			final cellA = board.cells[a];
-			final cellB = board.cells[b];
-			if( cellA.richness < cellB.richness ) return 1; // highest first
-			if( cellA.richness > cellB.richness ) return -1;
-			final lossA = getAverageLoss( a );
-			final lossB = getAverageLoss( b );
-			if( lossA < lossB ) return -1; // lowest first
-			if( lossA > lossB ) return 1;
-			return 0;
-		});
-		traceCompleteActions( treeIndices );
-	}
-	
-	function traceCompleteActions( treeIndices:Array<Int> ) {
-		for( treeId in treeIndices ) {
-			final richness = board.cells[treeId].richness;
-			final loss = getAverageLoss( treeId );
-			// printErr( 'tree $treeId richness $richness loss $loss' );
-		}
 	}
 
 	function getAverageLoss( cellId:Int ) {
