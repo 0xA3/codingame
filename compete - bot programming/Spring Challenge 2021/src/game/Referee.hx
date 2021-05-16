@@ -80,8 +80,8 @@ class Referee {
 		final gridFile = CompileTime.readFile( "src/grid.txt" );
 		grid = gridFile.replace( "\r", "" ).split( "\n" );
 
-		final oppName ="Agent5";
-		final myName = "Agent6";
+		final oppName ="Agent6";
+		final myName = "Agent7";
 		// manager
 		final managerPlayer0 = new Player( 0, oppName );
 		final managerPlayer1 = new Player( 1, myName );
@@ -99,8 +99,8 @@ class Referee {
 		final board0 = game.board.copy();
 		final board1 = game.board.copy();
 		
-		agentOpp = new agent.Agent5( agentPlayer0, agentPlayer1, board0 );
-		agentMe = new agent.Agent6( agentPlayer1, agentPlayer0, board1 );
+		agentOpp = new agent.Agent6( agentPlayer0, agentPlayer1, board0 );
+		agentMe = new agent.Agent7( agentPlayer1, agentPlayer0, board1 );
 		
 		agents = [agentOpp, agentMe];
 		

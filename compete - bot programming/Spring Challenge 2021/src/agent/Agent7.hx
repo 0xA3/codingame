@@ -13,7 +13,7 @@ using Lambda;
 using xa3.ArrayUtils;
 using xa3.format.NumberFormat;
 
-class Agent6 extends Agent {
+class Agent7 extends Agent {
 
 	var startupStep = 0;
 	final startupActions = [Grow, Grow, Seed, Grow, Seed, Grow, Grow, Grow];
@@ -27,7 +27,8 @@ class Agent6 extends Agent {
 	var completeCost:Int;
 	
 	// final incomeProgress = [];
-	var income = 2.0;
+	var myAvgIncome = 2.0;
+	var oppAvgIncome = 2.0;
 
 	var state:TState;
 
@@ -70,9 +71,12 @@ class Agent6 extends Agent {
 		var t3Cost = getCostFor( 3, me );
 		final growCosts = [t1Cost, t2Cost, t3Cost ];
 		var completeCost = Constants.LIFECYCLE_END_COST;
-		income = getAvgIncome( myTrees );
-		final oppIncome = getAvgIncome( oppTrees );
-		// printErr( 'day $day  myIncome ${income.fixed( 2 )}  oppIncome ${oppIncome.fixed( 2 )}' );
+		
+		final myIncome = getIncome( myTrees );
+		final oppIncome = getIncome( oppTrees );
+		myAvgIncome = getAvgIncome( myTrees );
+		oppAvgIncome = getAvgIncome( oppTrees );
+		printErr( 'day $day  myIncome $myIncome (${myAvgIncome.fixed( 2 )})  oppIncome $oppIncome (${oppAvgIncome.fixed( 2 )})' );
 
 		// printErr( 'day $day sun ${me.sun}' );
 		final treeInfo = [for( index => tree in myTrees ) '$index T${tree.size}' ].join( "   " );
@@ -80,7 +84,7 @@ class Agent6 extends Agent {
 
 		final actionType = startupStep < startupActions.length
 			? startupActions[startupStep]
-			: getActionType( seedCost, growCosts, completeCost, income );
+			: getActionType( seedCost, growCosts, completeCost, myAvgIncome );
 		
 		// printErr( '${startupStep < startupActions.length ? "s" :""} actionType $actionType income $income' );
 		
@@ -135,7 +139,7 @@ class Agent6 extends Agent {
 			switch state {
 				case Expansion: // no-op
 				case Sustain: if( remainingIncome > 15 ) return Complete( myTrees3[lowestLossIndex] );
-				case Contraction: if( remainingIncome > 5 ) return Complete( myTrees3[lowestLossIndex] );
+				case Contraction: return Complete( myTrees3[lowestLossIndex] );
 					// final remainingDays = Config.MAX_ROUNDS - day;
 					// if( myTrees3.length >= remainingDays ) return Complete( myTrees3[lowestLossIndex] );
 			}

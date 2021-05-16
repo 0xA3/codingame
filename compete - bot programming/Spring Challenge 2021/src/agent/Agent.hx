@@ -29,15 +29,15 @@ class Agent {
 	final myTrees:Map<Int, Tree> = [];
 	final oppTrees:Map<Int, Tree> = [];
 	var day:Int;
+	var sunOrientation:Int;
 	var nutrients:Int;
 	var possibleActions:Array<String>;
-	// var deltaIncome = 0.0;
+	var myIncome = 2;
+	var oppIncome = 2;
 
 	final growActions:Array<Int> = [];
 	final completeActions:Array<Int> = [];
 	final seedActions:Array<Array<Int>> = [];
-
-	// var step = 0;
 
 	/*
 		Startup for submitting the agent to CodinGame
@@ -61,7 +61,7 @@ class Agent {
 		//
 		// Add Agent
 		//
-		final agent = new Agent6( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
+		final agent = new Agent7( new Player( 1 ), new Player( 0 ), new Board( cellsMap ) );
 		
 
 		// game loop
@@ -96,6 +96,7 @@ class Agent {
 	public inline function process(day:Int, nutrients:Int, myInputs:Array<String>, oppInputs:Array<String>, treesInputs:Array<Array<String>>, possibleActions:Array<String>):String {
 		
 		this.day = day;
+		sunOrientation = day % 6;
 		this.nutrients = nutrients;
 
 		final sun = parseInt( myInputs[0] ); // your sun points
@@ -136,10 +137,10 @@ class Agent {
 		var coord = center.neighbor( 0 );
 		
 		for( distance in 1...Config.MAP_RING_COUNT + 1 ) {
-			for( orientation in 0...6 ) {
+			for( ori in 0...6 ) {
 				for( _ in 0...distance ) {
 					coords.push( coord );
-					coord = coord.neighbor(( orientation + 2 ) % 6 );
+					coord = coord.neighbor(( ori + 2 ) % 6 );
 				}
 			}
 			coord = coord.neighbor( 0 );
@@ -161,6 +162,27 @@ class Agent {
 		
 		return baseCost + sameTreeCount;
 	}
+	
+	function getIncome( trees:Map<Int, Tree> ) {
+		var sum = 0.0;
+		for( index => tree in trees ) {
+			final shadow = getShadowOfCoord( board.coords[index], tree.size, sunOrientation );
+			sum += ( 1 - shadow ) * tree.size;
+		}
+		//  printErr( 'income $sum' );
+		return sum;
+	}
+
+	function getAvgIncome( trees:Map<Int, Tree> ) {
+		var sum = 0.0;
+		for( index => tree in trees ) {
+			final avgShadow = getAverageShadowOfCoord( board.coords[index], tree.size );
+			sum += ( 1 - avgShadow ) * tree.size;
+		}
+		//  printErr( 'income $sum' );
+		return sum;
+	}
+
 
 	function getAverageShadowOfIndex( index:Int, size:Int ) {
 		return getAverageShadowOfCoord( board.coords[index], size );
@@ -168,7 +190,7 @@ class Agent {
 
 	function getAverageShadowOfCoord( coord:CubeCoord, size:Int ) {
 		var sum = 0;
-		for( orientation in 0...6 ) sum += getShadowOfCoord( coord, size, orientation );
+		for( ori in 0...6 ) sum += getShadowOfCoord( coord, size, ori );
 		return sum / 6;
 	}
 
@@ -194,10 +216,9 @@ class Agent {
 	}
 
 	function getAverageWeightedShadowOfCoord( coord:CubeCoord, size:Int ) {
-		final currentOri = day % 6;
 		var sum = 0.0;
 		for( i in 0...6 ) {
-			final shadow = getShadowOfCoord( coord, size, ( currentOri + i ) % 6 );
+			final shadow = getShadowOfCoord( coord, size, ( sunOrientation + i ) % 6 );
 			final weightedShadow = shadow * sunWeights[i];
 			// trace( 'dir ${( currentOri + i ) % 6} cell ${board.cubeMap[coord].index} shadow $shadow weight ${sunWeights[i]}: $weightedShadow' );
 			sum += weightedShadow;
@@ -206,20 +227,19 @@ class Agent {
 	}
 
 	function getAverageFutureShadowOfCoord( coord:CubeCoord, size:Int ) {
-		final currentOri = day % 6;
 		final shadowValues = [];
 		for( i in 0...6 ) {
-			final orientation = ( currentOri + i ) % 6;
-			shadowValues[orientation] = getShadowOfCoord( coord, size, orientation );
+			final ori = ( sunOrientation + i ) % 6;
+			shadowValues[ori] = getShadowOfCoord( coord, size, ori );
 		}
 		final sum = 0.0;
 		for( i in day + 1...Config.MAX_ROUNDS ) sum += shadowValues[i % 6];
 		return sum / ( Config.MAX_ROUNDS - (day + 1));
 	}
 
-	function getShadowOfCoord( coord:CubeCoord, size:Int, orientation:Int ) {
+	function getShadowOfCoord( coord:CubeCoord, size:Int, ori:Int ) {
 		for( i in 1...4 ) {
-			final neighbor = coord.neighbor(( orientation + 3 ) % 6, i );
+			final neighbor = coord.neighbor(( ori + 3 ) % 6, i );
 			if( board.map.exists( neighbor.s )) {
 				final index = board.map[neighbor.s].index;
 				if( trees.exists( index )) {
