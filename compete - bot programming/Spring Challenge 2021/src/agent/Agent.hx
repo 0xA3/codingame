@@ -184,19 +184,21 @@ class Agent {
 	}
 
 
-	function getAverageShadowOfIndex( index:Int, size:Int ) {
-		return getAverageShadowOfCoord( board.coords[index], size );
-	}
-
+	function getAverageShadowOfIndex( index:Int, size:Int ) return getAverageShadowOfCoord( board.coords[index], size );
 	function getAverageShadowOfCoord( coord:CubeCoord, size:Int ) {
 		var sum = 0;
-		for( ori in 0...6 ) sum += getShadowOfCoord( coord, size, ori );
+		for( i in 0...6 ) sum += getShadowOfCoord( coord, size, ( sunOrientation + i ) % 6 );
 		return sum / 6;
 	}
 
-	function getAverageFutureShadowOfIndex( index:Int, size:Int ) {
-		return getAverageFutureShadowOfCoord( board.coords[index], size );
+	function getAverage2ShadowOfIndex( index:Int, size:Int ) return getAverageShadowOfCoord( board.coords[index], size );
+	function getAverage2ShadowOfCoord( coord:CubeCoord, size:Int ) {
+		var sum = 0;
+		for( i in 0...2 ) sum += getShadowOfCoord( coord, size, ( sunOrientation + i ) % 6 );
+		return sum / 2;
 	}
+
+	function getAverageFutureShadowOfIndex( index:Int, size:Int ) return getAverageFutureShadowOfCoord( board.coords[index], size );
 
 	static function createSunWeights() {
 		final totalWeights = [];
@@ -211,10 +213,7 @@ class Agent {
 		return sunWeights;
 	}
 	
-	function getAverageWeightedShadowOfIndex( index:Int, size:Int ) {
-		return getAverageWeightedShadowOfCoord( board.coords[index], size );
-	}
-
+	function getAverageWeightedShadowOfIndex( index:Int, size:Int ) return getAverageWeightedShadowOfCoord( board.coords[index], size );
 	function getAverageWeightedShadowOfCoord( coord:CubeCoord, size:Int ) {
 		var sum = 0.0;
 		for( i in 0...6 ) {

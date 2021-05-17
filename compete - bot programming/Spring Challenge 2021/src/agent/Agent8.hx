@@ -5,6 +5,7 @@ import agent.TActionType;
 import game.Board;
 import game.Config;
 import game.Constants;
+import game.CubeCoord;
 import game.Player;
 import game.Tree;
 import haxe.ds.ArraySort;
@@ -13,10 +14,10 @@ using Lambda;
 using xa3.ArrayUtils;
 using xa3.format.NumberFormat;
 
-class Agent7 extends Agent {
+class Agent8 extends Agent {
 
 	var startupStep = 0;
-	final startupActions = [Grow, Grow, Seed, Grow, Seed, Grow, Grow, Grow];
+	// final startupActions = ["Wait", "Grow", "Wait", "Grow", "Seed", "Grow", "Seed", "Grow", "Grow", "Grow"];
 
 	final mySeeds:Array<Int>  = [];
 	final myTrees1:Array<Int>  = [];
@@ -25,10 +26,8 @@ class Agent7 extends Agent {
 	
 	var seedCost:Int;
 	var completeCost:Int;
+	var myAvgIncome:Float;
 	
-	// final incomeProgress = [];
-	var income = 2.0;
-
 	var state:TState;
 
 	public function new( me:Player, opp:Player, board:Board ) {
@@ -37,7 +36,7 @@ class Agent7 extends Agent {
 	}
 
 	override function takeAction() {
-		if( day == 10 && state == Expansion ) state = Sustain;
+		if( day == 11 && state == Expansion ) state = Sustain;
 		if( day == 18 && state == Sustain ) state = Contraction;
 
 		myTrees.clear();
@@ -70,81 +69,48 @@ class Agent7 extends Agent {
 		var t3Cost = getCostFor( 3, me );
 		final growCosts = [t1Cost, t2Cost, t3Cost ];
 		var completeCost = Constants.LIFECYCLE_END_COST;
-		income = getAvgIncome( myTrees );
-		final oppIncome = getAvgIncome( oppTrees );
-		// printErr( 'day $day  myIncome ${income.fixed( 2 )}  oppIncome ${oppIncome.fixed( 2 )}' );
+		
+		final myIncome = getIncome( myTrees );
+		final oppIncome = getIncome( oppTrees );
+		myAvgIncome = getAvgIncome( myTrees );
+		final oppAvgIncome = getAvgIncome( oppTrees );
+		// printErr( 'day $day\n mySun ${me.sun}  myIncome $myIncome (${myAvgIncome.fixed( 2 )})\noppSun ${opp.sun} oppIncome $oppIncome (${oppAvgIncome.fixed( 2 )})' );
 
-		// printErr( 'day $day sun ${me.sun}' );
-		final treeInfo = [for( index => tree in myTrees ) '$index T${tree.size}' ].join( "   " );
-		// printErr( treeInfo );
-
-		final actionType = startupStep < startupActions.length
-			? startupActions[startupStep]
-			: getActionType( seedCost, growCosts, completeCost, income );
-		
-		// printErr( '${startupStep < startupActions.length ? "s" :""} actionType $actionType income $income' );
-		
-		switch actionType {
-			case Grow:
-				if( growActions.length == 0 ) return "WAIT";
-				final treeId = selectGrowAction( growCosts );
-				final treeSize = trees[treeId].size;
-				final cost = growCosts[treeSize];
-				// trace( 'grow costs $growCosts' );
-				if( me.sun >= cost ) {
-					startupStep++;
-					return 'GROW ${treeId}';
-				} else return "WAIT";
-			
-			case Seed:
-				if( seedActions.length == 0 || me.sun < seedCost ) return "WAIT";	
-				final seedAction = selectSeedAction();
- 				startupStep++;
-				return 'SEED ${seedAction[0]} ${seedAction[1]}';
-				
-			case Complete( id ):
-				if( completeActions.length == 0 || me.sun < completeCost ) return "WAIT";
-				// sortCompleteAction( completeActions );
-				// final richnesses = [for( cellId in completeActions ) '$cellId richness ${board.map[board.coords[cellId].s].richness}'];
-				// trace( richnesses.join("\n"));
-				startupStep++;
-				return 'COMPLETE $id';
-				
-				
-			case Wait: return "WAIT";
-		}
-	}
-
-	function getActionType( seedCost:Int, growCosts:Array<Int>, completeCost:Int, income:Float ) {
-		
-		if( state != Contraction && seedActions.length > 0 && seedCost == 0 ) return Seed;
-		// if( state == Expansion && seedActions.length > 0 && seedCost == 0 ) return Seed;
-		// printErr( 'day $day sun ${me.sun} costs t1 ${growCosts[0]} t2 ${growCosts[1]} t3 ${growCosts[2]} trees t1 ${myTrees1.length} t2 ${myTrees2.length} t3 ${myTrees3.length}' );	
-		if( state == Expansion ) return Grow;
-		
-		if( myTrees3.length > 0 ) {
+		if( completeActions.length > 0 ) {
 			final incomesWithoutTree = myTrees3.map( treeId -> getIncomeWithout( treeId, myTrees ));
-			final losses = incomesWithoutTree.map( incomeWithout -> income - incomeWithout );
+			final losses = incomesWithoutTree.map( incomeWithout -> myIncome - incomeWithout );
 			// final lossOutput = [for( i in 0...myTrees3.length ) 'without tree ${myTrees3[i]} loss ${losses[i]}'];
 			// trace( 'state $state income $income - ' + lossOutput.join("  "));
 			
 			final lowestLossIndex = losses.minIndex();
 			final lowestLoss = losses[lowestLossIndex];
-			final remainingIncome = income - lowestLoss;
+			final remainingIncome = myIncome - lowestLoss;
 
 			switch state {
 				case Expansion: // no-op
-				case Sustain: if( remainingIncome > 10 ) return Complete( myTrees3[lowestLossIndex] );
-				case Contraction: return Complete( myTrees3[lowestLossIndex] );
+				case Sustain: if( remainingIncome > 15 ) return 'COMPLETE ${myTrees3[lowestLossIndex]}';
+				case Contraction: if( remainingIncome > 5 ) return 'COMPLETE ${myTrees3[lowestLossIndex]}';
 					// final remainingDays = Config.MAX_ROUNDS - day;
 					// if( myTrees3.length >= remainingDays ) return Complete( myTrees3[lowestLossIndex] );
 			}
-			
 		}
 		
-		return Grow;
+		if( growActions.length > 0 ) {
+			final treeId = selectGrowAction( growCosts );
+			startupStep++;
+			return 'GROW ${treeId}';
+		}
+
+		if( seedActions.length > 0 && seedCost == 0 && ( myTrees2.length > 0 || myTrees3.length > 0 )) {
+			final seedAction = selectSeedAction();
+			startupStep++;
+			return 'SEED ${seedAction[0]} ${seedAction[1]}';
+		}
+
+		return "WAIT";
+		
 	}
-	
+
 	function selectGrowAction( growCosts:Array<Int> ) {
 		final cellRatings = growActions.map( treeId -> rateGrowCell( treeId, growCosts ));
 		final highestRatingId = cellRatings.maxIndex();
@@ -160,7 +126,7 @@ class Agent7 extends Agent {
 		final richness = board.cells[treeId].richness;
 
 		final t3Bonus = state != Expansion && tree.size == 2 ? day * 0.5 : 0;
-		// printErr( 'rateGrowCell $treeId: dIncome ${nextIncome - income}  richness $richness  cost ${sunPerCost.fixed( 2 )}  t3Bonus ${t3Bonus.fixed( 2 )}' );
+		// printErr( 'rateGrowCell $treeId: dIncome ${nextIncome - myAvgIncome}  richness $richness  cost ${sunPerCost.fixed( 2 )}  t3Bonus ${t3Bonus.fixed( 2 )}' );
 		return sunPerCost + t3Bonus + richness * 0.1;
 	}
 
@@ -185,6 +151,7 @@ class Agent7 extends Agent {
 		final sourceId = seedAction[0];
 		final targetId = seedAction[1];
 		final avgSun = 1 - getAverageShadowOfIndex( targetId, 0 );
+		// final avgSun = 1 - getAverageWeightedShadowOfIndex( targetId, 0 );
 		final distance = board.coords[sourceId].distanceTo( board.coords[targetId] );
 		final richness = board.cells[targetId].richness;
 		
@@ -230,8 +197,31 @@ class Agent7 extends Agent {
 		return sum;
 	}
 
-	function getOppIncomeWithGrown( growTreeId:Int, trees:Map<Int, Tree> ) {
+	// function getOppIncomeWithGrown( growTreeId:Int, trees:Map<Int, Tree> ) {
+	// 	var sum = 0.0;
+	// 	for( index => tree in trees ) {
+	// 		final avgShadow = getAverageShadowOfIndex( index, tree.size );
+	// 		// final avgShadow = getAverageWeightedShadowOfIndex( index, size );
+	// 		sum += ( 1 - avgShadow ) * tree.size;
+	// 	}
+	// 	// printErr( 'incomeWitGrown $growTreeId $sum' ); }
+	// 	return sum;
+	// }
+
+	// function getShadowOfCoordWithChangedTree( coord:CubeCoord, size:Int, ori:Int, changedTreeIndex:Int, changedTreeSize:Int ) {
+	// 	for( i in 1...4 ) {
+	// 		final neighbor = coord.neighbor(( ori + 3 ) % 6, i );
+	// 		if( board.map.exists( neighbor.s )) {
+	// 			final index = board.map[neighbor.s].index;
+	// 			if( trees.exists( index )) {
+	// 				final tree = trees[index];
+	// 				return tree.size >= size && tree.size >= i ? 1 : 0;
+	// 			}
+	// 		}
+	// 	}
 		
-	}
+	// 	return 0;
+	// }
+
 
 }
