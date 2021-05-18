@@ -1,0 +1,8 @@
+-lib compiletime
+-lib xa3.format
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+--dce full
+-main game.Referee
+--hl bin/app.hl

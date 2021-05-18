@@ -1,0 +1,67 @@
+24 days
+
+Cell richness
+0 for unusable cells. Nothing can grow on them.
+1 for low quality soil.
+2 for medium quality soil.
+3 for high quality soil.
+
+Tree size
+0 for a seed.
+1 for a small tree.
+2 for a medium tree.
+3 for a large tree.
+
+Tree shadow
+Size 1 trees cast a shadow 1 cell long.
+Size 2 trees cast a shadow 2 cells long.
+Size 3 trees cast a shadow 3 cells long.
+
+Sun direction = day modulo 6
+0 shadows right
+1 shadows up right
+2 shadows up left
+3 shadows left
+4 shadows down right
+5 shadows up right
+
+spooky shadow = shadow on smaller or same size tree
+
+sun points harvested
+A size 0 tree (a seed): no points
+A size 1 tree: 1 sun point
+A size 2 tree: 2 sun points
+A size 3 tree: 3 sun points
+
+Actions
+SEED: Command a tree to eject a seed onto a cell within distance equal to the tree's size.
+GROW: Command a seed or tree to grow into the next size. Trees can grow up to size 3 .
+COMPLETE: removes the tree from the forest and scores you points.
+WAIT: Spend the rest of the day asleep - ends the day
+
+Seed action
+cost = number of seeds (size 0 trees)
+tree + seed = dormant
+
+Grow action
+cost size0 = 1 + number of size 1 trees
+cost size1 = 3 + number of size 2 trees
+cost size2 = 7 + number of size 3 trees
+
+Complete action
+cost 4
+points += nutrients + cell.richness - 1
+nutrients--
+
+end of game
+points += sun points * 3
+
+winner = player with most points. if same points player with most trees
+
+
+Heuristics
+current energy
+current number of trees
+area
+richness
+points
