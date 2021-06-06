@@ -10,9 +10,14 @@ function main() {
 
 	final n = parseInt( readline() );
 	
-	final result = string( process( n ));
+	final result = string( processFormula( n ));
 	final iResult = result.indexOf( "." ) == -1 ? result : result.substr( 0, result.indexOf( "." ));
 	print( iResult );
+}
+
+// https://oeis.org/A059924
+function processFormula( n:Int ) {
+	return ((( 8 * n - 3 ) * n + 4 ) * n + ( 3 - 6 * n * n ) * ( n % 2 )) / 6;
 }
 
 function process( n:Int ) {
