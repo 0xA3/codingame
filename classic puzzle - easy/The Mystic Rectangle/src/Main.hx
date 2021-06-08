@@ -31,29 +31,14 @@ function main() {
 
 function process( x:Int, y:Int, u:Int, v:Int ) {
 	
-	final dx1 = abs( u - x );
-	final dx2 = abs( u - WIDTH - x );
-	final dx3 = abs( u + WIDTH - x );
-	final dy1 = abs( v - y );
-	final dy2 = abs( v - HEIGHT - y );
-	final dy3 = abs( v + HEIGHT - y );
+	final dxRaw = abs( u - x );
+	final dx = min( dxRaw, WIDTH - dxRaw );
+	final dyRaw = abs( v - y );
+	final dy = min( dyRaw, HEIGHT - dyRaw );
+	final diag = min( dx, dy );
 
-	// trace( 'xy $x:$y  dx1 $dx1  dx2 $dx2  dx3 $dx3' );
-	// trace( 'xy $x:$y  dy1 $dx1  dy2 $dx2  dy3 $dx3' );
-
-	final dx = min( dx1, min( dx2, dx3 ));
-	final dy = min( dy1, min( dy2, dy3 ));
-
-	var time = 0.0;
-	if( dx > dy ) {
-		final straight = dx - dy;
-		time = dy * 0.5 + straight * 0.3;
-		// trace( 'xy $x:$y  uv $u:$v  straight $straight  time $time' );
-	} else { // dy > dx
-		final straight = dy - dx;
-		time = dx * 0.5 + straight * 0.4;
-		// trace( 'xy $x:$y  uv $u:$v  straight $straight  time $time' );
-	}
+	var time = diag * 0.5 + ( dx - diag ) * 0.3 + ( dy - diag ) * 0.4;
+	
 	final rTime = time.round( 1 );
 
 	return rTime;
