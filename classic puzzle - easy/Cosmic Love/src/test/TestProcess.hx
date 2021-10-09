@@ -1,7 +1,6 @@
 package test;
 
 import Main;
-import Std.parseInt;
 
 using Lambda;
 using StringTools;
