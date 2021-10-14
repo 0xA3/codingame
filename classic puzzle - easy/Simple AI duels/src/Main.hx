@@ -1,8 +1,6 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Math.max;
-import Std.int;
 import Std.parseInt;
 import TAction;
 import TCommand;
@@ -42,57 +40,7 @@ function process( turns:Int, name1:String, inputCommands1:Array<String>, name2:S
 		for( i in 0...ais.length ) {
 			final me = ais[i];
 			final opponent = ais[1 - i];
-			for( command in me.commands ) {
-				// trace( '${me.name} command $command' );
-				switch command {
-					case Always( a ):
-						actions[i] = me.getAction( a );
-						// trace( '${me.name} Always ${actions[i]}' );
-						break;
-					case MyPrevious( previousAction, a ):
-						if( me.lastAction == previousAction ) {
-							actions[i] = me.getAction( a );
-							// trace( '${me.name} MyPrevious $previousAction ${actions[i]}' );
-							break;
-						}
-					case OpponentPrevious( previousAction, a ):
-						if( opponent.lastAction == previousAction ) {
-							actions[i] = me.getAction( a );
-							// trace( '${me.name} OpponentPrevious $previousAction ${actions[i]}' );
-							break;
-						}
-					case MyMost(dominatingAction, a):
-						if( me.getDominatingAction( dominatingAction )) {
-							actions[i] = me.getAction( a );
-							// trace( '${me.name} MyMost $dominatingAction ${actions[i]}' );
-							break;
-						}
-					case OpponentMost(dominatingAction, a):
-						if( opponent.getDominatingAction( dominatingAction )) {
-							actions[i] = me.getAction( a );
-							// trace( '${me.name} OpponentMost $dominatingAction ${actions[i]}' );
-							break;
-						}
-					case OpponentLast( n, dominatingAction, a ):
-						if( opponent.getDominatingActionOfLast( n, dominatingAction )) {
-							actions[i] = me.getAction( a );
-							// trace( '${me.name} OpponentLast $n $dominatingAction ${actions[i]}' );
-							break;
-						}
-					case Start( a ):
-						if( t == 0 ) {
-							actions[i] = me.getAction( a );
-							// trace( '${me.name} Start ${actions[i]}' );
-							break;
-						}
-					case MyWin( a ):
-						if( me.score > opponent.score ) {
-							actions[i] = me.getAction( a );
-							// trace( '${me.name} MyWin ${actions[i]}' );
-							break;
-						}
-				}
-			}
+			actions[i] = me.execute( t, opponent );
 		}
 		
 		switch actions {
