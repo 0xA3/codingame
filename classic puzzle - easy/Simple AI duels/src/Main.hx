@@ -14,12 +14,12 @@ function main() {
 	var inputs = readline().split(' ');
 	final n = parseInt( inputs[0] );
 	final ai1 = inputs[1];
-	final commands1 = [for( i in 0...n ) readline()];
+	final commands1 = [for( _ in 0...n ) readline()];
 	
 	var inputs = readline().split(' ');
 	final m = parseInt( inputs[0] );
 	final ai2 = inputs[1];
-	final commands2 = [for( i in 0...m ) readline()];
+	final commands2 = [for( _ in 0...m ) readline()];
 			
 	final result = process( nbturns, ai1, commands1, ai2, commands2  );
 	print( result );
