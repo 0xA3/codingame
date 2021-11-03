@@ -66,18 +66,21 @@ class TestProcess extends buddy.BuddySuite {
 		 6
 		U"
 	);
+
 	final testLeft = parseInput(
 	   " 1
 		2354
 		 6
 		L"
 	);
+
 	final testRight = parseInput(
 	   " 1
 		2354
 		 6
 		R"
 	);
+	
 	final testDown = parseInput(
 	   " 1
 		2354
