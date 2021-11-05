@@ -1,0 +1,4 @@
+-cp src
+-lib heaps
+-main sim.Main
+-js bin/app.js
