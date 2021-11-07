@@ -1,17 +1,13 @@
-package sim;
+package sim.data;
 
-import h2d.Graphics;
-
-class Surface {
+class SurfaceCoords {
 	
-	final g:Graphics;
 	public final coords:Array<Array<Int>>;
 	public final landX1 = -1;
 	public final landX2 = -1;
 	public final landY = -1;
 
-	public function new( g:Graphics, coords:Array<Array<Int>> ) {
-		this.g = g;
+	public function new( coords:Array<Array<Int>> ) {
 		this.coords = coords;
 		for( i in 1...coords.length ) {
 			final c0 = coords[i - 1];
@@ -26,11 +22,4 @@ class Surface {
 		}
 		if( landY == -1 ) throw 'Error: no landing zone found.';
 	}
-
-	public function draw( zero:Int, scaleFactor:Float ) {
-		g.clear();
-		g.lineStyle( 1, 0xff0000 );
-		for( xy in coords ) g.lineTo( xy[0] * scaleFactor, ( zero - xy[1] ) * scaleFactor );
-	}
-
 }

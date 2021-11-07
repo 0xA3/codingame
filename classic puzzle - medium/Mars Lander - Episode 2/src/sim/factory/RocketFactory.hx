@@ -1,9 +1,10 @@
 package sim.factory;
 
-import h2d.Scene;
-import h2d.Object;
 import h2d.Bitmap;
+import h2d.Object;
+import h2d.Scene;
 import h3d.Vector;
+import sim.view.Rocket;
 
 class RocketFactory {
 	
@@ -27,7 +28,7 @@ class RocketFactory {
 		flame2Bitmap.visible = false;
 		explosionBitmap.visible = false;
 
-		final rocket = new Rocket( new Vector(), new Vector(), new Vector(), rocketObj, rocketBitmap, flame1Bitmap, flame2Bitmap, explosionBitmap );
+		final rocket = new Rocket( rocketObj, rocketBitmap, flame1Bitmap, flame2Bitmap, explosionBitmap );
 		return rocket;
 	}
 }
