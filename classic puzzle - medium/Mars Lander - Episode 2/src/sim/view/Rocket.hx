@@ -24,7 +24,9 @@ class Rocket {
 		this.explosion = explosion;
 	}
 
-	public function draw( agent:Agent, zero:Int, scaleFactor:Float ) {
+	public function update( agent:Agent, zero:Int, scaleFactor:Float ) {
+		obj.scaleX = scaleFactor * 3;
+		obj.scaleY = scaleFactor * 3;
 		obj.rotation = -agent.rotate / 180 * Math.PI;
 		obj.x = agent.x * scaleFactor;
 		obj.y = ( zero - agent.y ) * scaleFactor;

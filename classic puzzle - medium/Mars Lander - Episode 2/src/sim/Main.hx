@@ -1,10 +1,16 @@
 package sim;
 
+import TestCases;
 import ga.Population;
 import h2d.Graphics;
-import h3d.Vector;
+import h2d.Text;
+import haxe.ds.Vector;
+import hxd.res.DefaultFont;
+import sim.data.Agent;
 import sim.data.Position;
 import sim.data.SurfaceCoords;
+import sim.factory.AgentsPathFactory;
+import sim.factory.RocketFactory;
 import sim.view.PathView;
 import sim.view.Rocket;
 import sim.view.Surface;
@@ -13,21 +19,37 @@ class Main extends hxd.App {
 
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;
-
+	static final mutationRate = 0.01;
+	
+	final numChromosomes = 100;
+	final numGenes = 150;
+	
 	var currentFrame = 0;
 	var surface:Surface;
+	var surfaceCoords:SurfaceCoords;
 	var rocket:Rocket;
 	var marsLander:MarsLander;
+	var agentsPaths:Vector<Vector<Position>>;
+	var pathView:PathView;
+	var tSim:Text;
+	var tRocket:Text;
 
 	var zero:Int;
 	var scaleFactor:Float;
-	final force = new Vector();
 
-	var frame = 0.0;
-	var counter = 0;
+	
+	static inline var SIM_FRAME = 1;
+	static inline var PLAY_FRAME = 5;
+	var simCounter = 0;
+	var playCounter = 0;
+
+	var frame = 0;
 
 	var isPlaying = true;
 	var isSuccess = false;
+
+	var population:Population;
+	var agent:Agent;
 
 	static function main() {
 		hxd.Res.initEmbed();
@@ -36,24 +58,12 @@ class Main extends hxd.App {
 	
 	override function init() {
 
-		final numChromosomes = 40;
-		final numGenes = 40;
-		final startX = 2500;
-		final startY = 2700;
-
-		final coords = [
-			[ 0, 100 ],
-			[ 1000, 500 ],
-			[ 1500, 1500 ],
-			[ 3000, 1000 ],
-			[ 4000, 150 ],
-			[ 5500, 150 ],
-			[ 6999, 800 ]
-		];
+		final testCase = TestCases.highGround;
 		
-		final surfaceCoords = new SurfaceCoords( coords );
-		final population = Population.createRandom( numChromosomes, numGenes, surfaceCoords );
-		population.initAgents( startX, startY, 550 );
+		final positions = testCase.coords.map( c -> new Position ( c[0], c[1] ));
+		surfaceCoords = new SurfaceCoords( positions );
+		population = Population.createRandom( numChromosomes, numGenes, testCase, surfaceCoords );
+		agent = new Agent( testCase, surfaceCoords );
 
 		scaleFactor = 0.3;
 		zero = MAX_Y;
@@ -64,17 +74,35 @@ class Main extends hxd.App {
 		
 		final g2 = new Graphics( s2d );
 
-		final agentsPaths = new haxe.ds.Vector<haxe.ds.Vector<sim.data.Position>>( numChromosomes );
-		for( i in 0...agentsPaths.length ) {
-			final positions = new haxe.ds.Vector<sim.data.Position>( numGenes );
-			for( o in 0...numGenes ) {
-				final p:Position = { x: 0, y: 0 };
-				positions[o] = p;
-			}
-			agentsPaths[i] = positions;
-		}
-		final paths = new PathView( g2, agentsPaths );
+		agentsPaths = AgentsPathFactory.create( numChromosomes, numGenes );
+		pathView = new PathView( g2, agentsPaths, testCase.x, testCase.y );
+
+		rocket = RocketFactory.createRocket( s2d );
+		rocket.update( agent, zero, scaleFactor );
 		
+		tSim = new Text( DefaultFont.get(), s2d );
+		tSim.x = 20;
+		tSim.y = 20;
+		s2d.addChild( tSim );
+		
+		tRocket = new Text( DefaultFont.get(), s2d );
+		tRocket.x = 600;
+		tRocket.y = 20;
+		s2d.addChild( tSim );
+	}
+
+	override function update( dt:Float ) {
+		if( !isSuccess ) {
+			if( simCounter % SIM_FRAME == 0 ) sim();
+			simCounter++;
+		} else {
+			if( playCounter % PLAY_FRAME == 0 ) play();
+			playCounter++;
+		}
+	}
+
+	function sim() {
+		population.resetAgents();
 		for( i in 0...numGenes ) {
 			population.run( i );
 			for( c in 0...population.agents.length ) {
@@ -85,72 +113,51 @@ class Main extends hxd.App {
 				p.y = agent.y;
 			}
 		}
-		
-		paths.draw( zero, scaleFactor );
-		
-		// marsLander = new MarsLander( surfaceCoords );
-		// tf = new Text( DefaultFont.get(), s2d );
-		// tf.x = 20;
-		// tf.y = s2d.height - 55;
-		// s2d.addChild( tf );
 
+		pathView.draw( zero, scaleFactor );
+		population.calcFitness();
+		for( i in 0...population.agents.length ) {
+			final agent = population.agents[i];
+			final distance = surfaceCoords.getDistance( agent.x, agent.y, surfaceCoords.landX, surfaceCoords.landY );
+			// trace( agent.x, agent.y, distance, population.chromosomes[i].fitness );
+		}
+		
+		var maxFitness = 0.0;
+		var minFitness = 1.0;
+		var sum = 0.0;
+		for( c in population.chromosomes ) {
+			if( c.fitness > maxFitness ) maxFitness = c.fitness;
+			if( c.fitness < minFitness ) minFitness = c.fitness;
+			sum += c.fitness;
+		}
+		final averageFitness = sum / population.chromosomes.length;
+		if( maxFitness == 1 ) isSuccess = true;
+		tSim.text = '$simCounter\nmaxFitness: $maxFitness\nminFitness: $minFitness\naverageFitness: $averageFitness';
+		population.evolve( mutationRate );
 	}
 
-	override function update( dt:Float ) {
-		// if( !isPlaying ) return;
-		// frame += dt;
-		// if( frame < 0.033 ) return;
-		// frame = 0;
-		// counter++;
+	function play() {
+		if( frame >= population.chromosomes[0].genes.length || agent.isLanded ) return;
 
-		// // trace( 'X=${rocket.x}m, Y=${rocket.y}m, HSpeed=${rocket.hSpeed}m/s VSpeed=${rocket.vSpeed}m/s\nFuel=${rocket.fuel}l, Angle=${rocket.rotate}°, Power=${rocket.power}m/s2' );
+		final gene = population.chromosomes[0].genes[frame];
+		final rotate = gene.rotate;
+		final power = gene.power;
+		// trace( 'X=${rocket.x}m, Y=${rocket.y}m, HSpeed=${rocket.hSpeed}m/s VSpeed=${rocket.vSpeed}m/s\nFuel=${rocket.fuel}l, Angle=${rocket.rotate}°, Power=${rocket.power}m/s2' );
 		
 		// final response = marsLander.update( rocket.x, rocket.y, rocket.hSpeed, rocket.vSpeed, rocket.fuel, rocket.rotate, rocket.power );
 		// final parts = response.split(' ');
 		// final rotate = parseInt( parts[0] );
 		// final power = parseInt( parts[1] );
-		// // trace( response );
+		// trace( response );
 		
-		// rocket.update( dt, rotate, power );
-		// checkCollision();
-		// rocket.draw( zero, scaleFactor );
+		agent.update( rotate, power );
+		tRocket.text = '$frame\nhSpeed: ${agent.hSpeed}\nvSpeed: ${agent.vSpeed}\nrotate: ${agent.rotate}';
+		rocket.update( agent, zero, scaleFactor );
+		frame++;
+		
 	}
-
-	// function checkCollision() {
-		
-	// 	if( rocket.x >= MAX_X || rocket.x < 0 || rocket.y >= MAX_Y ) {
-	// 		rocket.lose();
-	// 		isPlaying = false;
-	// 	}
-		
-	// 	if(
-	// 		rocket.x >= surface.landX1 &&
-	// 		rocket.x <= surface.landX2 &&
-	// 		rocket.y <= surface.landY &&
-	// 		abs( rocket.hSpeed ) <= 20 &&
-	// 		rocket.vSpeed >= -40 &&
-	// 		rocket.rotate == 0 ) {
-	// 			// trace( 'rocket.x ${rocket.x} landx ${surface.landX1}-${surface.landX2} landy ${surface.landY}' );
-	// 			rocket.land();
-	// 			isPlaying = false;
-	// 			isSuccess = true;
-	// 		return;
-	// 	}
-
-	// 	for( i in 1...surface.coords.length ) {
-	// 		final x1 = surface.coords[i - 1][0];
-	// 		final x2 = surface.coords[i][0];
-	// 		if( x1 < rocket.x && x2 >= rocket.x ) {
-	// 			final xFraction = ( rocket.x - x1 ) / ( x2 - x1 );
-	// 			final y1 = surface.coords[i - 1][1];
-	// 			final y2 = surface.coords[i][1];
-	// 			final surfaceY = y1 + ( y2 - y1 ) * xFraction;
-	// 			if( rocket.y <= surfaceY ) {
-	// 				rocket.explode();
-	// 				isPlaying = false;
-	// 			}
-	// 			break;
-	// 		}
-	// 	}
-	// }
 }
+
+
+
+

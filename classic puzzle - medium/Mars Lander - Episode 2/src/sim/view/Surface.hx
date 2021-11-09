@@ -16,6 +16,6 @@ class Surface {
 	public function draw( zero:Int, scaleFactor:Float ) {
 		g.clear();
 		g.lineStyle( 1, 0xff0000 );
-		for( xy in surfaceCoords.coords ) g.lineTo( xy[0] * scaleFactor, ( zero - xy[1] ) * scaleFactor );
+		for( position in surfaceCoords.coords ) g.lineTo( position.x * scaleFactor, ( zero - position.y ) * scaleFactor );
 	}
 }

@@ -1,6 +1,6 @@
-import CodinGame.readline;
 import CodinGame.print;
 import CodinGame.printErr;
+import CodinGame.readline;
 import Std.parseInt;
 
 class Main {
