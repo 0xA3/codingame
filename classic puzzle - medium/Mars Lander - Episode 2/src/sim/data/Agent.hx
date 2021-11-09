@@ -70,9 +70,10 @@ class Agent {
 
 		final deltaRot = inRotate - rotate;
 		rotate = deltaRot > 15 ? rotate + 15 : deltaRot < -15 ? rotate - 15 : inRotate;
-		
+		final deltaPower = inPower - power;
+		final tempPower = deltaPower > 0 ? power + 1 : deltaPower < 0 ? power - 1 : power; 
 		// power = inPower;
-		power = int( min( fuel, inPower ));
+		power = int( min( fuel, tempPower ));
 		fuel -= power;
 		
 		final fRotation = -rotate / 180 * Math.PI;

@@ -58,7 +58,14 @@ class Main extends hxd.App {
 	
 	override function init() {
 
-		final testCase = TestCases.highGround;
+		// easyOnTheRight
+		// initialSpeedCorrectSide
+		// initialSpeedWrongSide
+		// deepCanyon
+		// highGround
+		// caveCorrectSide
+		// caveWrongSide
+		final testCase = TestCases.easyOnTheRight;
 		
 		final positions = testCase.coords.map( c -> new Position ( c[0], c[1] ));
 		surfaceCoords = new SurfaceCoords( positions );
