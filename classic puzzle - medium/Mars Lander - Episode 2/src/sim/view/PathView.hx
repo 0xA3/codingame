@@ -7,15 +7,18 @@ import sim.data.AgentPath;
 class PathView {
 	
 	final g:Graphics;
-	final agentPaths:Vector<AgentPath>;
-	final startX:Int;
-	final startY:Int;
+	var agentPaths:Vector<AgentPath>;
+	var startX:Int;
+	var startY:Int;
 
-	public function new( g:Graphics, agentPaths:Vector<AgentPath>, startX:Int, startY:Int ) {
+	public function new( g:Graphics ) {
 		this.g = g;
-		this.agentPaths = agentPaths;
+	}
+
+	public function init( startX:Int, startY:Int, agentPaths:Vector<AgentPath> ) {
 		this.startX = startX;
 		this.startY = startY;
+		this.agentPaths = agentPaths;
 	}
 
 	public function draw( zero:Int, scaleFactor:Float ) {

@@ -1,0 +1,22 @@
+body {
+	font-family: 'Roboto', sans-serif;
+}
+
+.controls {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	margin-left: 20px;
+	margin-top: 100px;
+	color: white;
+	& > div {
+		margin-top: 6px;
+		margin-bottom: 6px;
+	}
+}
+
+select:focus {
+	outline: none;
+	box-shadow: none;
+  }
