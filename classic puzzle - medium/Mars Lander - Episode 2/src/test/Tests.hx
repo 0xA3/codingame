@@ -3,5 +3,6 @@ package test;
 import buddy.Buddy;
 
 class Tests implements Buddy<[
-	TestSurfaceCoords
+	test.TestIntersect,
+	test.TestSurfaceCoords
 ]>{}

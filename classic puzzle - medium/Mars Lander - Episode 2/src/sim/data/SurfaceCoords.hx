@@ -15,7 +15,7 @@ class SurfaceCoords {
 	public final landX = -1;
 	public final landY = -1;
 
-	final lengthFractions:Array<Float> = [];
+	final distanceFractions:Array<Float> = [];
 	final totalLength:Float;
 
 	public function new( coords:Array<Position> ) {
@@ -38,28 +38,27 @@ class SurfaceCoords {
 		if( landY == -1 ) throw 'Error: no landing zone found.';
 
 		totalLength = lengths.fold(( l, sum ) -> sum + l, 0.0 );
-		lengthFractions = lengths.map( l -> l / totalLength );
-	}
-
-	public function getDistance( x1:Int, y1:Int, x2:Int, y2:Int ) {
-		final dx = x2 - x1;
-		final dy = y2 - y1;
-		final distance = sqrt( dx * dx + dy * dy );
-		return distance;
+		final lengthFractions = lengths.map( l -> l / totalLength );
+		for( i in 0...lengthFractions.length ) {
+			var distanceFraction = 0.0;
+			if( i < landIndex ) {
+				for( o in i...landIndex ) {
+					distanceFraction += lengthFractions[i];
+				}
+			}
+			if( i > landIndex + 1 ) {
+				for( o in i...lengthFractions.length ) {
+					distanceFraction += lengthFractions[i];
+				}
+			}
+			distanceFractions[i] = distanceFraction;
+			// trace( 'i $i  lengthFraction ${lengthFractions[i]} distanceFraction ${distanceFractions[i]}' );
+		}
 	}
 
 	public function getHitFraction( x:Int, y:Int ) {
 		if( x >= landX1 && x <= landX2 && y <= landY ) return 1.0;
 		
-		// if( x >= landX1 && x <= landX2 ) {
-		// 	if( y <= landY ) return 1.0; // hit landing surface
-		// 	else { // motion ended above landing surface
-		// 		final distanceFraction = ( y - landY ) / totalLength;
-		// 		// trace( 'landY $landY  y $y  totalLength $totalLength  distanceFraction $distanceFraction  1-distanceFraction ${1 - distanceFraction}' );
-		// 		return 1 / distanceFraction;
-		// 	}
-		// }
-
 		// motion ended somwhere else
 		for( i in 1...coords.length ) {
 			final x1 = coords[i - 1].x;
@@ -71,8 +70,7 @@ class SurfaceCoords {
 				final surfaceY = y1 + ( y2 - y1 ) * fraction;
 				if( y <= surfaceY ) {
 					final touchIndex = i - 1;
-					final distanceFraction = getOffsetFraction( touchIndex, fraction );
-					return distanceFraction; // return ground distance
+					return distanceFractions[touchIndex]; // return ground distance
 				}
 			}
 		}
@@ -81,15 +79,11 @@ class SurfaceCoords {
 		return Math.min( 1, 100 / distance );
 	}
 
-	function getOffsetFraction( touchIndex:Int, fraction:Float ) {
-		var distance = 0.0;
-		if( touchIndex < landIndex ) {
-			distance = ( 1 - fraction ) * lengthFractions[touchIndex];
-			for( i in touchIndex + 1...landIndex ) distance += lengthFractions[i];
-		} else {
-			for( i in landIndex + 1...touchIndex ) distance += lengthFractions[i];
-			distance += fraction * lengthFractions[touchIndex];
-		}
-		return 1 - distance;
+	inline function getDistance( x1:Int, y1:Int, x2:Int, y2:Int ) {
+		final dx = x2 - x1;
+		final dy = y2 - y1;
+		final distance = sqrt( dx * dx + dy * dy );
+		return distance;
 	}
+
 }

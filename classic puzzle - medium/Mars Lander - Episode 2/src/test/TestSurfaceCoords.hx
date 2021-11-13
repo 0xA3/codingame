@@ -18,53 +18,30 @@ class TestSurfaceCoords extends buddy.BuddySuite {
 				final s = new SurfaceCoords( positions );
 				s.totalLength.should.be( 1000 );
 				s.landIndex.should.be( 0 );
-				s.landX1.should.be( 0 );
-				s.landX2.should.be( 1000 );
+				s.landX1.should.be( 50 );
+				s.landX2.should.be( 950 );
 				s.landY.should.be( 0 );
-				s.lengthFractions.length.should.be( 1 );
-				s.lengthFractions[0].should.be( 1.0 );
+				s.distanceFractions.length.should.be( 1 );
+				s.distanceFractions[0].should.be( 0 );
 			});
 			it( "Test Constructor 2", {
 				final positions = [new Position( 0, 500), new Position( 0, 0), new Position( 1000, 0 ), new Position( 1000, 500 ) ];
 				final s = new SurfaceCoords( positions );
 				s.totalLength.should.be( 2000 );
 				s.landIndex.should.be( 1 );
-				s.landX1.should.be( 0 );
-				s.landX2.should.be( 1000 );
+				s.landX1.should.be( 50 );
+				s.landX2.should.be( 950 );
 				s.landY.should.be( 0 );
-				s.lengthFractions.length.should.be( 3 );
-				s.lengthFractions[0].should.be( 0.25 );
+				s.distanceFractions.length.should.be( 3 );
+				s.distanceFractions[0].should.be( 0.25 );
 			});
 		});
 		
-		describe( "Test getOffsetFraction", {
-			it( "Test Total Left", {
-				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];
-				final s = new SurfaceCoords( positions );
-				s.getOffsetFraction( 0, 0 ).should.be( 0.75 );
-			});
-			it( "Test 50% Left", {
-				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];
-				final s = new SurfaceCoords( positions );
-				s.getOffsetFraction( 0, 0.5 ).should.be( 0.875 );
-			});
-			it( "Test Total Right", {
-				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];
-				final s = new SurfaceCoords( positions );
-				s.getOffsetFraction( 2, 1 ).should.be( 0.75 );
-			});
-			it( "Test 50% Right", {
-				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];
-				final s = new SurfaceCoords( positions );
-				s.getOffsetFraction( 2, 0.5 ).should.be( 0.875 );
-			});
-		});
-		
-		describe( "Test getHitFraction", {
+		@exclude describe( "Test getHitFraction", {
 			it( "Test landing area left", {
 				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];
 				final s = new SurfaceCoords( positions );
-				s.getHitFraction( 500, 0 ).should.be( 1.0 );
+				s.getHitFraction( 550, 0 ).should.be( 1.0 );
 			});
 			it( "Test landing area center", {
 				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];
@@ -74,12 +51,12 @@ class TestSurfaceCoords extends buddy.BuddySuite {
 			it( "Test landing area right", {
 				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];
 				final s = new SurfaceCoords( positions );
-				s.getHitFraction( 1500, 0 ).should.be( 1.0 );
+				s.getHitFraction( 1450, 0 ).should.be( 1.0 );
 			});
 			it( "Test above landing area", {
 				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];
 				final s = new SurfaceCoords( positions );
-				s.getHitFraction( 1500, 100 ).should.be( 1 - ( 100 / 2000 ));
+				s.getHitFraction( 1450, 100 ).should.be( 1 - ( 100 / 2000 ));
 			});
 			it( "Test left of screen", {
 				final positions = [new Position( 0, 0), new Position( 500, 0), new Position( 1500, 0 ), new Position( 2000, 0 )];

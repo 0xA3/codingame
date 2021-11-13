@@ -43,7 +43,7 @@ var initialSpeedCorrectSide:TestCase = {
 	  ],
 	  x: 6400,
 	  y: 2798,
-	  hSpeed: 100,
+	  hSpeed: -100,
 	  vSpeed: 4,
 	  fuel: 600,
 	  angle: 75,
@@ -62,7 +62,7 @@ var initialSpeedWrongSide:TestCase = {
 	  ],
 	  x: 6410,
 	  y: 2798,
-	  hSpeed: 90,
+	  hSpeed: -90,
 	  vSpeed: -4,
 	  fuel: 750,
 	  angle: 75,
@@ -87,7 +87,7 @@ var deepCanyon:TestCase = {
 	  hSpeed: 100,
 	  vSpeed: -4,
 	  fuel: 800,
-	  angle: 75,
+	  angle: -75,
 	  power: 0
 }
 
@@ -106,7 +106,7 @@ var highGround:TestCase = {
 	  ],
 	  x: 6450,
 	  y: 2698,
-	  hSpeed: 50,
+	  hSpeed: -50,
 	  vSpeed: -4,
 	  fuel: 1000,
 	  angle: 75,

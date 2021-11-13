@@ -87,8 +87,12 @@ class App extends hxd.App {
 	}
 
 	public function select( id:Int ) {
-		testCaseId = id;
-		changeState( Simulating );
+		if( testCaseId == id ) {
+			changeState( Simulating );
+		} else {
+			testCaseId = id;
+			changeState( Simulating );
+		}
 	}
 
 	public function simClick() {
@@ -152,9 +156,10 @@ class App extends hxd.App {
 		final positions = testCase.coords.map( c -> new Position( c[0], c[1] ));
 		surfaceCoords = new SurfaceCoords( positions );
 		
+		agent = new Agent( testCase, surfaceCoords );
 		population = Population.createRandom( numChromosomes, numGenes, testCase, surfaceCoords );
 		surface = new Surface( surfaceGraphics, surfaceCoords );
-		agent = new Agent( testCase, surfaceCoords );
+		outputAgent();
 		
 		agentsPaths = AgentsPathFactory.create( numChromosomes, numGenes );
 
@@ -212,7 +217,7 @@ class App extends hxd.App {
 			sum += c.fitness;
 		}
 		final averageFitness = sum / population.chromosomes.length;
-		tSim.text = '$simCounter\nmaxFitness: $maxFitness\nminFitness: $minFitness\naverageFitness: $averageFitness';
+		outputSim( maxFitness, minFitness, averageFitness );
 		if( maxFitness == 1 ) {
 			changeState( Playing );
 			return;
@@ -238,10 +243,20 @@ class App extends hxd.App {
 		// trace( response );
 		
 		agent.update( rotate, power );
-		tRocket.text = '$frame\nhSpeed: ${agent.hSpeed}\nvSpeed: ${agent.vSpeed}\nrotate: ${agent.rotate}';
+		outputAgent();
 		rocket.update( agent, zero, scaleFactor );
 		frame++;
 	}
+
+	inline function outputSim( maxFitness:Float, minFitness:Float, averageFitness:Float ) {
+		tSim.text = '$simCounter\nmaxFitness: $maxFitness\nminFitness: $minFitness\naverageFitness: $averageFitness';
+	}
+
+	inline function outputAgent() {
+		tRocket.text = '$frame\nhSpeed: ${agent.hSpeed}\nvSpeed: ${agent.vSpeed}\nrotate: ${agent.rotate}\npower: ${agent.power}';
+	}
+
+
 
 }
 

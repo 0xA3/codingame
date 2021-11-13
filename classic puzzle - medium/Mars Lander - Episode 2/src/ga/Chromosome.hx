@@ -1,7 +1,8 @@
 package ga;
 
 import haxe.ds.Vector;
-
+import xa3.MathUtils.max;
+import xa3.MathUtils.min;
 
 class Chromosome {
 	
@@ -12,9 +13,9 @@ class Chromosome {
 		this.genes = genes;
 	}
 
-	public static function createRandom( numGenes:Int ) {
+	public static function createRandom( numGenes:Int, startRotate:Int, startPower:Int ) {
 		final genes = new Vector<Gene>( numGenes );
-		final gene:Gene = { rotate: Gene.getRandomRotate(), power: Gene.getRandomPower() };
+		final gene:Gene = { rotate: startRotate, power: startPower };
 		genes[0] = gene;
 		for( i in 1...numGenes ) {
 			final gene:Gene = { rotate: genes[i - 1].rotate + Gene.getRandomRotate(), power: Gene.getRandomPower() };
@@ -29,6 +30,8 @@ class Chromosome {
 		genes[0].power = Gene.getRandomPower();
 		for( i in 1...genes.length ) {
 			final gene = genes[i];
+			// gene.rotate = max( -90, min( 90, genes[i - 1].rotate + Gene.getRandomRotate() ));
+			// gene.power = max( 0, min( 4, genes[i - 1].power + Gene.getRandomPower() ));
 			gene.rotate = genes[i - 1].rotate + Gene.getRandomRotate();
 			gene.power = Gene.getRandomPower();
 		}

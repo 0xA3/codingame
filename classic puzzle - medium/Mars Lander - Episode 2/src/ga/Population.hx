@@ -21,7 +21,7 @@ class Population {
 
 	public static function createRandom( numChromosomes:Int, numGenes:Int, testCase:TestCase, surfaceCoords:SurfaceCoords ) {
 		final chromosomes = new Vector<Chromosome>( numChromosomes );
-		for( i in 0...numChromosomes ) chromosomes[i] = Chromosome.createRandom( numGenes );
+		for( i in 0...numChromosomes ) chromosomes[i] = Chromosome.createRandom( numGenes, testCase.angle, testCase.power );
 		
 		final agents = new Vector<Agent>( numChromosomes );
 		for( i in 0...agents.length ) agents[i] = new Agent( testCase, surfaceCoords );

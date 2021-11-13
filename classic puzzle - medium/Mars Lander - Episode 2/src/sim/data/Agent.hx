@@ -2,12 +2,12 @@ package sim.data;
 
 import Math.abs;
 import Math.cos;
-import Math.min;
 import Math.round;
 import Math.sin;
-import Std.int;
 import TestCases;
 import sim.data.SurfaceCoords;
+import xa3.MathUtils.max;
+import xa3.MathUtils.min;
 
 class Agent {
 	
@@ -32,8 +32,8 @@ class Agent {
 
 	var velX = 0.0;
 	var velY = 0.0;
-	// var prevX = 0;
-	// var prevY = 0;
+	var prevX = 0;
+	var prevY = 0;
 	var endDistance = 1;
 
 	public function new( testCase:TestCase, surfaceCoords:SurfaceCoords ) {
@@ -45,35 +45,32 @@ class Agent {
 	public function reset() {
 		x = testCase.x;
 		y = testCase.y;
+		prevX = x;
+		prevY = y;
 		hSpeed = testCase.hSpeed;
 		vSpeed = testCase.vSpeed;
+		velX = hSpeed;
+		velY = vSpeed;
 		fuel = testCase.fuel;
 		rotate = testCase.angle;
-		hSpeed = 0;
+		power = testCase.power;
+
 		isExploded = false;
 		isLanded = false;
 		isLost = false;
-		power = 0;
-		// prevX = startX;
-		// prevY = startY;
-		rotate = 0;
-		velX = 0;
-		velY = 0;
-		vSpeed = 0;
 	}
 
 	public function update( inRotate:Int, inPower:Int ) {
 		if( isLost || isExploded || isLanded ) return;
 		
-		// prevX = x;
-		// prevY = y;
+		prevX = x;
+		prevY = y;
 
 		final deltaRot = inRotate - rotate;
-		rotate = deltaRot > 15 ? rotate + 15 : deltaRot < -15 ? rotate - 15 : inRotate;
+		rotate = max( -90, min( 90, deltaRot > 15 ? rotate + 15 : deltaRot < -15 ? rotate - 15 : inRotate ));
 		final deltaPower = inPower - power;
-		final tempPower = deltaPower > 0 ? power + 1 : deltaPower < 0 ? power - 1 : power; 
-		// power = inPower;
-		power = int( min( fuel, tempPower ));
+		final tempPower = deltaPower > 0 ? power + 1 : deltaPower < 0 ? power - 1 : power;
+		power = min( fuel, tempPower );
 		fuel -= power;
 		
 		final fRotation = -rotate / 180 * Math.PI;

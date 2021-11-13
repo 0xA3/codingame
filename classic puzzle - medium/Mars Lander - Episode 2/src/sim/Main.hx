@@ -34,7 +34,6 @@ class Main {
 			canvas.height = Browser.window.innerHeight;
 			canvas.style.width = '${canvas.width}px';
 			canvas.style.height = '${canvas.height}px';
-			trace( 'resize ${canvas.width} ${canvas.height}' );
 			app.resize();
 		});
 	}
