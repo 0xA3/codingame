@@ -21,7 +21,7 @@ function lineIntersect( x0:Int, y0:Int, x1:Int, y1:Int, x2:Int, y2:Int, x3:Int, 
 	
 	if( denominator == 0 ) return false;
 
-	trace( a1, b1, c1, a2, b2, c2, denominator );
+	// trace( a1, b1, c1, a2, b2, c2, denominator );
 
 	pos.x = ( b2 * c1 - b1 * c2 ) / denominator;
 	pos.y = ( a1 * c2 - a2 * c1 ) / denominator;

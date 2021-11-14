@@ -22,6 +22,8 @@ class App extends hxd.App {
 
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;
+	static inline var SIM_FRAME = 1;
+	static inline var PLAY_FRAME = 5;
 	static final mutationRate = 0.01;
 	
 	final numChromosomes = 100;
@@ -45,9 +47,6 @@ class App extends hxd.App {
 	var zero:Int;
 	var scaleFactor:Float;
 
-	
-	static inline var SIM_FRAME = 1;
-	static inline var PLAY_FRAME = 5;
 	var frame = 0;
 	var simCounter = 0;
 	var playCounter = 0;

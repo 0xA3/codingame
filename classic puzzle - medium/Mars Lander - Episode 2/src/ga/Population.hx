@@ -42,8 +42,8 @@ class Population {
 				agent.update( gene.rotate, gene.power );
 				if( agent.isLandedSim ) {
 					trace( 'agent $i landed at frame $currentGene' );
-					chromosomes[i].genes[currentGene - 1].rotate = 0;
-					chromosomes[i].genes[currentGene].rotate = 0;
+					chromosome.genes[currentGene - 1].rotate = 0;
+					chromosome.genes[currentGene].rotate = 0;
 				}
 			}
 		}
