@@ -25,6 +25,19 @@ class TestIntersect extends buddy.BuddySuite {
 				vec.x.should.beCloseTo( 332.7102803738318 );
 				vec.y.should.beCloseTo( 332.7102803738318 );
 			});
+			it( "Test lander1", {
+				final vec:Vec2 = { x: 0, y: 0 };
+				final isIntersection = segmentIntersect(
+					4020, 228,
+					4020, 91,
+					4000, 150,
+					5000, 150,
+					vec
+				);
+				isIntersection.should.be( true );
+				vec.x.should.beCloseTo( 4020 );
+				vec.y.should.beCloseTo( 150 );
+			});
 			it( "Test parallel", {
 				final vec:Vec2 = { x: 0, y: 0 };
 				final isIntersection = lineIntersect(

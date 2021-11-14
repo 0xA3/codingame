@@ -6,8 +6,10 @@ import Math.round;
 import Math.sin;
 import TestCases;
 import sim.data.SurfaceCoords;
+import xa3.MathUtils.lineIntersect;
 import xa3.MathUtils.max;
 import xa3.MathUtils.min;
+import xa3.MathUtils.segmentIntersect;
 
 class Agent {
 	
@@ -20,6 +22,8 @@ class Agent {
 
 	public var x( default,null ) = 0;
 	public var y( default,null ) = 0;
+	var prevX = 0;
+	var prevY = 0;
 	public var hSpeed( default,null ) = 0;
 	public var vSpeed( default,null ) = 0;
 	public var fuel( default, null ) = 0;
@@ -32,9 +36,10 @@ class Agent {
 
 	var velX = 0.0;
 	var velY = 0.0;
-	var prevX = 0;
-	var prevY = 0;
+	var prevVelX = 0.0;
+	var prevVelY = 0.0;
 	var endDistance = 1;
+	final vIntersect:Vec2 = { x: 0, y: 0 };
 
 	public function new( testCase:TestCase, surfaceCoords:SurfaceCoords ) {
 		this.testCase = testCase;
@@ -43,14 +48,14 @@ class Agent {
 	}
 
 	public function reset() {
-		x = testCase.x;
-		y = testCase.y;
+		x = prevX = testCase.x;
+		y = prevY = testCase.y;
 		prevX = x;
 		prevY = y;
 		hSpeed = testCase.hSpeed;
 		vSpeed = testCase.vSpeed;
-		velX = hSpeed;
-		velY = vSpeed;
+		velX = prevVelX = hSpeed;
+		velY = prevVelY = vSpeed;
 		fuel = testCase.fuel;
 		rotate = testCase.angle;
 		power = testCase.power;
@@ -63,6 +68,8 @@ class Agent {
 	public function update( inRotate:Int, inPower:Int ) {
 		if( isLost || isExploded || isLanded ) return;
 		
+		prevVelX = velX;
+		prevVelY = velX;
 		prevX = x;
 		prevY = y;
 
@@ -94,24 +101,27 @@ class Agent {
 	}
 
 	public function calcFitness() {
-		final hitFraction = surfaceCoords.getHitFraction( x, y );
-		final aVelH = abs( velX );
-		final aVelV = abs( velY );
-		final hFraction = hitFraction < 1 ? 0.1 : aVelH < 20 ? 1 : 10 / aVelH;
-		final vFraction = hitFraction < 1 ? 0.1 : aVelV < 40 ? 1 : 20 / aVelV;
-		// trace( 'hitFraction $hitFraction, velX $velX, hFraction $hFraction, velY $velY, vFraction $vFraction' );
-		return hitFraction * hFraction * vFraction;
+		final hitFitness = surfaceCoords.getHitFitness( prevX, prevY, x, y );
+		final aVelH = abs( velX );//Math.max( abs( velX ), abs( prevVelX ));
+		final aVelV = abs( velY );//Math.max( abs( velY ), abs( prevVelY ));
+		final hFraction = hitFitness < 1 ? 0.1 : aVelH < 20 ? 1 : 10 / aVelH;
+		final vFraction = hitFitness < 1 ? 0.1 : aVelV < 40 ? 1 : 20 / aVelV;
+		// trace( 'hitFitness $hitFitness, velX $velX, hFraction $hFraction, velY $velY, vFraction $vFraction' );
+		return hitFitness * hFraction * vFraction;
+		// return hitFitness;
 	}
 
 	inline function checkLost() return x >= MAX_X || x < 0 || y >= MAX_Y;
 
 	inline function checkLandedSim() {
-		if( x >= surfaceCoords.landX1 &&
-			x <= surfaceCoords.landX2 &&
+		if( x >= surfaceCoords.landX1 + 50 &&
+			x <= surfaceCoords.landX2 - 50 &&
 			y <= surfaceCoords.landY &&
 			abs( hSpeed ) <= 20 &&
 			vSpeed >= -40 ) {
-				y = surfaceCoords.landY;
+				lineIntersect( prevX, prevY, x, y, surfaceCoords.landX1, surfaceCoords.landY, surfaceCoords.landX2, surfaceCoords.landY, vIntersect );
+				x = round( vIntersect.x );
+				y = round( vIntersect.y );
 				power = 0;
 				return true;
 		} else
@@ -121,20 +131,18 @@ class Agent {
 	inline function checkLanded() return isLandedSim && rotate == 0;
 
 	function checkExploded() {
-		for( i in 1...surfaceCoords.coords.length ) {
-			final x1 = surfaceCoords.coords[i - 1].x;
-			final x2 = surfaceCoords.coords[i].x;
-			if( x1 < x && x2 >= x ) {
-				final xFraction = ( x - x1 ) / ( x2 - x1 );
-				final y1 = surfaceCoords.coords[i - 1].y;
-				final y2 = surfaceCoords.coords[i].y;
-				final surfaceY = y1 + ( y2 - y1 ) * xFraction;
-				if( y <= surfaceY ) {
-					y = round( surfaceY );
-					power = 0;
-					return true;
-				}
-				break;
+		final coords = surfaceCoords.coords;
+		for( i in 1...coords.length ) {
+			final x2 = coords[i - 1].x;
+			final y2 = coords[i - 1].y;
+			final x3 = coords[i].x;
+			final y3 = coords[i].y;
+			
+			final isIntersection = segmentIntersect( prevX, prevY, x, y, x2, y2, x3, y3, vIntersect );
+			if( isIntersection ) {
+				x = round( vIntersect.x );
+				y = round( vIntersect.y );
+				return true;
 			}
 		}
 		return false;

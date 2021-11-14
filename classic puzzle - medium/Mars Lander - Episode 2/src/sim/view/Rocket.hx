@@ -24,7 +24,7 @@ class Rocket {
 		this.explosion = explosion;
 	}
 
-	public function init() {
+	public function reset() {
 		explosion.visible = false;
 		rocket.visible = true;
 	}

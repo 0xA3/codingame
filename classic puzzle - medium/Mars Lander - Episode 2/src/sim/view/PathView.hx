@@ -15,7 +15,7 @@ class PathView {
 		this.g = g;
 	}
 
-	public function init( startX:Int, startY:Int, agentPaths:Vector<AgentPath> ) {
+	public function reset( startX:Int, startY:Int, agentPaths:Vector<AgentPath> ) {
 		this.startX = startX;
 		this.startY = startY;
 		this.agentPaths = agentPaths;
@@ -25,10 +25,18 @@ class PathView {
 		g.clear();
 		g.lineStyle( 1, 0x666666 );
 		for( path in agentPaths ) {
-			if( path.length == 0 ) continue;
 			g.moveTo( startX * scaleFactor,( zero - startY ) * scaleFactor );
+			
+			var x = startX;
+			var y = startY;
 			for( i in 0...path.length ) {
-				g.lineTo( path[i].x * scaleFactor, ( zero - path[i].y ) * scaleFactor );
+				var nx = path[i].x;
+				var ny = path[i].y;
+				if( nx != x || ny != y ) {
+					g.lineTo( nx * scaleFactor, ( zero - ny ) * scaleFactor );
+					x = nx;
+					y = ny;
+				}
 			}
 		}
 	}

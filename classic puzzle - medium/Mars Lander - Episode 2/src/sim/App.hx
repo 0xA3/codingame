@@ -1,8 +1,10 @@
 package sim;
 
+import Math.round;
 import TestCases;
 import ga.Population;
 import h2d.Graphics;
+import h2d.Object;
 import h2d.Text;
 import haxe.ds.Vector;
 import hxd.res.DefaultFont;
@@ -37,6 +39,9 @@ class App extends hxd.App {
 	var tSim:Text;
 	var tRocket:Text;
 
+	var intersectObject:Object;
+	var tIntersect:Text;
+	
 	var zero:Int;
 	var scaleFactor:Float;
 
@@ -63,13 +68,20 @@ class App extends hxd.App {
 		tSim = new Text( DefaultFont.get(), s2d );
 		tSim.x = 20;
 		tSim.y = 20;
-		s2d.addChild( tSim );
 		
 		tRocket = new Text( DefaultFont.get(), s2d );
 		tRocket.x = 600;
 		tRocket.y = 20;
-		s2d.addChild( tSim );
-		
+
+		intersectObject = new Object( s2d );
+		final intersectCircle = new Graphics( intersectObject );
+		intersectCircle.clear();
+		intersectCircle.lineStyle( 1, 0xcccccc );
+		intersectCircle.drawCircle( 0, 0, 4 );
+
+		tIntersect = new Text( DefaultFont.get(), intersectObject );
+		tIntersect.y = 10;
+
 		scaleFactor = 0.3;
 		zero = MAX_Y;
 		
@@ -129,7 +141,7 @@ class App extends hxd.App {
 			case [Simulating, Playing]:
 				Main.simulationFinished();
 				Main.playStarted();
-				initPlay();
+				resetPlay();
 			
 			case [Playing, PlayPaused]:
 				Main.playPaused();
@@ -142,7 +154,7 @@ class App extends hxd.App {
 			
 			case [Finished, Playing]:
 				Main.playStarted();
-				initPlay();
+				resetPlay();
 			
 			default: throw 'Error: no conditions for change from $state to $nextState';
 		}
@@ -163,14 +175,15 @@ class App extends hxd.App {
 		
 		agentsPaths = AgentsPathFactory.create( numChromosomes, numGenes );
 
-		pathView.init( testCase.x, testCase.y, agentsPaths );
-		rocket.init();
+		pathView.reset( testCase.x, testCase.y, agentsPaths );
+		rocket.reset();
 		rocket.update( agent, zero, scaleFactor );
 		surface.draw( zero, scaleFactor );
 	}
 
-	public function initPlay() {
+	public function resetPlay() {
 		agent.reset();
+		rocket.reset();
 		frame = 0;
 		playCounter = 0;
 	}
@@ -219,6 +232,7 @@ class App extends hxd.App {
 		final averageFitness = sum / population.chromosomes.length;
 		outputSim( maxFitness, minFitness, averageFitness );
 		if( maxFitness == 1 ) {
+			population.sortChromosomes();
 			changeState( Playing );
 			return;
 		}
@@ -256,8 +270,25 @@ class App extends hxd.App {
 		tRocket.text = '$frame\nhSpeed: ${agent.hSpeed}\nvSpeed: ${agent.vSpeed}\nrotate: ${agent.rotate}\npower: ${agent.power}';
 	}
 
+	public function onMouseMove( windowX:Int ) {
+		final x = round( windowX / scaleFactor );
+		final hitFitness = surfaceCoords.getHitFitness( x, MAX_Y, x, 0 );
 
-
+		final vIntersect:sim.data.Vec2 = { x: 0, y: 0 };
+		final coords = surfaceCoords.coords;
+		for( i in 1...coords.length ) {
+			final x0 = coords[i - 1].x;
+			final y0 = coords[i - 1].y;
+			final x1 = coords[i].x;
+			final y1 = coords[i].y;
+			final isIntersection = xa3.MathUtils.segmentIntersect( x0, y0, x1, y1, x, 0, x, MAX_Y, vIntersect );
+			if( isIntersection ) {
+				intersectObject.x = windowX;
+				intersectObject.y = ( zero - vIntersect.y ) * scaleFactor;
+				tIntersect.text = 'x: $x\ny: ${vIntersect.y}\nhitFitness: $hitFitness';
+			}
+		}
+	}
 }
 
 

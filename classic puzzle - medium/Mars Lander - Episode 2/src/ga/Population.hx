@@ -35,12 +35,16 @@ class Population {
 
 	public function run( currentGene:Int ) {
 		for( i in 0...agents.length ) {
-			final chromosome = chromosomes[i];
-			final gene = chromosome.genes[currentGene];
-			agents[i].update( gene.rotate, gene.power );
-			if( agents[i].isLandedSim ) {
-				chromosomes[i].genes[currentGene - 1].rotate = 0;
-				chromosomes[i].genes[currentGene].rotate = 0;
+			final agent = agents[i];
+			if( !agent.isLost && !agent.isLandedSim && !agent.isExploded ) {
+				final chromosome = chromosomes[i];
+				final gene = chromosome.genes[currentGene];
+				agent.update( gene.rotate, gene.power );
+				if( agent.isLandedSim ) {
+					trace( 'agent $i landed at frame $currentGene' );
+					chromosomes[i].genes[currentGene - 1].rotate = 0;
+					chromosomes[i].genes[currentGene].rotate = 0;
+				}
 			}
 		}
 	}
@@ -50,15 +54,11 @@ class Population {
 	}
 
 	public function evolve( mutationRate:Float ) {
-		final selected:Array<Float> = [];
+		// final selected:Array<Float> = [];
 		var total = 0.0;
 		for( c in chromosomes ) total += c.fitness;
-		chromosomes.sort(( a, b ) -> {
-			if( a.fitness < b.fitness ) return 1;
-			if( a.fitness > b.fitness ) return -1;
-			return 0;
-		});
-
+		sortChromosomes();
+	
 		final childChromosomes = new Vector<Chromosome>( chromosomes.length );
 		final eliteNum = Std.int( chromosomes.length * 0.2 );
 		for( i in 0...eliteNum ) childChromosomes[i] = chromosomes[i];
@@ -69,8 +69,8 @@ class Population {
 			child.mutate( mutationRate );
 			childChromosomes[i] = child;
 			
-			selected.push( a.fitness );
-			selected.push( b.fitness );
+			// selected.push( a.fitness );
+			// selected.push( b.fitness );
 		}
 
 		for( i in 0...chromosomes.length ) {
@@ -85,6 +85,13 @@ class Population {
 		// trace( selected );
 	}
 
+	public inline function sortChromosomes() {
+		chromosomes.sort(( a, b ) -> {
+			if( a.fitness < b.fitness ) return 1;
+			if( a.fitness > b.fitness ) return -1;
+			return 0;
+		});
+	}
 	static function probabilitySelect( a:Vector<Chromosome>, total:Float ) {
 		var index = 0;
 		var r = Math.random() * total;

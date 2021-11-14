@@ -12,9 +12,11 @@ class Main {
 	public static var sim:ButtonElement;
 	public static var play:ButtonElement;
 
+	static var app:App;
+
 	static function main() {
 		hxd.Res.initEmbed();
-		final app = new App();
+		app = new App();
 		
 		canvas = cast( Browser.document.getElementById( "webgl" ), CanvasElement );
 		select = cast( Browser.document.getElementById( "select" ), SelectElement );
@@ -36,6 +38,8 @@ class Main {
 			canvas.style.height = '${canvas.height}px';
 			app.resize();
 		});
+
+		initMouseMove( app );
 	}
 
 	public static function simulationStarted() {
@@ -52,8 +56,5 @@ class Main {
 	public static function playPaused() play.innerHTML = "Resume";
 	public static function playFinished() play.innerHTML = "Play";
 
+	static function initMouseMove( app:App ) Browser.document.body.addEventListener( "mousemove", e -> { app.onMouseMove( e.clientX ); });
 }
-
-
-
-
