@@ -156,3 +156,21 @@ var caveWrongSide:TestCase = {
 	  angle: 15,
 	  power: 0
 }
+
+var stalagtiteUpwardStart:TestCase = {
+	coords: [
+		[ 0, 2500 ],    [ 100, 200 ],
+		[ 500, 150 ], [ 1000, 2000 ],
+		[ 2000, 2000 ], [ 2010, 200 ],
+		[ 6899, 300 ],  [ 6999, 2500 ],
+		[ 4100, 2600 ], [ 4200, 1000 ],
+		[ 3500, 2900 ]
+	  ],
+	  x: 6500,
+	  y: 1300,
+	  hSpeed: 0,
+	  vSpeed: 50,
+	  fuel: 1750,
+	  angle: 0,
+	  power: 0
+}

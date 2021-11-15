@@ -1,9 +1,9 @@
 package sim.data;
 
+import Math.abs;
+import Math.min;
 import Math.round;
 import Math.sqrt;
-import xa3.MathUtils.abs;
-import xa3.MathUtils.min;
 import xa3.MathUtils.segmentIntersect;
 
 using Lambda;
@@ -61,7 +61,7 @@ class SurfaceCoords {
 		// }
 	}
 
-	public function getHitFitness( x0:Int, y0:Int, x1:Int, y1:Int ):Float {
+	public function getHitFitness( x0:Float, y0:Float, x1:Float, y1:Float ):Float {
 		if( x0 >= landX1 && x1 >= landX1 && x0 <= landX2 && x1 <= landX2 && y1 <= landY ) {
 			final distance = min( abs( landX1 - x1 ), abs( landX2 - x1 ));
 			return distance > 50 ? 1 : 1 - (( 50 - distance ) / surfaceLength );

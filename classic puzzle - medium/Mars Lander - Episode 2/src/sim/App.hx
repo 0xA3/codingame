@@ -24,7 +24,7 @@ class App extends hxd.App {
 	static inline var MAX_Y = 3000;
 	static inline var SIM_FRAME = 1;
 	static inline var PLAY_FRAME = 5;
-	static final mutationRate = 0.01;
+	static final mutationRate = 0.1;
 	
 	final numChromosomes = 100;
 	final numGenes = 150;
@@ -47,12 +47,14 @@ class App extends hxd.App {
 	var zero:Int;
 	var scaleFactor:Float;
 
+	var generation = 0;
 	var frame = 0;
 	var simCounter = 0;
 	var playCounter = 0;
 
 	var state = Initial;
 	var testCaseId = 0;
+	var winnerChromosomId = 0;
 
 	var population:Population;
 	var agent:Agent;
@@ -91,7 +93,8 @@ class App extends hxd.App {
 			TestCases.deepCanyon,
 			TestCases.highGround,
 			TestCases.caveCorrectSide,
-			TestCases.caveWrongSide
+			TestCases.caveWrongSide,
+			TestCases.stalagtiteUpwardStart
 		];
 		
 		changeState( Simulating );
@@ -161,7 +164,7 @@ class App extends hxd.App {
 	}
 
 	function initSimulation() {
-		simCounter = 0;
+		generation = 0;
 		
 		final testCase = testCases[testCaseId];
 		final positions = testCase.coords.map( c -> new Position( c[0], c[1] ));
@@ -190,7 +193,7 @@ class App extends hxd.App {
 	override function update( dt:Float ) {
 		switch state {
 			case Simulating:
-				if( simCounter % SIM_FRAME == 0 ) simNextFrame();
+				if( simCounter % SIM_FRAME == 0 ) simNextGeneration();
 				simCounter++;
 			case Playing:
 				if( playCounter % PLAY_FRAME == 0 ) playNextFrame();
@@ -199,16 +202,16 @@ class App extends hxd.App {
 		}
 	}
 
-	function simNextFrame() {
+	function simNextGeneration() {
 		population.resetAgents();
 		for( i in 0...numGenes ) {
 			population.run( i );
-			for( c in 0...population.agents.length ) {
-				final agent = population.agents[c];
+			for( c in 0...population.simAgents.length ) {
+				final agent = population.simAgents[c];
 				final path = agentsPaths[c];
-				final p = path[i];
-				p.x = agent.x;
-				p.y = agent.y;
+				final point = path[i];
+				point.x = Math.round( agent.x );
+				point.y = Math.round( agent.y );
 			}
 		}
 
@@ -223,28 +226,34 @@ class App extends hxd.App {
 		var maxFitness = 0.0;
 		var minFitness = 1.0;
 		var sum = 0.0;
-		for( c in population.chromosomes ) {
+		for( i in 0...population.chromosomes.length ) {
+			final c = population.chromosomes[i];
 			if( c.fitness > maxFitness ) maxFitness = c.fitness;
 			if( c.fitness < minFitness ) minFitness = c.fitness;
+			if( c.fitness == 1 ) {
+				winnerChromosomId = i;
+				trace( c.genes.map( g -> '${g.rotate}' ));
+			}
 			sum += c.fitness;
 		}
 		final averageFitness = sum / population.chromosomes.length;
 		outputSim( maxFitness, minFitness, averageFitness );
 		if( maxFitness == 1 ) {
-			population.sortChromosomes();
 			changeState( Playing );
 			return;
 		}
 		population.evolve( mutationRate );
+		generation++;
+		// changeState( SimulationPaused );
 	}
 
 	function playNextFrame() {
-		if( frame >= population.chromosomes[0].genes.length || agent.isLanded ) {
+		if( agent.isFinished || frame > population.chromosomes[winnerChromosomId].genes.length - 1 ) {
 			changeState( Finished );
 			return;
 		}
 
-		final gene = population.chromosomes[0].genes[frame];
+		final gene = population.chromosomes[winnerChromosomId].genes[frame];
 		final rotate = gene.rotate;
 		final power = gene.power;
 		// trace( 'X=${rocket.x}m, Y=${rocket.y}m, HSpeed=${rocket.hSpeed}m/s VSpeed=${rocket.vSpeed}m/s\nFuel=${rocket.fuel}l, Angle=${rocket.rotate}°, Power=${rocket.power}m/s2' );
@@ -256,17 +265,18 @@ class App extends hxd.App {
 		// trace( response );
 		
 		agent.update( rotate, power );
+		agent.checkFinishedPlay();
 		outputAgent();
 		rocket.update( agent, zero, scaleFactor );
 		frame++;
 	}
 
 	inline function outputSim( maxFitness:Float, minFitness:Float, averageFitness:Float ) {
-		tSim.text = '$simCounter\nmaxFitness: $maxFitness\nminFitness: $minFitness\naverageFitness: $averageFitness';
+		tSim.text = 'generation: $generation\nmaxFitness: $maxFitness\nminFitness: $minFitness\naverageFitness: $averageFitness';
 	}
 
 	inline function outputAgent() {
-		tRocket.text = '$frame\nhSpeed: ${agent.hSpeed}\nvSpeed: ${agent.vSpeed}\nrotate: ${agent.rotate}\npower: ${agent.power}';
+		tRocket.text = 'frame $frame\nhSpeed: ${agent.hSpeed}\nvSpeed: ${agent.vSpeed}\nrotate: ${agent.rotate}\npower: ${agent.power}\nfuel: ${agent.fuel}';
 	}
 
 	public function onMouseMove( windowX:Int ) {

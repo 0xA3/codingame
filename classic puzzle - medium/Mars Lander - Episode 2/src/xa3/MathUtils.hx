@@ -10,7 +10,7 @@ function abs( v:Int ) return v < 0 ? -v : v;
 function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
 
-function lineIntersect( x0:Int, y0:Int, x1:Int, y1:Int, x2:Int, y2:Int, x3:Int, y3:Int, pos:Vec2 ) {
+function lineIntersect( x0:Float, y0:Float, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, pos:Vec2 ) {
 	final a1 = y1 - y0;	
 	final b1 = x0 - x1;	
 	final c1 = a1 * x0 + b1 * y0;
@@ -29,7 +29,7 @@ function lineIntersect( x0:Int, y0:Int, x1:Int, y1:Int, x2:Int, y2:Int, x3:Int, 
 	return true;
 }
 
-function segmentIntersect( x0:Int, y0:Int, x1:Int, y1:Int, x2:Int, y2:Int, x3:Int, y3:Int, pos:Vec2 ) {
+function segmentIntersect( x0:Float, y0:Float, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, pos:Vec2 ) {
 	final s1x = x1 - x0;
 	final s1y = y1 - y0;
 	final s2x = x3 - x2;

@@ -6,7 +6,6 @@ import Math.round;
 import Math.sin;
 import TestCases;
 import sim.data.SurfaceCoords;
-import xa3.MathUtils.lineIntersect;
 import xa3.MathUtils.max;
 import xa3.MathUtils.min;
 import xa3.MathUtils.segmentIntersect;
@@ -15,29 +14,39 @@ class Agent {
 	
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;
-	static inline var gravity = -3.711;
-	
+	public static inline var gravity = -3.711;
+	public static inline var MIN_ROTATION_ANGLE = -90;
+	public static inline var MAX_ROTATION_ANGLE = 90;
+	public static inline var MIN_POWER = 0;
+	public static inline var MAX_POWER = 4;
+	public static inline var MAX_ROTATE_STEP = 15;
+	public static inline var MAX_POWER_STEP = 1;
+	public static inline var MAX_HSPEED = 20;
+	public static inline var MAX_VSPEED = 40;
+
+
 	final testCase:TestCase;
 	final surfaceCoords:SurfaceCoords;
 
-	public var x( default,null ) = 0;
-	public var y( default,null ) = 0;
-	var prevX = 0;
-	var prevY = 0;
-	public var hSpeed( default,null ) = 0;
-	public var vSpeed( default,null ) = 0;
+	public var x = 0.0;
+	public var y = 0.0;
+	var prevX = 0.0;
+	var prevY = 0.0;
+	public var hSpeed = 0.0;
+	public var vSpeed = 0.0;
+	var prevHSpeed = 0.0;
+	var prevVSpeed = 0.0;
 	public var fuel( default, null ) = 0;
 	public var rotate( default, null ) = 0;
+	public var prevRotate = 0;
 	public var power( default, null ) = 0;
-	public var isLandedSim = false;
+	
+	public var isFinished = false;
+	public var isInLandingParameters = false;
 	public var isLanded = false;
 	public var isExploded = false;
 	public var isLost = false;
 
-	var velX = 0.0;
-	var velY = 0.0;
-	var prevVelX = 0.0;
-	var prevVelY = 0.0;
 	var endDistance = 1;
 	final vIntersect:Vec2 = { x: 0, y: 0 };
 
@@ -54,29 +63,32 @@ class Agent {
 		prevY = y;
 		hSpeed = testCase.hSpeed;
 		vSpeed = testCase.vSpeed;
-		velX = prevVelX = hSpeed;
-		velY = prevVelY = vSpeed;
+		prevHSpeed = hSpeed;
+		prevVSpeed = vSpeed;
 		fuel = testCase.fuel;
-		rotate = testCase.angle;
+		rotate = prevRotate = testCase.angle;
 		power = testCase.power;
 
+		isFinished = false;
+		isInLandingParameters = false;
 		isExploded = false;
 		isLanded = false;
 		isLost = false;
 	}
 
 	public function update( inRotate:Int, inPower:Int ) {
-		if( isLost || isExploded || isLanded ) return;
+		if( isFinished ) return;
 		
-		prevVelX = velX;
-		prevVelY = velX;
+		prevHSpeed = hSpeed;
+		prevVSpeed = vSpeed;
 		prevX = x;
 		prevY = y;
+		prevRotate = rotate;
 
 		final deltaRot = inRotate - rotate;
-		rotate = max( -90, min( 90, deltaRot > 15 ? rotate + 15 : deltaRot < -15 ? rotate - 15 : inRotate ));
+		rotate = max( MIN_ROTATION_ANGLE, min( MAX_ROTATION_ANGLE, deltaRot > MAX_ROTATE_STEP ? rotate + MAX_ROTATE_STEP : deltaRot < -MAX_ROTATE_STEP ? rotate - MAX_ROTATE_STEP : inRotate ));
 		final deltaPower = inPower - power;
-		final tempPower = deltaPower > 0 ? power + 1 : deltaPower < 0 ? power - 1 : power;
+		final tempPower = deltaPower > 0 ? power + MAX_POWER_STEP : deltaPower < 0 ? power - MAX_POWER_STEP : power;
 		power = min( fuel, tempPower );
 		fuel -= power;
 		
@@ -86,65 +98,88 @@ class Agent {
 		final forceX = powerX;
 		final forceY = gravity + powerY;
 		
-		velX = velX + forceX;
-		velY = velY + forceY;
+		hSpeed += forceX;
+		vSpeed += forceY;
 
-		x = round( x + velX );
-		y = round( y + velY );
-		hSpeed = round( velX );
-		vSpeed = round( velY );
-
-		isLost = checkLost();
-		isLandedSim = checkLandedSim();
-		isLanded = checkLanded();
-		if( !isLanded ) isExploded = checkExploded();
+		x += ( prevHSpeed + hSpeed ) / 2;
+		y += ( prevVSpeed + vSpeed ) / 2;
 	}
 
-	public function calcFitness() {
-		final hitFitness = surfaceCoords.getHitFitness( prevX, prevY, x, y );
-		final aVelH = abs( velX );//Math.max( abs( velX ), abs( prevVelX ));
-		final aVelV = abs( velY );//Math.max( abs( velY ), abs( prevVelY ));
-		final hFraction = hitFitness < 1 ? 0.1 : aVelH < 20 ? 1 : 10 / aVelH;
-		final vFraction = hitFitness < 1 ? 0.1 : aVelV < 40 ? 1 : 20 / aVelV;
-		// trace( 'hitFitness $hitFitness, velX $velX, hFraction $hFraction, velY $velY, vFraction $vFraction' );
-		return hitFitness * hFraction * vFraction;
-		// return hitFitness;
+	public function checkFinishedSim() {
+		if( checkLost() || checkHit()) {
+			isFinished = true;
+			isInLandingParameters = checkSimLandingRequirements();
+		}
 	}
 
-	inline function checkLost() return x >= MAX_X || x < 0 || y >= MAX_Y;
-
-	inline function checkLandedSim() {
-		if( x >= surfaceCoords.landX1 + 50 &&
-			x <= surfaceCoords.landX2 - 50 &&
-			y <= surfaceCoords.landY &&
-			abs( hSpeed ) <= 20 &&
-			vSpeed >= -40 ) {
-				lineIntersect( prevX, prevY, x, y, surfaceCoords.landX1, surfaceCoords.landY, surfaceCoords.landX2, surfaceCoords.landY, vIntersect );
-				x = round( vIntersect.x );
-				y = round( vIntersect.y );
-				power = 0;
-				return true;
-		} else
-			return false;
+	public function checkFinishedPlay() {
+		if( checkLost()) 	{ isFinished = true; 	isLost = true; 		return; }
+		if( checkLanded()) 	{ isFinished = true; 	isLanded = true; 	return; }
+		if( checkHit()) 	{ isFinished = true; 	isExploded = true; 	return; }
 	}
 
-	inline function checkLanded() return isLandedSim && rotate == 0;
+	inline function checkLost() {
+		if( x < 0 ) 		{ x = 0; 		return true; }
+		if( x >= MAX_X ) 	{ x = MAX_X;	return true; }
+		if( y < 0 ) 		{ y = 0;		return true; }
+		if( y >= MAX_Y )	{ y = MAX_Y;	return true; }
+		return false;
+	}
 
-	function checkExploded() {
+	function checkHit() {
 		final coords = surfaceCoords.coords;
 		for( i in 1...coords.length ) {
 			final x2 = coords[i - 1].x;
 			final y2 = coords[i - 1].y;
 			final x3 = coords[i].x;
 			final y3 = coords[i].y;
-			
-			final isIntersection = segmentIntersect( prevX, prevY, x, y, x2, y2, x3, y3, vIntersect );
-			if( isIntersection ) {
-				x = round( vIntersect.x );
-				y = round( vIntersect.y );
+			if( segmentIntersect( prevX, prevY, x, y, x2, y2, x3, y3, vIntersect )) {
+				x = vIntersect.x;
+				y = vIntersect.y;
+				// trace( 'checkHit intersect ${round( x )}:${round( y )}' );
 				return true;
 			}
 		}
 		return false;
 	}
+
+	inline function checkLanded() {
+		if( checkSimLandingRequirements() && rotate == 0 ) {
+			power = 0;
+			return true;
+		}
+		return false;
+	}
+	
+	function checkSimLandingRequirements() {
+		if( x >= surfaceCoords.landX1 + 50 &&
+			x <= surfaceCoords.landX2 - 50 &&
+			y <= surfaceCoords.landY &&
+			round( abs( hSpeed )) <= MAX_HSPEED &&
+			abs( rotate ) <= MAX_ROTATE_STEP &&
+			vSpeed >= -MAX_VSPEED )
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public function calcFitness() {
+		// return 1.0;
+		final hitFitness = surfaceCoords.getHitFitness( prevX, prevY, x, y );
+		final aHSpeed = Math.max( abs( hSpeed ), abs( prevHSpeed ));
+		final aRotate = xa3.MathUtils.abs( prevRotate );
+		final rFitness = hitFitness < 1 ? 0.1 : aRotate <= 15 ? 1 : 7 / aRotate;
+		final hFitness = hitFitness < 1 ? 0.1 : aHSpeed < 20 ? 1 : 10 / aHSpeed;
+		final vFitness = hitFitness < 1 ? 0.1 : vSpeed >= -40 ? 1 : 20 / abs( vSpeed );
+		
+		final totalFitness = hitFitness * rFitness * hFitness * vFitness;
+		if( totalFitness == 1.0 ) {
+			trace( 'hitFitness: $hitFitness\nrFitness: $rFitness, prevRotate: $prevRotate, rotate: $rotate,\nhFitness: $hFitness, hSpeed $hSpeed\nvFitness: $vFitness, vSpeed: $vSpeed' );
+		}
+		return hitFitness * rFitness * hFitness * vFitness;
+	}
+
+
+
 }
