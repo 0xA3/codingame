@@ -1,13 +1,12 @@
 package sim.view;
 
 import h2d.Graphics;
-import haxe.ds.Vector;
 import sim.data.AgentPath;
 
 class PathView {
 	
 	final g:Graphics;
-	var agentPaths:Vector<AgentPath>;
+	var agentPaths:Array<AgentPath>;
 	var startX:Int;
 	var startY:Int;
 
@@ -15,7 +14,7 @@ class PathView {
 		this.g = g;
 	}
 
-	public function reset( startX:Int, startY:Int, agentPaths:Vector<AgentPath> ) {
+	public function reset( startX:Int, startY:Int, agentPaths:Array<AgentPath> ) {
 		this.startX = startX;
 		this.startY = startY;
 		this.agentPaths = agentPaths;

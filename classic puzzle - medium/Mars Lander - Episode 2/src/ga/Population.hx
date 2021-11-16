@@ -1,7 +1,6 @@
 package ga;
 
 import TestCases;
-import haxe.ds.Vector;
 import sim.data.Agent;
 import sim.data.SurfaceCoords;
 
@@ -9,26 +8,25 @@ using Lambda;
 
 class Population {
 
-	public var chromosomes:Vector<Chromosome>;
-	public var nextChromosomes:Vector<Chromosome>;
-	public final simAgents:Vector<Agent>;
+	public var chromosomes:Array<Chromosome>;
+	public var nextChromosomes:Array<Chromosome>;
+	public final simAgents:Array<Agent>;
 
-	public function new( chromosomes:Vector<Chromosome>, simAgents:Vector<Agent> ) {
-		if( chromosomes.length != simAgents.length ) throw 'Error: cromosomes length must match simAgents length';
+	public function new( chromosomes:Array<Chromosome>, simAgents:Array<Agent> ) {
+		if( chromosomes.length != simAgents.length ) throw 'Error: cromosomes length ${chromosomes.length} must match simAgents length ${simAgents.length}';
 		this.chromosomes = chromosomes;
 		this.simAgents = simAgents;
 		
-		nextChromosomes = new Vector<Chromosome>( chromosomes.length );
-		for( i in 0...nextChromosomes.length ) nextChromosomes[i] = chromosomes[i].copy();
+		nextChromosomes = [];
+		for( i in 0...chromosomes.length ) nextChromosomes[i] = chromosomes[i].copy();
 	}
 
 	public static function createRandom( numChromosomes:Int, numGenes:Int, testCase:TestCase, surfaceCoords:SurfaceCoords ) {
-		final chromosomes = new Vector<Chromosome>( numChromosomes );
+		final chromosomes = [];
 		for( i in 0...numChromosomes ) chromosomes[i] = Chromosome.createRandom( numGenes, testCase.angle, testCase.power );
 		
-		final simAgents = new Vector<Agent>( numChromosomes );
-		for( i in 0...simAgents.length ) simAgents[i] = new Agent( testCase, surfaceCoords );
-		
+		final simAgents = [];
+		for( i in 0...numChromosomes ) simAgents[i] = new Agent( testCase, surfaceCoords );
 		return new Population( chromosomes, simAgents );
 	}
 
@@ -48,9 +46,10 @@ class Population {
 				agent.update( gene.rotate, gene.power );
 				agent.checkFinishedSim();
 				if( agent.isInLandingParameters ) {
-					// trace( 'agent $i landed at frame $currentGene' );
-					chromosome.genes[currentGene - 1].rotate = 0;
-					chromosome.genes[currentGene].rotate = 0;
+					trace( 'agent $i is in landing parameters at gene $currentGene' );
+					trace( 'agent.prevRotate ${agent.prevRotate} agent.rotate ${agent.rotate}' );
+					chromosome.genes[currentGene - 1].rotate = -agent.prevRotate;
+					chromosome.genes[currentGene].rotate = -agent.rotate;
 				}
 			}
 		}
@@ -100,7 +99,7 @@ class Population {
 		});
 	}
 	
-	static function probabilitySelect( a:Vector<Chromosome>, total:Float ) {
+	static function probabilitySelect( a:Array<Chromosome>, total:Float ) {
 		var index = 0;
 		var r = Math.random() * total;
 		if( r == 0 ) return a[0];

@@ -3,7 +3,6 @@ package sim.factory;
 import h2d.Bitmap;
 import h2d.Object;
 import h2d.Scene;
-import h3d.Vector;
 import sim.view.Rocket;
 
 class RocketFactory {

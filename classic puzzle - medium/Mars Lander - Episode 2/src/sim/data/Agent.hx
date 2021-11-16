@@ -76,7 +76,7 @@ class Agent {
 		isLost = false;
 	}
 
-	public function update( inRotate:Int, inPower:Int ) {
+	public function update( deltaRotate:Int, deltaPower:Int ) {
 		if( isFinished ) return;
 		
 		prevHSpeed = hSpeed;
@@ -85,10 +85,8 @@ class Agent {
 		prevY = y;
 		prevRotate = rotate;
 
-		final deltaRot = inRotate - rotate;
-		rotate = max( MIN_ROTATION_ANGLE, min( MAX_ROTATION_ANGLE, deltaRot > MAX_ROTATE_STEP ? rotate + MAX_ROTATE_STEP : deltaRot < -MAX_ROTATE_STEP ? rotate - MAX_ROTATE_STEP : inRotate ));
-		final deltaPower = inPower - power;
-		final tempPower = deltaPower > 0 ? power + MAX_POWER_STEP : deltaPower < 0 ? power - MAX_POWER_STEP : power;
+		rotate = max( MIN_ROTATION_ANGLE, min( MAX_ROTATION_ANGLE, rotate + deltaRotate ));
+		final tempPower = max( MIN_POWER, min( MAX_POWER, power + deltaPower ));
 		power = min( fuel, tempPower );
 		fuel -= power;
 		
@@ -145,6 +143,9 @@ class Agent {
 
 	inline function checkLanded() {
 		if( checkSimLandingRequirements() && rotate == 0 ) {
+			segmentIntersect( prevX, prevY, x, y, surfaceCoords.landX1, surfaceCoords.landY, surfaceCoords.landX2, surfaceCoords.landY, vIntersect );
+			x = vIntersect.x;
+			y = vIntersect.y;
 			power = 0;
 			return true;
 		}

@@ -6,7 +6,6 @@ import ga.Population;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Text;
-import haxe.ds.Vector;
 import hxd.res.DefaultFont;
 import sim.State;
 import sim.data.Agent;
@@ -36,7 +35,7 @@ class App extends hxd.App {
 	var pathGraphics:Graphics;
 	var rocket:Rocket;
 	var marsLander:MarsLander;
-	var agentsPaths:Vector<Vector<Position>>;
+	var agentsPaths:Array<Array<Position>>;
 	var pathView:PathView;
 	var tSim:Text;
 	var tRocket:Text;
@@ -105,6 +104,7 @@ class App extends hxd.App {
 			changeState( Simulating );
 		} else {
 			testCaseId = id;
+			state = Initial;
 			changeState( Simulating );
 		}
 	}
@@ -232,7 +232,13 @@ class App extends hxd.App {
 			if( c.fitness < minFitness ) minFitness = c.fitness;
 			if( c.fitness == 1 ) {
 				winnerChromosomId = i;
-				trace( c.genes.map( g -> '${g.rotate}' ));
+				var rotate = c.startRotate;
+				var output = [];
+				for( i in 0...c.genes.length ) {
+					rotate = xa3.MathUtils.max( Agent.MIN_ROTATION_ANGLE, xa3.MathUtils.min( Agent.MAX_ROTATION_ANGLE, rotate + c.genes[i].rotate ));
+					output.push( rotate );
+				}
+				// trace( [for( i in 0...output.length ) '$i:${output[i]}'].join( "," ));
 			}
 			sum += c.fitness;
 		}
