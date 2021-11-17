@@ -46,13 +46,19 @@ class Agent {
 	public var isLanded = false;
 	public var isExploded = false;
 	public var isLost = false;
-
 	var endDistance = 1;
 	final vIntersect:Vec2 = { x: 0, y: 0 };
+	
+	// to save rotation of every frame
+	public final rotates:Array<Int>;
+	public final powers:Array<Int>;
+	var frame = 0;
 
-	public function new( testCase:TestCase, surfaceCoords:SurfaceCoords ) {
+	public function new( testCase:TestCase, surfaceCoords:SurfaceCoords, numGenes:Int ) {
 		this.testCase = testCase;
 		this.surfaceCoords = surfaceCoords;
+		rotates = [for( _ in 0...numGenes ) 0];
+		powers = [for( _ in 0...numGenes ) 0];
 		reset();
 	}
 
@@ -68,6 +74,7 @@ class Agent {
 		fuel = testCase.fuel;
 		rotate = prevRotate = testCase.angle;
 		power = testCase.power;
+		frame = 0;
 
 		isFinished = false;
 		isInLandingParameters = false;
@@ -101,6 +108,10 @@ class Agent {
 
 		x += ( prevHSpeed + hSpeed ) / 2;
 		y += ( prevVSpeed + vSpeed ) / 2;
+		
+		rotates[frame] = rotate;
+		powers[frame] = power;
+		frame++;
 	}
 
 	public function checkFinishedSim() {
@@ -174,10 +185,10 @@ class Agent {
 		final hFitness = hitFitness < 1 ? 0.1 : aHSpeed < 20 ? 1 : 10 / aHSpeed;
 		final vFitness = hitFitness < 1 ? 0.1 : vSpeed >= -40 ? 1 : 20 / abs( vSpeed );
 		
-		final totalFitness = hitFitness * rFitness * hFitness * vFitness;
-		if( totalFitness == 1.0 ) {
-			trace( 'hitFitness: $hitFitness\nrFitness: $rFitness, prevRotate: $prevRotate, rotate: $rotate,\nhFitness: $hFitness, hSpeed $hSpeed\nvFitness: $vFitness, vSpeed: $vSpeed' );
-		}
+		// final totalFitness = hitFitness * rFitness * hFitness * vFitness;
+		// if( totalFitness == 1.0 ) {
+			// trace( 'hitFitness: $hitFitness\nrFitness: $rFitness, prevRotate: $prevRotate, rotate: $rotate,\nhFitness: $hFitness, hSpeed $hSpeed\nvFitness: $vFitness, vSpeed: $vSpeed' );
+		// }
 		return hitFitness * rFitness * hFitness * vFitness;
 	}
 

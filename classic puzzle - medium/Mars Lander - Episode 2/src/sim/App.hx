@@ -2,10 +2,13 @@ package sim;
 
 import Math.round;
 import TestCases;
+import ga.Chromosome;
+import ga.Gene;
 import ga.Population;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Text;
+import haxe.Json;
 import hxd.res.DefaultFont;
 import sim.State;
 import sim.data.Agent;
@@ -17,16 +20,18 @@ import sim.view.PathView;
 import sim.view.Rocket;
 import sim.view.Surface;
 
+using Lambda;
+
 class App extends hxd.App {
 
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;
 	static inline var SIM_FRAME = 1;
 	static inline var PLAY_FRAME = 5;
-	static final mutationRate = 0.1;
 	
 	final numChromosomes = 100;
 	final numGenes = 150;
+	final mutationRate = 0.1;
 	
 	var currentFrame = 0;
 	var surface:Surface;
@@ -53,7 +58,7 @@ class App extends hxd.App {
 
 	var state = Initial;
 	var testCaseId = 0;
-	var winnerChromosomId = 0;
+	var winnerGenes:Array<Gene> = [];
 
 	var population:Population;
 	var agent:Agent;
@@ -95,7 +100,7 @@ class App extends hxd.App {
 			TestCases.caveWrongSide,
 			TestCases.stalagtiteUpwardStart
 		];
-		
+		MainSim.initMouseMove( this );
 		changeState( Simulating );
 	}
 
@@ -125,42 +130,51 @@ class App extends hxd.App {
 	}
 
 	function changeState( nextState:State ) {
+		// trace( 'changeState $state to $nextState' );
 		switch [state, nextState] {
 			case [Initial, Simulating]:
-				Main.simulationStarted();
+				MainSim.simulationStarted();
+				state = nextState;
 				initSimulation();
 			
 			case [Simulating, SimulationPaused]:
-				Main.simulationPaused();
+				MainSim.simulationPaused();
+				state = nextState;
 			
 			case [SimulationPaused, Simulating]:
-				Main.simulationStarted();
+				MainSim.simulationStarted();
+				state = nextState;
 			
 			case [_, Simulating]:
 				initSimulation();
-				Main.simulationStarted();
+				MainSim.simulationStarted();
+				state = nextState;
 			
 			case [Simulating, Playing]:
-				Main.simulationFinished();
-				Main.playStarted();
+				MainSim.simulationFinished();
+				MainSim.playStarted();
 				resetPlay();
+				state = nextState;
 			
 			case [Playing, PlayPaused]:
-				Main.playPaused();
+				MainSim.playPaused();
+				state = nextState;
 			
 			case [PlayPaused, Playing]:
-				Main.playStarted();
+				MainSim.playStarted();
+				state = nextState;
 			
 			case [Playing, Finished]:
-				Main.playFinished();
+				MainSim.playFinished();
+				state = nextState;
 			
 			case [Finished, Playing]:
-				Main.playStarted();
+				MainSim.playStarted();
 				resetPlay();
+				state = nextState;
 			
 			default: throw 'Error: no conditions for change from $state to $nextState';
 		}
-		state = nextState;
 	}
 
 	function initSimulation() {
@@ -170,7 +184,7 @@ class App extends hxd.App {
 		final positions = testCase.coords.map( c -> new Position( c[0], c[1] ));
 		surfaceCoords = new SurfaceCoords( positions );
 		
-		agent = new Agent( testCase, surfaceCoords );
+		agent = new Agent( testCase, surfaceCoords, numGenes );
 		population = Population.createRandom( numChromosomes, numGenes, testCase, surfaceCoords );
 		surface = new Surface( surfaceGraphics, surfaceCoords );
 		outputAgent();
@@ -181,6 +195,10 @@ class App extends hxd.App {
 		rocket.reset();
 		rocket.update( agent, zero, scaleFactor );
 		surface.draw( zero, scaleFactor );
+		
+		// marsLander = new MarsLander( surfaceCoords, agent, population, numGenes, mutationRate );
+		// marsLander.startSimulation();
+		// changeState( Playing );
 	}
 
 	public function resetPlay() {
@@ -230,18 +248,10 @@ class App extends hxd.App {
 			final c = population.chromosomes[i];
 			if( c.fitness > maxFitness ) maxFitness = c.fitness;
 			if( c.fitness < minFitness ) minFitness = c.fitness;
-			if( c.fitness == 1 ) {
-				winnerChromosomId = i;
-				var rotate = c.startRotate;
-				var output = [];
-				for( i in 0...c.genes.length ) {
-					rotate = xa3.MathUtils.max( Agent.MIN_ROTATION_ANGLE, xa3.MathUtils.min( Agent.MAX_ROTATION_ANGLE, rotate + c.genes[i].rotate ));
-					output.push( rotate );
-				}
-				// trace( [for( i in 0...output.length ) '$i:${output[i]}'].join( "," ));
-			}
+			if( c.fitness == 1 ) winnerGenes = population.chromosomes[i].genes;
 			sum += c.fitness;
 		}
+		
 		final averageFitness = sum / population.chromosomes.length;
 		outputSim( maxFitness, minFitness, averageFitness );
 		if( maxFitness == 1 ) {
@@ -254,27 +264,28 @@ class App extends hxd.App {
 	}
 
 	function playNextFrame() {
-		if( agent.isFinished || frame > population.chromosomes[winnerChromosomId].genes.length - 1 ) {
+		if( agent.isFinished || frame > winnerGenes.length - 1 ) {
+			var commands = [for( c in 0...frame ) { rotate: agent.rotates[c], power: agent.powers[c] }];
+			trace( Json.stringify( commands ));
 			changeState( Finished );
 			return;
 		}
 
-		final gene = population.chromosomes[winnerChromosomId].genes[frame];
+		final gene = winnerGenes[frame];
 		final rotate = gene.rotate;
 		final power = gene.power;
-		// trace( 'X=${rocket.x}m, Y=${rocket.y}m, HSpeed=${rocket.hSpeed}m/s VSpeed=${rocket.vSpeed}m/s\nFuel=${rocket.fuel}l, Angle=${rocket.rotate}°, Power=${rocket.power}m/s2' );
-		
-		// final response = marsLander.update( rocket.x, rocket.y, rocket.hSpeed, rocket.vSpeed, rocket.fuel, rocket.rotate, rocket.power );
-		// final parts = response.split(' ');
-		// final rotate = parseInt( parts[0] );
-		// final power = parseInt( parts[1] );
-		// trace( response );
 		
 		agent.update( rotate, power );
 		agent.checkFinishedPlay();
 		outputAgent();
+		trace( 'Standard Output Stream:\n> $rotate $power\nGame information                                   $frame\nX=${sRound( agent.x )}m, Y=${sRound( agent.y )}m, HSpeed=${sRound( agent.hSpeed )}m/s, VSpeed=${sRound( agent.vSpeed )}m/s\nFuel=${agent.fuel}l, Angle=${agent.rotate}°, Power=${agent.power} (${agent.power}.0m/s2)' );
 		rocket.update( agent, zero, scaleFactor );
 		frame++;
+	}
+
+	function sRound( v:Float ) {
+		final rounded = round( Math.abs( v ));
+		return v < 0 ? -rounded : rounded;
 	}
 
 	inline function outputSim( maxFitness:Float, minFitness:Float, averageFitness:Float ) {

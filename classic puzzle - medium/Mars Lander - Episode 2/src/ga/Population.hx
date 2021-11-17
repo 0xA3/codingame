@@ -12,6 +12,8 @@ class Population {
 	public var nextChromosomes:Array<Chromosome>;
 	public final simAgents:Array<Agent>;
 
+	public var usedGenesNo = 0;
+
 	public function new( chromosomes:Array<Chromosome>, simAgents:Array<Agent> ) {
 		if( chromosomes.length != simAgents.length ) throw 'Error: cromosomes length ${chromosomes.length} must match simAgents length ${simAgents.length}';
 		this.chromosomes = chromosomes;
@@ -26,7 +28,7 @@ class Population {
 		for( i in 0...numChromosomes ) chromosomes[i] = Chromosome.createRandom( numGenes, testCase.angle, testCase.power );
 		
 		final simAgents = [];
-		for( i in 0...numChromosomes ) simAgents[i] = new Agent( testCase, surfaceCoords );
+		for( i in 0...numChromosomes ) simAgents[i] = new Agent( testCase, surfaceCoords, numGenes );
 		return new Population( chromosomes, simAgents );
 	}
 
@@ -46,11 +48,11 @@ class Population {
 				agent.update( gene.rotate, gene.power );
 				agent.checkFinishedSim();
 				if( agent.isInLandingParameters ) {
-					trace( 'agent $i is in landing parameters at gene $currentGene' );
-					trace( 'agent.prevRotate ${agent.prevRotate} agent.rotate ${agent.rotate}' );
-					chromosome.genes[currentGene - 1].rotate = -agent.prevRotate;
+					// trace( 'agent $i is in landing parameters at gene $currentGene. geneRotate: ${chromosome.genes[currentGene].rotate} agentRotate ${agent.rotate}' );
 					chromosome.genes[currentGene].rotate = -agent.rotate;
+					agent.rotates[currentGene] = 0;
 				}
+				usedGenesNo = currentGene;
 			}
 		}
 	}
@@ -60,7 +62,6 @@ class Population {
 	}
 
 	public function evolve( mutationRate:Float ) {
-		// final selected:Array<Float> = [];
 		var total = 0.0;
 		for( c in chromosomes ) total += c.fitness;
 		sortChromosomes();
@@ -72,9 +73,6 @@ class Population {
 			final b = probabilitySelect( chromosomes, total );
 			a.crossover( b.genes, nextChromosomes[i] );
 			nextChromosomes[i].mutate( mutationRate );
-			
-			// selected.push( a.fitness );
-			// selected.push( b.fitness );
 		}
 
 		for( i in 0...simAgents.length ) simAgents[i].reset();
@@ -82,13 +80,6 @@ class Population {
 		final temp = chromosomes;
 		chromosomes = nextChromosomes;
 		nextChromosomes = temp;
-
-		// selected.sort(( a, b ) -> {
-		// 	if( a < b ) return -1;
-		// 	if( a > b ) return 1;
-		// 	return 0;
-		// });
-		// trace( selected );
 	}
 
 	public inline function sortChromosomes() {

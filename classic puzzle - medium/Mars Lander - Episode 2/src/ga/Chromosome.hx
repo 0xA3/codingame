@@ -69,7 +69,6 @@ class Chromosome {
 			final gene = nextChromosome.genes[i];
 			 gene.rotate = round( genes[i].rotate * r1 + partnerGenes[i].rotate * ( 1 - r1 ));
 			 gene.power = round( genes[i].power * r2 + partnerGenes[i].power * ( 1 - r2 ));
-			// final gene:Gene = r < 0.5 ? { rotate: genes[i].rotate, power: genes[i].power } : { rotate: partnerGenes[i].rotate, power: partnerGenes[i].power }
 		}
 	}
 

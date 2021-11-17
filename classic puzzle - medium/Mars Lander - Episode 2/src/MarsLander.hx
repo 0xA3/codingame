@@ -1,56 +1,72 @@
+#if !sim
+import CodinGame.printErr;
+#end
+import TestCases.TestCase;
+import ga.Gene;
+import ga.Population;
+import sim.data.Agent;
+import sim.data.Position;
+import sim.data.SurfaceCoords;
+
 class MarsLander {
 	
-	public final surface:Array<Array<Int>>;
-	final landX1:Int;
-	final landX2:Int;
-	final landY:Int;
+	static inline var MAX_X = 7000;
+	static inline var MAX_Y = 3000;
 
-	public function new( surface:Array<Array<Int>> ) {
-		this.surface = surface;
-		for( i in 1...surface.length ) {
-			final c0 = surface[i - 1];
-			final c1 = surface[i];
-			if( c0[1] == c1[1] ) {
-				landX1 = c0[0];
-				landX2 = c1[0];
-				landY = c0[1];
-				break;
-			}
+	final surfaceCoords:SurfaceCoords;
+	final agent:Agent;
+	final population:Population;
+	final numGenes:Int;
+	final mutationRate:Float;
+
+	var isSimComplete = false;
+	var winnerGenes:Array<Gene> = [];
+
+	var generation = 0;
+
+	public function new( surfaceCoords:SurfaceCoords, agent:Agent, population:Population, numGenes:Int, mutationRate:Float ) {
+		this.surfaceCoords = surfaceCoords;
+		this.agent = agent;
+		this.population = population;
+		this.numGenes = numGenes;
+		this.mutationRate = mutationRate;
+	}
+
+	public function startSimulation() {
+		while( !isSimComplete ) {
+			simNextGeneration();
 		}
 	}
 
-	public function update( x:Int, y:Int, hSpeed:Int, vSpeed:Int, fuel:Int, rotate:Int, power:Int ) {
-		var rotate = 0;
-		if( x < landX1 ) {
-			final distance = landX1 - x;
-			rotate = -1;
-			if( distance > 100 ) rotate = -5;
-			if( distance > 500 ) rotate = -12;
-			if( distance > 1000 ) rotate = -18;
-		} else if( x > landX2 ) {
-			final distance = x - landX2;
-			rotate = 1;
-			if( distance > 100 ) rotate = 5;
-			if( distance > 500 ) rotate = 12;
-			if( distance > 1000 ) rotate = 18;
-		} else {
-			if( hSpeed > 5 ) rotate = 3;
-			if( hSpeed > 15 ) rotate = 12;
-			if( hSpeed > 20 ) rotate = 18;
-			if( hSpeed < -5 ) rotate = -3;
-			if( hSpeed < -15 ) rotate = -12;
-			if( hSpeed < -20 ) rotate = -18;
-		}	
-
-		if( y + vSpeed * 2 <= landY ) {
-			// trace( 'y $y  landY $landY  y + vSpeed ${y + vSpeed}' );
-			rotate = 0;
+	public inline function simNextGeneration() {
+		population.resetAgents();
+		for( i in 0...numGenes ) population.run( i );
+		population.calcFitness();
+	
+		var maxFitness = 0.0;
+		for( i in 0...population.chromosomes.length ) {
+			final c = population.chromosomes[i];
+			if( c.fitness > maxFitness ) maxFitness = c.fitness;
+			if( c.fitness == 1 ) {
+				winnerGenes = population.chromosomes[i].genes;
+				isSimComplete = true;
+				break;
+			}
 		}
-		// final dPower = vSpeed >= 0 ? 0 : vSpeed <= -15 ? Math.min( 4, power + 1 ) : power;
-		var dPower = 0;
-		if( vSpeed <= -20 ) dPower = 4;
-		// final rotate = 0;
-		// final dPower = 0;
-		return '$rotate $dPower';
+
+		if( maxFitness < 1 ) population.evolve( mutationRate );
+
+		#if sim	trace( #else printErr( #end
+		'Generation: $generation, maxFitness: $maxFitness' );
+		
+		generation++;
+		
+		if( generation > 150 ) isSimComplete = true;
+	}
+
+	public function update( frame:Int ) {
+		final currentGene = winnerGenes[frame];
+		agent.update( currentGene.rotate, currentGene.power );
+		return '${agent.rotate} ${agent.power}';
 	}
 }

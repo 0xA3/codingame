@@ -5,7 +5,7 @@ import js.html.ButtonElement;
 import js.html.CanvasElement;
 import js.html.SelectElement;
 
-class Main {
+class MainSim {
 
 	public static var canvas:CanvasElement;
 	public static var select:SelectElement;
@@ -39,7 +39,6 @@ class Main {
 			app.resize();
 		});
 
-		initMouseMove( app );
 	}
 
 	public static function simulationStarted() {
@@ -56,5 +55,5 @@ class Main {
 	public static function playPaused() play.innerHTML = "Resume";
 	public static function playFinished() play.innerHTML = "Play";
 
-	static function initMouseMove( app:App ) Browser.document.body.addEventListener( "mousemove", e -> { app.onMouseMove( e.clientX ); });
+	public static function initMouseMove( app:App ) Browser.document.body.addEventListener( "mousemove", e -> { app.onMouseMove( e.clientX ); });
 }
