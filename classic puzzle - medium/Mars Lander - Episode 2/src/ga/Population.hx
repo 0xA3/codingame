@@ -49,8 +49,10 @@ class Population {
 				agent.checkFinishedSim();
 				if( agent.isInLandingParameters ) {
 					// trace( 'agent $i is in landing parameters at gene $currentGene. geneRotate: ${chromosome.genes[currentGene].rotate} agentRotate ${agent.rotate}' );
-					chromosome.genes[currentGene].rotate = -agent.rotate;
+					// trace( agent.rotates.mapi((i, r ) -> '$i:$r' ).join( ", " ));
+					chromosome.genes[currentGene].rotate = -agent.rotates[currentGene - 1];
 					agent.rotates[currentGene] = 0;
+					// trace( 'geneRotate: ${chromosome.genes[currentGene].rotate} agentRotate ${agent.rotates[currentGene]}' );
 				}
 				usedGenesNo = currentGene;
 			}

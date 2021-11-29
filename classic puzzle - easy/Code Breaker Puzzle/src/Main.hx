@@ -21,7 +21,6 @@ function process( alphabet:Array<String>, message:String, word:String ) {
 
 	length = alphabet.length;
 	final reg = new EReg( word, "" );
-	// final reg = ~/\bCHIEF\b/;
 	if( reg.match( message )) return message;
 	
 	final codes = [for( i in 0...message.length) message.charAt( i )];

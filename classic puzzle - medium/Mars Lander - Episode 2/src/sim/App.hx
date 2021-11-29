@@ -2,7 +2,6 @@ package sim;
 
 import Math.round;
 import TestCases;
-import ga.Chromosome;
 import ga.Gene;
 import ga.Population;
 import h2d.Graphics;
@@ -27,7 +26,7 @@ class App extends hxd.App {
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;
 	static inline var SIM_FRAME = 1;
-	static inline var PLAY_FRAME = 5;
+	static inline var PLAY_FRAME = 2;
 	
 	final numChromosomes = 100;
 	final numGenes = 150;
@@ -265,8 +264,8 @@ class App extends hxd.App {
 
 	function playNextFrame() {
 		if( agent.isFinished || frame > winnerGenes.length - 1 ) {
-			var commands = [for( c in 0...frame ) { rotate: agent.rotates[c], power: agent.powers[c] }];
-			trace( Json.stringify( commands ));
+			var commands = [for( c in 0...frame ) { c: c, rotate: agent.rotates[c], power: agent.powers[c] }];
+			// trace( Json.stringify( commands ));
 			changeState( Finished );
 			return;
 		}
@@ -278,7 +277,7 @@ class App extends hxd.App {
 		agent.update( rotate, power );
 		agent.checkFinishedPlay();
 		outputAgent();
-		trace( 'Standard Output Stream:\n> $rotate $power\nGame information                                   $frame\nX=${sRound( agent.x )}m, Y=${sRound( agent.y )}m, HSpeed=${sRound( agent.hSpeed )}m/s, VSpeed=${sRound( agent.vSpeed )}m/s\nFuel=${agent.fuel}l, Angle=${agent.rotate}°, Power=${agent.power} (${agent.power}.0m/s2)' );
+		// trace( 'Standard Output Stream:\n> $rotate $power\nGame information                                   $frame\nX=${sRound( agent.x )}m, Y=${sRound( agent.y )}m, HSpeed=${sRound( agent.hSpeed )}m/s, VSpeed=${sRound( agent.vSpeed )}m/s\nFuel=${agent.fuel}l, Angle=${agent.rotate}°, Power=${agent.power} (${agent.power}.0m/s2)' );
 		rocket.update( agent, zero, scaleFactor );
 		frame++;
 	}
