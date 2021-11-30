@@ -1,8 +1,8 @@
 package ga;
 
 import TestCases;
-import sim.data.Agent;
-import sim.data.SurfaceCoords;
+import simGA.data.Agent;
+import simGA.data.SurfaceCoords;
 
 using Lambda;
 
@@ -32,15 +32,13 @@ class Population {
 		return new Population( chromosomes, simAgents );
 	}
 
-	public function resetAgents() {
-		for( agent in simAgents ) agent.reset();
-	}
+	public function resetAgents() for( agent in simAgents ) agent.reset();
 
 	public function run( currentGene:Int ) {
-		for( i in 0...simAgents.length ) {
-			final agent = simAgents[i];
+		for( i in 0...chromosomes.length ) {
 			final chromosome = chromosomes[i];
 			final gene = chromosome.genes[currentGene];
+			final agent = simAgents[i];
 			if( agent.isFinished ) {
 				gene.rotate = 0;
 				gene.power = 0;

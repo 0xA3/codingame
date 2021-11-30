@@ -1,11 +1,12 @@
-package sim.data;
+package simGA.data;
 
 import Math.abs;
 import Math.cos;
 import Math.round;
 import Math.sin;
 import TestCases;
-import sim.data.SurfaceCoords;
+import simGA.data.SurfaceCoords;
+import xa3.MathUtils.clamp;
 import xa3.MathUtils.max;
 import xa3.MathUtils.min;
 import xa3.MathUtils.segmentIntersect;
@@ -14,7 +15,7 @@ class Agent {
 	
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;
-	public static inline var gravity = -3.711;
+	public static inline var GRAVITY = -3.711;
 	public static inline var MIN_ROTATION_ANGLE = -90;
 	public static inline var MAX_ROTATION_ANGLE = 90;
 	public static inline var MIN_POWER = 0;
@@ -23,7 +24,6 @@ class Agent {
 	public static inline var MAX_POWER_STEP = 1;
 	public static inline var MAX_HSPEED = 20;
 	public static inline var MAX_VSPEED = 40;
-
 
 	final testCase:TestCase;
 	final surfaceCoords:SurfaceCoords;
@@ -92,8 +92,11 @@ class Agent {
 		prevY = y;
 		prevRotate = rotate;
 
-		rotate = max( MIN_ROTATION_ANGLE, min( MAX_ROTATION_ANGLE, rotate + deltaRotate ));
-		final tempPower = max( MIN_POWER, min( MAX_POWER, power + deltaPower ));
+		final clampedDeltaRotate = clamp( deltaRotate, -MAX_ROTATE_STEP, MAX_ROTATE_STEP );
+		final clampedDeltaPower = clamp( deltaPower, -MAX_POWER_STEP, MAX_POWER_STEP );
+		
+		rotate = max( MIN_ROTATION_ANGLE, min( MAX_ROTATION_ANGLE, rotate + clampedDeltaRotate ));
+		final tempPower = max( MIN_POWER, min( MAX_POWER, power + clampedDeltaPower ));
 		power = min( fuel, tempPower );
 		fuel -= power;
 		
@@ -101,7 +104,7 @@ class Agent {
 		final powerX = power * sin( fRotation );
 		final powerY = power * cos( fRotation );
 		final forceX = powerX;
-		final forceY = gravity + powerY;
+		final forceY = GRAVITY + powerY;
 		
 		hSpeed += forceX;
 		vSpeed += forceY;

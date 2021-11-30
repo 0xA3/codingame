@@ -1,7 +1,7 @@
-package sim.view;
+package simGA.view;
 
 import h2d.Graphics;
-import sim.data.AgentPath;
+import simGA.data.AgentPath;
 
 class PathView {
 	

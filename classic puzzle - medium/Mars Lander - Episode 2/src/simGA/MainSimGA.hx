@@ -1,22 +1,22 @@
-package sim;
+package simGA;
 
 import js.Browser;
 import js.html.ButtonElement;
 import js.html.CanvasElement;
 import js.html.SelectElement;
 
-class MainSim {
+class MainSimGA {
 
 	public static var canvas:CanvasElement;
 	public static var select:SelectElement;
 	public static var sim:ButtonElement;
 	public static var play:ButtonElement;
 
-	static var app:App;
+	static var app:AppGA;
 
 	static function main() {
 		hxd.Res.initEmbed();
-		app = new App();
+		app = new AppGA();
 		
 		canvas = cast( Browser.document.getElementById( "webgl" ), CanvasElement );
 		select = cast( Browser.document.getElementById( "select" ), SelectElement );
@@ -55,5 +55,5 @@ class MainSim {
 	public static function playPaused() play.innerHTML = "Resume";
 	public static function playFinished() play.innerHTML = "Play";
 
-	public static function initMouseMove( app:App ) Browser.document.body.addEventListener( "mousemove", e -> { app.onMouseMove( e.clientX ); });
+	public static function initMouseMove( app:AppGA ) Browser.document.body.addEventListener( "mousemove", e -> { app.onMouseMove( e.clientX ); });
 }

@@ -1,0 +1,36 @@
+<!DOCTYPE>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Mars Lander 2 Simulation</title>
+    <style>
+        body { margin:0;padding:0;background-color:black; }
+        canvas#webgl { width:100%;height:100%; }
+    </style>
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <canvas id="webgl"></canvas>
+	<div class="controls">
+		<select id="select" size=8>
+			<option value=0 selected>Easy on the right</option>
+			<option value=1>Initial speed, correct side</option>
+			<option value=2>Initial speed, wrong side</option>
+			<option value=3>Deep canyon</option>
+			<option value=4>High ground</option>
+			<option value=5>Cave, correct side</option>
+			<option value=6>Cave, wrong side</option>
+			<option value=7>Stalagtite upward start</option>
+		</select>
+		<div>
+			<button type="button" id="sim">Start</button>
+		</div>
+		<div>
+			<button type="button" id="play" disabled>Replay</button>
+		</div>
+	</div>
+    <script type="text/javascript" src="app2.js"></script>
+</body>
+</html>

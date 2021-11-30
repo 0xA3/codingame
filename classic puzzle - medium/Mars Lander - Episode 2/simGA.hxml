@@ -1,0 +1,6 @@
+-cp ../../codingame_extension/
+-cp src
+-lib heaps
+-main simGA.MainSimGA
+-D sim
+-js bin/app.js

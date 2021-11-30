@@ -1,6 +1,6 @@
 -cp ../../codingame_extension/
 -cp src
 -lib heaps
--main sim.MainSim
+-main simAI.MainSimAI
 -D sim
--js bin/app.js
+-js bin/app2.js

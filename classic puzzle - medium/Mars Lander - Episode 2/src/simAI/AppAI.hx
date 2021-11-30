@@ -1,4 +1,4 @@
-package sim;
+package simAI;
 
 import Math.round;
 import TestCases;
@@ -9,28 +9,28 @@ import h2d.Object;
 import h2d.Text;
 import haxe.Json;
 import hxd.res.DefaultFont;
-import sim.State;
-import sim.data.Agent;
-import sim.data.Position;
-import sim.data.SurfaceCoords;
-import sim.factory.AgentsPathFactory;
-import sim.factory.RocketFactory;
-import sim.view.PathView;
-import sim.view.Rocket;
-import sim.view.Surface;
+import simAI.AICollection;
+import simGA.State;
+import simGA.data.Agent;
+import simGA.data.Position;
+import simGA.data.SurfaceCoords;
+import simGA.factory.AgentsPathFactory;
+import simGA.factory.RocketFactory;
+import simGA.view.PathView;
+import simGA.view.Rocket;
+import simGA.view.Surface;
 
 using Lambda;
 
-class App extends hxd.App {
+class AppAI extends hxd.App {
 
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;
 	static inline var SIM_FRAME = 1;
-	static inline var PLAY_FRAME = 2;
+	static inline var PLAY_FRAME = 3;
 	
-	final numChromosomes = 100;
-	final numGenes = 150;
-	final mutationRate = 0.1;
+	final numAlgorithms = 1;
+	final numFrames = 1000;
 	
 	var currentFrame = 0;
 	var surface:Surface;
@@ -47,19 +47,18 @@ class App extends hxd.App {
 	var intersectObject:Object;
 	var tIntersect:Text;
 	
+	var aiCollection:AICollection;
+
 	var zero:Int;
 	var scaleFactor:Float;
 
-	var generation = 0;
 	var frame = 0;
-	var simCounter = 0;
 	var playCounter = 0;
 
 	var state = Initial;
 	var testCaseId = 0;
 	var winnerGenes:Array<Gene> = [];
 
-	var population:Population;
 	var agent:Agent;
 	var testCases:Array<TestCase>;
 
@@ -69,22 +68,9 @@ class App extends hxd.App {
 		pathView = new PathView( pathGraphics );
 		rocket = RocketFactory.createRocket( s2d );
 
-		tSim = new Text( DefaultFont.get(), s2d );
-		tSim.x = 20;
-		tSim.y = 20;
-		
 		tRocket = new Text( DefaultFont.get(), s2d );
 		tRocket.x = 600;
 		tRocket.y = 20;
-
-		intersectObject = new Object( s2d );
-		final intersectCircle = new Graphics( intersectObject );
-		intersectCircle.clear();
-		intersectCircle.lineStyle( 1, 0xcccccc );
-		intersectCircle.drawCircle( 0, 0, 4 );
-
-		tIntersect = new Text( DefaultFont.get(), intersectObject );
-		tIntersect.y = 10;
 
 		scaleFactor = 0.3;
 		zero = MAX_Y;
@@ -99,7 +85,6 @@ class App extends hxd.App {
 			TestCases.caveWrongSide,
 			TestCases.stalagtiteUpwardStart
 		];
-		MainSim.initMouseMove( this );
 		changeState( Simulating );
 	}
 
@@ -132,43 +117,43 @@ class App extends hxd.App {
 		// trace( 'changeState $state to $nextState' );
 		switch [state, nextState] {
 			case [Initial, Simulating]:
-				MainSim.simulationStarted();
+				MainSimAI.simulationStarted();
 				state = nextState;
 				initSimulation();
 			
 			case [Simulating, SimulationPaused]:
-				MainSim.simulationPaused();
+				MainSimAI.simulationPaused();
 				state = nextState;
 			
 			case [SimulationPaused, Simulating]:
-				MainSim.simulationStarted();
+				MainSimAI.simulationStarted();
 				state = nextState;
 			
 			case [_, Simulating]:
 				initSimulation();
-				MainSim.simulationStarted();
+				MainSimAI.simulationStarted();
 				state = nextState;
 			
 			case [Simulating, Playing]:
-				MainSim.simulationFinished();
-				MainSim.playStarted();
+				MainSimAI.simulationFinished();
+				MainSimAI.playStarted();
 				resetPlay();
 				state = nextState;
 			
 			case [Playing, PlayPaused]:
-				MainSim.playPaused();
+				MainSimAI.playPaused();
 				state = nextState;
 			
 			case [PlayPaused, Playing]:
-				MainSim.playStarted();
+				MainSimAI.playStarted();
 				state = nextState;
 			
 			case [Playing, Finished]:
-				MainSim.playFinished();
+				MainSimAI.playFinished();
 				state = nextState;
 			
 			case [Finished, Playing]:
-				MainSim.playStarted();
+				MainSimAI.playStarted();
 				resetPlay();
 				state = nextState;
 			
@@ -177,18 +162,16 @@ class App extends hxd.App {
 	}
 
 	function initSimulation() {
-		generation = 0;
-		
 		final testCase = testCases[testCaseId];
 		final positions = testCase.coords.map( c -> new Position( c[0], c[1] ));
 		surfaceCoords = new SurfaceCoords( positions );
 		
-		agent = new Agent( testCase, surfaceCoords, numGenes );
-		population = Population.createRandom( numChromosomes, numGenes, testCase, surfaceCoords );
+		agent = new Agent( testCase, surfaceCoords, numFrames );
+		aiCollection = AICollection.create( testCase, surfaceCoords, numFrames );
 		surface = new Surface( surfaceGraphics, surfaceCoords );
 		outputAgent();
 		
-		agentsPaths = AgentsPathFactory.create( numChromosomes, numGenes );
+		agentsPaths = AgentsPathFactory.create( 1, numFrames );
 
 		pathView.reset( testCase.x, testCase.y, agentsPaths );
 		rocket.reset();
@@ -209,9 +192,7 @@ class App extends hxd.App {
 
 	override function update( dt:Float ) {
 		switch state {
-			case Simulating:
-				if( simCounter % SIM_FRAME == 0 ) simNextGeneration();
-				simCounter++;
+			case Simulating: simulate();
 			case Playing:
 				if( playCounter % PLAY_FRAME == 0 ) playNextFrame();
 				playCounter++;
@@ -219,12 +200,12 @@ class App extends hxd.App {
 		}
 	}
 
-	function simNextGeneration() {
-		population.resetAgents();
-		for( i in 0...numGenes ) {
-			population.run( i );
-			for( c in 0...population.simAgents.length ) {
-				final agent = population.simAgents[c];
+	function simulate() {
+		aiCollection.resetAgents();
+		for( i in 0...numFrames ) {
+			aiCollection.run( i );
+			for( c in 0...aiCollection.simAgents.length ) {
+				final agent = aiCollection.simAgents[c];
 				final path = agentsPaths[c];
 				final point = path[i];
 				point.x = Math.round( agent.x );
@@ -233,37 +214,12 @@ class App extends hxd.App {
 		}
 
 		pathView.draw( zero, scaleFactor );
-		population.calcFitness();
-		// for( i in 0...population.agents.length ) {
-		// 	final agent = population.agents[i];
-		// 	final distance = surfaceCoords.getDistance( agent.x, agent.y, surfaceCoords.landX, surfaceCoords.landY );
-			// trace( agent.x, agent.y, distance, population.chromosomes[i].fitness );
-		// }
-		
-		var maxFitness = 0.0;
-		var minFitness = 1.0;
-		var sum = 0.0;
-		for( i in 0...population.chromosomes.length ) {
-			final c = population.chromosomes[i];
-			if( c.fitness > maxFitness ) maxFitness = c.fitness;
-			if( c.fitness < minFitness ) minFitness = c.fitness;
-			if( c.fitness == 1 ) winnerGenes = population.chromosomes[i].genes;
-			sum += c.fitness;
-		}
-		
-		final averageFitness = sum / population.chromosomes.length;
-		outputSim( maxFitness, minFitness, averageFitness );
-		if( maxFitness == 1 ) {
-			changeState( Playing );
-			return;
-		}
-		population.evolve( mutationRate );
-		generation++;
-		// changeState( SimulationPaused );
+		winnerGenes = aiCollection.genePool[0];
+		changeState( Playing );
 	}
 
 	function playNextFrame() {
-		if( agent.isFinished || frame > winnerGenes.length - 1 ) {
+		if( agent.isFinished || frame > numFrames - 1 ) {
 			var commands = [for( c in 0...frame ) { c: c, rotate: agent.rotates[c], power: agent.powers[c] }];
 			// trace( Json.stringify( commands ));
 			changeState( Finished );
@@ -287,10 +243,6 @@ class App extends hxd.App {
 		return v < 0 ? -rounded : rounded;
 	}
 
-	inline function outputSim( maxFitness:Float, minFitness:Float, averageFitness:Float ) {
-		tSim.text = 'generation: $generation\nmaxFitness: $maxFitness\nminFitness: $minFitness\naverageFitness: $averageFitness';
-	}
-
 	inline function outputAgent() {
 		tRocket.text = 'frame $frame\nhSpeed: ${agent.hSpeed}\nvSpeed: ${agent.vSpeed}\nrotate: ${agent.rotate}\npower: ${agent.power}\nfuel: ${agent.fuel}';
 	}
@@ -299,7 +251,7 @@ class App extends hxd.App {
 		final x = round( windowX / scaleFactor );
 		final hitFitness = surfaceCoords.getHitFitness( x, MAX_Y, x, 0 );
 
-		final vIntersect:sim.data.Vec2 = { x: 0, y: 0 };
+		final vIntersect:simGA.data.Vec2 = { x: 0, y: 0 };
 		final coords = surfaceCoords.coords;
 		for( i in 1...coords.length ) {
 			final x0 = coords[i - 1].x;

@@ -1,0 +1,7 @@
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D js-es=6
+-D js-classic
+-main MainGA
+--js dest/app.js

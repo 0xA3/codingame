@@ -1,6 +1,6 @@
 package test;
 
-import sim.data.Vec2;
+import simGA.data.Vec2;
 import xa3.MathUtils.lineIntersect;
 import xa3.MathUtils.segmentIntersect;
 

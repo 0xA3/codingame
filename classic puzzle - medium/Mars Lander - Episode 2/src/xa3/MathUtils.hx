@@ -1,14 +1,17 @@
 package xa3;
 
-import sim.data.Vec2;
+import simGA.data.Vec2;
 
 function map( value:Float, iStart:Float, iStop:Float, oStart:Float, oStop:Float ) {
 	return oStart + ( oStop - oStart ) * (( value - iStart ) / ( iStop - iStart ));	
 }
 
 function abs( v:Int ) return v < 0 ? -v : v;
+function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
+function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
 function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
+function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
 
 function lineIntersect( x0:Float, y0:Float, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, pos:Vec2 ) {
 	final a1 = y1 - y0;	

@@ -1,6 +1,6 @@
-package sim.factory;
+package simGA.factory;
 
-import sim.data.Position;
+import simGA.data.Position;
 
 class AgentsPathFactory {
 	

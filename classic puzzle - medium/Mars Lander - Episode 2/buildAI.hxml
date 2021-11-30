@@ -3,5 +3,5 @@
 -D analyzer-optimize
 -D js-es=6
 -D js-classic
--main Main
+-main MainAI
 --js dest/app.js

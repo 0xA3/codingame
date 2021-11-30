@@ -4,11 +4,11 @@ import CodinGame.readline;
 import Std.parseInt;
 import TestCases.TestCase;
 import ga.Population;
-import sim.data.Agent;
-import sim.data.Position;
-import sim.data.SurfaceCoords;
+import simGA.data.Agent;
+import simGA.data.Position;
+import simGA.data.SurfaceCoords;
 
-class Main {
+class MainGA {
 	
 	static var x:Int;
 	static var y:Int;
@@ -57,7 +57,7 @@ class Main {
 		
 		final agent = new Agent( testCase, surfaceCoords, numGenes );
 		final population = Population.createRandom( numChromosomes, numGenes, testCase, surfaceCoords );
-		final marsLander = new MarsLander( surfaceCoords, agent, population, numGenes, mutationRate );
+		final marsLander = new MarsLanderGA( surfaceCoords, agent, population, numGenes, mutationRate );
 		marsLander.startSimulation();
 		
 		// final commands = haxe.Json.parse( '[{"rotate":-1,"power":1},{"rotate":3,"power":2},{"rotate":0,"power":3},{"rotate":-7,"power":4},{"rotate":-16,"power":4},{"rotate":-11,"power":4},{"rotate":-16,"power":3},{"rotate":-13,"power":4},{"rotate":-5,"power":3},{"rotate":8,"power":2},{"rotate":5,"power":2},{"rotate":-4,"power":3},{"rotate":1,"power":4},{"rotate":-4,"power":4},{"rotate":-17,"power":4},{"rotate":-29,"power":4},{"rotate":-35,"power":4},{"rotate":-35,"power":4},{"rotate":-33,"power":4},{"rotate":-30,"power":4},{"rotate":-42,"power":4},{"rotate":-34,"power":3},{"rotate":-24,"power":4},{"rotate":-29,"power":4},{"rotate":-28,"power":4},{"rotate":-32,"power":4},{"rotate":-36,"power":4},{"rotate":-44,"power":4},{"rotate":-39,"power":4},{"rotate":-28,"power":3},{"rotate":-30,"power":4},{"rotate":-36,"power":4},{"rotate":-37,"power":3},{"rotate":-27,"power":3},{"rotate":-22,"power":2},{"rotate":-29,"power":2},{"rotate":-24,"power":3},{"rotate":-22,"power":2},{"rotate":-26,"power":2},{"rotate":-19,"power":2},{"rotate":-20,"power":3},{"rotate":-10,"power":3},{"rotate":-2,"power":4},{"rotate":-14,"power":4},{"rotate":-15,"power":4},{"rotate":-13,"power":4},{"rotate":-12,"power":4},{"rotate":-2,"power":4},{"rotate":-7,"power":4},{"rotate":-3,"power":4},{"rotate":6,"power":4},{"rotate":13,"power":4},{"rotate":10,"power":3},{"rotate":21,"power":3},{"rotate":22,"power":3},{"rotate":25,"power":3},{"rotate":34,"power":4},{"rotate":44,"power":4},{"rotate":36,"power":4},{"rotate":32,"power":4},{"rotate":32,"power":4},{"rotate":22,"power":4},{"rotate":22,"power":4},{"rotate":22,"power":4},{"rotate":22,"power":4},{"rotate":22,"power":4},{"rotate":18,"power":4},{"rotate":7,"power":4},{"rotate":4,"power":4},{"rotate":4,"power":4},{"rotate":4,"power":4},{"rotate":4,"power":4},{"rotate":9,"power":4},{"rotate":9,"power":4},{"rotate":9,"power":4},{"rotate":9,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":6,"power":4},{"rotate":6,"power":4},{"rotate":6,"power":4},{"rotate":6,"power":4},{"rotate":6,"power":4},{"rotate":3,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":10,"power":4},{"rotate":10,"power":4},{"rotate":2,"power":3},{"rotate":2,"power":3},{"rotate":2,"power":3},{"rotate":2,"power":3},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":0,"power":4}]' );

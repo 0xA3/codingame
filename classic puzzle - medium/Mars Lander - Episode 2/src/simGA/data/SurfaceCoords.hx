@@ -1,4 +1,4 @@
-package sim.data;
+package simGA.data;
 
 import Math.abs;
 import Math.min;

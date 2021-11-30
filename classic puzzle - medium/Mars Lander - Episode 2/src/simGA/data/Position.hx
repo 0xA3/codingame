@@ -1,4 +1,4 @@
-package sim.data;
+package simGA.data;
 
 class Position {
 	public var x:Int;

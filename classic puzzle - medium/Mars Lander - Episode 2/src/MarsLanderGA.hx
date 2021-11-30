@@ -4,11 +4,11 @@ import CodinGame.printErr;
 import TestCases.TestCase;
 import ga.Gene;
 import ga.Population;
-import sim.data.Agent;
-import sim.data.Position;
-import sim.data.SurfaceCoords;
+import simGA.data.Agent;
+import simGA.data.Position;
+import simGA.data.SurfaceCoords;
 
-class MarsLander {
+class MarsLanderGA {
 	
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;

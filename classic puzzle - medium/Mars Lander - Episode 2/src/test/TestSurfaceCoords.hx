@@ -1,13 +1,13 @@
 package test;
 
-import sim.data.Position;
-import sim.data.SurfaceCoords;
+import simGA.data.Position;
+import simGA.data.SurfaceCoords;
 
 using Lambda;
 using StringTools;
 using buddy.Should;
 
-@:access(sim.data.SurfaceCoords)
+@:access(simGA.data.SurfaceCoords)
 class TestSurfaceCoords extends buddy.BuddySuite {
 	
 	public function new() {

@@ -1,4 +1,4 @@
-package sim;
+package simGA;
 
 enum State {
 	Initial;

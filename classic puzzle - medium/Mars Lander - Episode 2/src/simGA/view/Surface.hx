@@ -1,7 +1,7 @@
-package sim.view;
+package simGA.view;
 
 import h2d.Graphics;
-import sim.data.SurfaceCoords;
+import simGA.data.SurfaceCoords;
 
 class Surface {
 

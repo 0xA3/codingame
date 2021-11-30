@@ -1,9 +1,9 @@
-package sim.factory;
+package simGA.factory;
 
 import h2d.Bitmap;
 import h2d.Object;
 import h2d.Scene;
-import sim.view.Rocket;
+import simGA.view.Rocket;
 
 class RocketFactory {
 	

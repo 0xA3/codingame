@@ -1,8 +1,8 @@
-package sim.view;
+package simGA.view;
 
 import h2d.Bitmap;
 import h2d.Object;
-import sim.data.Agent;
+import simGA.data.Agent;
 
 
 class Rocket {

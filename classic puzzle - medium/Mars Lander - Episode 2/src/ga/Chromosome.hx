@@ -4,7 +4,6 @@ import Math.round;
 
 class Chromosome {
 	
-
 	public final genes:Array<Gene>;
 	public var fitness = 0.0;
 	
