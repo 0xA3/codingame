@@ -3,12 +3,12 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import TestCases.TestCase;
-import ga.Gene;
-import ga.Population;
 import simAI.ai.TutorialAI1;
 import simGA.data.Agent;
 import simGA.data.Position;
 import simGA.data.SurfaceCoords;
+
+// CodinGame AI version
 
 class MainAI {
 	

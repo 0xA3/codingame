@@ -5,6 +5,8 @@ import js.html.ButtonElement;
 import js.html.CanvasElement;
 import js.html.SelectElement;
 
+// Simulation AI version
+
 class MainSimAI {
 
 	public static var canvas:CanvasElement;

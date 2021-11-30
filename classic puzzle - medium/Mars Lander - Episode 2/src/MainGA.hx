@@ -8,6 +8,8 @@ import simGA.data.Agent;
 import simGA.data.Position;
 import simGA.data.SurfaceCoords;
 
+// CodinGame Generic Algorithm version
+
 class MainGA {
 	
 	static var x:Int;

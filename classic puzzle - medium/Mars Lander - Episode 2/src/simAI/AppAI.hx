@@ -3,7 +3,6 @@ package simAI;
 import Math.round;
 import TestCases;
 import ga.Gene;
-import ga.Population;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Text;
@@ -38,7 +37,7 @@ class AppAI extends hxd.App {
 	var surfaceGraphics:Graphics;
 	var pathGraphics:Graphics;
 	var rocket:Rocket;
-	var marsLander:MarsLander;
+	var marsLander:MarsLanderGA;
 	var agentsPaths:Array<Array<Position>>;
 	var pathView:PathView;
 	var tSim:Text;
