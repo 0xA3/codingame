@@ -43,7 +43,7 @@ class Population {
 				gene.rotate = 0;
 				gene.power = 0;
 			} else {
-				agent.update( gene.rotate, gene.power );
+				agent.updateDelta( gene.rotate, gene.power );
 				agent.checkFinishedSim();
 				if( agent.isInLandingParameters ) {
 					// trace( 'agent $i is in landing parameters at gene $currentGene. geneRotate: ${chromosome.genes[currentGene].rotate} agentRotate ${agent.rotate}' );

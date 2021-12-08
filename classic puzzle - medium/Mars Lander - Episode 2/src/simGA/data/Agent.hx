@@ -83,21 +83,44 @@ class Agent {
 		isLost = false;
 	}
 
-	public function update( deltaRotate:Int, deltaPower:Int ) {
+	public function update( inRotate:Int, inPower:Int ) {
 		if( isFinished ) return;
 		
-		prevHSpeed = hSpeed;
-		prevVSpeed = vSpeed;
-		prevX = x;
-		prevY = y;
 		prevRotate = rotate;
+		
+		final minRotate = max( rotate - MAX_ROTATE_STEP, MIN_ROTATION_ANGLE );
+		final maxRotate = min( rotate + MAX_ROTATE_STEP, MAX_ROTATION_ANGLE );
+		rotate = clamp( inRotate, minRotate, maxRotate );
 
+		final minPower = max( power - MAX_POWER_STEP, MIN_POWER );
+		final maxPower = min( power + MAX_POWER_STEP, MAX_POWER );
+
+		final tempPower = clamp( inPower, minPower, maxPower );
+		power = min( fuel, tempPower );
+		
+		updateInternals();
+	}
+
+	public function updateDelta( deltaRotate:Int, deltaPower:Int ) {
+		if( isFinished ) return;
+		
 		final clampedDeltaRotate = clamp( deltaRotate, -MAX_ROTATE_STEP, MAX_ROTATE_STEP );
 		final clampedDeltaPower = clamp( deltaPower, -MAX_POWER_STEP, MAX_POWER_STEP );
 		
 		rotate = max( MIN_ROTATION_ANGLE, min( MAX_ROTATION_ANGLE, rotate + clampedDeltaRotate ));
 		final tempPower = max( MIN_POWER, min( MAX_POWER, power + clampedDeltaPower ));
 		power = min( fuel, tempPower );
+		
+		updateInternals();
+	}	
+	
+	function updateInternals() {
+		prevHSpeed = hSpeed;
+		prevVSpeed = vSpeed;
+		prevX = x;
+		prevY = y;
+		prevRotate = rotate;
+
 		fuel -= power;
 		
 		final fRotation = -rotate / 180 * Math.PI;

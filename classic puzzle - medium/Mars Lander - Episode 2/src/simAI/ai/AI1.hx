@@ -1,44 +1,60 @@
 package simAI.ai;
 
-import Math.PI;
 import Math.abs;
-import Math.atan;
 import Math.round;
 import ga.Gene;
 import simGA.data.Agent;
 import simGA.data.SurfaceCoords;
 import simGA.data.Vec2;
+import xa3.MathUtils.clamp;
+import xa3.MathUtils.deg2Rad;
+import xa3.MathUtils.fclamp;
+import xa3.MathUtils.lerp;
+import xa3.MathUtils.sign;
 
 class AI1 extends AI {
 	
-	final destination:Vec2;
-	
+	static inline var MAX_X_SPEED = 80;
+	static inline var MIN_OFFSET = 200;
+	static inline var MAX_DISTANCE = 1000;
+
+	var counter = 0;
+
 	override public function new( agent:Agent, surfaceCoords:SurfaceCoords ) {
 		super( agent, surfaceCoords );
-		destination = { x: surfaceCoords.landX, y: surfaceCoords.landY };
 	}
 	
 	override function process():Gene {
 		
-		final vel:Vec2 = { x: agent.hSpeed, y: agent.vSpeed == 0 ? Agent.GRAVITY : agent.vSpeed };
-		final direction:Vec2 = { x: destination.x - agent.x, y: destination.y - agent.y };
-		final xFactor = abs( Agent.MAX_HSPEED / direction.x );
-		final yFactor = abs( Agent.MAX_VSPEED / direction.y );
-		final multiplier = xFactor < yFactor ? xFactor : yFactor;
+		final direction = getDirection();
+		final isOverLandingArea = agent.x > surfaceCoords.landX1 && agent.x < surfaceCoords.landX2;
+		final minYSpeed = isOverLandingArea ? -38 : 0;
+		final maxAngle = 60;
+		final xDistance = agent.x < surfaceCoords.landX1 ? surfaceCoords.landX1 - agent.x
+					: agent.x > surfaceCoords.landX2 ? agent.x - surfaceCoords.landX2
+					: 0;
+		final distanceFraction = ( xDistance + MIN_OFFSET ) / MAX_DISTANCE;
+		final clampedDistanceFraction = fclamp( distanceFraction, 0, 1 );
+		final desiredSpeed = lerp( 0, MAX_X_SPEED, clampedDistanceFraction );
+		final desiredXVelocity = direction * desiredSpeed;
+		
+		final desiredAcceleration = agent.hSpeed - desiredXVelocity;
+		final angle = fclamp( desiredAcceleration, -maxAngle, maxAngle );
+		
+		final isInLandingDistance = agent.y + agent.vSpeed <= surfaceCoords.landY;
 
-		final destVel = direction.multiply( multiplier );
+		final yAccel = yAccel( angle, Agent.MAX_POWER );
+		gene.rotate = isInLandingDistance ? 0 : round( angle );
+		gene.power = agent.vSpeed + yAccel < minYSpeed ? 4 : 3;
 
-		final correctionVel = destVel.sub( vel );
-		final fAngle = atan( correctionVel.y / correctionVel.x );
-		final angle = round( fAngle * 180 / PI );
-
-		trace( 'vel: $vel, destVel: $destVel, correctionVel: $correctionVel, rotate: ${agent.rotate}, angle: $angle' );
-
-		gene.rotate = angle - agent.rotate;
-		gene.power = 4;
+		// trace( '${counter++} direction $direction, xDistance $xDistance, distanceFraction $distanceFraction, desiredSpeed $desiredSpeed, desiredXVelocity $desiredXVelocity, desiredAcceleration $desiredAcceleration, angle $angle' );
 
 		return gene;
-
-		// return super.process(agent);
 	}
+
+	inline function getDirection() return surfaceCoords.landX > agent.x ? 1 : -1;
+	inline function getCurrentDirection() return sign( agent.hSpeed );
+	inline function yAccel( angle:Float, power:Int ) return Math.cos( deg2Rad( angle )) * power + Agent.GRAVITY;
+	
+	
 }

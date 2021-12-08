@@ -2,16 +2,23 @@ package xa3;
 
 import simGA.data.Vec2;
 
-function map( value:Float, iStart:Float, iStop:Float, oStart:Float, oStop:Float ) {
+inline function map( value:Float, iStart:Float, iStop:Float, oStart:Float, oStop:Float ) {
 	return oStart + ( oStop - oStart ) * (( value - iStart ) / ( iStop - iStart ));	
 }
 
-function abs( v:Int ) return v < 0 ? -v : v;
-function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
-function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
-function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
-function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
-function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
+inline function abs( v:Int ) return v < 0 ? -v : v;
+inline function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
+inline function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
+inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
+inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
+inline function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
+inline function deg2Rad( v:Float ) return v / 180 * Math.PI;
+inline function rad2deg( v:Float ) return v / Math.PI * 180;
+
+/**
+	Linear interpolation between two values. When k is 0 a is returned, when it's 1, b is returned.
+**/
+inline function lerp( v1:Float, v2:Float, k:Float ) return v1 + k * (v2 - v1);
 
 function lineIntersect( x0:Float, y0:Float, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, pos:Vec2 ) {
 	final a1 = y1 - y0;	

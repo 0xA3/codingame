@@ -11,6 +11,7 @@ import hxd.res.DefaultFont;
 import simAI.AICollection;
 import simGA.State;
 import simGA.data.Agent;
+import simGA.data.AgentPath;
 import simGA.data.Position;
 import simGA.data.SurfaceCoords;
 import simGA.factory.AgentsPathFactory;
@@ -38,7 +39,7 @@ class AppAI extends hxd.App {
 	var pathGraphics:Graphics;
 	var rocket:Rocket;
 	var marsLander:MarsLanderGA;
-	var agentsPaths:Array<Array<Position>>;
+	var agentsPaths:Array<AgentPath>;
 	var pathView:PathView;
 	var tSim:Text;
 	var tRocket:Text;
@@ -170,7 +171,7 @@ class AppAI extends hxd.App {
 		surface = new Surface( surfaceGraphics, surfaceCoords );
 		outputAgent();
 		
-		agentsPaths = AgentsPathFactory.create( 1, numFrames );
+		agentsPaths = AgentsPathFactory.create( aiCollection.simAgents.length, numFrames, 0x666666 );
 
 		pathView.reset( testCase.x, testCase.y, agentsPaths );
 		rocket.reset();
@@ -206,7 +207,8 @@ class AppAI extends hxd.App {
 			for( c in 0...aiCollection.simAgents.length ) {
 				final agent = aiCollection.simAgents[c];
 				final path = agentsPaths[c];
-				final point = path[i];
+				final point = path.positions[i];
+				if( agent.isLanded ) path.color = 0x00ff00;
 				point.x = Math.round( agent.x );
 				point.y = Math.round( agent.y );
 			}

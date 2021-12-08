@@ -22,15 +22,16 @@ class PathView {
 
 	public function draw( zero:Int, scaleFactor:Float ) {
 		g.clear();
-		g.lineStyle( 1, 0x666666 );
 		for( path in agentPaths ) {
+			g.lineStyle( 1, path.color );
 			g.moveTo( startX * scaleFactor,( zero - startY ) * scaleFactor );
 			
 			var x = startX;
 			var y = startY;
-			for( i in 0...path.length ) {
-				var nx = path[i].x;
-				var ny = path[i].y;
+			final positions = path.positions;
+			for( i in 0...positions.length ) {
+				var nx = positions[i].x;
+				var ny = positions[i].y;
 				if( nx != x || ny != y ) {
 					g.lineTo( nx * scaleFactor, ( zero - ny ) * scaleFactor );
 					x = nx;

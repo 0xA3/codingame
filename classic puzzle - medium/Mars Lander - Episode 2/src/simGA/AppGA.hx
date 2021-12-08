@@ -11,6 +11,7 @@ import haxe.Json;
 import hxd.res.DefaultFont;
 import simGA.State;
 import simGA.data.Agent;
+import simGA.data.AgentPath;
 import simGA.data.Position;
 import simGA.data.SurfaceCoords;
 import simGA.factory.AgentsPathFactory;
@@ -26,7 +27,7 @@ class AppGA extends hxd.App {
 	static inline var MAX_X = 7000;
 	static inline var MAX_Y = 3000;
 	static inline var SIM_FRAME = 1;
-	static inline var PLAY_FRAME = 2;
+	static inline var PLAY_FRAME = 3;
 	
 	final numChromosomes = 100;
 	final numGenes = 150;
@@ -38,8 +39,7 @@ class AppGA extends hxd.App {
 	var surfaceGraphics:Graphics;
 	var pathGraphics:Graphics;
 	var rocket:Rocket;
-	var marsLander:MarsLander;
-	var agentsPaths:Array<Array<Position>>;
+	var agentsPaths:Array<AgentPath>;
 	var pathView:PathView;
 	var tSim:Text;
 	var tRocket:Text;
@@ -188,7 +188,7 @@ class AppGA extends hxd.App {
 		surface = new Surface( surfaceGraphics, surfaceCoords );
 		outputAgent();
 		
-		agentsPaths = AgentsPathFactory.create( numChromosomes, numGenes );
+		agentsPaths = AgentsPathFactory.create( numChromosomes, numGenes, 0x666666 );
 
 		pathView.reset( testCase.x, testCase.y, agentsPaths );
 		rocket.reset();
@@ -226,9 +226,11 @@ class AppGA extends hxd.App {
 			for( c in 0...population.simAgents.length ) {
 				final agent = population.simAgents[c];
 				final path = agentsPaths[c];
-				final point = path[i];
+				final point = path.positions[i];
+				if( agent.isInLandingParameters ) path.color = 0x00ff00;
 				point.x = Math.round( agent.x );
 				point.y = Math.round( agent.y );
+
 			}
 		}
 
@@ -271,10 +273,10 @@ class AppGA extends hxd.App {
 		}
 
 		final gene = winnerGenes[frame];
-		final rotate = gene.rotate;
-		final power = gene.power;
+		final deltaRotate = gene.rotate;
+		final deltaPower = gene.power;
 		
-		agent.update( rotate, power );
+		agent.updateDelta( deltaRotate, deltaPower );
 		agent.checkFinishedPlay();
 		outputAgent();
 		// trace( 'Standard Output Stream:\n> $rotate $power\nGame information                                   $frame\nX=${sRound( agent.x )}m, Y=${sRound( agent.y )}m, HSpeed=${sRound( agent.hSpeed )}m/s, VSpeed=${sRound( agent.vSpeed )}m/s\nFuel=${agent.fuel}l, Angle=${agent.rotate}°, Power=${agent.power} (${agent.power}.0m/s2)' );

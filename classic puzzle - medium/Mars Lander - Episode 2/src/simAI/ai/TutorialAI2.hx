@@ -6,12 +6,14 @@ import ga.Gene;
 import simGA.data.Agent;
 import simGA.data.SurfaceCoords;
 import simGA.data.Vec2;
+import xa3.MathUtils.clamp;
 import xa3.MathUtils.fclamp;
+import xa3.MathUtils.rad2deg;
 import xa3.MathUtils.sign;
 
 // adapted from https://www.youtube.com/watch?v=856j5IipFfk
 
-class TutorialAI1 extends AI {
+class TutorialAI2 extends AI {
 	
 	static inline var FAR_DISTANCE = 2000;
 	
@@ -28,7 +30,7 @@ class TutorialAI1 extends AI {
 	}
 	
 	override function process():Gene {
-		var outputTrust = 4;
+		var outputThrust = 4;
 		var outputAngle = 0.0;
 
 		desiredDirection = sign( surfaceCoords.landX - agent.x );
@@ -40,26 +42,36 @@ class TutorialAI1 extends AI {
 
 		if( isOverLandingArea ) {
 			final landingSpeedIsOk = agent.vSpeed > -Agent.MAX_VSPEED + 1;
-			if( landingSpeedIsOk && round( agent.hSpeed ) == 0 ) outputTrust = 3;
-			outputAngle = getDesiredAngle( 0, 33 );
+			if( landingSpeedIsOk && round( agent.hSpeed ) == 0 ) outputThrust = 3;
+			outputAngle = getDesiredAngle( 0, 33, outputThrust );
 		} else {
-			if( isMovingUp ) outputTrust = 3;
-			if( isFar )	outputAngle = getDesiredAngle( desiredInitialSpeed, 60 );
-			else outputAngle = getDesiredAngle( 20, 45 );
+			if( isMovingUp ) outputThrust = 3;
+			if( isFar )	outputAngle = getDesiredAngle( desiredInitialSpeed, 60, outputThrust );
+			else outputAngle = getDesiredAngle( 20, 45, outputThrust );
 		}
 		gene.rotate = round( outputAngle );
-		gene.power = outputTrust;
+		gene.power = outputThrust;
 		
 		return gene;
 	}
 
-	function getDesiredAngle( desiredSpeedX:Int, maxAngle:Int ) {
+	inline function getDesiredAngle( desiredSpeedX:Int, maxAngle:Int, outputThrust:Int ) {
 		final desiredVelocity = desiredSpeedX * desiredDirection;
 		final desiredAcceleration = agent.hSpeed - desiredVelocity;
+		final idealAngle = getExactAngle( desiredAcceleration, outputThrust );
 		
-		// trace( 'getDesiredAngle desiredSpeedX: $desiredSpeedX, maxAngle: $maxAngle, desiredVelocity: $desiredVelocity, desiredAcceleration: $desiredAcceleration, angle: ${fclamp( desiredAcceleration * 2, -maxAngle, maxAngle )}' );
-		// trace( 'desiredVelocity: $desiredVelocity, desiredAcceleration: $desiredAcceleration, angle: ${fclamp( desiredAcceleration * 2, -maxAngle, maxAngle )}' );
+		return fclamp( idealAngle, -maxAngle, maxAngle );
+	}
 
-		return fclamp( desiredAcceleration * 2, -maxAngle, maxAngle );
+	inline function getAngleApproximation( desiredAcceleration:Float, maxAngle:Int ) {
+		return desiredAcceleration * 2;
+	}
+
+	inline function getExactAngle( desiredAcceleration:Float, outputThrust:Int ) {
+		final achievableAcceleration = fclamp( desiredAcceleration, -outputThrust, outputThrust );
+		final desiredSine = achievableAcceleration / outputThrust;
+		final angleRad = Math.asin( desiredSine );
+		return angleRad / Math.PI * 180;
+		// return rad2deg( angleRad );
 	}
 }

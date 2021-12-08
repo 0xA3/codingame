@@ -6,7 +6,7 @@ import simGA.data.SurfaceCoords;
 
 class AI {
 	
-	final agent:Agent;
+	public final agent:Agent;
 	final surfaceCoords:SurfaceCoords;
 	final gene:Gene = { rotate: 0, power: 0 }
 

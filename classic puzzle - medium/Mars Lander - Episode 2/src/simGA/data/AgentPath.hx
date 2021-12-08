@@ -1,3 +1,6 @@
 package simGA.data;
 
-typedef AgentPath = Array<Position>;
+typedef AgentPath = {
+	var color:Int;
+	var positions:Array<Position>;
+}
