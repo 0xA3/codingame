@@ -3,6 +3,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import TestCases.TestCase;
+import simAI.ai.AI1;
 import simAI.ai.TutorialAI1;
 import simGA.data.Agent;
 import simGA.data.Position;
@@ -56,7 +57,7 @@ class MainAI {
 		final surfaceCoords = new SurfaceCoords( positions );
 		
 		final agent = new Agent( testCase, surfaceCoords, numFrames );
-		final ai = new TutorialAI1( agent, surfaceCoords );
+		final ai = new AI1( agent, surfaceCoords );
 
 		// final commands = haxe.Json.parse( '[{"rotate":-1,"power":1},{"rotate":3,"power":2},{"rotate":0,"power":3},{"rotate":-7,"power":4},{"rotate":-16,"power":4},{"rotate":-11,"power":4},{"rotate":-16,"power":3},{"rotate":-13,"power":4},{"rotate":-5,"power":3},{"rotate":8,"power":2},{"rotate":5,"power":2},{"rotate":-4,"power":3},{"rotate":1,"power":4},{"rotate":-4,"power":4},{"rotate":-17,"power":4},{"rotate":-29,"power":4},{"rotate":-35,"power":4},{"rotate":-35,"power":4},{"rotate":-33,"power":4},{"rotate":-30,"power":4},{"rotate":-42,"power":4},{"rotate":-34,"power":3},{"rotate":-24,"power":4},{"rotate":-29,"power":4},{"rotate":-28,"power":4},{"rotate":-32,"power":4},{"rotate":-36,"power":4},{"rotate":-44,"power":4},{"rotate":-39,"power":4},{"rotate":-28,"power":3},{"rotate":-30,"power":4},{"rotate":-36,"power":4},{"rotate":-37,"power":3},{"rotate":-27,"power":3},{"rotate":-22,"power":2},{"rotate":-29,"power":2},{"rotate":-24,"power":3},{"rotate":-22,"power":2},{"rotate":-26,"power":2},{"rotate":-19,"power":2},{"rotate":-20,"power":3},{"rotate":-10,"power":3},{"rotate":-2,"power":4},{"rotate":-14,"power":4},{"rotate":-15,"power":4},{"rotate":-13,"power":4},{"rotate":-12,"power":4},{"rotate":-2,"power":4},{"rotate":-7,"power":4},{"rotate":-3,"power":4},{"rotate":6,"power":4},{"rotate":13,"power":4},{"rotate":10,"power":3},{"rotate":21,"power":3},{"rotate":22,"power":3},{"rotate":25,"power":3},{"rotate":34,"power":4},{"rotate":44,"power":4},{"rotate":36,"power":4},{"rotate":32,"power":4},{"rotate":32,"power":4},{"rotate":22,"power":4},{"rotate":22,"power":4},{"rotate":22,"power":4},{"rotate":22,"power":4},{"rotate":22,"power":4},{"rotate":18,"power":4},{"rotate":7,"power":4},{"rotate":4,"power":4},{"rotate":4,"power":4},{"rotate":4,"power":4},{"rotate":4,"power":4},{"rotate":9,"power":4},{"rotate":9,"power":4},{"rotate":9,"power":4},{"rotate":9,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":6,"power":4},{"rotate":6,"power":4},{"rotate":6,"power":4},{"rotate":6,"power":4},{"rotate":6,"power":4},{"rotate":3,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":7,"power":4},{"rotate":10,"power":4},{"rotate":10,"power":4},{"rotate":2,"power":3},{"rotate":2,"power":3},{"rotate":2,"power":3},{"rotate":2,"power":3},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":1,"power":4},{"rotate":0,"power":4}]' );
 

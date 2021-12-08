@@ -14,7 +14,7 @@ import xa3.MathUtils.sign;
 
 class AI1 extends AI {
 	
-	static inline var MAX_X_SPEED = 80;
+	var maxXSpeed = 80;
 	static inline var MIN_OFFSET = 200;
 	static inline var MAX_DISTANCE = 1000;
 
@@ -22,20 +22,21 @@ class AI1 extends AI {
 
 	override public function new( agent:Agent, surfaceCoords:SurfaceCoords ) {
 		super( agent, surfaceCoords );
+		if( surfaceCoords.landY > 1800 ) maxXSpeed = 50;
 	}
 	
 	override function process():Gene {
 		
 		final direction = getDirection();
 		final isOverLandingArea = agent.x > surfaceCoords.landX1 && agent.x < surfaceCoords.landX2;
-		final minYSpeed = isOverLandingArea ? -38 : 0;
-		final maxAngle = 60;
+		final minYSpeed = isOverLandingArea ? -30 : 0;
+		final maxAngle = isOverLandingArea ? 45 : 60;
 		final xDistance = agent.x < surfaceCoords.landX1 ? surfaceCoords.landX1 - agent.x
 					: agent.x > surfaceCoords.landX2 ? agent.x - surfaceCoords.landX2
 					: 0;
 		final distanceFraction = ( xDistance + MIN_OFFSET ) / MAX_DISTANCE;
 		final clampedDistanceFraction = fclamp( distanceFraction, 0, 1 );
-		final desiredSpeed = lerp( 0, MAX_X_SPEED, clampedDistanceFraction );
+		final desiredSpeed = xDistance == 0 ? 0 : lerp( 0, maxXSpeed, clampedDistanceFraction );
 		final desiredXVelocity = direction * desiredSpeed;
 		
 		final desiredAcceleration = agent.hSpeed - desiredXVelocity;
@@ -47,7 +48,7 @@ class AI1 extends AI {
 		gene.rotate = isInLandingDistance ? 0 : round( angle );
 		gene.power = agent.vSpeed + yAccel < minYSpeed ? 4 : 3;
 
-		// trace( '${counter++} direction $direction, xDistance $xDistance, distanceFraction $distanceFraction, desiredSpeed $desiredSpeed, desiredXVelocity $desiredXVelocity, desiredAcceleration $desiredAcceleration, angle $angle' );
+		// trace( '${counter++} xDistance $xDistance, speed ${agent.hSpeed}, desiredXVelocity $desiredXVelocity' );
 
 		return gene;
 	}

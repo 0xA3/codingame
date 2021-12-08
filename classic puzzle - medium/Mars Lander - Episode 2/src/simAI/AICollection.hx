@@ -28,7 +28,7 @@ class AICollection {
 		final tutorialAI1 = new TutorialAI1( new Agent( testCase, surfaceCoords, maxFrames ), surfaceCoords );
 		final tutorialAI2 = new TutorialAI2( new Agent( testCase, surfaceCoords, maxFrames ), surfaceCoords );
 		final ai1 = new AI1( new Agent( testCase, surfaceCoords, maxFrames ), surfaceCoords );
-		final ais = [tutorialAI2, tutorialAI1, ai1];
+		final ais = [ai1, tutorialAI2, tutorialAI1];
 		
 		final genePools:Array<Array<Gene>> = [for( _ in 0...ais.length ) [for( i in 0...maxFrames ) { rotate: 0, power: 0}]];
 		final agents = ais.map( ai -> ai.agent );

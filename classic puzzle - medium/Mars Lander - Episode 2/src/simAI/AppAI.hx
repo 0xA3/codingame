@@ -216,7 +216,15 @@ class AppAI extends hxd.App {
 
 		pathView.draw( zero, scaleFactor );
 		winnerGenes = aiCollection.genePool[0];
+		traceFuel();
 		changeState( Playing );
+	}
+
+	inline function traceFuel() {
+		trace( 'simulation complete' );
+		for( i in 0...aiCollection.ais.length ) {
+			trace( 'ai $i  fuel left: ${aiCollection.simAgents[i].fuel}' );
+		}
 	}
 
 	function playNextFrame() {
@@ -246,26 +254,6 @@ class AppAI extends hxd.App {
 
 	inline function outputAgent() {
 		tRocket.text = 'frame $frame\nhSpeed: ${agent.hSpeed}\nvSpeed: ${agent.vSpeed}\nrotate: ${agent.rotate}\npower: ${agent.power}\nfuel: ${agent.fuel}';
-	}
-
-	public function onMouseMove( windowX:Int ) {
-		final x = round( windowX / scaleFactor );
-		final hitFitness = surfaceCoords.getHitFitness( x, MAX_Y, x, 0 );
-
-		final vIntersect:simGA.data.Vec2 = { x: 0, y: 0 };
-		final coords = surfaceCoords.coords;
-		for( i in 1...coords.length ) {
-			final x0 = coords[i - 1].x;
-			final y0 = coords[i - 1].y;
-			final x1 = coords[i].x;
-			final y1 = coords[i].y;
-			final isIntersection = xa3.MathUtils.segmentIntersect( x0, y0, x1, y1, x, 0, x, MAX_Y, vIntersect );
-			if( isIntersection ) {
-				intersectObject.x = windowX;
-				intersectObject.y = ( zero - vIntersect.y ) * scaleFactor;
-				tIntersect.text = 'x: $x\ny: ${vIntersect.y}\nhitFitness: $hitFitness';
-			}
-		}
 	}
 }
 
