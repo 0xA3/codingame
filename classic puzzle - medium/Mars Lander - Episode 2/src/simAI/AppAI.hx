@@ -216,7 +216,7 @@ class AppAI extends hxd.App {
 
 		pathView.draw( zero, scaleFactor );
 		winnerGenes = aiCollection.genePool[0];
-		traceFuel();
+		// traceFuel();
 		changeState( Playing );
 	}
 
