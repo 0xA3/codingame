@@ -4,70 +4,49 @@ import CodinGame.readline;
 import Math.floor;
 import Std.int;
 import Std.parseInt;
+import ai.Simple;
+import data.FrameDataset;
 
 using Lambda;
 
 function main() {
 	
+	final ai = new Simple();
+
 	while( true ) {
 		final inputs = readline().split(' ');
 	
 		final x = parseInt( inputs[0] );
 		final y = parseInt( inputs[1] );
-		final player:Player = { x: x, y: y };
 		final humanCount = parseInt( readline() );
 		final humans = [for( i in 0...humanCount ) {
 			final inputs = readline().split(' ');
-			final humanId = parseInt(inputs[0]);
-			final humanX = parseInt(inputs[1]);
-			final humanY = parseInt(inputs[2]);
-			final human = { id: humanId, x: humanX, y: humanY };
-			human;
+			final id = parseInt( inputs[0] );
+			final x = parseInt( inputs[1] );
+			final y = parseInt( inputs[2] );
+			{ id: id, x: x, y: y };
 		}];
 		
 		final zombieCount = parseInt(readline());
 		final zombies = [for ( i in 0...zombieCount ) {
 			final inputs = readline().split(' ');
-			final zombieId = parseInt(inputs[0]);
-			final zombieX = parseInt(inputs[1]);
-			final zombieY = parseInt(inputs[2]);
-			final zombieXNext = parseInt(inputs[3]);
-			final zombieYNext = parseInt(inputs[4]);
-			final zombie:Zombie = { id: zombieId, x: zombieX, y: zombieY, xNext: zombieXNext, yNext: zombieYNext };
-			zombie;
+			final id = parseInt( inputs[0] );
+			final x = parseInt( inputs[1] );
+			final y = parseInt( inputs[2] );
+			final xNext = parseInt( inputs[3] );
+			final yNext = parseInt( inputs[4] );
+			{ id: id, x: x, y: y, xNext: xNext, yNext: yNext };
 		}];
-		final result = process( player, humans, zombies );
+
+		final frameDataset:FrameDataset = { player: { x: x, y: y }, humans: humans, zombies: zombies };
+		
+		final ip = '$x $y\n$humanCount\n'
+		+ [for( human in humans ) '${human.id} ${human.x} ${human.y}'].join( "\n" )
+		+ '\n$zombieCount\n'
+		+ [for( zombie in zombies ) '${zombie.id} ${zombie.x} ${zombie.y} ${zombie.xNext} ${zombie.yNext}'].join( "\n" );
+		printErr( ip );
+
+		final result = ai.process( frameDataset );
 		print( result );
 	}
-}	
-
-function process( player:Player, humans:Array<Human>, zombies:Array<Zombie> ) {
-	if( zombies.length == 0 ) return "0 0";
-
-	final target = zombies[0];
-	return '${target.xNext} ${target.yNext}';
 }
-
-function getDistance2( player:Player, zombie:Zombie ) {
-	
-}
-
-typedef Player = {
-	final x:Int;
-	final y:Int;
-}
-
-typedef Human = {
-	final id:Int;
-	final x:Int;
-	final y:Int;
-}
-
-typedef Zombie = {
-	final id:Int;
-	final x:Int;
-	final y:Int;
-	final xNext:Int;
-	final yNext:Int;
-}
-
