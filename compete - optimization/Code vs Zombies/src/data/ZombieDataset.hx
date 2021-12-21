@@ -1,10 +1,10 @@
 package data;
 
-import data.Position;
+import data.Vec2;
 
 typedef ZombieDataset = {
 	final id:Int;
 	final isExisting:Bool;
-	final position:Position;
-	final positionNext:Position;
+	final position:Vec2;
+	final positionNext:Vec2;
 }

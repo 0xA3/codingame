@@ -1,7 +1,7 @@
 package sim;
 
 import Math.round;
-import data.Position;
+import data.Vec2;
 import h2d.Bitmap;
 import h2d.Graphics;
 import h2d.Object;
@@ -14,9 +14,9 @@ class EntityCreator {
 	final backgroundTile = hxd.Res.background.toTile();
 	final ashGlowTile = hxd.Res.ash_glow.toTile();
 	final ashShadowTile = hxd.Res.ash_shadow.toTile();
-	final ashTile = hxd.Res.ash.toTile();
-	final humanTile = hxd.Res.human.toTile();
-	final zombie1Tile = hxd.Res.zombie1.toTile();
+	final ashTile = hxd.Res.ash.toTile().center();
+	final humanTile = hxd.Res.human.toTile().center();
+	final zombie1Tile = hxd.Res.zombie1.toTile().center();
 
 	public function new() {}
 
@@ -24,7 +24,7 @@ class EntityCreator {
 		new Bitmap( backgroundTile, new Graphics( scene ) );
 	}
 
-	public function createAsh( scene:Object, position:Position ) {
+	public function createAsh( scene:Object, position:Vec2 ) {
 		final ashObject = new Object( scene );
 		final glowBitmap = new Bitmap( ashGlowTile, ashObject );
 		final shadowBitmap = new Bitmap( ashShadowTile, ashObject );
@@ -36,13 +36,13 @@ class EntityCreator {
 		shadowBitmap.alpha = 0.5;
 		shadowBitmap.x = -85;
 		shadowBitmap.y = -10;
-		ashBitmap.x = -round( ashTile.width / 2 );
-		ashBitmap.y = -round( ashTile.height / 2 );
+		// ashBitmap.x = -round( ashTile.width / 2 );
+		// ashBitmap.y = -round( ashTile.height / 2 );
 		final ash = new AshView( ashObject, ashBitmap, position );
 		return ash;
 	}
 
-	public function createHuman( scene:Object, position:Position ) {
+	public function createHuman( scene:Object, position:Vec2 ) {
 		final humanObject = new Object( scene );
 		final humanBitmap = new Bitmap( humanTile, humanObject );
 		humanBitmap.x = -round( humanTile.width / 2 );
@@ -52,7 +52,7 @@ class EntityCreator {
 		return human;
 	}
 	
-	public function createZombie( scene:Object, position:Position ) {
+	public function createZombie( scene:Object, position:Vec2 ) {
 		final zombieObject = new Object( scene );
 		final zombieBitmap = new Bitmap( zombie1Tile, zombieObject );
 		zombieBitmap.x = -round( zombie1Tile.width / 2 );
