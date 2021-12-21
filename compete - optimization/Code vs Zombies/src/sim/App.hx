@@ -28,7 +28,7 @@ class App extends hxd.App {
 	public static inline var Y0 = 200;
 	public static inline var SCENE_WIDTH = 2560;
 	public static inline var SCENE_HEIGHT = 1440;
-	static inline var SIM_FRAME = 1;
+	static inline var SIM_FRAME = 5;
 	static inline var PLAY_FRAME = 15;
 
 	static inline var ASH_RANGE = 2000;
@@ -95,8 +95,7 @@ class App extends hxd.App {
 		ash = entityCreator.createAsh( scene, testCaseDataset.ash );
 		resize();
 
-		simulate( testCaseDataset );
-		changeState( Playing );
+		changeState( Simulating );
 	}
 
 	function initEntities( testCaseDataset:FrameDataset ) {
@@ -146,7 +145,8 @@ class App extends hxd.App {
 	function changeState( nextState:State ) {
 		switch nextState {
 			case Initial: //no-op
-			case Playing:
+			case Simulating: currentFrame = 0;
+			case Playing: currentFrame = 0;
 			case PlayPaused:
 			case Finished:
 		}
@@ -158,47 +158,57 @@ class App extends hxd.App {
 
 	override function update( dt:Float ) {
 		switch state {
+			case Simulating:
+				if( simCounter % SIM_FRAME == 0 ) {
+					simulateNextFrame();
+				}
+				simCounter++;
 			case Playing:
-				if( playCounter % PLAY_FRAME == 0 ) playNextFrame();
+				if( playCounter % PLAY_FRAME == 0 ) {
+					playNextFrame( frameDatasets[currentFrame] );
+					currentFrame++;
+					if( currentFrame >= frameDatasets.length ) changeState( Finished );
+				}
 				playCounter++;
 			default: // no-op
 		}
 	}
 
-	public function simulate( startFrame:FrameDataset ) {
-		var frame = startFrame;
-		for( _ in 0...10 ) {
-		// while( true ) {
-			final ashMovement = ai.process( frame ).split(" ");
-			final ashTargetX = parseInt( ashMovement[0] );
-			final ashTargetY = parseInt( ashMovement[1] );
-			
-			final movedZombies = [];
-			for( zombie in frame.zombies ) movedZombies[zombie.id] = moveZombie( zombie, frame.ash.x, frame.ash.y, frame.humans );
-			
-			final nextAsh = moveAsh( frame.ash, ashTargetX, ashTargetY );
-			
-			final deadAliveZombies = [];
-			for( zombie in movedZombies ) deadAliveZombies[zombie.id] = killZombieIfInRange( nextAsh, zombie );
-			
-			final humanDatasets = [];
-			for( human in frame.humans ) humanDatasets[human.id] = killHumanIfInRange( human, deadAliveZombies );
-
-			final nextFrame:FrameDataset = {
-				ash: nextAsh,
-				humans: humanDatasets,
-				zombies: deadAliveZombies
-			}
-
-			frameDatasets.push( nextFrame );
-
-			final aliveHumans = nextFrame.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
-			final existingZombies = nextFrame.zombies.fold(( z, sum ) -> z.isExisting ? sum + 1 : sum, 0 );
-			
-			if( aliveHumans == 0 || existingZombies == 0 ) break;
-			frame = nextFrame;
+	public function simulateNextFrame() {
+		final frame = frameDatasets[frameDatasets.length - 1];
+		final input:FrameDataset = {
+			ash: frame.ash,
+			humans: frame.humans.filter( h -> h.isAlive ),
+			zombies: frame.zombies.filter( z -> z.isExisting )
 		}
+		final ashMovement = ai.process( input ).split(" ");
+		final ashTargetX = parseInt( ashMovement[0] );
+		final ashTargetY = parseInt( ashMovement[1] );
 		
+		final movedZombies = [];
+		for( zombie in frame.zombies ) movedZombies[zombie.id] = moveZombie( zombie, frame.ash.x, frame.ash.y, frame.humans );
+		
+		final nextAsh = moveAsh( frame.ash, ashTargetX, ashTargetY );
+		
+		final deadAliveZombies = [];
+		for( zombie in movedZombies ) deadAliveZombies[zombie.id] = killZombieIfInRange( nextAsh, zombie );
+		
+		final humanDatasets = [];
+		for( human in frame.humans ) humanDatasets[human.id] = killHumanIfInRange( human, deadAliveZombies );
+
+		final nextFrame:FrameDataset = {
+			ash: nextAsh,
+			humans: humanDatasets,
+			zombies: deadAliveZombies
+		}
+
+		frameDatasets.push( nextFrame );
+
+		final aliveHumans = nextFrame.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
+		final existingZombies = nextFrame.zombies.fold(( z, sum ) -> z.isExisting ? sum + 1 : sum, 0 );
+		playNextFrame( nextFrame );
+		
+		if( aliveHumans == 0 || existingZombies == 0 ) changeState( Playing );
 	}
 
 	function moveZombie( zombieDataset:ZombieDataset, ashX:Int, ashY:Int, humanDatasets:Array<HumanDataset> ) {
@@ -208,13 +218,14 @@ class App extends hxd.App {
 		var minDistanceSq = distanceSq( zombieX, zombieY, ashX, ashY );
 		var xClosestHuman = ashX;
 		var yClosestHuman = ashY;
-		for( i in 0...humanDatasets.length ) {
-			final humanData = humanDatasets[i];
-			final humanDistanceSq = distanceSq( zombieX, zombieY, humanData.position.x, humanData.position.y );
-			if( humanDistanceSq < minDistanceSq ) {
-				minDistanceSq = humanDistanceSq;
-				xClosestHuman = humanData.position.x;
-				yClosestHuman = humanData.position.y;
+		for( humanData in humanDatasets ) {
+			if( humanData.isAlive )	{
+				final humanDistanceSq = distanceSq( zombieX, zombieY, humanData.position.x, humanData.position.y );
+				if( humanDistanceSq < minDistanceSq ) {
+					minDistanceSq = humanDistanceSq;
+					xClosestHuman = humanData.position.x;
+					yClosestHuman = humanData.position.y;
+				}
 			}
 		}
 		final dx = xClosestHuman - zombieX;
@@ -257,6 +268,7 @@ class App extends hxd.App {
 		final distanceZombie = distance( ashPosition.x, ashPosition.y, zombieDataset.position.x, zombieDataset.position.y );
 		
 		final zombieIsExisting = distanceZombie > ASH_RANGE;
+		if( !zombieIsExisting ) trace( 'ash kills zombie ${zombieDataset.id}' );
 		final zombie:ZombieDataset = {
 			id: zombieDataset.id,
 			isExisting: zombieIsExisting,
@@ -275,6 +287,7 @@ class App extends hxd.App {
 			if( zombie.isExisting ) {
 				final zombieKills = humanDataset.position.x == zombie.positionNext.x && humanDataset.position.y == zombie.positionNext.y;
 				if( zombieKills ) {
+					trace( 'zombie ${zombie.id} kills human ${humanDataset.id}' );
 					isAlive = false;
 					break;
 				}
@@ -289,17 +302,15 @@ class App extends hxd.App {
 		return human;
 	}
 
-	function playNextFrame() {
+	function playNextFrame( frame:FrameDataset ) {
 		// trace( currentFrame );
-		final currentFrameDataset = frameDatasets[currentFrame];
-		ash.moveTo( currentFrameDataset.ash );
-		for( human in currentFrameDataset.humans ) {
+		ash.moveTo( frame.ash );
+		for( human in frame.humans ) {
 			humans[human.id].moveTo( human.position, human.isAlive );
 		}
-		for( zombie in currentFrameDataset.zombies ) {
+		for( zombie in frame.zombies ) {
 			zombies[zombie.id].moveTo( zombie.position, zombie.isExisting );
 		}
 
-		currentFrame = ( currentFrame + 1 ) % frameDatasets.length;
 	}
 }
