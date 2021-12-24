@@ -43,7 +43,7 @@ class EntityCreator {
 		new Bitmap( backgroundTile, new Graphics( scene ) );
 	}
 
-	public function createAsh( position:Vec2 ) {
+	public function createAsh( x:Int, y:Int ) {
 		final ashObject = new Object();
 		final glowBitmap = new Bitmap( ashGlowTile, ashObject );
 		final shadowBitmap = new Bitmap( ashShadowTile, ashObject );
@@ -56,26 +56,26 @@ class EntityCreator {
 		shadowBitmap.alpha = 0.5;
 		shadowBitmap.x = -85;
 		shadowBitmap.y = -10;
-		final ash = new AshView( ashObject, splatterBitmap, ashBitmap, position );
+		final ash = new AshView( ashObject, splatterBitmap, ashBitmap, x, y );
 		return ash;
 	}
 
-	public function createHuman( parent:Object, position:Vec2, bloodSplatter:Bitmap ) {
+	public function createHuman( parent:Object, x:Int, y:Int, bloodSplatter:Bitmap ) {
 		final humanObject = new Object( parent );
 		final humanBitmap = new Bitmap( humanTile, humanObject );
 		humanBitmap.x = -round( humanTile.width / 2 );
 		humanBitmap.y = -round( humanTile.height / 2 );
 		humanBitmap.rotation = Math.random() * Math.PI * 2;
 		
-		final human = new PersonView( humanObject, bloodSplatter, position );
+		final human = new PersonView( humanObject, bloodSplatter, x, y );
 		return human;
 	}
 	
-	public function createZombie( parent:Object, position:Vec2, bloodSplatter:Bitmap ) {
+	public function createZombie( parent:Object, x:Int, y:Int, bloodSplatter:Bitmap ) {
 		final zombieObject = new Object( parent );
 		final zombieBitmap = new Bitmap( zombie1Tile, zombieObject );
 		
-		final zombie = new ZombieView( zombieObject, bloodSplatter, position );
+		final zombie = new ZombieView( zombieObject, bloodSplatter, x, y );
 		return zombie;
 	}
 

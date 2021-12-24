@@ -81,7 +81,7 @@ class App extends hxd.App {
 		final scene = new Object( s2d );
 		final entityCreator = new EntityCreator();
 		entityCreator.createBackground( scene );
-		final ash = entityCreator.createAsh( testCaseDataset.ash );
+		final ash = entityCreator.createAsh( testCaseDataset.ash.x, testCaseDataset.ash.y );
 		simView = new SimView( scene, ash, entityCreator );
 		simView.initEntities( testCaseDataset );
 		
@@ -169,9 +169,10 @@ class App extends hxd.App {
 			zombies: frame.zombies.filter( z -> z.isExisting )
 		}
 		final ashMovement = ai.process( aiInput ).split(" ").map( s -> parseInt( s ));
-		final ashTarget:Vec2 = { x: ashMovement[0], y: ashMovement[1] };
+		final ashTargetX = ashMovement[0];
+		final ashTargetY = ashMovement[1];
 		
-		final nextFrame = Game.executeRound( ashTarget, frame );
+		final nextFrame = Game.executeRound( ashTargetX, ashTargetY, frame );
 		frameDatasets.push( nextFrame );
 
 		final aliveHumans = nextFrame.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );

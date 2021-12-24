@@ -5,6 +5,8 @@ import data.Vec2;
 typedef ZombieDataset = {
 	final id:Int;
 	final isExisting:Bool;
-	final position:Vec2;
-	final positionNext:Vec2;
+	final x:Int;
+	final y:Int;
+	final xNext:Int;
+	final yNext:Int;
 }

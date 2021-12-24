@@ -8,8 +8,8 @@ class AshView extends PersonView {
 	
 	final ash:Bitmap;
 
-	public function new( object:Object, bloodSplatter:Bitmap, ash:Bitmap, position:Vec2 ) {
-		super( object, bloodSplatter, position );
+	public function new( object:Object, bloodSplatter:Bitmap, ash:Bitmap, x:Int, y:Int ) {
+		super( object, bloodSplatter, x, y );
 		this.ash = ash;
 		show();
 	}

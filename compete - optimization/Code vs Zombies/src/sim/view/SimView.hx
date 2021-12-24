@@ -3,6 +3,7 @@ package sim.view;
 import data.FrameDataset;
 import h2d.Bitmap;
 import h2d.Object;
+import xa3.MathUtils;
 
 class SimView {
 	
@@ -35,30 +36,33 @@ class SimView {
 		for( humanData in testCaseDataset.humans ) {
 			if( humans[humanData.id] == null ) {
 				final bloodSplatter = entityCreator.createBlood( bloodLayer );
-				final humanView = entityCreator.createHuman( humansLayer, humanData.position, bloodSplatter );
+				final humanView = entityCreator.createHuman( humansLayer, humanData.x, humanData.y, bloodSplatter );
 				humans[humanData.id] = humanView;
 			} else {
-				humans[humanData.id].place( humanData.position.x, humanData.position.y );
+				humans[humanData.id].place( humanData.x, humanData.y );
 			}
 		}
 		for( zombieData in testCaseDataset.zombies ) {
 			if( zombies[zombieData.id] == null ) {
 				final bloodSplatter = entityCreator.createBlood( bloodLayer );
-				final zombieView = entityCreator.createZombie( zombiesLayer, zombieData.position, bloodSplatter );
+				final zombieView = entityCreator.createZombie( zombiesLayer, zombieData.x, zombieData.y, bloodSplatter );
 				zombies[zombieData.id] = zombieView;
 			} else {
-				zombies[zombieData.id].place( zombieData.position.x, zombieData.position.y );
+				zombies[zombieData.id].place( zombieData.x, zombieData.y );
 			}
 		}
+		for( i in testCaseDataset.humans.length...humans.length ) humans[i].hide();
+		for( i in testCaseDataset.zombies.length...zombies.length ) zombies[i].hide();
 	}
 
 	public function update( frame:FrameDataset, nextFrame:FrameDataset, subFrame:Float ) {
 		
 		final easedSubFrame = quadEaseInOut( subFrame );
 
-		final ashVelocity = nextFrame.ash.sub( frame.ash );
+		final ashVelX = nextFrame.ash.x - frame.ash.x;
+		final ashVelY = nextFrame.ash.y - frame.ash.y;
 		// trace( 'ashVelocity $ashVelocity  length ${ashVelocity.length}' );
-		ash.rotate( ashVelocity.angle );
+		ash.rotate( MathUtils.angle( ashVelX, ashVelY ));
 		
 		final ashX = interpolate( frame.ash.x, nextFrame.ash.x, easedSubFrame);
 		final ashY = interpolate( frame.ash.y, nextFrame.ash.y, easedSubFrame );
@@ -73,7 +77,7 @@ class SimView {
 
 			if( isDying ) humanView.die();
 			if( isBecomingAlive ) humanView.live();
-			if( humanData.isAlive ) humanView.place( humanData.position.x, humanData.position.y );
+			if( humanData.isAlive ) humanView.place( humanData.x, humanData.y );
 		}
 		
 		for( i in 0...frame.zombies.length ) {
@@ -87,11 +91,12 @@ class SimView {
 			if( isBecomingAlive ) zombieView.live();
 
 			if( zombieData.isExisting  ) {
-				final zombieVelocity = zombieData.positionNext.sub( zombieData.position );
-				zombieView.rotate( zombieVelocity.angle );
+				final zombieVelX = zombieData.xNext - zombieData.x;
+				final zombieVelY = zombieData.yNext - zombieData.y;
+				zombieView.rotate( MathUtils.angle( zombieVelX, zombieVelY ));
 				
-				final zombieX = interpolate( zombieData.position.x, zombieData.positionNext.x, easedSubFrame );
-				final zombieY = interpolate( zombieData.position.y, zombieData.positionNext.y, easedSubFrame );
+				final zombieX = interpolate( zombieData.x, zombieData.xNext, easedSubFrame );
+				final zombieY = interpolate( zombieData.y, zombieData.yNext, easedSubFrame );
 				
 				zombieView.place( zombieX, zombieY );
 			}

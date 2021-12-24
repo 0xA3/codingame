@@ -17,7 +17,7 @@ function parseInput( testCase:String ) {
 		final humanId = parseInt(inputs[0]);
 		final humanX = parseInt(inputs[1]);
 		final humanY = parseInt(inputs[2]);
-		final human:HumanDataset = { id: humanId, isAlive: true, position: { x: humanX, y: humanY }};
+		final human:HumanDataset = { id: humanId, isAlive: true, x: humanX, y: humanY };
 		human;
 	}];
 	
@@ -29,7 +29,7 @@ function parseInput( testCase:String ) {
 		final zombieY = parseInt(inputs[2]);
 		final zombieXNext = parseInt(inputs[3]);
 		final zombieYNext = parseInt(inputs[4]);
-		final zombie:ZombieDataset = { id: zombieId, isExisting: true, position: { x: zombieX, y: zombieY }, positionNext: { x: zombieXNext, y: zombieYNext }};
+		final zombie:ZombieDataset = { id: zombieId, isExisting: true, x: zombieX, y: zombieY, xNext: zombieXNext, yNext: zombieYNext };
 		zombie;
 	}];
 

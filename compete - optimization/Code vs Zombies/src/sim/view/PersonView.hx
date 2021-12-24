@@ -14,10 +14,10 @@ class PersonView {
 	function get_isVisible() return object.visible;
 	function set_isVisible( v:Bool ) return object.visible = v;
 
-	public function new( object:Object, bloodSplatter:Bitmap, position:Vec2 ) {
+	public function new( object:Object, bloodSplatter:Bitmap, x:Int, y:Int ) {
 		this.object = object;
 		this.bloodSplatter = bloodSplatter;
-		place( position.x, position.y );
+		place( x, y );
 		hide();
 	}
 	
