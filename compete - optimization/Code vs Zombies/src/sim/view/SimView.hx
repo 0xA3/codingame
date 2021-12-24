@@ -59,13 +59,13 @@ class SimView {
 		
 		final easedSubFrame = quadEaseInOut( subFrame );
 
-		final ashVelX = nextFrame.ash.x - frame.ash.x;
-		final ashVelY = nextFrame.ash.y - frame.ash.y;
+		final ashVelX = nextFrame.ashX - frame.ashX;
+		final ashVelY = nextFrame.ashY - frame.ashY;
 		// trace( 'ashVelocity $ashVelocity  length ${ashVelocity.length}' );
 		ash.rotate( MathUtils.angle( ashVelX, ashVelY ));
 		
-		final ashX = interpolate( frame.ash.x, nextFrame.ash.x, easedSubFrame);
-		final ashY = interpolate( frame.ash.y, nextFrame.ash.y, easedSubFrame );
+		final ashX = interpolate( frame.ashX, nextFrame.ashX, easedSubFrame);
+		final ashY = interpolate( frame.ashY, nextFrame.ashY, easedSubFrame );
 		ash.place( ashX, ashY );
 		
 		for( i in 0...frame.humans.length ) {

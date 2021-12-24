@@ -1,10 +1,8 @@
 package data;
 
 typedef FrameDataset = {
-	final ash:{
-		final x:Int;
-		final y:Int;
-	};
+	final ashX:Int;
+	final ashY:Int;
 	final humans:Array<HumanDataset>;
 	final zombies:Array<ZombieDataset>;
 }

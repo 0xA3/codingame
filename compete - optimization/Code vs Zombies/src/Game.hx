@@ -14,18 +14,17 @@ class Game {
 	public static function executeRound( ashTargetX:Int, ashTargetY:Int, frameDataset:FrameDataset ) {
 		final movedZombies = [];
 		for( zombie in frameDataset.zombies ) {
-			final closestHuman = getClosestHuman( zombie.xNext, zombie.yNext, frameDataset.ash.x, frameDataset.ash.y, frameDataset.humans );
-			final closestPositionX = closestHuman == -1 ? frameDataset.ash.x : frameDataset.humans[closestHuman].x;
-			final closestPositionY = closestHuman == -1 ? frameDataset.ash.y : frameDataset.humans[closestHuman].y;
+			final closestHuman = getClosestHuman( zombie.xNext, zombie.yNext, frameDataset.ashX, frameDataset.ashY, frameDataset.humans );
+			final closestPositionX = closestHuman == -1 ? frameDataset.ashX : frameDataset.humans[closestHuman].x;
+			final closestPositionY = closestHuman == -1 ? frameDataset.ashY : frameDataset.humans[closestHuman].y;
 			
 			final dx = closestPositionX - zombie.xNext;
 			final dy = closestPositionY - zombie.yNext;
-			final scaleFactor = getScaleFactor( dx, dy, ZOMBIE_STEP );
+			final scaleFactor = getStepFactor( dx, dy, ZOMBIE_STEP );
 
 			final xNext = move( zombie.xNext, dx, scaleFactor );
 			final yNext = move( zombie.yNext, dy, scaleFactor );
 			
-			// final positionNext = move( zombie.xNext, zombie.yNext, closestPositionX, closestPositionY, ZOMBIE_STEP );
 			final movedZombie:ZombieDataset = {
 				id: zombie.id,
 				isExisting: zombie.isExisting,
@@ -37,13 +36,12 @@ class Game {
 			movedZombies[zombie.id] = movedZombie;
 		}
 		
-		final dx = ashTargetX - frameDataset.ash.x;
-		final dy = ashTargetY - frameDataset.ash.y;
-		final scaleFactor = getScaleFactor( dx, dy, ASH_STEP );
+		final dx = ashTargetX - frameDataset.ashX;
+		final dy = ashTargetY - frameDataset.ashY;
+		final scaleFactor = getStepFactor( dx, dy, ASH_STEP );
 
-		final ashX = move( frameDataset.ash.x, dx, scaleFactor );
-		final ashY = move( frameDataset.ash.y, dy, scaleFactor );
-		// final ashPosition = move( frameDataset.ash.x, frameDataset.ash.y, ashTargetX, ashTargetY, ASH_STEP );
+		final ashX = move( frameDataset.ashX, dx, scaleFactor );
+		final ashY = move( frameDataset.ashY, dy, scaleFactor );
 		
 		final deadAliveZombies = [];
 		for( zombie in movedZombies ) {
@@ -54,7 +52,8 @@ class Game {
 		for( human in frameDataset.humans ) deadAliveHumans[human.id] = killHumanIfInRange( human, deadAliveZombies );
 
 		final nextFrame:FrameDataset = {
-			ash: { x: ashX, y: ashY },
+			ashX: ashX,
+			ashY: ashY,
 			humans: deadAliveHumans,
 			zombies: deadAliveZombies
 		}
@@ -121,27 +120,12 @@ class Game {
 		return human;
 	}
 
-	static inline function getScaleFactor( dx:Int, dy:Int, max:Int ) {
+	static inline function getStepFactor( dx:Int, dy:Int, max:Int ) {
 		final dLength = length( dx, dy );
 		final scaleFactor = dLength > max ? max / dLength : 1;
 		return scaleFactor;
 	}
 
 	static inline function move( v:Int, dv:Int, scaleFactor:Float ) return floor( v + dv * scaleFactor );
-
-	// static function move( x:Int, y:Int, targetX:Int, targetY:Int, max:Int ) {
-	// 	final dx = targetX - x;
-	// 	final dy = targetY - y;
-
-	// 	final dLength = length( dx, dy );
-	// 	final scaleFactor = dLength > max ? max / dLength : 1;
-		
-	// 	final xNext = floor( x + dx * scaleFactor );
-	// 	final yNext = floor( y + dy * scaleFactor );
-
-	// 	final nextPos = { x: xNext, y: yNext };
-
-	// 	return nextPos;
-	// }
 
 }

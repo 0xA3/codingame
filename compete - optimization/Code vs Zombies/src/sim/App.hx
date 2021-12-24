@@ -5,7 +5,6 @@ import Std.parseInt;
 import ai.Ai;
 import ai.Simple;
 import data.FrameDataset;
-import data.Vec2;
 import h2d.Flow;
 import h2d.Object;
 import h2d.Slider;
@@ -81,7 +80,7 @@ class App extends hxd.App {
 		final scene = new Object( s2d );
 		final entityCreator = new EntityCreator();
 		entityCreator.createBackground( scene );
-		final ash = entityCreator.createAsh( testCaseDataset.ash.x, testCaseDataset.ash.y );
+		final ash = entityCreator.createAsh( testCaseDataset.ashX, testCaseDataset.ashY );
 		simView = new SimView( scene, ash, entityCreator );
 		simView.initEntities( testCaseDataset );
 		
@@ -164,7 +163,8 @@ class App extends hxd.App {
 		final frame = frameDatasets[frameDatasets.length - 1];
 		
 		final aiInput:FrameDataset = {
-			ash: frame.ash,
+			ashX: frame.ashX,
+			ashY: frame.ashY,
 			humans: frame.humans.filter( h -> h.isAlive ),
 			zombies: frame.zombies.filter( z -> z.isExisting )
 		}

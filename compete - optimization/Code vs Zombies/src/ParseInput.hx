@@ -33,7 +33,7 @@ function parseInput( testCase:String ) {
 		zombie;
 	}];
 
-	final frameDataset:FrameDataset = { ash: { x: x, y: y }, humans: humans, zombies: zombies };
+	final frameDataset:FrameDataset = { ashX: x, ashY: y, humans: humans, zombies: zombies };
 
 	return frameDataset;
 }

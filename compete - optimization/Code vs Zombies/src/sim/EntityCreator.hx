@@ -1,7 +1,6 @@
 package sim;
 
 import Math.round;
-import data.Vec2;
 import h2d.Bitmap;
 import h2d.Flow;
 import h2d.Graphics;

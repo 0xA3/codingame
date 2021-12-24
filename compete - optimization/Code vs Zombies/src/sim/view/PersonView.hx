@@ -1,6 +1,5 @@
 package sim.view;
 
-import data.Vec2;
 import h2d.Bitmap;
 import h2d.Object;
 
