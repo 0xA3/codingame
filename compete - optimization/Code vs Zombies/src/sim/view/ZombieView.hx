@@ -1,3 +1,3 @@
 package sim.view;
 
-typedef ZombieView = HumanView;
+typedef ZombieView = PersonView;

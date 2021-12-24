@@ -26,7 +26,7 @@ class Game {
 			movedZombies[zombie.id] = movedZombie;
 		}
 		
-		final ashPosition = move( frameDataset.ash, ashTarget, ASH_RANGE );
+		final ashPosition = move( frameDataset.ash, ashTarget, ASH_STEP );
 		
 		final deadAliveZombies = [];
 		for( zombie in movedZombies ) {
@@ -83,7 +83,7 @@ class Game {
 		var isAlive = true;
 		for( zombie in zombieDatasets ) {
 			if( zombie.isExisting ) {
-				final zombieKills = humanDataset.position.x == zombie.positionNext.x && humanDataset.position.y == zombie.positionNext.y;
+				final zombieKills = humanDataset.position.x == zombie.position.x && humanDataset.position.y == zombie.position.y;
 				if( zombieKills ) {
 					trace( 'zombie ${zombie.id} kills human ${humanDataset.id}' );
 					isAlive = false;

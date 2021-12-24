@@ -1,18 +1,17 @@
 package sim;
 
-import Math.floor;
+import ParseInput.parseInput;
 import Std.parseInt;
 import ai.Ai;
 import ai.Simple;
 import data.FrameDataset;
 import data.Vec2;
+import h2d.Flow;
 import h2d.Object;
+import h2d.Slider;
 import sim.State;
-import sim.contexts.ParseInput.parseInput;
-import sim.view.AshView;
-import sim.view.HumanView;
 import sim.view.SimView;
-import sim.view.ZombieView;
+import sim.view.SliderView;
 
 using Lambda;
 
@@ -26,7 +25,6 @@ class App extends hxd.App {
 	public static inline var SCENE_HEIGHT = 1440;
 	static inline var SIM_FRAME = 5;
 	static inline var PLAY_FRAME = 15;
-
 	
 	var width = SCENE_WIDTH;
 	var height = SCENE_HEIGHT;
@@ -39,16 +37,21 @@ class App extends hxd.App {
 	var simCounter = 0;
 	var playCounter = 0;
 
+	var testCases:Array<String> = [];
 	var testCaseId = 0;
 	final frameDatasets:Array<FrameDataset> = [];
 
 	var simView:SimView;
+	var sliderContainer:Object;
+	var sliderView:SliderView;
 	var ai:Ai;
 
 	override function init() {
+		trace( "init" );
+		
 		ai = new Simple();
 		
-		final testCases = [
+		testCases = [
 			TestCases.simple,
 			TestCases.twoZombies,
 			TestCases.twoZombiesRedux,
@@ -73,16 +76,18 @@ class App extends hxd.App {
 		];
 		
 		final testCaseDataset = parseInput( testCases[0] );
-		frameDatasets.push( testCaseDataset );
-		
+		initFrameDatasets( testCaseDataset );
 
 		final scene = new Object( s2d );
 		final entityCreator = new EntityCreator();
 		entityCreator.createBackground( scene );
-		final ashView = entityCreator.createAsh( scene, testCaseDataset.ash );
-		simView = new SimView( scene, ashView, entityCreator );
+		final ash = entityCreator.createAsh( testCaseDataset.ash );
+		simView = new SimView( scene, ash, entityCreator );
 		simView.initEntities( testCaseDataset );
 		
+		sliderContainer = new Object( s2d );
+		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, jumpToFrame );
+
 		resize();
 
 		changeState( Simulating );
@@ -100,10 +105,16 @@ class App extends hxd.App {
 		final scaleY = height / SCENE_HEIGHT;
 		final minScale = Math.min( scaleX, scaleY );
 		simView.scene.scaleX = simView.scene.scaleY = minScale;
+
+		sliderContainer.y = scaleX < scaleY ? SCENE_HEIGHT * scaleX : SCENE_HEIGHT * scaleY - 60;
+		sliderView.width = width;
 	}
 
 	public function select( id:Int ) {
-
+		final startFrameDataset = parseInput( testCases[id] );
+		initFrameDatasets( startFrameDataset );
+		simView.initEntities( startFrameDataset );
+		changeState( Simulating );
 	}
 
 	public function playClick() {
@@ -115,7 +126,7 @@ class App extends hxd.App {
 		switch nextState {
 			case Initial: //no-op
 			case Simulating: currentFrame = 0;
-			case Playing: currentFrame = 0;
+			case Playing:
 			case PlayPaused:
 			case Finished:
 		}
@@ -123,6 +134,11 @@ class App extends hxd.App {
 	}
 	
 	public function resetPlay() {
+	}
+
+	function initFrameDatasets( startFrameDataset:FrameDataset ) {
+		frameDatasets.splice( 0, frameDatasets.length );
+		frameDatasets.push( startFrameDataset );
 	}
 
 	override function update( dt:Float ) {
@@ -134,8 +150,8 @@ class App extends hxd.App {
 				simCounter = ( simCounter + 1 ) % SIM_FRAME;
 			case Playing:
 				if( playCounter == 0 ) {
-					final previousPosition = currentFrame == 0 ? frameDatasets[0].ash : frameDatasets[currentFrame - 1].ash;
-					playNextFrame( previousPosition, frameDatasets[currentFrame] );
+					final previousFrame = currentFrame == 0 ? frameDatasets[0] : frameDatasets[currentFrame - 1];
+					playNextFrame( previousFrame, frameDatasets[currentFrame] );
 					currentFrame++;
 					if( currentFrame >= frameDatasets.length ) changeState( Finished );
 				}
@@ -160,13 +176,26 @@ class App extends hxd.App {
 
 		final aliveHumans = nextFrame.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
 		final existingZombies = nextFrame.zombies.fold(( z, sum ) -> z.isExisting ? sum + 1 : sum, 0 );
-		playNextFrame( frame.ash, nextFrame );
+		playNextFrame( frame, nextFrame );
+		currentFrame = frameDatasets.length - 1;
+		sliderView.maxValue = currentFrame;
+		sliderView.setFrame( currentFrame );
 		
-		if( aliveHumans == 0 || existingZombies == 0 ) changeState( Playing );
+		if( aliveHumans == 0 || existingZombies == 0 ) {
+			playNextFrame( nextFrame, nextFrame );
+			changeState( PlayPaused );
+		}
 	}
 
+	function playNextFrame( frame:FrameDataset, nextFrame:FrameDataset ) {
+		simView.update( frame, nextFrame, 0 );
+	}
 
-	function playNextFrame( previousPosition:Vec2, frame:FrameDataset ) {
-		simView.update( previousPosition, frame );
+	function jumpToFrame( f:Float ) {
+		final frame = Math.floor( f );
+		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, frame + 1 ));
+		final subFrame = f - frame;
+		simView.update( frameDatasets[frame], frameDatasets[nextFrame], subFrame );
+		
 	}
 }

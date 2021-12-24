@@ -1,5 +1,3 @@
-package sim.contexts;
-
 import Std.parseInt;
 import data.FrameDataset;
 import data.HumanDataset;
