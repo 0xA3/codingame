@@ -85,7 +85,7 @@ class App extends hxd.App {
 		simView.initEntities( testCaseDataset );
 		
 		sliderContainer = new Object( s2d );
-		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, jumpToFrame );
+		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame );
 
 		resize();
 
@@ -149,8 +149,7 @@ class App extends hxd.App {
 				simCounter = ( simCounter + 1 ) % SIM_FRAME;
 			case Playing:
 				if( playCounter == 0 ) {
-					final previousFrame = currentFrame == 0 ? frameDatasets[0] : frameDatasets[currentFrame - 1];
-					playNextFrame( previousFrame, frameDatasets[currentFrame] );
+					goToFrame( currentFrame );
 					currentFrame++;
 					if( currentFrame >= frameDatasets.length ) changeState( Finished );
 				}
@@ -160,43 +159,40 @@ class App extends hxd.App {
 	}
 
 	public function simulateNextFrame() {
-		final frame = frameDatasets[frameDatasets.length - 1];
+		final currentFrameDataset = frameDatasets[frameDatasets.length - 1];
 		
 		final aiInput:FrameDataset = {
-			ashX: frame.ashX,
-			ashY: frame.ashY,
-			humans: frame.humans.filter( h -> h.isAlive ),
-			zombies: frame.zombies.filter( z -> z.isExisting )
+			ashX: currentFrameDataset.ashX,
+			ashY: currentFrameDataset.ashY,
+			humans: currentFrameDataset.humans.filter( h -> h.isAlive ),
+			zombies: currentFrameDataset.zombies.filter( z -> z.isExisting )
 		}
 		final ashMovement = ai.process( aiInput ).split(" ").map( s -> parseInt( s ));
 		final ashTargetX = ashMovement[0];
 		final ashTargetY = ashMovement[1];
 		
-		final nextFrame = Game.executeRound( ashTargetX, ashTargetY, frame );
-		frameDatasets.push( nextFrame );
+		final nextFrameDataset = Game.executeRound( ashTargetX, ashTargetY, currentFrameDataset );
+		frameDatasets.push( nextFrameDataset );
 
-		final aliveHumans = nextFrame.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
-		final existingZombies = nextFrame.zombies.fold(( z, sum ) -> z.isExisting ? sum + 1 : sum, 0 );
-		playNextFrame( frame, nextFrame );
+		final aliveHumans = nextFrameDataset.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
+		final existingZombies = nextFrameDataset.zombies.fold(( z, sum ) -> z.isExisting ? sum + 1 : sum, 0 );
 		currentFrame = frameDatasets.length - 1;
 		sliderView.maxValue = currentFrame;
 		sliderView.setFrame( currentFrame );
+		goToFrame( currentFrame );
 		
 		if( aliveHumans == 0 || existingZombies == 0 ) {
-			playNextFrame( nextFrame, nextFrame );
+			goToFrame( currentFrame );
 			changeState( PlayPaused );
 		}
 	}
 
-	function playNextFrame( frame:FrameDataset, nextFrame:FrameDataset ) {
-		simView.update( frame, nextFrame, 0 );
-	}
-
-	function jumpToFrame( f:Float ) {
-		final frame = Math.floor( f );
-		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, frame + 1 ));
-		final subFrame = f - frame;
-		simView.update( frameDatasets[frame], frameDatasets[nextFrame], subFrame );
+	function goToFrame( f:Float ) {
+		final currentFrame = Math.floor( f );
+		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
+		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
+		final subFrame = f - currentFrame;
+		simView.update( frameDatasets[previousFrame].ashX, frameDatasets[previousFrame].ashY, frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame );
 		
 	}
 }

@@ -55,15 +55,20 @@ class SimView {
 		for( i in testCaseDataset.zombies.length...zombies.length ) zombies[i].hide();
 	}
 
-	public function update( frame:FrameDataset, nextFrame:FrameDataset, subFrame:Float ) {
+	public function update( ashPreviousX:Int, ashPreviousY:Int, frame:FrameDataset, nextFrame:FrameDataset, subFrame:Float ) {
+		
+		final prevVelX = frame.ashX - ashPreviousX;
+		final prevVelY = frame.ashY - ashPreviousY;
+		final velX = nextFrame.ashX - frame.ashX;
+		final velY = nextFrame.ashY - frame.ashY;
+		
+		final easedRotation = quadEaseInOut( Math.min( 1, subFrame * 3 ));
+		final angle1 = MathUtils.angle( prevVelX, prevVelY );
+		final angle2 = MathUtils.angle( velX, velY );
+		final angle = interpolate( angle1, angle2, easedRotation );
+		ash.rotate( angle);
 		
 		final easedSubFrame = quadEaseInOut( subFrame );
-
-		final ashVelX = nextFrame.ashX - frame.ashX;
-		final ashVelY = nextFrame.ashY - frame.ashY;
-		// trace( 'ashVelocity $ashVelocity  length ${ashVelocity.length}' );
-		ash.rotate( MathUtils.angle( ashVelX, ashVelY ));
-		
 		final ashX = interpolate( frame.ashX, nextFrame.ashX, easedSubFrame);
 		final ashY = interpolate( frame.ashY, nextFrame.ashY, easedSubFrame );
 		ash.place( ashX, ashY );
@@ -103,7 +108,7 @@ class SimView {
 		}
 	}
 
-	inline function interpolate( v1:Int, v2:Int, f:Float ) {
+	inline function interpolate( v1:Float, v2:Float, f:Float ) {
 		return v1 + ( v2 - v1 ) * f;
 	}
 	

@@ -15,11 +15,15 @@ import sim.view.ZombieView;
 class EntityCreator {
 	
 	final backgroundTile = hxd.Res.background.toTile();
-	final ashGlowTile = hxd.Res.ash_glow.toTile();
+	final ashGlowTile = hxd.Res.ash_glow.toTile().center();
 	final ashShadowTile = hxd.Res.ash_shadow.toTile();
 	final ashTile = hxd.Res.ash.toTile().center();
 	final humanTile = hxd.Res.human.toTile().center();
-	final zombie1Tile = hxd.Res.zombie1.toTile().center();
+	final zombieTiles = [
+		hxd.Res.zombie1.toTile().center(),
+		hxd.Res.zombie2.toTile().center(),
+		hxd.Res.zombie3.toTile().center()
+	];
 	final bloodTiles = [
 		hxd.Res.blood_splatter_01.toTile().center(),
 		hxd.Res.blood_splatter_02.toTile().center(),
@@ -50,8 +54,6 @@ class EntityCreator {
 		final ashBitmap = new Bitmap( ashTile, ashObject );
 		
 		glowBitmap.alpha = 0.3;
-		glowBitmap.x = -round( ashGlowTile.width / 2 );
-		glowBitmap.y = -round( ashGlowTile.height / 2 );
 		shadowBitmap.alpha = 0.5;
 		shadowBitmap.x = -85;
 		shadowBitmap.y = -10;
@@ -62,8 +64,6 @@ class EntityCreator {
 	public function createHuman( parent:Object, x:Int, y:Int, bloodSplatter:Bitmap ) {
 		final humanObject = new Object( parent );
 		final humanBitmap = new Bitmap( humanTile, humanObject );
-		humanBitmap.x = -round( humanTile.width / 2 );
-		humanBitmap.y = -round( humanTile.height / 2 );
 		humanBitmap.rotation = Math.random() * Math.PI * 2;
 		
 		final human = new PersonView( humanObject, bloodSplatter, x, y );
@@ -72,7 +72,10 @@ class EntityCreator {
 	
 	public function createZombie( parent:Object, x:Int, y:Int, bloodSplatter:Bitmap ) {
 		final zombieObject = new Object( parent );
-		final zombieBitmap = new Bitmap( zombie1Tile, zombieObject );
+		final random = Math.random();
+		final tile = random < 0.4 ? 0 : random < 0.75 ? 1 : 2;
+		final randomZombieTile = zombieTiles[tile];
+		new Bitmap( randomZombieTile, zombieObject );
 		
 		final zombie = new ZombieView( zombieObject, bloodSplatter, x, y );
 		return zombie;
