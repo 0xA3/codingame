@@ -21,6 +21,5 @@ class TestMathUtils extends buddy.BuddySuite {
 		});
 
 	}
-
 }
 

@@ -22,4 +22,4 @@ class MathUtils {
 	public static inline function lengthSq( x:Int, y:Int ) return x * x + y * y;
 	public static inline function length( x:Int, y:Int ) return Math.sqrt( lengthSq( x, y ));
 	
-	}
+}

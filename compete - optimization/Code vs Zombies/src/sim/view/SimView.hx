@@ -1,20 +1,25 @@
 package sim.view;
 
 import data.FrameDataset;
-import h2d.Bitmap;
 import h2d.Object;
+import h2d.Text;
 import xa3.MathUtils;
+import xa3.NumberFormat;
 
 class SimView {
 	
 	public final scene:Object;
+	final entityCreator:EntityCreator;
 	
 	final bloodLayer:Object;
 	final humansLayer:Object;
 	final zombiesLayer:Object;
 	final ashLayer:Object;
+	final textLayer:Object;
+
+	final tHumansLeft:Text;
+	final tScore:Text;
 	
-	final entityCreator:EntityCreator;
 	final humans:Array<PersonView> = [];
 	final zombies:Array<ZombieView> = [];
 	var ash:AshView;
@@ -28,7 +33,19 @@ class SimView {
 		humansLayer = new Object( scene );
 		zombiesLayer = new Object( scene );
 		ashLayer = new Object( scene );
+		textLayer = new Object( scene );
+
 		ashLayer.addChild( ash.object );
+		
+		tHumansLeft = new Text( hxd.Res.ncaa_detroit_titans_bold.toFont(), textLayer );
+		tHumansLeft.x = 1700;
+		tHumansLeft.y = 46;
+		tHumansLeft.rotation = MathUtils.degToRad( -8 );
+		
+		tScore = new Text( hxd.Res.ncaa_detroit_titans_bold.toFont(), textLayer );
+		tScore.x = 2070;
+		tScore.y = 76;
+		tScore.rotation = MathUtils.degToRad( -8 );
 	}
 
 	public function initEntities( testCaseDataset:FrameDataset ) {
@@ -55,24 +72,25 @@ class SimView {
 		for( i in testCaseDataset.zombies.length...zombies.length ) zombies[i].hide();
 	}
 
-	public function update( ashPreviousX:Int, ashPreviousY:Int, frame:FrameDataset, nextFrame:FrameDataset, subFrame:Float ) {
-		
+	public function update( ashPreviousX:Int, ashPreviousY:Int, frame:FrameDataset, nextFrame:FrameDataset, subFrame:Float, score:Int ) {
 		final prevVelX = frame.ashX - ashPreviousX;
 		final prevVelY = frame.ashY - ashPreviousY;
 		final velX = nextFrame.ashX - frame.ashX;
 		final velY = nextFrame.ashY - frame.ashY;
 		
 		final easedRotation = quadEaseInOut( Math.min( 1, subFrame * 3 ));
+		final easedSubFrame = quadEaseInOut( subFrame );
+		
 		final angle1 = MathUtils.angle( prevVelX, prevVelY );
 		final angle2 = MathUtils.angle( velX, velY );
 		final angle = interpolate( angle1, angle2, easedRotation );
 		ash.rotate( angle);
 		
-		final easedSubFrame = quadEaseInOut( subFrame );
 		final ashX = interpolate( frame.ashX, nextFrame.ashX, easedSubFrame);
 		final ashY = interpolate( frame.ashY, nextFrame.ashY, easedSubFrame );
 		ash.place( ashX, ashY );
 		
+		var humansLeft = 0;
 		for( i in 0...frame.humans.length ) {
 			final humanData = frame.humans[i];
 			final humanView = humans[i];
@@ -82,7 +100,10 @@ class SimView {
 
 			if( isDying ) humanView.die();
 			if( isBecomingAlive ) humanView.live();
-			if( humanData.isAlive ) humanView.place( humanData.x, humanData.y );
+			if( humanData.isAlive ) {
+				humanView.place( humanData.x, humanData.y );
+				humansLeft++;
+			}
 		}
 		
 		for( i in 0...frame.zombies.length ) {
@@ -106,7 +127,10 @@ class SimView {
 				zombieView.place( zombieX, zombieY );
 			}
 		}
+		tHumansLeft.text = '$humansLeft';
+		tScore.text = NumberFormat.number( score );
 	}
+
 
 	inline function interpolate( v1:Float, v2:Float, f:Float ) {
 		return v1 + ( v2 - v1 ) * f;

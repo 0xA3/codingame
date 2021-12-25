@@ -12,8 +12,6 @@ class TestProcess extends buddy.BuddySuite {
 			});
 			
 		});
-
 	}
-
 }
 

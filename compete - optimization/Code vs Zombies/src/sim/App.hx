@@ -11,6 +11,7 @@ import h2d.Slider;
 import sim.State;
 import sim.view.SimView;
 import sim.view.SliderView;
+import xa3.MathUtils;
 
 using Lambda;
 
@@ -39,6 +40,7 @@ class App extends hxd.App {
 	var testCases:Array<String> = [];
 	var testCaseId = 0;
 	final frameDatasets:Array<FrameDataset> = [];
+	final frameScores:Array<Int> = [];
 
 	var simView:SimView;
 	var sliderContainer:Object;
@@ -46,8 +48,6 @@ class App extends hxd.App {
 	var ai:Ai;
 
 	override function init() {
-		trace( "init" );
-		
 		ai = new Simple();
 		
 		testCases = [
@@ -138,6 +138,8 @@ class App extends hxd.App {
 	function initFrameDatasets( startFrameDataset:FrameDataset ) {
 		frameDatasets.splice( 0, frameDatasets.length );
 		frameDatasets.push( startFrameDataset );
+		frameScores.splice( 0, frameScores.length );
+		frameScores.push( 0 );
 	}
 
 	override function update( dt:Float ) {
@@ -160,6 +162,7 @@ class App extends hxd.App {
 
 	public function simulateNextFrame() {
 		final currentFrameDataset = frameDatasets[frameDatasets.length - 1];
+		final currentFrameScore = frameScores[frameDatasets.length - 1];
 		
 		final aiInput:FrameDataset = {
 			ashX: currentFrameDataset.ashX,
@@ -171,28 +174,36 @@ class App extends hxd.App {
 		final ashTargetX = ashMovement[0];
 		final ashTargetY = ashMovement[1];
 		
+		final currentZombies = getRemainingZombies( currentFrameDataset );
+
 		final nextFrameDataset = Game.executeRound( ashTargetX, ashTargetY, currentFrameDataset );
 		frameDatasets.push( nextFrameDataset );
 
-		final aliveHumans = nextFrameDataset.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
-		final existingZombies = nextFrameDataset.zombies.fold(( z, sum ) -> z.isExisting ? sum + 1 : sum, 0 );
+		final remainingHumans = nextFrameDataset.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
+		final remainingZombies = nextFrameDataset.zombies.fold(( z, sum ) -> z.isExisting ? sum + 1 : sum, 0 );
+
+		final nextFrameScore = remainingHumans == 0 ? 0 : currentFrameScore + Game.calculateScore( remainingHumans, currentZombies - remainingZombies );
+		frameScores.push( nextFrameScore );
+
 		currentFrame = frameDatasets.length - 1;
 		sliderView.maxValue = currentFrame;
 		sliderView.setFrame( currentFrame );
 		goToFrame( currentFrame );
 		
-		if( aliveHumans == 0 || existingZombies == 0 ) {
+		if( remainingHumans == 0 || remainingZombies == 0 ) {
 			goToFrame( currentFrame );
 			changeState( PlayPaused );
 		}
 	}
+
+	inline function getRemainingHumans( frameDataset:FrameDataset ) return frameDataset.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
+	inline function getRemainingZombies( frameDataset:FrameDataset ) return frameDataset.zombies.fold(( h, sum ) -> h.isExisting ? sum + 1 : sum, 0 );
 
 	function goToFrame( f:Float ) {
 		final currentFrame = Math.floor( f );
 		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
 		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
 		final subFrame = f - currentFrame;
-		simView.update( frameDatasets[previousFrame].ashX, frameDatasets[previousFrame].ashY, frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame );
-		
+		simView.update( frameDatasets[previousFrame].ashX, frameDatasets[previousFrame].ashY, frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame, frameScores[currentFrame] );
 	}
 }

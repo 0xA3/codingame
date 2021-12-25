@@ -10,11 +10,12 @@ class Game {
 	static inline var ASH_RANGE = 2000;
 	static inline var ASH_STEP = 1000;
 	static inline var ZOMBIE_STEP = 400;
-	
+	static var fibonnacci = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
+
 	public static function executeRound( ashTargetX:Int, ashTargetY:Int, frameDataset:FrameDataset ) {
 		final movedZombies = [];
 		for( zombie in frameDataset.zombies ) {
-			final closestHuman = getClosestHuman( zombie.xNext, zombie.yNext, frameDataset.ashX, frameDataset.ashY, frameDataset.humans );
+			final closestHuman = getClosestHumanId( zombie.xNext, zombie.yNext, frameDataset.ashX, frameDataset.ashY, frameDataset.humans );
 			final closestPositionX = closestHuman == -1 ? frameDataset.ashX : frameDataset.humans[closestHuman].x;
 			final closestPositionY = closestHuman == -1 ? frameDataset.ashY : frameDataset.humans[closestHuman].y;
 			
@@ -43,25 +44,48 @@ class Game {
 		final ashX = move( frameDataset.ashX, dx, scaleFactor );
 		final ashY = move( frameDataset.ashY, dy, scaleFactor );
 		
-		final deadAliveZombies = [];
-		for( zombie in movedZombies ) {
-			deadAliveZombies[zombie.id] = killZombieIfInRange( ashX, ashY, zombie );
+		final killCheckedZombies:Array<ZombieDataset> = [];
+		for( i in 0...movedZombies.length ) {
+			final zombie = movedZombies[i];
+			final isZombieKilled = checkZombieKill( ashX, ashY, zombie );
+			if( isZombieKilled ) {
+				killCheckedZombies[i] = {
+					id: zombie.id,
+					isExisting: false,
+					x: zombie.x,
+					y: zombie.y,
+					xNext: zombie.xNext,
+					yNext: zombie.yNext
+				}
+			} else {
+				killCheckedZombies[i] = zombie;
+			}
 		}
 		
-		final deadAliveHumans = [];
-		for( human in frameDataset.humans ) deadAliveHumans[human.id] = killHumanIfInRange( human, deadAliveZombies );
+		final killCheckedHumans = [];
+		for( i in 0...frameDataset.humans.length ) killCheckedHumans[i] = killHumanIfInRange( frameDataset.humans[i], killCheckedZombies );
 
 		final nextFrame:FrameDataset = {
 			ashX: ashX,
 			ashY: ashY,
-			humans: deadAliveHumans,
-			zombies: deadAliveZombies
+			humans: killCheckedHumans,
+			zombies: killCheckedZombies
 		}
 
 		return nextFrame;
 	}
+	
+	public static inline function calculateScore( remainingHumans:Int, killedZombies:Int ) {
+		var score = 0;
+		for( i in 0...killedZombies ) {
+			final fib = i == 0 ? 1 : fibonnacci[i + 2];
+			score += remainingHumans * remainingHumans * 10 * fib;
+			// trace( 'zombie $i  fib $fib  score + ${remainingHumans * remainingHumans * 10 * fib}' );
+		}
+		return score;
+	}
 
-	static function getClosestHuman( x:Int, y:Int, ashX:Int, ashY:Int, humans:Array<HumanDataset> ) {
+	static inline function getClosestHumanId( x:Int, y:Int, ashX:Int, ashY:Int, humans:Array<HumanDataset> ) {
 		var minDistanceSq = distanceSq( x, y, ashX, ashY );
 		var closestHuman = -1;
 		for( i in 0...humans.length ) {
@@ -77,47 +101,34 @@ class Game {
 		return closestHuman;		
 	}
 
-	public static function killZombieIfInRange( ashX:Int, ashY:Int, zombieDataset:ZombieDataset ) {
-		if( !zombieDataset.isExisting ) return zombieDataset;
+	public static function checkZombieKill( ashX:Int, ashY:Int, zombieDataset:ZombieDataset ) {
+		if( !zombieDataset.isExisting ) return false;
 		
 		final distanceZombie = distance( ashX, ashY, zombieDataset.x, zombieDataset.y );
+		if( distanceZombie <= ASH_RANGE ) trace( 'ash kills zombie ${zombieDataset.id}' );
+		return distanceZombie <= ASH_RANGE;
 		
-		final zombieIsExisting = distanceZombie > ASH_RANGE;
-		if( !zombieIsExisting ) trace( 'ash kills zombie ${zombieDataset.id}' );
-		
-		final zombie:ZombieDataset = {
-			id: zombieDataset.id,
-			isExisting: zombieIsExisting,
-			x: zombieDataset.x,
-			y: zombieDataset.y,
-			xNext: zombieDataset.xNext,
-			yNext: zombieDataset.yNext
-		}
-		return zombie;
 	}
 
 	public static function killHumanIfInRange( humanDataset:HumanDataset, zombieDatasets:Array<ZombieDataset> ) {
 		if( !humanDataset.isAlive ) return humanDataset;
 		
-		var isAlive = true;
 		for( zombie in zombieDatasets ) {
 			if( zombie.isExisting ) {
-				final zombieKills = humanDataset.x == zombie.x && humanDataset.y == zombie.y;
-				if( zombieKills ) {
+				final isHumanKilled = humanDataset.x == zombie.xNext && humanDataset.y == zombie.yNext;
+				if( isHumanKilled ) {
 					trace( 'zombie ${zombie.id} kills human ${humanDataset.id}' );
-					isAlive = false;
-					break;
+					final killedHuman:HumanDataset = {
+						id: humanDataset.id,
+						isAlive: false,
+						x: humanDataset.x,
+						y: humanDataset.y
+					}
+					return killedHuman;
 				}
 			}
 		}
-		
-		final human:HumanDataset = {
-			id: humanDataset.id,
-			isAlive: isAlive,
-			x: humanDataset.x,
-			y: humanDataset.y
-		}
-		return human;
+		return humanDataset;		
 	}
 
 	static inline function getStepFactor( dx:Int, dy:Int, max:Int ) {
