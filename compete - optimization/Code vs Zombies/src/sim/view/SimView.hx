@@ -110,13 +110,13 @@ class SimView {
 			final zombieData = frame.zombies[i];
 			final zombieView = zombies[i];
 
-			final isDying = !zombieData.isExisting && zombieView.isVisible;
-			final isBecomingAlive = zombieData.isExisting && !zombieView.isVisible;
+			final isDying = !zombieData.isUndead && zombieView.isVisible;
+			final isBecomingAlive = zombieData.isUndead && !zombieView.isVisible;
 
 			if( isDying ) zombieView.die();
 			if( isBecomingAlive ) zombieView.live();
 
-			if( zombieData.isExisting  ) {
+			if( zombieData.isUndead  ) {
 				final zombieVelX = zombieData.xNext - zombieData.x;
 				final zombieVelY = zombieData.yNext - zombieData.y;
 				zombieView.rotate( MathUtils.angle( zombieVelX, zombieVelY ));

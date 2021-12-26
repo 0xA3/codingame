@@ -39,6 +39,12 @@ class App extends hxd.App {
 
 	var testCases:Array<String> = [];
 	var testCaseId = 0;
+	var mutFrameDataset:MutFrameDataset = {
+		ashX: 0,
+		ashY: 0,
+		humans: [],
+		zombies: []
+	};
 	final frameDatasets:Array<FrameDataset> = [];
 	final frameScores:Array<Int> = [];
 
@@ -161,28 +167,35 @@ class App extends hxd.App {
 	}
 
 	public function simulateNextFrame() {
-		final currentFrameDataset = frameDatasets[frameDatasets.length - 1];
-		final currentFrameScore = frameScores[frameDatasets.length - 1];
+		final lastFrameDataset = frameDatasets[frameDatasets.length - 1];
+		final lastFrameScore = frameScores[frameDatasets.length - 1];
 		
 		final aiInput:FrameDataset = {
-			ashX: currentFrameDataset.ashX,
-			ashY: currentFrameDataset.ashY,
-			humans: currentFrameDataset.humans.filter( h -> h.isAlive ),
-			zombies: currentFrameDataset.zombies.filter( z -> z.isExisting )
+			ashX: lastFrameDataset.ashX,
+			ashY: lastFrameDataset.ashY,
+			humans: lastFrameDataset.humans.filter( h -> h.isAlive ),
+			zombies: lastFrameDataset.zombies.filter( z -> z.isUndead )
 		}
+		// final zombiePositions = [for( z in aiInput.zombies ) if( z.isUndead ) 'id: ${z.id} pos ${z.x}:${z.y} next ${z.xNext}:${z.yNext}' ].join( "\n" );
+		// trace( 'frame $currentFrame ash ${aiInput.ashX}:${aiInput.ashY} zombies\n$zombiePositions' );
+	
 		final ashMovement = ai.process( aiInput ).split(" ").map( s -> parseInt( s ));
 		final ashTargetX = ashMovement[0];
 		final ashTargetY = ashMovement[1];
 		
-		final currentZombies = getRemainingZombies( currentFrameDataset );
+		final lastFrameHumans = getRemainingHumans( lastFrameDataset );
+		final lastFrameZombies = getRemainingZombies( lastFrameDataset );
 
-		final nextFrameDataset = Game.executeRound( ashTargetX, ashTargetY, currentFrameDataset );
+		setMutFrameDataset( lastFrameDataset, mutFrameDataset );
+
+		Game.executeRound( ashTargetX, ashTargetY, mutFrameDataset );
+		final nextFrameDataset = getFrameDataset( mutFrameDataset );
 		frameDatasets.push( nextFrameDataset );
 
 		final remainingHumans = nextFrameDataset.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
-		final remainingZombies = nextFrameDataset.zombies.fold(( z, sum ) -> z.isExisting ? sum + 1 : sum, 0 );
+		final remainingZombies = nextFrameDataset.zombies.fold(( z, sum ) -> z.isUndead ? sum + 1 : sum, 0 );
 
-		final nextFrameScore = remainingHumans == 0 ? 0 : currentFrameScore + Game.calculateScore( remainingHumans, currentZombies - remainingZombies );
+		final nextFrameScore = remainingHumans == 0 ? 0 : lastFrameScore + Game.calculateScore( lastFrameHumans, lastFrameZombies - remainingZombies );
 		frameScores.push( nextFrameScore );
 
 		currentFrame = frameDatasets.length - 1;
@@ -191,13 +204,63 @@ class App extends hxd.App {
 		goToFrame( currentFrame );
 		
 		if( remainingHumans == 0 || remainingZombies == 0 ) {
+		// if(( lastFrameHumans == 0 && remainingHumans == 0 ) || ( lastFrameZombies == 0 && remainingZombies == 0 )) {
 			goToFrame( currentFrame );
 			changeState( PlayPaused );
 		}
 	}
 
+	inline function setMutFrameDataset( fd:FrameDataset, mfd:MutFrameDataset ) {
+		mfd.ashX = fd.ashX;
+		mfd.ashY = fd.ashY;
+		mfd.humans.splice( 0, mfd.humans.length );
+		mfd.zombies.splice( 0, mfd.zombies.length );
+		for( i in 0...fd.humans.length ) {
+			final human = fd.humans[i];
+			mfd.humans[i] = {
+				id: human.id,
+				isAlive: human.isAlive,
+				x: human.x,
+				y: human.y
+			}
+		}
+		for( i in 0...fd.zombies.length ) {
+			final zombie = fd.zombies[i];
+			mfd.zombies[i] = {
+				id: zombie.id,
+				isUndead: zombie.isUndead,
+				x: zombie.x,
+				y: zombie.y,
+				xNext: zombie.xNext,
+				yNext: zombie.yNext
+			}
+		}
+	}
+
+	inline function getFrameDataset( mfd:MutFrameDataset ) {
+		final fd:FrameDataset = {
+			ashX: mfd.ashX,
+			ashY: mfd.ashY,
+			humans: mfd.humans.map( h -> {
+				id: h.id,
+				isAlive: h.isAlive,
+				x: h.x,
+				y: h.y
+			}),
+			zombies: mfd.zombies.map( z -> {
+				id: z.id,
+				isUndead: z.isUndead,
+				x: z.x,
+				y: z.y,
+				xNext: z.xNext,
+				yNext: z.yNext
+			})
+		}
+		return fd;
+	}
+
 	inline function getRemainingHumans( frameDataset:FrameDataset ) return frameDataset.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
-	inline function getRemainingZombies( frameDataset:FrameDataset ) return frameDataset.zombies.fold(( h, sum ) -> h.isExisting ? sum + 1 : sum, 0 );
+	inline function getRemainingZombies( frameDataset:FrameDataset ) return frameDataset.zombies.fold(( h, sum ) -> h.isUndead ? sum + 1 : sum, 0 );
 
 	function goToFrame( f:Float ) {
 		final currentFrame = Math.floor( f );

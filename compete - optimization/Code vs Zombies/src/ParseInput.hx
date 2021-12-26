@@ -29,7 +29,7 @@ function parseInput( testCase:String ) {
 		final zombieY = parseInt(inputs[2]);
 		final zombieXNext = parseInt(inputs[3]);
 		final zombieYNext = parseInt(inputs[4]);
-		final zombie:ZombieDataset = { id: zombieId, isExisting: true, x: zombieX, y: zombieY, xNext: zombieXNext, yNext: zombieYNext };
+		final zombie:ZombieDataset = { id: zombieId, isUndead: true, x: zombieX, y: zombieY, xNext: zombieXNext, yNext: zombieYNext };
 		zombie;
 	}];
 

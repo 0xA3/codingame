@@ -12,7 +12,8 @@ using Lambda;
 function main() {
 	
 	final ai = new Simple();
-
+	
+	var currentFrame = 0;
 	while( true ) {
 		final inputs = readline().split(' ');
 	
@@ -35,11 +36,13 @@ function main() {
 			final y = parseInt( inputs[2] );
 			final xNext = parseInt( inputs[3] );
 			final yNext = parseInt( inputs[4] );
-			{ id: id, isExisting: true, x: x, y: y, xNext: xNext, yNext: yNext };
+			{ id: id, isUndead: true, x: x, y: y, xNext: xNext, yNext: yNext };
 		}];
 
 		final frameDataset:FrameDataset = { ashX: x, ashY: y, humans: humans, zombies: zombies };
 		
+		final zombiePositions = [for( z in zombies ) 'id: ${z.id} pos ${z.x}:${z.y} next ${z.xNext}:${z.yNext}' ].join( "\n" );
+		printErr( 'frame $currentFrame ash $x:$y zombies\n$zombiePositions' );
 		// final ip = '$x $y\n$humanCount\n'
 		// + [for( human in humans ) '${human.id} ${human.x} ${human.y}'].join( "\n" )
 		// + '\n$zombieCount\n'
@@ -48,5 +51,7 @@ function main() {
 
 		final result = ai.process( frameDataset );
 		print( result );
+		
+		currentFrame++;
 	}
 }
