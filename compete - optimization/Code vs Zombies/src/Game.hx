@@ -12,6 +12,33 @@ class Game {
 	static inline var ZOMBIE_STEP = 400;
 	static var fibonnacci = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
 
+	public static inline function setMutFrameDataset( fd:FrameDataset, mfd:MutFrameDataset ) {
+		mfd.ashX = fd.ashX;
+		mfd.ashY = fd.ashY;
+		mfd.humans.splice( 0, mfd.humans.length );
+		mfd.zombies.splice( 0, mfd.zombies.length );
+		for( i in 0...fd.humans.length ) {
+			final human = fd.humans[i];
+			mfd.humans[i] = {
+				id: human.id,
+				isAlive: human.isAlive,
+				x: human.x,
+				y: human.y
+			}
+		}
+		for( i in 0...fd.zombies.length ) {
+			final zombie = fd.zombies[i];
+			mfd.zombies[i] = {
+				id: zombie.id,
+				isUndead: zombie.isUndead,
+				x: zombie.x,
+				y: zombie.y,
+				xNext: zombie.xNext,
+				yNext: zombie.yNext
+			}
+		}
+	}
+
 	public static function executeRound( ashTargetX:Int, ashTargetY:Int, frameDataset:MutFrameDataset ) {
 		for( zombie in frameDataset.zombies ) moveZombie( zombie );
 		moveAsh( ashTargetX, ashTargetY, frameDataset );

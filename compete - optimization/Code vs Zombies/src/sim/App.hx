@@ -3,6 +3,7 @@ package sim;
 import ParseInput.parseInput;
 import Std.parseInt;
 import ai.Ai;
+import ai.Eldidou;
 import ai.Simple;
 import data.FrameDataset;
 import h2d.Flow;
@@ -39,7 +40,7 @@ class App extends hxd.App {
 
 	var testCases:Array<String> = [];
 	var testCaseId = 0;
-	var mutFrameDataset:MutFrameDataset = {
+	final mutFrameDataset:MutFrameDataset = {
 		ashX: 0,
 		ashY: 0,
 		humans: [],
@@ -54,7 +55,8 @@ class App extends hxd.App {
 	var ai:Ai;
 
 	override function init() {
-		ai = new Simple();
+		// ai = new Simple();
+		ai = new Eldidou();
 		
 		testCases = [
 			TestCases.simple,
@@ -130,7 +132,9 @@ class App extends hxd.App {
 	function changeState( nextState:State ) {
 		switch nextState {
 			case Initial: //no-op
-			case Simulating: currentFrame = 0;
+			case Simulating:
+				ai.reset();	
+				currentFrame = 0;
 			case Playing:
 			case PlayPaused:
 			case Finished:
@@ -186,7 +190,7 @@ class App extends hxd.App {
 		final lastFrameHumans = getRemainingHumans( lastFrameDataset );
 		final lastFrameZombies = getRemainingZombies( lastFrameDataset );
 
-		setMutFrameDataset( lastFrameDataset, mutFrameDataset );
+		Game.setMutFrameDataset( lastFrameDataset, mutFrameDataset );
 
 		Game.executeRound( ashTargetX, ashTargetY, mutFrameDataset );
 		final nextFrameDataset = getFrameDataset( mutFrameDataset );
@@ -207,33 +211,6 @@ class App extends hxd.App {
 		// if(( lastFrameHumans == 0 && remainingHumans == 0 ) || ( lastFrameZombies == 0 && remainingZombies == 0 )) {
 			goToFrame( currentFrame );
 			changeState( PlayPaused );
-		}
-	}
-
-	inline function setMutFrameDataset( fd:FrameDataset, mfd:MutFrameDataset ) {
-		mfd.ashX = fd.ashX;
-		mfd.ashY = fd.ashY;
-		mfd.humans.splice( 0, mfd.humans.length );
-		mfd.zombies.splice( 0, mfd.zombies.length );
-		for( i in 0...fd.humans.length ) {
-			final human = fd.humans[i];
-			mfd.humans[i] = {
-				id: human.id,
-				isAlive: human.isAlive,
-				x: human.x,
-				y: human.y
-			}
-		}
-		for( i in 0...fd.zombies.length ) {
-			final zombie = fd.zombies[i];
-			mfd.zombies[i] = {
-				id: zombie.id,
-				isUndead: zombie.isUndead,
-				x: zombie.x,
-				y: zombie.y,
-				xNext: zombie.xNext,
-				yNext: zombie.yNext
-			}
 		}
 	}
 
