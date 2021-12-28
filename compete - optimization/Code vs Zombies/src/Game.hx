@@ -9,6 +9,7 @@ import xa3.MathUtils.length;
 class Game {
 	static inline var ASH_RANGE = 2000;
 	static inline var ASH_STEP = 1000;
+	public static inline var ASH_STEP_SQ = 1000 * 1000;
 	static inline var ZOMBIE_STEP = 400;
 	static var fibonnacci = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
 
@@ -64,7 +65,7 @@ class Game {
 		zombie.y = zombie.yNext;
 	}
 
-	static inline function moveAsh( ashTargetX:Int, ashTargetY:Int, frameDataset:MutFrameDataset ) {
+	public static inline function moveAsh( ashTargetX:Int, ashTargetY:Int, frameDataset:MutFrameDataset ) {
 		final dx = ashTargetX - frameDataset.ashX;
 		final dy = ashTargetY - frameDataset.ashY;
 		final scaleFactor = getStepFactor( dx, dy, ASH_STEP );
@@ -73,7 +74,7 @@ class Game {
 		frameDataset.ashY = move( frameDataset.ashY, dy, scaleFactor );
 	}
 
-	static inline function destroyZombies( frameDataset:MutFrameDataset ) {
+	public static inline function destroyZombies( frameDataset:MutFrameDataset ) {
 		for( zombie in frameDataset.zombies ) {
 			if( zombie.isUndead ) {
 				final isZombieKilled = checkZombieKill( frameDataset.ashX, frameDataset.ashY, zombie );

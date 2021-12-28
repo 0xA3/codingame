@@ -4,6 +4,7 @@ import CodinGame.readline;
 import Math.floor;
 import Std.int;
 import Std.parseInt;
+import ai.Eldidou;
 import ai.Simple;
 import data.FrameDataset;
 
@@ -11,7 +12,8 @@ using Lambda;
 
 function main() {
 	
-	final ai = new Simple();
+	// final ai = new Simple();
+	final ai = new Eldidou();
 	
 	var currentFrame = 0;
 	while( true ) {
