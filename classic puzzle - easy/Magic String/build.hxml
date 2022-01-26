@@ -1,3 +1,6 @@
+-lib hxobfuscator
+-D STRIP_CHARS
+-lib closure
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize

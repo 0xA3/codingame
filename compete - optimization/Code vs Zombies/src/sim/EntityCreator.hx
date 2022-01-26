@@ -44,7 +44,7 @@ class EntityCreator {
 
 	public function createBackground( scene:Object ) {
 		final background = new Bitmap( backgroundTile, new Graphics( scene ) );
-		background.scaleX = background.scaleY = 4;
+		// background.scaleX = background.scaleY = 4;
 	}
 
 	public function createAsh( x:Int, y:Int ) {
@@ -84,7 +84,7 @@ class EntityCreator {
 
 	public function createBlood( parent:Object ) {
 		final bloodBitmap = new Bitmap( bloodTiles[Std.random( bloodTiles.length )], parent );
-		bloodBitmap.scaleX = bloodBitmap.scaleY = 8;
+		// bloodBitmap.scaleX = bloodBitmap.scaleY = 8;
 		bloodBitmap.rotation = Math.random() * Math.PI * 2;
 		bloodBitmap.blendMode = BlendMode.Multiply;
 		return bloodBitmap;		

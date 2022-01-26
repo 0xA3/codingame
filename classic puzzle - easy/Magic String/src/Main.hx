@@ -35,7 +35,8 @@ function process( names:Array<String> ) {
 		}
 	}
 	
-	throw 'Error: no solution found';
+	// throw 'Error: no solution found';
+	return "";
 }
 
 function get( word:String, i:Int, o:Int ) {

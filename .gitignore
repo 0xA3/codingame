@@ -20,3 +20,4 @@ incoming
 .tmp
 *.dat
 *.bfnt
+node_modules
