@@ -1,0 +1,1 @@
+var w="WAIT",b="BLOCK",z=()=>readline().split(" ");let a=z();let t=+a[4];let e=+a[7],r=[],n=0;for(;n<e;){++n;let a=z();r[+a[0]]=+a[1]}for(r[e]=t;;){let a=z(),t=+a[0],e=+a[1],n=a[2][0];print("L"==n?r[t]>e?b:w:"R"==n&&r[t]<e?b:w)}

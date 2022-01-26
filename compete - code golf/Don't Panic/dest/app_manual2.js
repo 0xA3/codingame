@@ -1,0 +1,1 @@
+var w="WAIT",b="BLOCK",p=(a)=>parseInt(a),z=()=>readline().split(" ");let a=z();p(a[0]),p(a[1]),p(a[2]),p(a[3]);let t=p(a[4]);p(a[5]),p(a[6]);let e=p(a[7]),r=[],n=0;for(;n<e;){++n;let a=z();r[p(a[0])]=p(a[1])}for(r[e]=t;;){let a=z(),t=p(a[0]),e=p(a[1]),n=a[2][0];print("L"==n?r[t]>e?b:w:"R"==n&&r[t]<e?b:w)}

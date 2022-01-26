@@ -1,4 +1,6 @@
 *.js
+*.js.map
+!*manual*.js
 *.hl
 *.lua
 *.py
