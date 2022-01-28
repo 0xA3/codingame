@@ -1,0 +1,24 @@
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D js-es=6
+-D js-classic
+-main Main
+--js dest/app.js
+
+--next
+
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main Main
+--python dest/app.py
+
+--next
+
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D lua-vanilla
+-main Main
+--lua dest/app.lua
