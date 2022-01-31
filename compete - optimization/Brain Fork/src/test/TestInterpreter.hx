@@ -23,15 +23,19 @@ class TestInterpreter extends buddy.BuddySuite {
 			});
 
 			it( "AZ", {
-				interpreter.execute( "+.>-.".toCharcodes()).combine( charCodeMap ).should.be( "AZ" );
+				interpreter.execute( "+.>-." ).combine( charCodeMap ).should.be( "AZ" );
+			});
+			
+			it( "ZA", {
+				interpreter.execute( "-.++." ).combine( charCodeMap ).should.be( "ZA" );
 			});
 			
 			it( "AAAAAAAAAAAAAAAAAAAAAAAAAA", {
-				interpreter.execute( "+..........................".toCharcodes()).combine( charCodeMap ).should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
+				interpreter.execute( "+.........................." ).combine( charCodeMap ).should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
 			});
 			
 			it( "loop AAAAAAAAAAAAAAAAAAAAAAAAAA", {
-				interpreter.execute( "+>-[<.>-]".toCharcodes()).combine( charCodeMap ).should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
+				interpreter.execute( "+>-[<.>-]" ).combine( charCodeMap ).should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
 			});
 		});
 	}

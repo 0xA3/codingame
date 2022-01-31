@@ -19,8 +19,8 @@ function main() {
 	final magicPhrase = readline();
 	printErr( magicPhrase );
 	
-	final result = process( magicPhrase );
-	print( result.join( "" ));
+	final program = process( magicPhrase );
+	print( program );
 }
 
 function process( magicPhrase:String ) {
@@ -63,7 +63,8 @@ function process( magicPhrase:String ) {
 		final distanceValue = abs( dValue );
 		for( _ in 0...distanceValue ) commands.push( valueCommand );
 		commands.push( "." );
+		// trace( commands.join( "" ));
 	}
 
-	return commands;
+	return commands.join( "" );
 }

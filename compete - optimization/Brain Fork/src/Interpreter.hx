@@ -18,9 +18,11 @@ class Interpreter {
 		pointer = 0;
 	}
 
-	public function execute( commands:Array<Int> ) {
+	public function execute( program:String ) {
 		init();
 		
+		final commands = program.split( "" ).map( s -> s.charCodeAt( 0 ));
+
 		// remove later to optimize for speed
 		final noOpen = commands.filter( c -> c == "[".code ).length;
 		final noClose = commands.filter( c -> c == "]".code ).length;
@@ -39,7 +41,7 @@ class Interpreter {
 				if( pointer < 0 ) pointer = cells.length - 1;
 			case "+".code:
 				cells[pointer]++;
-				if( cells[pointer] > alphabetLength ) cells[pointer] = 0;
+				if( cells[pointer] >= alphabetLength ) cells[pointer] = 0;
 			case "-".code:
 				cells[pointer]--;
 				if( cells[pointer] < 0 ) cells[pointer] = alphabetLength - 1;
@@ -77,7 +79,7 @@ class Interpreter {
 					}
 				}
 			}
-			// trace( outputState( c, commands[c], output ));
+			// trace( outputState( c, commands[c], outputCharCodes ));
 			c++;
 		}
 		
@@ -85,6 +87,6 @@ class Interpreter {
 	}
 
 	function outputState( position:Int, command:Int, outputCharCodes:Array<Int> ) {
-		return '$position   ${String.fromCharCode( command )}   pointer: $pointer, cell[$pointer]: ${cells[pointer]}    cells $cells  output: ${outputCharCodes.map( v -> String.fromCharCode( v )).join( "" )}';
+		return '$position   ${String.fromCharCode( command )}   pointer: $pointer, cell[$pointer]: ${cells[pointer]}    cells $cells';
 	}
 }
