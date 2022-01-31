@@ -5,12 +5,12 @@ class Interpreter {
 	static final SYNTAX_ERROR = "SYNTAX ERROR";
 
 	final cells:Array<Int>;
-	final alphabet:Array<Int>;
+	final alphabetLength:Int;
 	var pointer = 0;
 	
-	public function new( cellsNum:Int, alphabet:Array<Int> ) {
+	public function new( cellsNum:Int, alphabetLength:Int ) {
 		this.cells = [for( _ in 0...cellsNum ) 0];
-		this.alphabet = alphabet;
+		this.alphabetLength = alphabetLength;
 	}
 
 	public function init() {
@@ -39,10 +39,10 @@ class Interpreter {
 				if( pointer < 0 ) pointer = cells.length - 1;
 			case "+".code:
 				cells[pointer]++;
-				if( cells[pointer] > alphabet.length ) cells[pointer] = 0;
+				if( cells[pointer] > alphabetLength ) cells[pointer] = 0;
 			case "-".code:
 				cells[pointer]--;
-				if( cells[pointer] < 0 ) cells[pointer] = alphabet.length - 1;
+				if( cells[pointer] < 0 ) cells[pointer] = alphabetLength - 1;
 			case ".".code: outputCharCodes.push( cells[pointer] );
 			case "[".code:
 				if( cells[pointer] == 0 ) {	

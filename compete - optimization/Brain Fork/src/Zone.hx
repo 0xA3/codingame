@@ -2,7 +2,7 @@ class Zone {
 
 	final alphabetLength:Int;
 
-	var value = 0;
+	public var value = 0;
 
 	public function new( alphabetLength:Int ) {
 		this.alphabetLength = alphabetLength;

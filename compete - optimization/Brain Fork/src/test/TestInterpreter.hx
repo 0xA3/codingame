@@ -15,22 +15,23 @@ class TestInterpreter extends buddy.BuddySuite {
 		
 		describe( "Test process", {
 			
+			final charCodeMap = [for( i in 0...Main.ALPHABET.length ) i => Main.ALPHABET.charAt( i )];
 			var interpreter:Interpreter;
 
 			beforeEach({
-				interpreter = new Interpreter( Main.NUM_ZONES, Main.ALPHABET.toCharcodes() );
+				interpreter = new Interpreter( Main.NUM_ZONES, Main.ALPHABET.length );
 			});
 
 			it( "AZ", {
-				interpreter.execute( "+.>-.".toCharcodes()).combine().should.be( "AZ" );
+				interpreter.execute( "+.>-.".toCharcodes()).combine( charCodeMap ).should.be( "AZ" );
 			});
 			
 			it( "AAAAAAAAAAAAAAAAAAAAAAAAAA", {
-				interpreter.execute( "+..........................".toCharcodes()).combine().should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
+				interpreter.execute( "+..........................".toCharcodes()).combine( charCodeMap ).should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
 			});
 			
 			it( "loop AAAAAAAAAAAAAAAAAAAAAAAAAA", {
-				interpreter.execute( "+>-[<.>-]".toCharcodes()).combine().should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
+				interpreter.execute( "+>-[<.>-]".toCharcodes()).combine( charCodeMap ).should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
 			});
 		});
 	}
