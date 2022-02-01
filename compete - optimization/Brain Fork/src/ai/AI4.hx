@@ -10,13 +10,11 @@ using Distance;
 // score online 5842
 class AI4 extends AI {
 	
+
 	public function process( magicPhrase:String ) {
 		
 		final charCodes = magicPhrase.separate( charMap );
 	
-		var position = 0;
-	
-		final zoneValues = [for( _ in 0...numZones ) 0];
 		final posOffsets = [1, -1, 0, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8, 9, -9, 10, -10, 11, -11, 12, -12, 13, -13, 14, -14, 15];
 	
 		for( c in charCodes ) {
@@ -36,15 +34,8 @@ class AI4 extends AI {
 				}
 			}
 
-			if( c == 0 && minDistance > 3 ) { // char is space and distance > 3
-				commands.push( "[" );
-				commands.push( ">" );
-				commands.push( "]" );
-				while( zoneValues[position] != 0 ) {
-					position++;
-					if( position >= numZones ) position = 0;
-				}
-			} else {
+			if( c == 0 && minDistance > 3 ) addSpaceLoop() // char is space and distance > 3
+			else {
 				position = ( numZones + position + dPos ) % numZones;
 				zoneValues[position] = ( alphabet.length + zoneValues[position] + dValue ) % alphabet.length;
 				// trace( 'dPos $dPos  dValue $dValue' );
@@ -63,5 +54,15 @@ class AI4 extends AI {
 		}
 	
 		return commands.join( "" );
+	}
+	
+	function addSpaceLoop() {
+		commands.push( "[" );
+		commands.push( ">" );
+		commands.push( "]" );
+		while( zoneValues[position] != 0 ) {
+			position++;
+			if( position >= numZones ) position = 0;
+		}
 	}
 }

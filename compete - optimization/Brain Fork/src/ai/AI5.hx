@@ -5,7 +5,7 @@ import xa3.MathUtils.abs;
 using Converter;
 using Distance;
 
-// add loop move to next space
+// add loop move to next space in both directions
 // score local  5863
 // score online ?
 class AI5 extends AI {
@@ -14,9 +14,6 @@ class AI5 extends AI {
 		
 		final charCodes = magicPhrase.separate( charMap );
 	
-		var position = 0;
-	
-		final zoneValues = [for( _ in 0...numZones ) 0];
 		final posOffsets = [1, -1, 0, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8, 9, -9, 10, -10, 11, -11, 12, -12, 13, -13, 14, -14, 15];
 	
 		for( c in charCodes ) {
@@ -36,22 +33,8 @@ class AI5 extends AI {
 				}
 			}
 
-			if( c == 0 && minDistance > 3 ) { // char is space and distance > 3
-				if( dPos > 0 ) {
-					while( zoneValues[position] != 0 ) {
-						position++;
-						if( position >= numZones ) position = 0;
-					}
-				} else {
-					while( zoneValues[position] != 0 ) {
-						position--;
-						if( position < 0 ) position = numZones - 1;
-					}
-				}
-				commands.push( "[" );
-				commands.push( dPos > 0 ? ">" : "<" );
-				commands.push( "]" );
-			} else {
+			if( c == 0 && minDistance > 3 ) addDirectedSpaceLoop( dPos ) // char is space and distance > 3
+			else {
 				position = ( numZones + position + dPos ) % numZones;
 				zoneValues[position] = ( alphabet.length + zoneValues[position] + dValue ) % alphabet.length;
 				// trace( 'dPos $dPos  dValue $dValue' );
@@ -72,7 +55,20 @@ class AI5 extends AI {
 		return commands.join( "" );
 	}
 
-	function name() {
-		
+	function addDirectedSpaceLoop( dPos:Int ) {
+		if( dPos > 0 ) {
+			while( zoneValues[position] != 0 ) {
+				position++;
+				if( position >= numZones ) position = 0;
+			}
+		} else {
+			while( zoneValues[position] != 0 ) {
+				position--;
+				if( position < 0 ) position = numZones - 1;
+			}
+		}
+		commands.push( "[" );
+		commands.push( dPos > 0 ? ">" : "<" );
+		commands.push( "]" );
 	}
 }

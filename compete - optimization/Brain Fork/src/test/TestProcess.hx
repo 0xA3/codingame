@@ -23,6 +23,16 @@ class TestProcess extends buddy.BuddySuite {
 				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );
 			});
 			
+			it( "VWXYZ", {
+				final phrase = "VWXYZ";
+				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );
+			});
+			
+			it( "Entire alphabet", {
+				final phrase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );
+			});
+			
 			it( "Sample 1", {
 				final phrase = "MINAS";
 				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );

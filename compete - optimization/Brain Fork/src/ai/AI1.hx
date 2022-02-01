@@ -14,10 +14,6 @@ class AI1 extends AI {
 		
 		final charCodes = magicPhrase.separate( charMap );
 	
-		var position = 0;
-	
-		final zoneValues = [for( _ in 0...numZones ) 0];
-	
 		for( c in charCodes ) {
 			// trace( 'char $c ${charCodeMap[c] )}' );
 			var dPos = numZones;
@@ -50,6 +46,5 @@ class AI1 extends AI {
 		}
 	
 		return commands.join( "" );
-	
 	}
 }

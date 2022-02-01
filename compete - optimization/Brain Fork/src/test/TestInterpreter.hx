@@ -13,7 +13,7 @@ class TestInterpreter extends buddy.BuddySuite {
 	
 	public function new() {
 		
-		describe( "Test process", {
+		describe( "Test interpreter", {
 			
 			final charCodeMap = [for( i in 0...Main.ALPHABET.length ) i => Main.ALPHABET.charAt( i )];
 			var interpreter:Interpreter;
@@ -40,6 +40,14 @@ class TestInterpreter extends buddy.BuddySuite {
 			
 			it( "reset to space [+].", {
 				interpreter.execute( "+++[+]." ).combine( charCodeMap ).should.be( " " );
+			});
+			
+			it( "alphabet +[.+]", {
+				interpreter.execute( "+[.+]" ).combine( charCodeMap ).should.be( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
+			});
+			
+			it( "alphabet reverse -[.-]", {
+				interpreter.execute( "-[.-]" ).combine( charCodeMap ).should.be( "ZYXWVUTSRQPONMLKJIHGFEDCBA" );
 			});
 		});
 	}
