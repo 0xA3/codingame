@@ -37,6 +37,10 @@ class TestInterpreter extends buddy.BuddySuite {
 			it( "loop AAAAAAAAAAAAAAAAAAAAAAAAAA", {
 				interpreter.execute( "+>-[<.>-]" ).combine( charCodeMap ).should.be( "AAAAAAAAAAAAAAAAAAAAAAAAAA" );
 			});
+			
+			it( "reset to space [+].", {
+				interpreter.execute( "+++[+]." ).combine( charCodeMap ).should.be( " " );
+			});
 		});
 	}
 

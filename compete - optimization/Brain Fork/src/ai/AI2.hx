@@ -5,10 +5,10 @@ import xa3.MathUtils.abs;
 using Converter;
 using Distance;
 
-// first try
-// score local  6009
-// score online 6001
-class AI1 extends AI {
+// optimized position checks with posOffsets array
+// score local  5868
+// score online 5859
+class AI2 extends AI {
 	
 	public function process( magicPhrase:String ) {
 		
@@ -17,15 +17,17 @@ class AI1 extends AI {
 		var position = 0;
 	
 		final zoneValues = [for( _ in 0...numZones ) 0];
+		final posOffsets = [1, -1, 0, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8, 9, -9, 10, -10, 11, -11, 12, -12, 13, -13, 14, -14, 15];
 	
 		for( c in charCodes ) {
 			// trace( 'char $c ${charCodeMap[c] )}' );
 			var dPos = numZones;
 			var dValue = alphabet.length;
 			var minDistance = dPos + dValue;
-			for( z in 0...numZones ) {
-				final posOffset = position.getDistance( z, numZones );
-				final valueOffset = zoneValues[z].getDistance( c, alphabet.length );
+			for( posOffset in posOffsets ) {
+				if( posOffset > minDistance ) break;
+				final zone = ( numZones + position + posOffset ) % numZones;
+				final valueOffset = zoneValues[zone].getDistance( c, alphabet.length );
 				final sum = abs( posOffset ) + abs( valueOffset );
 				if( sum < minDistance ) {
 					minDistance = sum;
@@ -33,6 +35,7 @@ class AI1 extends AI {
 					dValue = valueOffset;
 				}
 			}
+
 			position = ( numZones + position + dPos ) % numZones;
 			zoneValues[position] = ( alphabet.length + zoneValues[position] + dValue ) % alphabet.length;
 			// trace( 'dPos $dPos  dValue $dValue' );

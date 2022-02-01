@@ -24,7 +24,7 @@ function main() {
 
 function process( magicPhrase:String ) {
 	
-	final ai = new ai.AI1( NUM_ZONES, ALPHABET );
+	final ai = new ai.AI5( NUM_ZONES, ALPHABET );
 	return ai.process( magicPhrase );
 
 }
