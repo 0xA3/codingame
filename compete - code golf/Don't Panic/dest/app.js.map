@@ -1,8 +1,0 @@
-{
-"version":3,
-"file":"app.js",
-"sourceRoot":"",
-"sources":["file:///d:/Projekte/CodinGame/compete - code golf/Don't Panic/src/Main.hx","file:///D:/Programs/Coding/HaxeToolkit/haxe/std/haxe/iterators/ArrayIterator.hx","file:///D:/Programs/Coding/HaxeToolkit/haxe/std/js/_std/Std.hx"],
-"names":[],
-"mappings":";0BAO+B;AAAA,iBAA6B;AAA7B;8BACL;AAAA,yBAA2B;AAA3B;qBAEV;AAAA,CAEf,aAAe;AAFA,CAQf,cAAgB,cAAS,OAAO;AARjB,CAWf,kBAAoB,cAAS,OAAO;AAXrB,CAaf,gBAAkB;AAbH,CAcL;AAdK,CAcf,KAAK,CAAK,KAAI,aAAd;AAAA,EAAU;AAAV,EACC,aAAa;AADd,EAEC,UAAU,cAAU,OAAO,OAAQ,cAAU,OAAO;AAFrD;AAde,CAkBf,UAAU,eAAe;AAlBV,CAqBf,KAAO,OAAO;AAAA,EAEb,aAAe;AAFF,EAGb,YAAc,cAAU,OAAO;AAHlB,EAIb,UAAY,cAAU,OAAO;AAJhB,EAKb,gBAAkB,OAAO,UAAW;AALvB,EAQb,aAAiB,AAAI,aAAc,MAAK,UAAU,SAAS,MAAM,aAAQ,YACpE,AAAI,aAAc,MAAK,UAAU,SAAS,MAAM,aAAQ,YACxD;AAVQ,EAYb,MAA6B;AAZhB;AArBC;;oBCiBhB;AAAA,EAEmB,AAAlB,eAAkB;AAFnB,EASE,aAAa;AATf;WAiBE;AAAA,SAAO,eAAU;AAAjB;QAQA;AAAA,SAAO,WAAM;AAAb;;AC0BQ;AAAA;gBF1EI;iBACC;;;"
-}

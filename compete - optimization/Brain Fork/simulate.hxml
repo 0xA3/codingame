@@ -1,0 +1,5 @@
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main Simulator.hx
+--interp

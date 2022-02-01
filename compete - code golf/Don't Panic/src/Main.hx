@@ -1,4 +1,5 @@
 import js.Syntax;
+import CodinGame.printErr;
 
 using Lambda;
 
@@ -16,7 +17,7 @@ function main() {
 	// final width = parseInt(inputs[1]); // width of the area
 	// final nbRounds = parseInt(inputs[2]); // maximum number of rounds
 	// final exitFloor = parseInt(inputs[3]); // floor on which the exit is found
-	final exitPos = parseInt(inputs[4]); // position of the exit on its floor
+	// final exitPos = parseInt(inputs[4]); // position of the exit on its floor
 	// final nbTotalClones = parseInt(inputs[5]); // number of generated clones
 	// final nbAdditionalElevators = parseInt(inputs[6]); // ignore (always zero)
 	final nbElevators = parseInt(inputs[7]); // number of elevators
@@ -24,9 +25,10 @@ function main() {
 	final elevators = [];
 	for( _ in 0...nbElevators ) {
 		var inputs = readlineSplit();
+		printErr( inputs.join(" ") );
 		elevators[parseInt( inputs[0] )] = parseInt( inputs[1] );
 	};
-	elevators[nbElevators] = exitPos;
+	elevators[nbElevators] = parseInt(inputs[4]);
 
 	// game loop
 	while( true ) {
@@ -35,7 +37,7 @@ function main() {
 		final floor = parseInt( inputs[0] ); // floor of the leading clone
 		final pos = parseInt( inputs[1] ); // position of the leading clone on its floor
 		final direction = inputs[2].charAt( 0 ); // direction of the leading clone: NONE, LEFT or RIGHT
-		
+		printErr( inputs.join(" ") );
 		// final targetPosition = elevators[floor] == null ? exitPos : elevators[floor];
 		final action = { if( direction == 'L' ) elevators[floor] > pos ? block : wait;
 		else if( direction == 'R' ) elevators[floor] < pos ? block : wait;

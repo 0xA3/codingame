@@ -1,5 +1,5 @@
 *.js
-*.js.map
+*.map
 !*manual*.js
 *.hl
 *.lua
