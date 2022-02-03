@@ -7,6 +7,6 @@ build.hxml
 --no-traces
 
 # Use custom build tool
---macro BuildTool.run()
+# --macro BuildTool.run()
 
 -debug

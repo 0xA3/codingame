@@ -2,5 +2,9 @@
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
--main test.TestMain
+-main test.Tests
 --interp
+
+# -lib hxnodejs
+# --js bin/test.js
+# --cmd node bin/test.js

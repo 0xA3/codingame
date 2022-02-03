@@ -7,8 +7,3 @@
 -D analyzer-optimize
 -D js-es=6
 -D js-classic
-
--lib no-spoon
-
--D loop_unroll_max_cost=5
-
