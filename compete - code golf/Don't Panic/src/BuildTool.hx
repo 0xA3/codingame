@@ -32,7 +32,7 @@ class BuildTool {
 			outContent = outContent
 				.replace('"use strict";', "")
 				.replace('var $$global="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this;', "")
-				.replace('class haxe_iterators_ArrayIterator{constructor(a){this.current=0,this.array=a}hasNext(){return this.current<this.array.length}next(){return this.array[this.current++]}}', "")
+				.replace('class haxe_iterators_ArrayIterator{constructor(t){this.current=0,this.array=t}hasNext(){return this.current<this.array.length}next(){return this.array[this.current++]}}', "")
 				.replace('.charAt(0)', "[0]")
 				.replace( "Main_main()", "m()");
 				// .replace(".prototype", "[$$0]")

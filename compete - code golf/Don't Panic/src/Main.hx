@@ -3,9 +3,6 @@ import CodinGame.printErr;
 
 using Lambda;
 
-final wait = 'WAIT';
-final block = 'BLOCK';
-
 var parseInt = ( v:String ) -> Syntax.code("parseInt({0})", v);
 var readlineSplit = () -> CodinGame.readline().split(" ");
 
@@ -23,10 +20,11 @@ function main() {
 	final nbElevators = parseInt(inputs[7]); // number of elevators
 	
 	final elevators = [];
-	for( _ in 0...nbElevators ) {
+	for( i in 0...nbElevators ) {
 		var inputs = readlineSplit();
-		printErr( inputs.join(" ") );
+		// printErr( inputs.join(" ") );
 		elevators[parseInt( inputs[0] )] = parseInt( inputs[1] );
+		// printErr( 'elevators[${inputs[0]}] = ${inputs[1]}' );
 	};
 	elevators[nbElevators] = parseInt(inputs[4]);
 
@@ -34,15 +32,12 @@ function main() {
 	while( true ) {
 
 		final inputs = readlineSplit();
-		final floor = parseInt( inputs[0] ); // floor of the leading clone
+		// final floor = parseInt( inputs[0] ); // floor of the leading clone
 		final pos = parseInt( inputs[1] ); // position of the leading clone on its floor
 		final direction = inputs[2].charAt( 0 ); // direction of the leading clone: NONE, LEFT or RIGHT
-		printErr( inputs.join(" ") );
-		// final targetPosition = elevators[floor] == null ? exitPos : elevators[floor];
-		final action = { if( direction == 'L' ) elevators[floor] > pos ? block : wait;
-		else if( direction == 'R' ) elevators[floor] < pos ? block : wait;
-		else wait; }// action: WAIT or BLOCK
-		
-		js.Syntax.code('print({0})', action);
+		// printErr( inputs.join(" "));
+
+		final elevatorOfFloor = elevators[parseInt( inputs[0] )];
+		js.Syntax.code('print{0}', direction == 'L' && elevatorOfFloor > pos || direction == 'R' && elevatorOfFloor < pos ? 'BLOCK' : 'WAIT');
 	}
 }
