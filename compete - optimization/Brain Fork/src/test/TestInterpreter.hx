@@ -49,6 +49,13 @@ class TestInterpreter extends buddy.BuddySuite {
 			it( "alphabet reverse -[.-]", {
 				interpreter.execute( "-[.-]" ).combine( charCodeMap ).should.be( "ZYXWVUTSRQPONMLKJIHGFEDCBA" );
 			});
+			
+			it( "Medium spell", {
+				interpreter.execute(
+					"------------.>.<.+++.---.>++++++.>+.<<+++.----.>-.>-.<<--.<+.>+++++++..>.<------.----.<---------.+.<+.<.>++.<+.>>--.----.>.<-.>.<+++++.>.>.>.<<<---.<<-.>>+++.---.<<----.<+.>>>-.>>>.<+.>+.<<.<++++.<---.<--.>>--.-.-.<.--.>+.<<.---.<-.>>>>-.>>.<<+.<<<.<.>>>>-.<.<--.<<.>>.>>.+.<<---.>>>-.>-.<<<<.>>-.>.>.++.<<++++.<.<-..>.>+.>>>.<<<-.>>-.>--."
+					).combine( charCodeMap ).should.be(
+					"O OROFARNE LASSEMISTA CARNIMIRIE O ROWAN FAIR UPON YOUR HAIR HOW WHITE THE BLOSSOM LAY" );
+			});
 		});
 	}
 

@@ -2,5 +2,6 @@
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
+--debug
 -main test.Tests
 --interp

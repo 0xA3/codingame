@@ -33,6 +33,21 @@ class TestProcess extends buddy.BuddySuite {
 				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );
 			});
 			
+			it( "Entire alphabet twice", {
+				final phrase = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );
+			});
+			
+			it( "Entire alphabet backwards", {
+				final phrase = "ZYXWVUTSRQPONMLKJIHGFEDCBA";
+				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );
+			});
+			
+			it( "Entire alphabet backwards twice", {
+				final phrase = "ZYXWVUTSRQPONMLKJIHGFEDCBAZYXWVUTSRQPONMLKJIHGFEDCBA";
+				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );
+			});
+			
 			it( "Sample 1", {
 				final phrase = "MINAS";
 				interpreter.execute( Main.process( phrase ) ).combine( charCodeMap ).should.be( phrase );

@@ -6,7 +6,7 @@ using Converter;
 using Distance;
 
 // add alphabet loop
-// score local  
+// score local  5336
 // score online 
 class AI6 extends AI {
 	
@@ -19,7 +19,9 @@ class AI6 extends AI {
 		var charCounter = 0;
 		while( charCounter < charCodes.length ) {
 			final c = charCodes[charCounter];
-			// trace( 'char $c ${charCodeMap[c] )}' );
+			
+			// trace( 'char $c ${charCodeMap[c] )} currentPos $position ${zoneValues[position]} (${charCodeMap[zoneValues[position]]})' );
+			
 			var dPos = numZones;
 			var dValue = alphabet.length;
 			var minDistance = dPos + dValue;
@@ -35,26 +37,37 @@ class AI6 extends AI {
 				}
 			}
 
-			if( c == 0 && minDistance > 3 ) { addSpaceLoop(); // char is space and distance > 3
+			if( c == 0 && minDistance > 3 ) {
+				addSpaceLoop(); // char is space and distance > 3
 			} else {
 				final loopToZLength = checkAlphabetLoop( charCodes, charCounter );
-				
+				final loopToALength = checkBackwardsAlphabetLoop( charCodes, charCounter );
+				// trace( '$charCounter c $c (${charCodeMap[c])}) loopToZLength $loopToZLength' );
+				// trace( '$charCounter char $c (${charCodeMap[c])}) loopToALength $loopToALength' );
 				if( loopToZLength >= 4 ) {
 					addAlphabetLoop();
 					charCounter += loopToZLength;
+					zoneValues[position] = 0;
+					// trace( 'char zoneValues[$position] ${zoneValues[position]} $zoneValues' );
+				} else if( loopToALength >= 4 ) {
+					addBackwardsAlphabetLoop();
+					charCounter += loopToALength;
+					zoneValues[position] = 0;
+					// trace( 'char zoneValues[$position] ${zoneValues[position]} $zoneValues' );
 				} else {
 					addPosCommands( dPos );
 					addValueCommands( dValue );
 					commands.push( "." );
+					
+					position = ( numZones + position + dPos ) % numZones;
+					zoneValues[position] = ( alphabet.length + zoneValues[position] + dValue ) % alphabet.length;
 				}
 			}
 
 			// trace( commands.join( "" ));
-			position = ( numZones + position + dPos ) % numZones;
-			zoneValues[position] = ( alphabet.length + zoneValues[position] + dValue ) % alphabet.length;
 			charCounter++;
 		}
-		trace( commands.join( "" ) );
+		#if debug trace( commands.join( "" ) ); #end
 		return commands.join( "" );
 	}
 	
@@ -84,17 +97,35 @@ class AI6 extends AI {
 		if( currentValue == 0 ) return -1;
 		final remainingChars = charCodes.length - charCounter;
 		final distanceToZ = alphabet.length - currentValue - 1;
-		// trace( 'currentValue ${currentValue} (${charCodeMap[currentValue]})  charCounter $charCounter  remainingChars $remainingChars  distanceToZ $distanceToZ' );
+		// if( currentValue == 1 ) trace( 'currentValue ${currentValue} (${charCodeMap[currentValue]})  charCounter $charCounter  remainingChars $remainingChars  distanceToZ $distanceToZ' );
 		if( remainingChars < distanceToZ ) return -1; // not enough chars left to go to Z
 
-		for( i in 0...remainingChars ) {
+		for( i in 0...distanceToZ ) {
 			final necessaryChar = currentValue + i + 1;
 			final realChar = charCodes[charCounter + i];
-			// trace( 'necessaryChar $necessaryChar  realChar $realChar' );
+			// if( currentValue == 1 ) trace( 'necessaryChar $necessaryChar (${charCodeMap[necessaryChar]})  realChar $realChar (${charCodeMap[realChar]})' );
 			if( necessaryChar != realChar ) return -1;
 		}
 
-		return remainingChars;
+		return distanceToZ - 1;
+	}
+
+	function checkBackwardsAlphabetLoop( charCodes:Array<Int>, charCounter:Int ) {
+		final currentValue = zoneValues[position];
+		if( currentValue == 0 ) return -1;
+		final remainingChars = charCodes.length - charCounter;
+		final distanceToA = currentValue - 1;
+		// if( charCounter == 1 ) trace( 'checkBackwardsAlphabetLoop currentValue ${currentValue} (${charCodeMap[currentValue]})  remainingChars $remainingChars  distanceToA $distanceToA' );
+		if( remainingChars < distanceToA ) return -1; // not enough chars left to go to Z
+
+		for( i in 0...distanceToA ) {
+			final necessaryChar = currentValue - i - 1;
+			final realChar = charCodes[charCounter + i];
+			// trace( 'necessaryChar $necessaryChar (${charCodeMap[necessaryChar]})  realChar $realChar (${charCodeMap[realChar]})' );
+			if( necessaryChar != realChar ) return -1;
+		}
+
+		return distanceToA - 1;
 	}
 
 	function addAlphabetLoop() {
@@ -102,6 +133,13 @@ class AI6 extends AI {
 		commands.push( "[" );
 		commands.push( "." );
 		commands.push( "+" );
+		commands.push( "]" );
+	}
+	function addBackwardsAlphabetLoop() {
+		commands.push( "-" );
+		commands.push( "[" );
+		commands.push( "." );
+		commands.push( "-" );
 		commands.push( "]" );
 	}
 }
