@@ -15,7 +15,7 @@ class Main {
 		final bitstrings = MESSAGE.split( "" ).map( char -> binarise( char.charCodeAt( 0 )));
 		final bitstrings7 = bitstrings.map( bitstring -> extendTo7Bit( bitstring ));
 		final grouped = groupByChar( bitstrings7.join( "" ));
-		final chucked = grouped.map( s -> switch s.charAt( 0 ) { 
+		final chucked = grouped.map( s -> switch s.charAt( 0 ) {
 			case "0": '00 ' + [for(i in 0...s.length) '0'].join( "" );
 			case _: '0 ' + [for(i in 0...s.length) '0'].join( "" );
 		}).join( " " );

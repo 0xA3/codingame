@@ -1,0 +1,12 @@
+build.hxml
+
+# Minifiy more variable names
+# -lib hxobfuscator
+
+# Remove console logs
+--no-traces
+
+# Use custom build tool
+--macro BuildTool.run()
+
+-debug

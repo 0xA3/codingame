@@ -32,12 +32,12 @@ function main() {
 	while( true ) {
 
 		final inputs = readlineSplit();
-		// final floor = parseInt( inputs[0] ); // floor of the leading clone
+		final floor = parseInt( inputs[0] ); // floor of the leading clone
 		final pos = parseInt( inputs[1] ); // position of the leading clone on its floor
 		final direction = inputs[2].charAt( 0 ); // direction of the leading clone: NONE, LEFT or RIGHT
 		// printErr( inputs.join(" "));
 
-		final elevatorOfFloor = elevators[parseInt( inputs[0] )];
+		final elevatorOfFloor = elevators[parseInt( floor )];
 		js.Syntax.code('print{0}', direction == 'L' && elevatorOfFloor > pos || direction == 'R' && elevatorOfFloor < pos ? 'BLOCK' : 'WAIT');
 	}
 }
