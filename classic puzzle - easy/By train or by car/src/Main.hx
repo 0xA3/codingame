@@ -5,9 +5,6 @@ import Std.int;
 import Std.parseFloat;
 import Std.parseInt;
 
-using Lambda;
-using xa3.MathUtils;
-
 inline var MINUTES = 60;
 
 final train:Constraints = {
@@ -58,7 +55,7 @@ function process( origin:String, destination:String, segments:Array<Array<String
 }
 
 function getTotalTime( segments:Array<Array<String>>, constraints:Constraints ) {
-	var totalMinutes:Float = constraints.startCommmuteTime + constraints.endCommuteTime;
+	var totalMinutes:Float = constraints.startCommmuteTime + constraints.endCommuteTime + ( segments.length - 1 ) * constraints.cityPauseTime;
 	for( i in 0...segments.length ) {
 		final segmentDistance = parseFloat( segments[i][2] );
 		
@@ -70,7 +67,6 @@ function getTotalTime( segments:Array<Array<String>>, constraints:Constraints ) 
 		
 		totalMinutes += cityTime + overlandTime;
 	}
-	totalMinutes += ( segments.length - 1 ) * constraints.cityPauseTime;
 
 	return totalMinutes;
 }
