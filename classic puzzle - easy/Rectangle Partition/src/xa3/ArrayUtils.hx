@@ -1,4 +1,4 @@
-package com.hexA3;
+package xa3;
 
 import haxe.ds.Vector;
 

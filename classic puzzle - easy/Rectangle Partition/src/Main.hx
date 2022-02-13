@@ -1,5 +1,5 @@
 using Lambda;
-using com.hexA3.ArrayUtils;
+using xa3.ArrayUtils;
 
 class Main {
 	
