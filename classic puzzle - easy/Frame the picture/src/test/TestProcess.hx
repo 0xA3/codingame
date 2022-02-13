@@ -34,6 +34,30 @@ class TestProcess extends buddy.BuddySuite {
 				Main.process( ip.framePattern, ip.h, ip.w, ip.lines ).should.be( someArtResult );
 			});
 		});
+		
+		describe( "Test process2", {
+			
+			it( "Tiny picture, thin frame", {
+				final ip = tinyPictureThinFrame;
+				Main.process2( ip.framePattern, ip.h, ip.w, ip.lines ).should.be( tinyPictureThinFrameResult );
+			});
+			it( "Small picture, thin frame", {
+				final ip = smallPictureThinFrame;
+				Main.process2( ip.framePattern, ip.h, ip.w, ip.lines ).should.be( smallPictureThinFrameResult );
+			});
+			it( "Small picture, 2-character frame", {
+				final ip = smallPicture2CharacterFrame;
+				Main.process2( ip.framePattern, ip.h, ip.w, ip.lines ).should.be( smallPicture2CharacterFrameResult );
+			});
+			it( "Medium picture, 3-character frame", {
+				final ip = mediumPicture3CharacterFrame;
+				Main.process2( ip.framePattern, ip.h, ip.w, ip.lines ).should.be( mediumPicture3CharacterFrameResult );
+			});
+			it( "Some art", {
+				final ip = someArt;
+				Main.process2( ip.framePattern, ip.h, ip.w, ip.lines ).should.be( someArtResult );
+			});
+		});
 	}
 
 	static function parseInput( input:String ) {

@@ -5,6 +5,8 @@ import Std.parseInt;
 import xa3.MathUtils.max;
 import xa3.MathUtils.min;
 
+using Lambda;
+
 var totalHeight:Int;
 var totalWidth:Int;
 
@@ -16,7 +18,7 @@ function main() {
 	final w = parseInt( inputs[1] ); // the width  of the picture
 	final lines = [for( i in 0...h ) readline()]; // the ASCII art picture line by line
 		
-	final result = process( framePattern, h, w, lines );
+	final result = process2( framePattern, h, w, lines );
 	print( result );
 }
 
@@ -46,4 +48,20 @@ inline function getBorderDistances( x:Int, y:Int ) {
 	final dx = min( x, totalWidth - 1 - x );
 	final dy = min( y, totalHeight - 1 - y );
 	return { x: dx, y: dy }
+}
+
+// second solution
+function process2( framePattern:String, h:Int, w:Int, lines:Array<String> ) {
+	final frameCells = ( framePattern + " " ).split( "" );
+	frameCells.reverse();
+	
+	var output = lines.copy();
+	for( cell in frameCells ) output = surround( output, cell );
+
+	return output.join( "\n" );
+}
+
+function surround( lines:Array<String>, s:String ) {
+	final top = [for( _ in 0...lines[0].length + 2) s].join( "" );
+	return [[top], lines.map( line -> '$s$line$s'), [top]].flatten();
 }
