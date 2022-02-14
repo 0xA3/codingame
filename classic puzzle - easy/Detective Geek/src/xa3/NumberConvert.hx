@@ -8,6 +8,7 @@ class NumberConvert {
 	public static function toHex( v:Int ) return convert( v, "0123456789ABCDEF" );
 	public static function setMinLength( number:String, minLength:Int ) return number.length < minLength ? [for( i in 0...minLength - number.length ) "0"].join("") + number : number;
 
+	// wrong
 	public static function convert( v:Int, digits:String ) {
 		final length = digits.length;
 		var encoded ="";
