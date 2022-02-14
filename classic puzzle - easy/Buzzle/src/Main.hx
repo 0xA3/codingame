@@ -37,32 +37,27 @@ function process( base:Int, a:Int, b:Int, buzzleNumbers:Array<Int> ) {
 }
 
 function isBuzzle( number:Int, buzzleNumber:Int, base:Int ) {
-	final buzzle = getDigitSums( number, base ).fold(( numberSum, b ) -> b || isDivisible( numberSum, buzzleNumber, base ) || lastDigit( numberSum, buzzleNumber, base ), false );
+	final buzzle = getDigitSums( number, base ).fold(( digitsSum, b ) -> b || isDivisible( digitsSum, buzzleNumber, base ) || lastDigit( digitsSum, buzzleNumber, base ), false );
 	return buzzle;
 }
 
 inline function getDigitSums( number:Int, base:Int ) {
-	final baseNumber = number.toBaseN( base );
-	final digitSums = [baseNumber.baseToDec( base )];
+	final digitSums = [number];
 	
-	var numberSum = digitSums[0];
-	var baseNumberSum = baseNumber;
-	while( numberSum > base ) {
-		numberSum = baseNumberSum.split( "" ).map( s -> s.baseToDec( base )).fold(( v, sum ) -> sum + v, 0 );
-		baseNumberSum = numberSum.decToBase( base );
-		digitSums.push( numberSum );
-		// trace( 'numberSum $numberSum  baseNumberSum $baseNumberSum' );
+	var digitsSum = number;
+	while( digitsSum > base ) {
+		digitsSum = digitsSum.toBaseN( base ).split( "" ).map( s -> s.toDec( base )).fold(( v, sum ) -> sum + v, 0 );
+		digitSums.push( digitsSum );
 	}
-	// trace( 'digitSums number $number  base $base  baseNumber $baseNumber  digitSums ${digitSums.join(" ")}' );
 	return digitSums;
 }
 
 inline function isDivisible( number:Int, buzzleNumber:Int, base:Int ) return number % buzzleNumber == 0;
 
 inline function lastDigit( number:Int, buzzleNumber:Int, base:Int ) {
-	final iString = string( number.toBaseN( base ));
-	final lastChar = iString.charAt( iString.length - 1 );
-	final lastDigit = lastChar.baseToDec( base );
-	// trace( 'lastDigit number $number  buzzleNumber $buzzleNumber  base $base  lastChar $lastChar  lastDigit $lastDigit   ${lastDigit == buzzleNumber}' );
+	final baseNumber = number.toBaseN( base );
+	final lastChar =  baseNumber.charAt( baseNumber.length - 1 );
+	final lastDigit = lastChar.toDec( base );
+	
 	return lastDigit == buzzleNumber;
 }
