@@ -1,21 +1,22 @@
 package xa3;
 
 import Std.int;
-import haxe.ds.GenericStack;
 
 class NumberConvert {
 
-	static inline var DIGITS_62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	static final base2DecMap = [for( i in 0...DIGITS_62.length) DIGITS_62.charAt( i ) => i];
-	static final hex2DecMap = [for( i in 0...16 ) DIGITS_62.charAt( i ) => i];
+	static final digits62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	static final base2DecMap = [for( i in 0...digits62.length) digits62.charAt( i ) => i];
+	static final hex2DecMap = [for( i in 0...16 ) digits62.charAt( i ) => i];
 
 	public static function toAlphabetical( v:Int ) return convert( v, "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
 	public static function toBaseN( v:Int, base:Int ) return decToBase( v, base );
 	public static function toBinary( v:Int ) return decToBase( v, 2 );
 	public static function toBase12( v:Int ) return decToBase( v, 12 );
-	public static function toDec( s:String, base:Int  ) return baseToDec( s, base );
 	public static function toHex( v:Int ) return decToBase( v, 16 );
-	public static function setMinLength( number:String, minLength:Int ) return number.length < minLength ? [for( i in 0...minLength - number.length ) "0"].join("") + number : number;
+	
+	public static function toDec( s:String, base:Int  ) return baseToDec( s, base );
+	
+	public static function setMinLength( number:String, minLength:Int ) return number.length < minLength ? [for( _ in 0...minLength - number.length ) "0"].join( "" ) + number : number;
 
 	public static function convert( v:Int, digits:String ) {
 		var encoded = "";
@@ -30,7 +31,7 @@ class NumberConvert {
 
 	static function decToBase( v:Int, targetBase:Int ) {
 		var encoded = "";
-		final digits = DIGITS_62.substr( 0, targetBase );
+		final digits = digits62.substr( 0, targetBase );
 		var value = v;
 		do {
 			encoded = digits.charAt( value % targetBase ) + encoded;
@@ -61,5 +62,4 @@ class NumberConvert {
 		}
 		return dec;
 	}
-
 }
