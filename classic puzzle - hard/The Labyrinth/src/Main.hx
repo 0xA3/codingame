@@ -1,11 +1,10 @@
-using Lambda;
-
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.Ai;
-import ai.Maze;
+
+using Lambda;
 
 class Main {
 	
@@ -18,8 +17,7 @@ class Main {
 		
 		printErr( 'rows $r columns $c alarm rounds $a' );
 
-		final maze = new Maze( c, r );
-		final ai = new Ai( maze );
+		final ai = new Ai( c, r );
 
 		var fuel = 300; // arbitrary limit
 
@@ -30,8 +28,8 @@ class Main {
 			final kx = parseInt(inputs[1]); // column where Kirk is located.
 			
 			final lines = [for( i in 0...r ) readline()];
-			printErr( lines.join( "\n" ));
-			maze.update( lines );
+			// printErr( lines.join( "\n" ));
+			ai.update( lines );
 			final direction = ai.getDirection( kx, ky );
 		
 			print( direction ); // Kirk's next move (UP DOWN LEFT or RIGHT).

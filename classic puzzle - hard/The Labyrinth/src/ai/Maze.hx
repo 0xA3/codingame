@@ -1,7 +1,7 @@
 package ai;
 
-import data.TCell;
 import data.PathNode;
+import data.TCell;
 
 class Maze {
 	
@@ -9,8 +9,10 @@ class Maze {
 	public final height:Int;
 	public final cells:Array<TCell>;
 	public final pathNodes:Map<Int, PathNode> = [];
+	
+	public var transporterIndex = -1;
 	public var controlRoomIndex = -1;
-	public var startIndex = -1;
+	public var currentIndex = -1;
 
 	public function new( width:Int, height:Int ) {
 		this.width = width;
@@ -20,28 +22,23 @@ class Maze {
 
 	public function update( lines:Array<String> ) {
 		for( y in 0...lines.length ) {
-			final line = lines[y].split('');
-			for( x in 0...cells.length ) {
-				final c = line[x];
-				if( controlRoomIndex == null && c == "C") controlRoomIndex = getCellIndex( x, y );
-				else if( startIndex == null && c == "T") startIndex = getCellIndex( x, y );
+			final columns = lines[y].split( '' );
+			for( x in 0...columns.length ) {
+				final c = columns[x];
+				final index = getCellIndex( x, y );
+				if( transporterIndex == -1 && c == "T" ) transporterIndex = index;
+				else if( controlRoomIndex == -1 && c == "C" ) controlRoomIndex = index;
 				
-				final inputCell = parseInput( line[x] );
-				final cell = getCell2d( x, y );
-				if( inputCell != cell ) {
-					setCell2d( x, y, inputCell );
-					if( inputCell == Space ) {
-						final pathNode = createPathNode( x, y, inputCell );
-						pathNodes.set( pathNode.id, pathNode );
-						updateNeighborPathNodes( pathNode );
-					}
-				}
+				final inputCell = parseInput( c );
+				if( inputCell != cells[index] ) setCell( index, inputCell );
 			}
 		}
+		for( index in 0...cells.length ) createPathNode( index );
 	}
 
 	function parseInput( s:String ) {
 		return switch s {
+			case 'T': Transporter;
 			case 'C': ControlRoom;
 			case "#": Wall;
 			case "?": Unknown;
@@ -49,67 +46,59 @@ class Maze {
 		}
 	}
 
-	function createPathNode( x:Int, y:Int, cell:TCell ) {
-		final neighbors = getNeighbors( x, y );
-		final validNeighbors = neighbors.filter( index -> {
-			final cell = getCell( index );
-			return cell == Space || cell == Unknown;
+	function createPathNode( index:Int ) {
+		final cell = getCell( index );
+		if( cell == Wall ) return;
+		
+		final x = getCellX( index );
+		final y = getCellY( index );
+		final neighbors = getNeighbors( index );
+		
+		final validNeighbors = neighbors.filter( neighborIndex -> {
+			final cell = getCell( neighborIndex );
+			return cell != Wall;
+			// return cell == Space || cell == Unknown;
 		});
 		
+		// trace( 'createPathNode xy $x:$y  index ${getCellIndex( x, y )}  cell $cell  neighbors $neighbors  validNeighbors $validNeighbors' );
+		
 		final id = getCellIndex( x, y );
-		final pathNode = new PathNode( id, cell, validNeighbors );
-		return pathNode;
+		final pathNode = new PathNode( id, getCell( index ), validNeighbors );
+		pathNodes.set( index, pathNode );
 	}
 
-	function updateNeighborPathNodes( pathNode:PathNode ) {
-		for( n in pathNode.neighbors ) {
-			final neighborPathNode = pathNodes[n];
-			neighborPathNode.addNeighbor( pathNode.id );
-		}
-	}
-
-	function getNeighbors( x:Int, y:Int ) {
+	function getNeighbors( index:Int ) {
+		final x = getCellX( index );
+		final y = getCellY( index );
 		final indices:Array<Int> = [];
 		if( y > 0 ) indices.push( getCellIndex( x, y - 1 )); // top
 		if( x > 0 ) indices.push( getCellIndex( x - 1, y )); // left
 		if( y < height - 1 ) indices.push( getCellIndex( x, y + 1 )); // bottom
-		if( x < height - 1 ) indices.push( getCellIndex( x + 1, y )); // right
+		if( x < width - 1 ) indices.push( getCellIndex( x + 1, y )); // right
+		
 		return indices;
 	}
 
-	public inline function getCell( id:Int ) {
-		return cells[id];
+	function getDirection( ) {
+		
 	}
 
-	public inline function getCell2d( x:Int, y:Int ) {
-		return cells[getCellIndex( x, y )];
-	}
-
-	public function setCell( id:Int, value:TCell ) {
-		cells[id] = value;
-	}
-
-	public function setCell2d( x:Int, y:Int, value:TCell ) {
-		// CodinGame.printErr( 'setCell2d [$x $y] ${CellPrint.print( value)}' );
-		cells[y * width + x] = value;
-	}
-
+	public inline function getCell( index:Int ) return cells[index];
+	public inline function getCell2d( x:Int, y:Int ) return cells[getCellIndex( x, y )];
+	public inline function getCellX( index:Int ) return index % width;
+	public inline function getCellY( index:Int ) return Std.int( index / width );
+	
 	public inline function getCellIndex( x:Int, y:Int ) {
-		// if( x < 0 ) throw 'Error x $x';
-		// if( x >= width ) throw 'Error x $x';
-		// if( y < 0 ) throw 'Error y $y';
-		// if( y >= height ) throw 'Error y $y';
+		if( x < 0 ) throw 'Error x $x';
+		if( x >= width ) throw 'Error x $x';
+		if( y < 0 ) throw 'Error y $y';
+		if( y >= height ) throw 'Error y $y';
+		
 		return y * width + x;
 	}
 
-	public inline function getCellX( id:Int ) {
-		return id % width;
-	}
-
-	public inline function getCellY( id:Int ) {
-		return Std.int( id / width );
-	}
-
+	public function setCell( id:Int, value:TCell ) cells[id] = value;
+	public function setCell2d( x:Int, y:Int, value:TCell ) cells[y * width + x] = value;
 }
 
 typedef Vec2 = {

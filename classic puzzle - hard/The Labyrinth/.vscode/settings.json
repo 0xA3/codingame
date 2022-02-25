@@ -1,0 +1,12 @@
+{
+	"haxeTestExplorer.testCommand": [
+		"${haxe}",
+		"test.hxml",
+		"-lib",
+		"test-adapter"
+	],
+	"haxeTestExplorer.launchConfiguration": "Debug",
+	"editor.codeActionsOnSave": {
+		"source.sortImports": true
+	}
+}

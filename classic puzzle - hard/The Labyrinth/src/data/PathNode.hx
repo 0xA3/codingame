@@ -18,6 +18,6 @@ class PathNode {
 		if( !neighbors.contains( id )) neighbors.push( id );
 	}
 
-	public function toString() return '{ ${ previous != -1 ? Std.string( previous ) + "-" : ""}$id';
+	public function toString() return '{ ${ previous != -1 ? Std.string( previous ) + "-" : ""}$id }';
 
 }

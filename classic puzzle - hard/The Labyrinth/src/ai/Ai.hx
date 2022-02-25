@@ -1,6 +1,6 @@
 package ai;
 
-import CodinGame.printErr;
+// import CodinGame.printErr;
 
 class Ai {
 	
@@ -8,12 +8,16 @@ class Ai {
 
 	var gameState = Explore;
 
-	public function new( maze:Maze ) {
-		this.maze = maze;	
+	public function new( columns:Int, rows:Int ) {
+		maze = new Maze( columns, rows );
+	}
+
+	public function update( lines:Array<String> ) {
+		maze.update( lines );
 	}
 
 	public function getDirection( kx:Int, ky:Int ) {
-		printErr( 'kirk $kx:$ky' );
+		// printErr( 'kirk $kx:$ky' );
 		if( maze.controlRoomIndex != -1 && maze.getCellIndex( kx, ky ) == maze.controlRoomIndex ) gameState = HaulAss;
 
 		final direction = switch gameState {
@@ -36,8 +40,8 @@ class Ai {
 		Keep exploring. If the control room and starting position can be reached
 		within the fuel and alarm time constraints, go into ToControlRoom
 		*/
-		final path = BreadthFirstSearch.getPath( maze.pathNodes, maze.startIndex );
-		trace( path );
+		final path = BreadthFirstSearch.getPath( maze.pathNodes, maze.transporterIndex );
+		// Todo search from currentIndex
 		return "RIGHT";
 	}
 

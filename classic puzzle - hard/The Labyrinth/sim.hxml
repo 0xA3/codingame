@@ -1,6 +1,10 @@
 -cp ../../codingame_extension/
 -cp src
--lib heaps
+-dce full
 -main sim.MainSim
+--debug
 -D sim
--js bin/app.js
+
+-D js-es=6
+-lib hxnodejs
+--js bin/app.js

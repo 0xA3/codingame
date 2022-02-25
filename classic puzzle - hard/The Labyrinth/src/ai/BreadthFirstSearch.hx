@@ -1,7 +1,8 @@
 package ai;
 
-using Lambda;
 import data.PathNode;
+
+using Lambda;
 
 class BreadthFirstSearch {
 	
@@ -14,16 +15,16 @@ class BreadthFirstSearch {
 
 		while( !frontier.isEmpty()) {
 			final current = frontier.pop();
-			CodinGame.printErr( 'current $current' );
+			// CodinGame.printErr( 'current $current' );
 			for( next in nodes[current].neighbors ) {
-				CodinGame.printErr( 'check $next' );
+				// CodinGame.printErr( 'check $next' );
 				final nextNode = nodes[next];
 				if( !nextNode.visited ) {
 					nextNode.previous = current;
 					nextNode.visited = true;
 					frontier.add( next );
 					if( nextNode.cell == Unknown ) {
-						CodinGame.printErr( 'found goal' );
+						// CodinGame.printErr( 'found goal' );
 						return backtrack( nodes, start, nextNode.id );
 					}
 				}

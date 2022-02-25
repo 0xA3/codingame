@@ -2,6 +2,16 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Debug Sim",
+			"program": "${workspaceFolder}/bin/app.js",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "pwa-node",
+			"preLaunchTask": "Build Sim"
+		},
+		{
 			"name": "Haxe Interpreter",
 			"type": "haxe-eval",
 			"request": "launch"
