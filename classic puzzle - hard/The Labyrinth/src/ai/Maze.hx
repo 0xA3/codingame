@@ -1,11 +1,16 @@
+package ai;
+
+import data.TCell;
+import data.PathNode;
+
 class Maze {
 	
 	public final width:Int;
 	public final height:Int;
-	public final cells:Array<Cell>;
+	public final cells:Array<TCell>;
 	public final pathNodes:Map<Int, PathNode> = [];
-	public var controlRoom = Undiscovered;
-	public var start = Undiscovered;
+	public var controlRoomIndex = -1;
+	public var startIndex = -1;
 
 	public function new( width:Int, height:Int ) {
 		this.width = width;
@@ -14,44 +19,45 @@ class Maze {
 	}
 
 	public function update( lines:Array<String> ) {
-		final frontier = new List<Int>();
 		for( y in 0...lines.length ) {
 			final line = lines[y].split('');
 			for( x in 0...cells.length ) {
 				final c = line[x];
-				if( controlRoom == Undiscovered && c == "C") controlRoom = Position({ x: x, y: y });
-				else if( start == Undiscovered && c == "T") start = Position({ x: x, y: y });
+				if( controlRoomIndex == null && c == "C") controlRoomIndex = getCellIndex( x, y );
+				else if( startIndex == null && c == "T") startIndex = getCellIndex( x, y );
 				
 				final inputCell = parseInput( line[x] );
 				final cell = getCell2d( x, y );
 				if( inputCell != cell ) {
 					setCell2d( x, y, inputCell );
 					if( inputCell == Space ) {
-						final pathNode = createPathNode( x, y );
+						final pathNode = createPathNode( x, y, inputCell );
 						pathNodes.set( pathNode.id, pathNode );
-						frontier.push( pathNode.id );
 						updateNeighborPathNodes( pathNode );
 					}
 				}
 			}
 		}
-		return frontier;
 	}
 
 	function parseInput( s:String ) {
 		return switch s {
+			case 'C': ControlRoom;
 			case "#": Wall;
 			case "?": Unknown;
 			default: Space;
 		}
 	}
 
-	function createPathNode( x:Int, y:Int ) {
+	function createPathNode( x:Int, y:Int, cell:TCell ) {
 		final neighbors = getNeighbors( x, y );
-		final spaceNeighbors = neighbors.filter( index -> getCell( index ) == Space );
+		final validNeighbors = neighbors.filter( index -> {
+			final cell = getCell( index );
+			return cell == Space || cell == Unknown;
+		});
 		
 		final id = getCellIndex( x, y );
-		final pathNode = new PathNode( id, spaceNeighbors );
+		final pathNode = new PathNode( id, cell, validNeighbors );
 		return pathNode;
 	}
 
@@ -79,11 +85,11 @@ class Maze {
 		return cells[getCellIndex( x, y )];
 	}
 
-	public function setCell( id:Int, value:Cell ) {
+	public function setCell( id:Int, value:TCell ) {
 		cells[id] = value;
 	}
 
-	public function setCell2d( x:Int, y:Int, value:Cell ) {
+	public function setCell2d( x:Int, y:Int, value:TCell ) {
 		// CodinGame.printErr( 'setCell2d [$x $y] ${CellPrint.print( value)}' );
 		cells[y * width + x] = value;
 	}
@@ -104,19 +110,6 @@ class Maze {
 		return Std.int( id / width );
 	}
 
-}
-
-enum MaybePosition {
-	Undiscovered;
-	Position( v:Vec2 );
-}
-
-enum Cell {
-	Wall;
-	Space;
-	// StartingPosition;
-	// ControlRoom;
-	Unknown;
 }
 
 typedef Vec2 = {

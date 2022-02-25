@@ -4,6 +4,8 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
+import ai.Ai;
+import ai.Maze;
 
 class Main {
 	
@@ -17,28 +19,23 @@ class Main {
 		printErr( 'rows $r columns $c alarm rounds $a' );
 
 		final maze = new Maze( c, r );
-		final kirk = new Kirk( maze );
+		final ai = new Ai( maze );
+
+		var fuel = 300; // arbitrary limit
 
 		// game loop
-		while (true) {
+		while( fuel-- > 0 ) {
 			var inputs = readline().split(' ');
-			final kr = parseInt(inputs[0]); // row where Kirk is located.
-			final kc = parseInt(inputs[1]); // column where Kirk is located.
-			printErr( 'kr $kr kc $kc' );
-			kirk.update( kc, kr );
+			final ky = parseInt(inputs[0]); // row where Kirk is located.
+			final kx = parseInt(inputs[1]); // column where Kirk is located.
 			
 			final lines = [for( i in 0...r ) readline()];
 			printErr( lines.join( "\n" ));
 			maze.update( lines );
+			final direction = ai.getDirection( kx, ky );
 		
-			kirk.navigate();
-			// Write an action using console.log()
-			// To debug: console.error('Debug messages...');
-		
-			final direction = kirk.getDirection();
-			print( direction );     // Kirk's next move (UP DOWN LEFT or RIGHT).
+			print( direction ); // Kirk's next move (UP DOWN LEFT or RIGHT).
 		
 		}
 	}
-
 }
