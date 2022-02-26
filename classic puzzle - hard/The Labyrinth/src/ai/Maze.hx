@@ -1,7 +1,7 @@
 package ai;
 
-import data.PathNode;
 import data.TCell;
+import search.PathNode;
 
 class Maze {
 	

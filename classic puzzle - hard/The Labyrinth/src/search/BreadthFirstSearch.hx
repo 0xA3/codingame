@@ -1,6 +1,5 @@
-package ai;
+package search;
 
-import data.PathNode;
 import data.TCell;
 
 using Lambda;

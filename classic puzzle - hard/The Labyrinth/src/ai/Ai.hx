@@ -1,5 +1,7 @@
 package ai;
 
+// import search.AStarSearch;
+import search.BreadthFirstSearch;
 // import CodinGame.printErr;
 
 class Ai {

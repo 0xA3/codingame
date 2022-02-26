@@ -35,7 +35,7 @@ class MainSim {
 		Sys.print( Ansix.resetCursor());
 		Sys.println( map.getOutput());
 
-		Timer.delay( update, 250 );
+		Timer.delay( update, 100 );
 	}
 
 	static function update() {
@@ -58,6 +58,6 @@ class MainSim {
 		Sys.print( Ansix.resetCursor());
 		Sys.println( map.getOutput());
 		Sys.println( 'Fuel $fuel  Alarm ${ai.alarmRounds}       ' );
-		Timer.delay( update, 250 );
+		Timer.delay( update, 100 );
 	}
 }
