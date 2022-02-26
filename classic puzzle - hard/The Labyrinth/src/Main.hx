@@ -17,9 +17,9 @@ class Main {
 		
 		printErr( 'rows $r columns $c alarm rounds $a' );
 
-		final ai = new Ai( c, r );
+		final ai = new Ai( c, r, a );
 
-		var fuel = 300; // arbitrary limit
+		var fuel = 1200; // arbitrary limit
 
 		// game loop
 		while( fuel-- > 0 ) {
@@ -28,7 +28,7 @@ class Main {
 			final kx = parseInt(inputs[1]); // column where Kirk is located.
 			
 			final lines = [for( i in 0...r ) readline()];
-			// printErr( lines.join( "\n" ));
+			printErr( lines.join( "\n" ));
 			ai.update( lines );
 			final direction = ai.getDirection( kx, ky );
 		

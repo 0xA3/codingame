@@ -22,6 +22,7 @@ class MazeMap {
 		this.map = lines.map( line -> line.split( "" ));
 		width = map[0].length;
 		height = map.length;
+		trace( 'width: $width  height: $height' );
 		visibility = [for( y in 0...map.length )[for( _ in map[y] ) false]];
 		visibleMap = [for( _ in 0...map.length ) []];
 		
@@ -92,5 +93,5 @@ class MazeMap {
 		return output.map( row -> row.join( "" )).join( "\n" );
 	}
 
-	public function getCell() return map[ky][kx];
+	public function getCurrentCell() return map[ky][kx];
 }

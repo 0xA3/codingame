@@ -14,7 +14,8 @@ class MainSim {
 	static var x = 5;
 	static var y = 6;
 	
-	static var isActivated = true;
+	static var fuel = 1200;
+	static var isTriggered = false;
 
 	static function main() {
 
@@ -24,13 +25,15 @@ class MainSim {
 		js.Lib.require('source-map-support').install();
 		#end
 		
-		final level = l0;
+		final level = l4;
 
-		map = new MazeMap( level );
+		map = new MazeMap( level.map );
 
-		ai = new Ai( map.width, map.height );
+		ai = new Ai( map.width, map.height, level.alarmRounds );
 
 		Sys.print( Ansix.clear());
+		Sys.print( Ansix.resetCursor());
+		Sys.println( map.getOutput());
 
 		Timer.delay( update, 250 );
 	}
@@ -38,12 +41,13 @@ class MainSim {
 	static function update() {
 		ai.update( map.getVisibleLines() );
 		final direction = ai.getDirection( map.kx, map.ky );
-		
+		fuel--;
+
 		map.updatePosition( direction );
 		render();
 		
-		if( map.getCell() == "C" ) isActivated = false;
-		if( !isActivated && map.getCell() == "T" ) {
+		if( map.getCurrentCell() == "C" ) isTriggered = true;
+		if( isTriggered && map.getCurrentCell() == "T" ) {
 			Sys.println( "\n\nSuccess!" );
 			Sys.exit( 0 );
 		}
@@ -52,8 +56,8 @@ class MainSim {
 	static function render() {
 		
 		Sys.print( Ansix.resetCursor());
-		Sys.print( map.getOutput());
-
+		Sys.println( map.getOutput());
+		Sys.println( 'Fuel $fuel  Alarm ${ai.alarmRounds}       ' );
 		Timer.delay( update, 250 );
 	}
 }

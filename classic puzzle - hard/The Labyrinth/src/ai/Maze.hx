@@ -12,7 +12,6 @@ class Maze {
 	
 	public var transporterIndex = -1;
 	public var controlRoomIndex = -1;
-	public var currentIndex = -1;
 
 	public function new( width:Int, height:Int ) {
 		this.width = width;
@@ -79,8 +78,13 @@ class Maze {
 		return indices;
 	}
 
-	function getDirection( ) {
-		
+	public function getDirection( startIndex:Int, endIndex:Int ) {
+		final delta = endIndex - startIndex;
+		return delta == 1 ? "RIGHT"
+			: delta == -1 ? "LEFT"
+			: delta == -width ? "UP"
+			: delta == width ? "DOWN"
+			: throw 'Error: endIndex $endIndex not directly reachable form startIndex $startIndex';
 	}
 
 	public inline function getCell( index:Int ) return cells[index];

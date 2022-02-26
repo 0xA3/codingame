@@ -5,11 +5,15 @@ package ai;
 class Ai {
 	
 	final maze:Maze;
+	public var alarmRounds:Int;
 
 	var gameState = Explore;
 
-	public function new( columns:Int, rows:Int ) {
+	var posIndex:Int;
+
+	public function new( columns:Int, rows:Int, alarmRounds:Int ) {
 		maze = new Maze( columns, rows );
+		this.alarmRounds = alarmRounds;
 	}
 
 	public function update( lines:Array<String> ) {
@@ -17,14 +21,19 @@ class Ai {
 	}
 
 	public function getDirection( kx:Int, ky:Int ) {
+		posIndex = maze.getCellIndex( kx, ky );
+		
 		// printErr( 'kirk $kx:$ky' );
 		if( maze.controlRoomIndex != -1 && maze.getCellIndex( kx, ky ) == maze.controlRoomIndex ) gameState = HaulAss;
 
-		final direction = switch gameState {
+		final path = switch gameState {
 			case Explore: explore();
 			case ToControlRoom: toControlRoom();
 			case HaulAss: haulAss();
 		}
+		// CodinGame.printErr( path.join(" ") );
+		if( path.length < 2 ) throw "Error: no path found";
+		final direction = maze.getDirection( posIndex, path[1] );
 		return direction;
 	}
 
@@ -40,9 +49,12 @@ class Ai {
 		Keep exploring. If the control room and starting position can be reached
 		within the fuel and alarm time constraints, go into ToControlRoom
 		*/
-		final path = BreadthFirstSearch.getPath( maze.pathNodes, maze.transporterIndex );
-		// Todo search from currentIndex
-		return "RIGHT";
+		if( maze.controlRoomIndex == -1 ) {
+			return BreadthFirstSearch.getPath( maze.pathNodes, posIndex, Unknown );
+		} else {
+			gameState = ToControlRoom;
+			return toControlRoom();
+		}
 	}
 
 	function toControlRoom() {
@@ -50,14 +62,17 @@ class Ai {
 		Calculate the shortest path to the control room and follow it. Once the
 		control room is reached, go into STAGE 3
 		*/
-		return "RIGHT";
+		final path = BreadthFirstSearch.getPath( maze.pathNodes, posIndex, ControlRoom );
+		return path;
 	}
 
 	function haulAss() {
 		/*
 		Calculate the shortest path to the starting position and follow it.
 		*/
-		return "LEFT";
+		final path = BreadthFirstSearch.getPath( maze.pathNodes, posIndex, Transporter );
+		alarmRounds--;
+		return path;
 	}
 }
 

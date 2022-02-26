@@ -1,12 +1,13 @@
 package ai;
 
 import data.PathNode;
+import data.TCell;
 
 using Lambda;
 
 class BreadthFirstSearch {
 	
-	public static function getPath( nodes:Map<Int, PathNode>, start:Int ) {
+	public static function getPath( nodes:Map<Int, PathNode>, start:Int, destinationCell:TCell ) {
 		
 		final frontier = new List<Int>();
 		
@@ -23,7 +24,7 @@ class BreadthFirstSearch {
 					nextNode.previous = current;
 					nextNode.visited = true;
 					frontier.add( next );
-					if( nextNode.cell == Unknown ) {
+					if( nextNode.cell == destinationCell ) {
 						// CodinGame.printErr( 'found goal' );
 						return backtrack( nodes, start, nextNode.id );
 					}
