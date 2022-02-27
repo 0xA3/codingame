@@ -21,7 +21,7 @@ class GreedyBestFirstSearch { // Dijkstra’s Algorithm
 			// CodinGame.printErr( 'current ${currentNode.id}' );
 			for( edge in currentNode.neighbors ) {
 				final nextNode = nodes[edge.to];
-				if( !nextNode.visited ) { 
+				if( !nextNode.visited ) {
 					final nextDistance = nextNode.distanceToGoal;
 					// CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} dist $nextDistance' + ( nextNode.visited ? '  <  ${nextNode.previous}-${nextNode.id} cost $nextDistance' : "" ));
 					nextNode.previous = currentNode.id;

@@ -2,13 +2,13 @@ package ai;
 
 import data.TCell;
 import search.PathNode;
+import xa3.MathUtils.abs;
 
 class Maze {
 	
 	public final width:Int;
 	public final height:Int;
 	public final cells:Array<TCell>;
-	public final pathNodes:Map<Int, PathNode> = [];
 	
 	public var transporterIndex = -1;
 	public var controlRoomIndex = -1;
@@ -32,7 +32,7 @@ class Maze {
 				if( inputCell != cells[index] ) setCell( index, inputCell );
 			}
 		}
-		for( index in 0...cells.length ) createPathNode( index );
+		
 	}
 
 	function parseInput( s:String ) {
@@ -45,12 +45,17 @@ class Maze {
 		}
 	}
 
-	function createPathNode( index:Int ) {
+	public function getPathNodes( goal = -1 ) {
+		final pathNodes = [];
+		for( index in 0...cells.length ) pathNodes[index] = createPathNode( index, goal );
+		return pathNodes;
+	}
+
+	function createPathNode( index:Int, goal:Int ) {
 		final cell = getCell( index );
-		if( cell == Wall ) return;
+		if( cell == Wall ) return PathNode.noPathNode;
+		if( cell == Unknown ) return new PathNode( index, cell, [], PathNode.MAX_INTEGER );
 		
-		final x = getCellX( index );
-		final y = getCellY( index );
 		final neighbors = getNeighbors( index );
 		
 		final validNeighbors = neighbors.filter( neighborIndex -> {
@@ -61,9 +66,9 @@ class Maze {
 		
 		// trace( 'createPathNode xy $x:$y  index ${getCellIndex( x, y )}  cell $cell  neighbors $neighbors  validNeighbors $validNeighbors' );
 		
-		final id = getCellIndex( x, y );
-		final pathNode = new PathNode( id, getCell( index ), validNeighbors );
-		pathNodes.set( index, pathNode );
+		final distanceToGoal = goal == -1 ? PathNode.MAX_INTEGER : getDistance( index, goal );
+		final pathNode = new PathNode( index, cell, validNeighbors, distanceToGoal );
+		return pathNode;
 	}
 
 	function getNeighbors( index:Int ) {
@@ -84,7 +89,18 @@ class Maze {
 			: delta == -1 ? "LEFT"
 			: delta == -width ? "UP"
 			: delta == width ? "DOWN"
-			: throw 'Error: endIndex $endIndex not directly reachable form startIndex $startIndex';
+			: throw 'Error: endIndex $endIndex (${getCellX( endIndex )}:${getCellY( endIndex )}) is no neighbor of $startIndex (${getCellX( startIndex )}:${getCellY( startIndex )})';
+	}
+
+	function getDistance( index1:Int, index2:Int ) {
+		if( index1 == index2 ) return 0;
+		final x1 = getCellX( index1 );
+		final y1 = getCellY( index1 );
+		final x2 = getCellX( index2 );
+		final y2 = getCellY( index2 );
+		final distance = abs( x2 - x1 ) + abs( y2 - y1 );
+		// trace( 'distance from ${getCell( index1 )} $index1 ($x1:$y1) to ${getCell( index2 )} $index2 ($x2:$y2)  $distance' );
+		return distance;
 	}
 
 	public inline function getCell( index:Int ) return cells[index];

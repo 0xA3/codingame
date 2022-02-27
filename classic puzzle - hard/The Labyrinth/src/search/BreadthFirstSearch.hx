@@ -6,7 +6,7 @@ using Lambda;
 
 class BreadthFirstSearch {
 	
-	public static function getPath( nodes:Map<Int, PathNode>, start:Int, destinationCell:TCell ) {
+	public static function getPath( nodes:Array<PathNode>, start:Int, destinationCell:TCell ) {
 		
 		final frontier = new List<Int>();
 		
@@ -33,14 +33,14 @@ class BreadthFirstSearch {
 		return [];
 	}
 
-	static function backtrack( nodes:Map<Int, PathNode>, start:Int, goal:Int ) {
+	static function backtrack( nodes:Array<PathNode>, start:Int, goal:Int ) {
 		final path = new List<Int>();
 		var i = goal;
 		while( i != start ) {
 			path.add( i );
 			i = nodes[i].previous;
 		}
-		path.add( start );
+		// path.add( start );
 		final aPath = Lambda.array( path );
 		aPath.reverse();
 		return aPath;

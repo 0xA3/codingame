@@ -17,19 +17,19 @@ class AStarSearch { // Dijkstra’s Algorithm
 
 		while( !frontier.isEmpty()) {
 			final currentNode = frontier.pop();
-			outputs.add( [currentNode.id, Std.int( currentNode.priority )] );
+			// if( goal == 7 ) trace( 'currentNode ${currentNode.id} neighbors ${currentNode.neighbors}' );
+			outputs.add( [currentNode.id, currentNode.priority] );
 			if( currentNode.id == goal ) {
 				// CodinGame.printErr( 'found goal' );
-				// return backtrack( nodes, start, goal );
-				return Lambda.array( outputs );
+				return backtrack( nodes, start, goal );
 			}
 			
 			// CodinGame.printErr( 'current ${currentNode.id}' );
-			for( edge in currentNode.neighbors ) {
-				final nextNode = nodes[edge.to];
-				final nextCost = currentNode.costFromStart + edge.cost;
+			for( neighborIndex in currentNode.neighbors ) {
+				final nextNode = nodes[neighborIndex];
+				final nextCost = currentNode.costFromStart + 1;
 				final nextPriority = nextCost + nextNode.distanceToGoal;
-				// CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} priority $nextPriority' + ( nextNode.visited ? '  <  ${nextNode.previous}-${nextNode.id} priority ${nextNode.priority}' : "" ));
+				// CodinGame.printErr( 'check ${currentNode.id}-${nextNode.id} nextCost $nextCost  nextPriority $nextPriority' );
 				
 				if( nextPriority < nextNode.priority ) {
 					nextNode.previous = currentNode.id;
@@ -50,16 +50,17 @@ class AStarSearch { // Dijkstra’s Algorithm
 	}
 
 	static function backtrack( nodes:Array<PathNode>, start:Int, goal:Int ) {
-		final path = new List<Array<Int>>();
+		// final path = new List<Array<Int>>();
+		final path = new List<Int>();
 		var i = goal;
 		while( i != start ) {
-			path.add( [i, Std.int( nodes[i].priority )]);
+			// path.add( [i, nodes[i].priority] );
+			path.add( i );
 			i = nodes[i].previous;
 		}
-		path.add( [i, Std.int( nodes[i].priority )] );
+		// path.add( [goal, Std.int( nodes[i].priority )] );
 		final aPath = Lambda.array( path );
 		aPath.reverse();
-		// CodinGame.printErr( aPath );
 		return aPath;
 	}
 }

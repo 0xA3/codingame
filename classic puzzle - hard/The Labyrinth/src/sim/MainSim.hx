@@ -14,7 +14,6 @@ class MainSim {
 	static var x = 5;
 	static var y = 6;
 	
-	static var fuel = 1200;
 	static var isTriggered = false;
 
 	static function main() {
@@ -41,7 +40,6 @@ class MainSim {
 	static function update() {
 		ai.update( map.getVisibleLines() );
 		final direction = ai.getDirection( map.kx, map.ky );
-		fuel--;
 
 		map.updatePosition( direction );
 		render();
@@ -57,7 +55,7 @@ class MainSim {
 		
 		Sys.print( Ansix.resetCursor());
 		Sys.println( map.getOutput());
-		Sys.println( 'Fuel $fuel  Alarm ${ai.alarmRounds}       ' );
+		Sys.println( 'Fuel ${ai.fuel}  Alarm ${ai.alarmRounds}       ' );
 		Timer.delay( update, 100 );
 	}
 }

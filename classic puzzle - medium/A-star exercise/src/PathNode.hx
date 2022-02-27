@@ -42,6 +42,4 @@ class PathNode {
 		if( a.id > b.id ) return true;
 		return false;
 	}
-
-
 }
