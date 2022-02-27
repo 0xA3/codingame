@@ -24,7 +24,7 @@ class MainSim {
 		js.Lib.require('source-map-support').install();
 		#end
 		
-		final level = l4;
+		final level = l8;
 
 		map = new MazeMap( level.map );
 

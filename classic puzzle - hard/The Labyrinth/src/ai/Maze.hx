@@ -13,6 +13,8 @@ class Maze {
 	public var transporterIndex = -1;
 	public var controlRoomIndex = -1;
 
+	public var hasUnknown = false;
+
 	public function new( width:Int, height:Int ) {
 		this.width = width;
 		this.height = height;
@@ -20,6 +22,7 @@ class Maze {
 	}
 
 	public function update( lines:Array<String> ) {
+		hasUnknown = false;
 		for( y in 0...lines.length ) {
 			final columns = lines[y].split( '' );
 			for( x in 0...columns.length ) {
@@ -30,9 +33,9 @@ class Maze {
 				
 				final inputCell = parseInput( c );
 				if( inputCell != cells[index] ) setCell( index, inputCell );
+				if( inputCell == Unknown ) hasUnknown = true;
 			}
 		}
-		
 	}
 
 	function parseInput( s:String ) {

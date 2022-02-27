@@ -58,6 +58,7 @@ class Ai {
 		Keep exploring. If the control room and starting position can be reached
 		within the fuel and alarm time constraints, go into ToControlRoom
 		*/
+		// if( maze.hasUnknown ) { // to discover most of the whole maze
 		if( maze.controlRoomIndex == -1 ) {
 			return continueExploring();
 
