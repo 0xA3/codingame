@@ -8,13 +8,28 @@ using Lambda;
 using StringTools;
 
 function main() {
-
-	final inputs = readline().split(' ');
-	final weights = [for( weight in inputs ) parseInt( weight )];
-	
-	final result = process( weights );
-	print( result );
+	for( i in 0...1000 ) {
+		final random = [for( _ in 0...5 ) Std.random( 500 ) + 1];
+		random.sort(( a, b ) -> a - b );
+		final sums = createSums( random );
+		final result = process( sums );
+		final resultInt = result.split(" ").map( s -> parseInt( s ));
+		trace( '$i ${(compare( resultInt, random ) ? "correct" : "wrong" )}    $result    $sums' );
+		if( !compare( resultInt, random )) {
+			trace( 'Error with $random' );
+			break;
+		}
+	}
 }
+
+// function main() {
+
+// 	final inputs = readline().split(' ');
+// 	final weights = [for( weight in inputs ) parseInt( weight )];
+	
+// 	final result = process( weights );
+// 	print( result );
+// }
 
 function process3( w:Array<Int> ) {
 	// a b c
@@ -82,20 +97,20 @@ function process( w:Array<Int> ) {
 	
 	// a b c d e
 
-	// w0 = a + b	a = w0 - b	b = w0 - a
-	// w1 = a + c	a = w1 - c	c = w1 - a
-	// w2 = a + d	a = w2 - d	d = w2 - a
-	// w3 = a + e	a = w3 - e	e = w3 - a
-	// w4 = b + c	b = w4 - c
-	// w5 = b + d	b = w5 - d
-	// w6 = b + e	b = w6 - e
-	// w7 = c + d	c = w7 - d
-	// w8 = c + e	c = w8 - e
-	// w9 = d + e	d = w9 - e
+	// w0 = a + b
+	// w1 = a + c
+	// w2 = a + d
+	// w3 = a + e
+	// w4 = b + c
+	// w5 = b + d
+	// w6 = b + e
+	// w7 = c + d
+	// w8 = c + e
+	// w9 = d + e
 
 	final aMin = 1;
 	final aMax = int( w[0] / 2 ) + 1;
-	final cMax = int( w[7] / 2 ) + 1;
+	final cMax = int( w[8] / 2 ) + 1;
 	final dMax = int( w[9] / 2 ) + 1;
 	// trace( 'aMax $aMax  cMax $cMax  dMax $dMax' );
 	var count = 0;
@@ -108,19 +123,18 @@ function process( w:Array<Int> ) {
 			
 			for( d in dMin...dMax ) {
 				final e = w[9] - d;
-				
+
 				final sums = createSums( [a, b, c, d, e] );
-				var isEqual = compare( w, sums );
 				// trace( '$a $b $c $d $e  $sums' );
-				count++;
-				if( isEqual ) {
-					printErr( 'count $count' );
+				// count++;
+				if( compare( w, sums )) {
+					// printErr( 'count $count' );
 					return '$a $b $c $d $e';
 				}
 			}
 		}
 	}
-	throw "Error: no solution";
+	return "Error: no solution";
 }
 
 function createSums( weights:Array<Int> ) {
@@ -133,6 +147,7 @@ function createSums( weights:Array<Int> ) {
 }
 
 function compare( a1:Array<Int>, a2:Array<Int> ) {
+	if( a1 == null || a2 == null || a1.length != a2.length ) return false;
 	for( i in 0...a1.length ) if( a1[i] != a2[i] ) return false;
 	return true;
 }
