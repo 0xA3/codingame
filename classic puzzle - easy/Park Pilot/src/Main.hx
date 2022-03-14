@@ -16,7 +16,10 @@ function main() {
 
 function process( n:Int, sensorDatasets:Array<Array<Int>> ) {
 	
-	final length = getLength( sensorDatasets );
+	final front0 = sensorDatasets.map( a -> a[0] ).indexOf( 0 );
+	final back0 = sensorDatasets.map( a -> a[3] ).indexOf( 0 );
+	final length = back0 - front0 + 1;
+	
 	var leftSpace = 0;
 	var rightSpace = 0;
 	var parkingSpaces = [];
@@ -28,13 +31,3 @@ function process( n:Int, sensorDatasets:Array<Array<Int>> ) {
 	}
 	return '$length\n' + parkingSpaces.join( "\n" );
 }
-
-function getLength( sensorDatasets:Array<Array<Int>> ) {
-	var callibratorSpace = -1;
-	
-	for( i in 0...sensorDatasets.length ) if( sensorDatasets[i][0] == 0 ) { callibratorSpace = i; break; }
-	for( i in callibratorSpace...sensorDatasets.length ) if( sensorDatasets[i][3] == 0 ) return i - callibratorSpace + 1;
-	
-	throw "Error: length not found";
-}
-
