@@ -17,27 +17,23 @@ function main() {
 function process( n:Int, sensorDatasets:Array<Array<Int>> ) {
 	
 	final length = getLength( sensorDatasets );
-	final leftSpaceCounts = [0];
-	final rightSpaceCounts = [0];
-	for( i in 1...sensorDatasets.length ) {
-		final dataset = sensorDatasets[i];
-		leftSpaceCounts[i] = dataset[0] == 0 ? leftSpaceCounts[i - 1] + 1 : 0;
-		rightSpaceCounts[i] = dataset[1] == 0 ? rightSpaceCounts[i - 1] + 1 : 0;
-	}
-
+	var leftSpace = 0;
+	var rightSpace = 0;
 	var parkingSpaces = [];
 	for( i in 1...sensorDatasets.length ) {
-		if( leftSpaceCounts[i] >= length ) parkingSpaces.push( '${i - 1 + length}L' );
-		if( rightSpaceCounts[i] >= length ) parkingSpaces.push( '${i - 1 + length}R' );
+		leftSpace = sensorDatasets[i][0] == 0 ? leftSpace + 1 : 0;
+		rightSpace = sensorDatasets[i][1] == 0 ? rightSpace + 1 : 0;
+		if( leftSpace >= length ) parkingSpaces.push( '${i - 1 + length}L' );
+		if( rightSpace >= length ) parkingSpaces.push( '${i - 1 + length}R' );
 	}
 	return '$length\n' + parkingSpaces.join( "\n" );
 }
 
 function getLength( sensorDatasets:Array<Array<Int>> ) {
-	var space = -1;
+	var callibratorSpace = -1;
 	
-	for( i in 0...sensorDatasets.length ) if( sensorDatasets[i][0] == 0 ) { space = i; break; }
-	for( i in space...sensorDatasets.length ) if( sensorDatasets[i][3] == 0 ) return i - space + 1;
+	for( i in 0...sensorDatasets.length ) if( sensorDatasets[i][0] == 0 ) { callibratorSpace = i; break; }
+	for( i in callibratorSpace...sensorDatasets.length ) if( sensorDatasets[i][3] == 0 ) return i - callibratorSpace + 1;
 	
 	throw "Error: length not found";
 }
