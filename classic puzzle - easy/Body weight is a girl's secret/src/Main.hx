@@ -8,28 +8,55 @@ using Lambda;
 using StringTools;
 
 function main() {
-	for( i in 0...1000 ) {
-		final random = [for( _ in 0...5 ) Std.random( 1000 ) + 1];
-		random.sort(( a, b ) -> a - b );
-		final sums = createSums( random );
-		final result = process( sums );
-		final resultInt = result.split(" ").map( s -> parseInt( s ));
-		trace( '$i ${(compare( resultInt, random ) ? "correct" : "wrong" )}    $result    $sums' );
-		if( !compare( resultInt, random )) {
-			trace( 'Error with $random' );
-			break;
+
+	// run();
+	rand();
+	// seq();
+}
+
+function run() {
+	final inputs = readline().split(' ');
+	final weights = [for( weight in inputs ) parseInt( weight )];
+	final result = process( weights );
+	print( result );
+}
+
+function seq() {
+	var  max = 20;
+	var i = 0;
+	for( a in 1...max ) {
+		for( b in a...max ) {
+			for( c in b...max ) {
+				for( d in c...max ) {
+					for( e in d...max ) {
+						final numbers = [ a, b, c, d, e ];
+						test( numbers );
+						i++;
+					}
+				}
+			}
 		}
 	}
 }
 
-// function main() {
 
-// 	final inputs = readline().split(' ');
-// 	final weights = [for( weight in inputs ) parseInt( weight )];
-	
-// 	final result = process( weights );
-// 	print( result );
-// }
+function rand() {
+ 	for( i in 0...1000 ) {
+ 		final random = [for( _ in 0...5 ) Std.random( 1000 ) + 1];
+ 		random.sort(( a, b ) -> a - b );
+ 		test( random );
+	}
+}
+
+function test( numbers:Array<Int> ) {
+	final sums = createSums( numbers );
+	final result = process( sums );
+	final resultInt = result.split(" ").map( s -> parseInt( s ));
+	trace( '${(compare( resultInt, numbers ) ? "correct" : "wrong" )}    $result    $sums' );
+	if( !compare( resultInt, numbers )) {
+		throw( 'Error with $numbers' );
+	}
+}
 
 function process3( w:Array<Int> ) {
 	// a b c
@@ -37,26 +64,26 @@ function process3( w:Array<Int> ) {
 	// a + b = w0
 	// a + c = w1
 	// b + c = w2
-
-	for( a in 1...w[0] ) {
-		final b = w[0] - a;
-		final c = w[1] - a;
-		// trace( '$a $b $c' );
-		if(
-			a + b == w[0] &&
-			a + c == w[1] &&
-			b + c == w[2]
-		) {
-			final result = [a, b, c];
-			result.sort(( a, b ) -> a - b );
-			return '$a $b $c';
-		}
-	}
-	return "Error: no solution";
+	
+	// c = w2 - b = w1 - a
+	// b = w0 - a
+	
+	// w2 - ( w0 - a ) = w1 - a
+	// w2 - w0 + a = w1 - a
+	// w2 - w0 = w1 - a - a
+	// w2 - w0 - w1 = -2a
+	// w0 + w1 - w2 = 2a
+	// a = ( w0 + w1 - w2 ) / 2
+	
+	final a = ( w[0] + w[1] - w[2] ) / 2;
+	final b = w[0] - a;
+	final c = w[1] - a;
+	return '$a $b $c';
+	
 }
 
 function process4( w:Array<Int> ) {
-	// a b c
+	// a b c d
 
 	// w0 = a + b
 	// w1 = a + c
@@ -64,28 +91,17 @@ function process4( w:Array<Int> ) {
 	// w3 = b + c
 	// w4 = b + d
 	// w5 = c + d
-
+	trace( w );
 	final aMax = int( w[0] / 2 ) + 1;
 	final cMax = int( w[5] / 2 ) + 1;
-	var count = 0;
 	for( a in 1...aMax ) {
 		final b = w[0] - a;
 		for( c in b...cMax ) {
 			final d = w[5] - c;
 			final sums = createSums( [a, b, c, d] );
-			// trace( '$a $b $c $d  $sums' );
-			var isEqual = true;
-			for( i in 0...sums.length ) {
-				if( w[i] != sums[i] ) {
-					isEqual = false;
-					break;
-				}
-			}
-			count++;
-			if( isEqual ) {
-				// trace( 'count $count' );
-				final result = [a, b, c, d];
-				result.sort(( a, b ) -> a - b );
+			trace( '$a $b $c $d  $sums' );
+			if( compare( w, sums )) {
+				// printErr( 'count $count' );
 				return '$a $b $c $d';
 			}
 		}
@@ -112,7 +128,7 @@ function process( w:Array<Int> ) {
 	final aMax = int( w[0] / 2 ) + 1;
 	final cMax = int( w[8] / 2 ) + 1;
 	final dMax = int( w[9] / 2 ) + 1;
-	// trace( 'aMax $aMax  cMax $cMax  dMax $dMax' );
+	trace( 'aMax $aMax  cMax $cMax  dMax $dMax' );
 	var count = 0;
 	for( a in aMin...aMax ) {
 		final b = w[0] - a;
