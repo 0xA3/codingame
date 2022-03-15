@@ -9,7 +9,7 @@ using StringTools;
 
 function main() {
 	for( i in 0...1000 ) {
-		final random = [for( _ in 0...5 ) Std.random( 500 ) + 1];
+		final random = [for( _ in 0...5 ) Std.random( 1000 ) + 1];
 		random.sort(( a, b ) -> a - b );
 		final sums = createSums( random );
 		final result = process( sums );
