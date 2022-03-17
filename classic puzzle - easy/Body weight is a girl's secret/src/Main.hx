@@ -4,12 +4,44 @@ import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
 
+using ArrayUtils;
 using Lambda;
 using StringTools;
 
 function main() {
+	final inputs = readline().split(' ');
+	final weights = [for( weight in inputs ) parseInt( weight )];
+	final result = process( weights );
+	print( result );
+}
 
-	final f = process52;
+function process( pairs:Array<Int> ) {
+	
+	// sum = sum( pairs ) / 4 = a + b + c + d + e
+	// pairs[0] = a + b
+	// pairs[1] = a + c
+	// pairs[8] = c + e
+	// pairs[9] = d + e
+	// c = sum - ( a + b ) - ( d + e )
+
+	final sum = pairs.sum() / 4;
+
+	final c = int( sum ) - pairs[0] - pairs[9];
+	final a = pairs[1] - c;
+	final b = pairs[0] - a;
+	final e = pairs[8] - c;
+	final d = pairs[9] - e;
+
+	return '$a $b $c $d $e';
+}
+
+///////////////////////////////////
+// old
+////////////////////////////////////
+
+function mainTest() {
+
+	final f = process51;
 
 	run( f );
 	// seq( f );
@@ -153,24 +185,6 @@ function process51( pairs:Array<Int> ) {
 		}
 	}
 	return "Error: no solution";
-}
-
-function process52( pairs:Array<Int> ) {
-	
-	// sum = sum( pairs ) / 4 = sum( a + b + c + d + e )
-	// pairs[0] = a + b
-	// pairs[9] = d + e
-	// c = sum - pairs[0] - pairs[9]
-
-	final sum = int( pairs.fold(( p, sum ) -> sum + p, 0 ) / 4 );
-
-	final c = sum - pairs[0] - pairs[9];
-	final a = pairs[1] - c;
-	final b = pairs[0] - a;
-	final e = pairs[8] - c;
-	final d = pairs[9] - e;
-
-	return '$a $b $c $d $e';
 }
 
 function createSums( weights:Array<Int> ) {
