@@ -39,21 +39,39 @@ class TestProcess extends buddy.BuddySuite {
 			});
 		});
 		
-		describe( "Test process", {
+		describe( "Test process51", {
 			it( "All different", {
-				Main.process( allDifferent ).should.be( "45 51 52 63 76" );
+				Main.process51( allDifferent ).should.be( "45 51 52 63 76" );
 			});
 			it( "Same paired values", {
-				Main.process( samePairedValues ).should.be( "40 51 62 73 84" );
+				Main.process51( samePairedValues ).should.be( "40 51 62 73 84" );
 			});
 			it( "Same individual values", {
-				Main.process( sameIndividualValues ).should.be( "20 487 487 488 489" );
+				Main.process51( sameIndividualValues ).should.be( "20 487 487 488 489" );
 			});
 			it( "Including a baby", {
-				Main.process( includingABaby ).should.be( "1 81 100 105 111" );
+				Main.process51( includingABaby ).should.be( "1 81 100 105 111" );
 			});
 			it( "XXL", {
-				Main.process( xxl ).should.be( "798 841 843 999 1000" );
+				Main.process51( xxl ).should.be( "798 841 843 999 1000" );
+			});
+		});
+			
+		describe( "Test process52", {
+			it( "All different", {
+				Main.process52( allDifferent ).should.be( "45 51 52 63 76" );
+			});
+			it( "Same paired values", {
+				Main.process52( samePairedValues ).should.be( "40 51 62 73 84" );
+			});
+			it( "Same individual values", {
+				Main.process52( sameIndividualValues ).should.be( "20 487 487 488 489" );
+			});
+			it( "Including a baby", {
+				Main.process52( includingABaby ).should.be( "1 81 100 105 111" );
+			});
+			it( "XXL", {
+				Main.process52( xxl ).should.be( "798 841 843 999 1000" );
 			});
 		});
 			
