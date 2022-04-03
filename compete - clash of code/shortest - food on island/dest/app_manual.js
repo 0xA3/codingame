@@ -1,0 +1,1 @@
+let f=()=>parseInt(readline()),t=f(),e=f(),r=f(),a=e*f();print(r>=a?"Forever":Math.floor(t/-(r-a)))

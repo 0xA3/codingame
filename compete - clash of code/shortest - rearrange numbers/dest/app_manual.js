@@ -1,0 +1,1 @@
+readline();let t=readline().split(" ");print(t.slice(1,t.length).concat([t[0]]).join(" "))

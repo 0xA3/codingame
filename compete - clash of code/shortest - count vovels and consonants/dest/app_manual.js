@@ -1,0 +1,1 @@
+let t=readline().toLowerCase(),r=0,a=0,s=0,n=t.length;for(;s<n;){let e=t.charAt(s++);" "!=e&&("aeiouy".split("").includes(e)?++r:++a)}print(r>a?"vowels":"consonants")
