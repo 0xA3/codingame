@@ -21,7 +21,7 @@ function main() {
 function process( coinsNum:Int, throws:Array<Array<Int>> ) {
 	
 	final pairs:Array<Pair> = [for( num in 1...coinsNum * 2 + 1 ) { num: num, others: num % 2 == 0 ? getOdds( coinsNum ) : getEvens( coinsNum ) }];
-	trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
+	// trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
 	
 	for( throwNums in throws ) {
 		// trace( throwNums );
@@ -41,17 +41,23 @@ function process( coinsNum:Int, throws:Array<Array<Int>> ) {
 			}
 		}
 	}
-	trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
+	// trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
 
-	final filteredPairs1 = pairs.filter( pair -> pair.others.length == 1 );
-	for( pair in pairs ) {
-		for( fPair in filteredPairs1 ) if( pair.others.length > 1 ) {
-			// trace( '${pair.num} remove ${fPair.others[0]}' );
-			pair.others.remove( fPair.others[0] );
+	var pairsCopy = pairs.copy();
+	while( true ) {
+		final finished = pairsCopy.filter( pair -> pair.others.length == 1 );
+		final unfinished = pairsCopy.filter( pair -> pair.others.length > 1 );
+		if( unfinished.length == 0 ) break;
+
+		for( uPair in unfinished ) {
+			for( fPair in finished ) {
+				uPair.others.remove( fPair.others[0] );
+			}
 		}
+		pairsCopy = finished.concat( unfinished );
 	}
 
-	trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
+	// trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
 	
 	final filteredPairs = pairs.filter( pair -> pair.others.length == 1 );
 	final coins:Array<Coin> = filteredPairs.map( pair -> {

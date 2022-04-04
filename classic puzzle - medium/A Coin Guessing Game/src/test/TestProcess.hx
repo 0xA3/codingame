@@ -57,7 +57,7 @@ class TestProcess extends buddy.BuddySuite {
 				Main.process( ip.coins, ip.throws ).should.be( coins10Result );
 			});
 			
-			@include it( "10 coins 1", {
+			it( "10 coins 1", {
 				final ip = coins101;
 				Main.process( ip.coins, ip.throws ).should.be( coins101Result );
 			});
