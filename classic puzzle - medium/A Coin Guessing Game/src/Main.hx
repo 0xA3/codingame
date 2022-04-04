@@ -37,26 +37,26 @@ function process( coinsNum:Int, throws:Array<Array<Int>> ) {
 			}
 		}
 	}
-	// trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
+	// trace( "\n" + pairs.map( pair -> 'num ${pair.num} others ${pair.others}' ).join( "\n" ) );
 
 	final coins:Array<Coin> = pairs.filter( pair -> pair.others.length == 1 ).map( pair -> { side1: pair.num, side2: pair.others[0] });
 	final unfinishedPairs = pairs.filter( pair -> pair.others.length > 1 );
-	while( true ) {
-		for( coin in coins ) {
-			var i = unfinishedPairs.length;
-			while( --i >= 0 ) {
-				final uPair = unfinishedPairs[i];
-				uPair.others.remove( coin.side2 );
-				if( uPair.others.length == 1 ) {
-					coins.push({ side1: uPair.num, side2: uPair.others[0] });
-					unfinishedPairs.remove( uPair );
-				}
+	
+	for( coin in coins ) {
+		var i = unfinishedPairs.length;
+		while( --i >= 0 ) {
+			final uPair = unfinishedPairs[i];
+			uPair.others.remove( coin.side2 );
+			// trace( 'num ${uPair.num}  remove ${coin.side2}  remaining ${uPair.others}' );
+			if( uPair.others.length == 1 ) {
+				coins.push({ side1: uPair.num, side2: uPair.others[0] });
+				unfinishedPairs.remove( uPair );
 			}
 		}
-		if( unfinishedPairs.length == 0 ) break;
 	}
 
 	coins.sort(( a, b ) -> a.side1 - b.side1 );
+	// trace( "\n" + coins.map( coin -> '${coin.side1} : ${coin.side2}' ).join( "\n" ) );
 	final oddCoins = [for( i in 0...coinsNum ) coins[i * 2]];
 	final evenSides = oddCoins.map( coin -> coin.side2 ).join(" ");
 
