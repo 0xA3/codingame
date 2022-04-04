@@ -4,7 +4,6 @@ import CodinGame.readline;
 import Std.parseInt;
 
 using Lambda;
-using xa3.ArrayUtils;
 
 function main() {
 
@@ -24,17 +23,14 @@ function process( coinsNum:Int, throws:Array<Array<Int>> ) {
 	// trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
 	
 	for( throwNums in throws ) {
-		// trace( throwNums );
 		final evens = throwNums.filter( v -> v % 2 == 0 );
 		final odds = throwNums.filter( v -> v % 2 == 1 );
 		for( num in throwNums ) {
 			if( num % 2 == 0 ) {
-				// trace( 'num $num remove $odds' );
 				for( odd in odds ) {
 					pairs[num - 1].others.remove( odd );
 				}
 			} else {
-				// trace( 'num $num remove $evens' );
 				for( even in evens ) {
 					pairs[num - 1].others.remove( even );
 				}
@@ -43,54 +39,33 @@ function process( coinsNum:Int, throws:Array<Array<Int>> ) {
 	}
 	// trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
 
-	var pairsCopy = pairs.copy();
+	final coins:Array<Coin> = pairs.filter( pair -> pair.others.length == 1 ).map( pair -> { side1: pair.num, side2: pair.others[0] });
+	final unfinishedPairs = pairs.filter( pair -> pair.others.length > 1 );
 	while( true ) {
-		final finished = pairsCopy.filter( pair -> pair.others.length == 1 );
-		final unfinished = pairsCopy.filter( pair -> pair.others.length > 1 );
-		if( unfinished.length == 0 ) break;
-
-		for( uPair in unfinished ) {
-			for( fPair in finished ) {
-				uPair.others.remove( fPair.others[0] );
+		for( coin in coins ) {
+			var i = 0;
+			while( i < unfinishedPairs.length ) {
+				final uPair = unfinishedPairs[unfinishedPairs.length - 1 - i];
+				uPair.others.remove( coin.side2 );
+				if( uPair.others.length == 1 ) {
+					coins.push({ side1: uPair.num, side2: uPair.others[0] });
+					unfinishedPairs.remove( uPair );
+				}
+				i++;
 			}
 		}
-		pairsCopy = finished.concat( unfinished );
+		if( unfinishedPairs.length == 0 ) break;
 	}
 
-	// trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
-	
-	final filteredPairs = pairs.filter( pair -> pair.others.length == 1 );
-	final coins:Array<Coin> = filteredPairs.map( pair -> {
-		final side1 = pair.num;
-		final side2 = pair.others[0];
-		final coin = side1 % 2 == 0 ? { even: side1, odd: side2 } : { odd: side1, even: side2 };
-		return coin;
-	});
-
-	coins.sort(( a, b ) -> a.odd - b.odd );
-	final uniqueCoins = coins.uniquifyBy(( a, b ) -> a.odd - b.odd );
-	final result = uniqueCoins.map( coin -> coin.even ).join(" ");
+	coins.sort(( a, b ) -> a.side1 - b.side1 );
+	final oddCoins = [for( i in 0...coinsNum ) coins[i * 2]];
+	final result = oddCoins.map( coin -> coin.side2 ).join(" ");
 
 	return result;
 }
 
-function getEvens( coinsNum:Int ) {
-	final evens = [];
-	for( i in 1...coinsNum + 1 ) {
-		var num = i * 2;
-		evens.push( num );
-	}
-	return evens;
-}
-
-function getOdds( coinsNum:Int ) {
-	final odds = [];
-	for( i in 1...coinsNum + 1 ) {
-		var num = i * 2 - 1;
-		odds.push( num );
-	}
-	return odds;
-}
+inline function getEvens( coinsNum:Int ) return [for( i in 1...coinsNum + 1 ) i * 2];
+inline function getOdds( coinsNum:Int ) return [ for( i in 1...coinsNum + 1 ) i * 2 - 1];
 
 typedef Pair = {
 	final num:Int;
@@ -98,6 +73,6 @@ typedef Pair = {
 }
 
 typedef Coin = {
-	final odd:Int;
-	final even:Int;
+	final side1:Int;
+	final side2:Int;
 }
