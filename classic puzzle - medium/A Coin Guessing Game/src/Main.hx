@@ -43,15 +43,14 @@ function process( coinsNum:Int, throws:Array<Array<Int>> ) {
 	final unfinishedPairs = pairs.filter( pair -> pair.others.length > 1 );
 	while( true ) {
 		for( coin in coins ) {
-			var i = 0;
-			while( i < unfinishedPairs.length ) {
-				final uPair = unfinishedPairs[unfinishedPairs.length - 1 - i];
+			var i = unfinishedPairs.length;
+			while( --i >= 0 ) {
+				final uPair = unfinishedPairs[i];
 				uPair.others.remove( coin.side2 );
 				if( uPair.others.length == 1 ) {
 					coins.push({ side1: uPair.num, side2: uPair.others[0] });
 					unfinishedPairs.remove( uPair );
 				}
-				i++;
 			}
 		}
 		if( unfinishedPairs.length == 0 ) break;
@@ -59,9 +58,9 @@ function process( coinsNum:Int, throws:Array<Array<Int>> ) {
 
 	coins.sort(( a, b ) -> a.side1 - b.side1 );
 	final oddCoins = [for( i in 0...coinsNum ) coins[i * 2]];
-	final result = oddCoins.map( coin -> coin.side2 ).join(" ");
+	final evenSides = oddCoins.map( coin -> coin.side2 ).join(" ");
 
-	return result;
+	return evenSides;
 }
 
 inline function getEvens( coinsNum:Int ) return [for( i in 1...coinsNum + 1 ) i * 2];
