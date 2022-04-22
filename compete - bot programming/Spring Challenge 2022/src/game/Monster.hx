@@ -20,3 +20,4 @@ class Monster {
 	public function checkIfDead( currentFrame:Int ) return frame != currentFrame;
 	
 }
+
