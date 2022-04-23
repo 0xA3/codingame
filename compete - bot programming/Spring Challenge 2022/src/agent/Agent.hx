@@ -5,16 +5,18 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import Std.string;
+import agent.GameMap;
 import game.Cell;
-import game.Config;
-import game.Constants;
-import game.GameMap;
-import game.Monster;
+import game.Mob;
 import game.Player;
+import game.Vector;
 import haxe.Timer;
-import xa3.MTRandom;
 
 using Lambda;
+// import xa3.MTRandom;
+
+// import game.Config;
+// import game.Constants;
 
 class Agent {
 	
@@ -43,7 +45,7 @@ class Agent {
 		final map = new GameMap();
 		
 		final typeStartIds = [herosPerPlayer * 2, 0, herosPerPlayer];
-		final players = [new Player( 1, herosPerPlayer ), new Player( 0, herosPerPlayer )];
+		final players = [new Player( 1 ), new Player( 0 )];
 		final agent = new Agent0( players[0], players[1], map, baseX, baseY, herosPerPlayer );
 		
 		var currentFrame = 0;
@@ -51,7 +53,7 @@ class Agent {
 		while( true ) {
 			for( i in 0...players.length ) { //two integers baseHealth and mana for the remaining health and mana for both players
 				var inputs = readline().split(' ');
-				players[i].health = parseInt( inputs[0] ); // Your base health
+				players[i].baseHealth = parseInt( inputs[0] ); // Your base health
 				players[i].mana = parseInt( inputs[1] ); // Ignore in the first league; Spend ten mana to cast a spell
 			}
 			final entityCount = parseInt( readline() ); // Amount of heros and monsters you can see
@@ -72,31 +74,27 @@ class Agent {
 				
 				final entityIndex = id - typeStartIds[type];
 				switch type {
-					case 0: // Monster
-						if( !map.monstersMap.exists( entityIndex )) map.monstersMap.set( entityIndex, new Monster());
+					case 0: // Mob
+						if( !map.monstersMap.exists( entityIndex )) map.monstersMap.set( entityIndex, new Mob( new Vector( x, y ), id ));
 						final monster = map.monstersMap[entityIndex];
-						monster.id = id;
-						monster.x = x;
-						monster.y = y;
-						monster.shieldLife = shieldLife;
-						monster.isControlled = isControlled;
+						monster.shieldDuration = shieldLife;
+						monster.isUnderControlSpell = isControlled;
 						monster.health = health;
-						monster.vx = vx;
-						monster.vy = vy;
+						monster.speed.x = vx;
+						monster.speed.y = vy;
 						monster.isNearBase = isNearBase;
 						monster.threatFor = threatFor;
-						monster.frame = currentFrame;
 
 					case 1: // my Hero
 						final player = players[0];
 						final hero = player.heros[entityIndex];
-						hero.x = x;
-						hero.y = y;
+						hero.position.x = x;
+						hero.position.y = y;
 					case 2: // opponent Hero
 						final player = players[1];
 						final hero = player.heros[entityIndex];
-						hero.x = x;
-						hero.y = y;
+						hero.position.x = x;
+						hero.position.y = y;
 				}
 			}
 			map.filterOutDeadMonsters( currentFrame );

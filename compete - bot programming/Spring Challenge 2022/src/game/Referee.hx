@@ -1,0 +1,949 @@
+package game;
+
+import Std.int;
+import Std.parseInt;
+import agent.Agent;
+import game.action.Action;
+import game.action.ActionException;
+import game.action.ActionType;
+import gameengine.core.GameManager;
+import haxe.Exception;
+import polygonal.ds.HashSet;
+import view.Attack;
+import view.BaseAttack;
+import view.Coord;
+import view.EntityData;
+import view.SpellUse;
+import xa3.MTRandom;
+
+using Lambda;
+using StringTools;
+using xa3.MapUtils;
+
+class Referee {
+	
+	public static final TYPE_MY_HERO = 0;
+	public static final TYPE_ENEMY_HERO = 1;
+	public static final TYPE_MOB = 2;
+	public static final INPUT_TYPE_MOB = 0;
+	public static final INPUT_TYPE_MY_HERO = 1;
+	public static final INPUT_TYPE_ENEMY_HERO = 2;
+	
+	static var gameManager:GameManager;
+	static var gameSummaryManager:GameSummaryManager;
+	
+
+	static var agentOpp:Agent;
+	static var agentMe:Agent;
+	static var agents:Array<Agent>;
+
+	static var repeats:Int;
+	static var currentRepeat:Int;
+	static var scores:Array<Array<Int>> = [];
+	static var completes:Array<Array<String>> = [];
+
+	static var playerCount:Int;
+	
+	static var allHeros:Array<Hero> = [];
+	static var allMobs:Array<Mob> = [];
+	static var mobRemovals:Array<Mob> = [];
+	static var mobSpawner:MobSpawner;
+	static var newEntities:Array<GameEntity> = [];
+	static var attacks:Array<Attack> = [];
+	static var spellUses:Array<SpellUse> = [];
+	static var baseAttacks:Array<BaseAttack> = [];
+	static var intentMap:Map<ActionType, Array<Hero>> = [];
+	static var positionKeyMap:Map<HashSet<Vector>, Float> = [];
+	
+	static var corners = [new Vector(0, 0), new Vector(Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT)];
+	static var startDirections = [new Vector(1, 1).normalize(), new Vector(-1, -1).normalize()];
+	static var basePositions:Array<Vector> = [];
+	
+	static var allEntities = () -> {
+		final all:Array<GameEntity> = [];
+		for( hero in allHeros) all.push( hero );
+		for( mob in allMobs ) all.push( mob );
+		return all;
+	}
+
+	static final actionTypes = [MOVE, WIND, SHIELD, CONTROL, IDLE];
+	static final symmetryOrigin = new Vector( Configuration.MAP_WIDTH / 2, Configuration.MAP_HEIGHT / 2 );
+
+	public static function main() {
+		
+		final args = Sys.args();
+		repeats = args[0] == null ? 1 : parseInt( args[0] );
+		for( i in 0...repeats ) {
+			currentRepeat = i;
+			init( currentRepeat );
+			run();
+		}
+		// outputScoreAverages();
+	}
+
+	public function new() {
+		
+	}
+
+	static function init( currentRepeat:Int ) {
+
+		final seed = currentRepeat;
+		final oppName ="Agent0";
+		final myName = "Agent1";
+		// manager
+		final managerPlayer0 = new Player( 0, oppName );
+		final managerPlayer1 = new Player( 1, myName );
+		gameManager = new GameManager([ managerPlayer0, managerPlayer1 ]);
+		gameSummaryManager = new GameSummaryManager();
+		
+		computeConfiguration();
+
+		MTRandom.initializeRandGenerator( seed );
+
+		mobSpawner = new MobSpawner(
+			Configuration.MOB_SPAWN_LOCATIONS,
+			Configuration.MOB_SPAWN_MAX_DIRECTION_DELTA,
+			Configuration.MOB_SPAWN_RATE
+		);
+
+		try {
+			playerCount = gameManager.getPlayerCount();
+			
+			for( type in actionTypes ) {
+				intentMap.set( type, [] );
+			}
+			initPlayers();
+			
+		} catch( e ) {
+			trace( "Referee failed to initialize" );
+			abort();
+		}
+
+		// game
+		// game = new Game( gameManager, gameSummaryManager );
+		// game.init( repeats == 1 ? 1 : Std.random( 99999 ), grid );
+		
+		// agents
+		final agentPlayer0 = new Player( 0, oppName );
+		final agentPlayer1 = new Player( 1, myName );
+		// final board0 = game.board.copy();
+		// final board1 = game.board.copy();
+		
+		// agentOpp = new agent.Agent0( agentPlayer0, agentPlayer1, board0 );
+		// agentMe = new agent.Agent0( agentPlayer1, agentPlayer0, board1 );
+		
+		// agents = [agentOpp, agentMe];
+	}
+
+	static function computeConfiguration() {
+
+		switch gameManager.getLeagueLevel() {
+			case 1:
+				// Wood 2
+				Configuration.ENABLE_TIE_BREAK = false;
+				Configuration.ENABLE_WIND = false;
+				Configuration.ENABLE_CONTROL = false;
+				Configuration.ENABLE_SHIELD = false;
+				Configuration.ENABLE_FOG = false;
+			case 2:
+				// Wood 1
+				Configuration.ENABLE_WIND = true;
+				Configuration.ENABLE_CONTROL = false;
+				Configuration.ENABLE_SHIELD = false;
+				Configuration.ENABLE_FOG = true;
+		}
+	}
+
+	static function abort() {
+		trace( 'Unexpected game end' );
+		gameManager.endGame();
+	}
+
+	static function run() {
+		var turn = 0;
+		// while( actionTurn < 3 && !gameManager.gameEnd ) {
+		while( !gameManager.gameEnd ) {
+			gameTurn( turn++ );
+		}
+		onEnd();
+	}
+
+	static function snapToGameZone( v:Vector ) {
+		var snapX = v.x;
+		var snapY = v.y;
+
+		if ( snapX < 0 ) snapX = 0;
+		if ( snapX >= Configuration.MAP_WIDTH ) snapX = Configuration.MAP_WIDTH - 1;
+		if ( snapY < 0) snapY = 0;
+		if ( snapY >= Configuration.MAP_HEIGHT ) snapY = Configuration.MAP_HEIGHT - 1;
+		
+		return new Vector( snapX, snapY );
+	};
+	
+   /**
+	 * Computes the intersection between two segments.
+	 *
+	 * @param x1
+	 *            Starting point of Segment 1
+	 * @param y1
+	 *            Starting point of Segment 1
+	 * @param x2
+	 *            Ending point of Segment 1
+	 * @param y2
+	 *            Ending point of Segment 1
+	 * @param x3
+	 *            Starting point of Segment 2
+	 * @param y3
+	 *            Starting point of Segment 2
+	 * @param x4
+	 *            Ending point of Segment 2
+	 * @param y4
+	 *            Ending point of Segment 2
+	 * @return Vector where the segments intersect, or null if they don't
+	 */
+	static function intersectionCoord( x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, x4:Float, y4:Float ) {
+		final d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+		if( d == 0 ) return null;
+
+		final xi = ((x3 - x4) * (x1 * y2 - y1 * x2) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d;
+		final yi = ((y3 - y4) * (x1 * y2 - y1 * x2) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d;
+
+		final p = new Vector( xi, yi );
+		if (xi < Math.min(x1, x2) || xi > Math.max(x1, x2)) return null;
+		if (xi < Math.min(x3, x4) || xi > Math.max(x3, x4)) return null;
+		return p;
+	}
+
+	static function intersectionVec( a:Vector, b:Vector, a2:Vector, b2:Vector ) {
+		return intersectionCoord(
+			a.x, a.y, b.x, b.y,
+			a2.x, a2.y, b2.x, b2.y
+		);
+	}
+
+	static function initPlayers() {
+		// Generate heroes
+		final spawnOffset = 1600;
+		final spaceBetweenHeroes = 400;
+
+		for( i in 0...playerCount ) {
+			final player = gameManager.getPlayer( i );
+			var vector = ( i < 2 ? new Vector( 1, -1 ) : new Vector( 1, 1 )).normalize();
+			if( i % 2 == 1 ) {
+				vector = vector.mult( -1 );
+			}
+
+			final startPoint = corners[i];
+
+			basePositions.push( startPoint );
+			final offsets = [0, 1, -1, 2, -2, 3, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			for( j in 0...Configuration.HEROES_PER_PLAYER ) {
+				final offset = offsets[j + (1 - Configuration.HEROES_PER_PLAYER % 2)];
+
+				var position = vector.mult( offset * ( spaceBetweenHeroes )).add( startPoint ).add( startDirections[i].mult( spawnOffset ))
+				.round();
+				position = snapToGameZone( position );
+				final hero = new Hero( j, position, player, startDirections[i].angle() );
+				player.addHero( hero );
+				allHeros.push( hero );
+				newEntities.push( hero );
+			}
+		}
+		sendGlobalInfo();
+	}
+
+	static function sendGlobalInfo() {
+		for( player in gameManager.getActivePlayers() ) {
+			// <baseX> <baseY>
+			player.sendInputLine( Std.string( basePositions[player.index] ));
+			// <heroesPerPlayer>
+			player.sendInputLine( Std.string( Configuration.HEROES_PER_PLAYER ));
+		}
+	}
+
+	static function gameTurn( turn:Int ) {
+		resetGameTurnData();
+
+		// Give input to players
+		for( player in gameManager.getActivePlayers()) {
+			sendGameStateFor( player );
+			player.execute();
+		}
+		// Get output from players
+		handlePlayerCommands();
+
+		performGameUpdate( turn );
+
+		for( player in gameManager.getPlayers()) {
+			if( player.baseHealth == 0 ) {
+				player.deactivate( "Base destroyed!" );
+			}
+		}
+
+		if( gameManager.getActivePlayers().length < 2 ) abort();
+
+		if( repeats == 1 ) {
+			final char = Sys.getChar( false );
+			if( char == 27 || char == 3 ) Sys.exit( 0 );
+		}
+	}
+
+	static function performGameUpdate( turn:Int ) {
+		doControl();
+		doShield();
+		moveHeros();
+		final manaGain = performCombat();
+		doPush();
+		moveMobs();
+		shieldDecay();
+		spawnNewMobs( turn );
+		for( player => amount in manaGain ) {
+			player.gainMana( amount );
+		}
+	}
+
+	static function shieldDecay() {
+		for( e in allEntities()) if( e.shieldDuration > 0 ) e.shieldDuration--;
+	}
+
+	static function doPush() {
+		final directionMap:Map<GameEntity, Array<Vector>> = [];
+
+		for( hero in intentMap[WIND] ) {
+			try {
+				if( hero.owner.mana < Configuration.SPELL_WIND_COST ) throw new ActionException( "Not enough mana" );
+
+				hero.owner.spendMana( Configuration.SPELL_WIND_COST );
+				final push = hero.intent;
+				recordSpellUse( hero );
+
+				final enemies = getAllEnemyUnitsAround( hero, Configuration.SPELL_WIND_RADIUS )
+					.filter( e -> !e.hadActiveShield());
+				
+				final dir = Vector.fromVectors( hero.position, push.destination ).normalize().mult( Configuration.SPELL_WIND_DISTANCE );
+
+				for( e in enemies ) {
+					if( !directionMap.exists( e )) directionMap.set( e, [] );
+					directionMap[e].push( dir );
+				}
+			} catch ( e:ActionException ) {
+				gameManager.addToGameSummary( hero.owner.name + " failed a WIND: " + e.message );
+			}
+		}
+
+		positionKeyMap.clear();
+
+		//Calculate sum of pushes
+		for( entity => directions in directionMap ) {
+			final sum = directions.fold(( v, sum ) -> sum.add( v ), new Vector( 0, 0 ));
+			var predictedPosition = entity.position.add( sum ).symmetricTruncate( symmetryOrigin );
+
+			final baseWallIntersection = baseWallIntersection( entity.position, predictedPosition );
+			if( entity.type == TYPE_MY_HERO || entity.type == TYPE_ENEMY_HERO || baseWallIntersection != null ) {
+				predictedPosition = snapToGameZone( baseWallIntersection == null ? predictedPosition : baseWallIntersection );
+			} else if( entity.type == TYPE_MOB && isInBaseAttractionZone( entity.position ) && !isInBaseAttractionZone( predictedPosition )) {
+				final pair = new HashSet<Vector>( 2 );
+				pair.set( predictedPosition );
+				pair.set( predictedPosition.symmetric( symmetryOrigin ));
+
+				var randomDouble:Float;
+				final existingRandom = positionKeyMap[pair];
+
+				if( existingRandom == null ) {
+					randomDouble = MTRandom.quickRand();
+					positionKeyMap.set( pair, randomDouble );
+				}
+				else randomDouble = existingRandom;
+
+				var randomDirection = randomDouble * Math.PI * 2;
+				if( existingRandom != null ) randomDirection += Math.PI;
+
+				cast( entity, Mob ).speed = Vector.fromAngle( randomDirection ).normalize().mult( Configuration.MOB_MOVE_SPEED );
+			}
+
+			entity.pushTo( predictedPosition );
+		}
+	}
+
+	static function recordSpellUse( hero:Hero ) {
+		final push = hero.intent;
+		final su:SpellUse = {
+			hero: hero.id,
+			spell: push.type.getName(),
+			target: push.target,
+			destination: push.destination == null ? null : new Coord( int( push.destination.x ), int( push.destination.y ))
+		}
+		spellUses.push( su );
+	}
+
+	static function baseWallIntersection( from:Vector, to:Vector ) {
+		final w = Configuration.MAP_WIDTH - 1;
+		final h = Configuration.MAP_HEIGHT - 1;
+		final baseRadius = Configuration.BASE_ATTRACTION_RADIUS;
+		var intersection:Vector = null;
+		if( to.y >= h ) intersection = intersectionCoord( from.x, from.y, to.x, to.y, w - baseRadius, h, w, h );
+		else if( to.y < 0 ) intersection = intersectionCoord(from.x, from.y, to.x, to.y, 0, 0, baseRadius, 0);
+
+		if( intersection == null ) {
+			if( to.x >= w ) intersection = intersectionCoord(from.x, from.y, to.x, to.y, w, h - baseRadius, w, h);
+			else if( to.x < 0 ) intersection = intersectionCoord(from.x, from.y, to.x, to.y, 0, 0, 0, baseRadius);
+		}
+		return intersection != null ? intersection.symmetricTruncate( symmetryOrigin ) : null;
+	}
+
+	static function isInBaseAttractionZone( v:Vector ) {
+		for( basePosition in basePositions ) if( v.inRange( basePosition, Configuration.BASE_ATTRACTION_RADIUS )) return true;
+		return false;
+	}
+
+	static function doShield() {
+		// A protective bubble will appear around target on next turn
+		for( hero in intentMap[SHIELD] ) {
+			final control = hero.intent;
+			try {
+				if( hero.owner.mana < Configuration.SPELL_PROTECT_COST ) {
+					throw new ActionException( "Not enough mana" );
+				}
+				final targeted = allEntities().filter( other -> other.id == control.target )[0];
+
+				if( targeted == null ) throw new ActionException("Could not find entity " + control.target );
+				final entity = targeted;
+				
+				if( heroCanSee( hero, entity )) {
+					
+					hero.owner.spendMana( Configuration.SPELL_PROTECT_COST );
+					recordSpellUse( hero );
+					
+					if( !entity.hasActiveShield() ) entity.applyShield();
+					else throw new ActionException("Entity " + entity.id + " already has a shield up");
+					
+				} else {
+					if( playerCanSee( hero.owner, entity )) throw new ActionException( "Entity " + entity.id + " is not within range of Hero " + hero.id );
+					else throw new ActionException( "Hero " + hero.id + " doesn't know where entity " + entity.id + " is" );
+				}
+			} catch ( e:ActionException ) {
+				gameManager.addToGameSummary( hero.owner.name + " failed a SHIELD: " + e.message );
+			}
+		}
+	}
+	
+	static function doControl() {
+		// Incept next action into victim's mind
+		for( hero in intentMap[CONTROL] ) {
+			final control = hero.intent;
+			
+			try {
+				if( hero.owner.mana < Configuration.SPELL_PROTECT_COST ) throw new ActionException( "Not enough mana" );
+				
+				final targeted = allEntities().filter( other -> other.id == control.target )[0];
+				
+				if( targeted == null ) throw new ActionException("Could not find entity " + control.target );
+				final victim = targeted;
+
+				if( heroCanSee( hero, victim )) {
+					
+					hero.owner.spendMana( Configuration.SPELL_CONTROL_COST );
+					recordSpellUse( hero );
+
+					if( !victim.hasActiveShield() ) victim.applyShield();
+					else throw new ActionException("Entity " + victim.id + " already has a shield up");
+	
+				} else {
+					
+					if( playerCanSee( hero.owner, victim )) throw new ActionException( "Entity " + victim.id + " is not within range of Hero " + hero.id );
+					else throw new ActionException( "Hero " + hero.id + " doesn't know where entity " + victim.id + " is" );
+				}
+				
+			} catch ( e:ActionException ) {
+				gameManager.addToGameSummary( hero.owner.name + " failed a CONTROL: " + e.message );
+				
+			}
+		}
+	}
+
+	static function heroCanSee( hero:Hero, entity:GameEntity ) {
+		if( Configuration.ENABLE_FOG ) return hero.position.inRange( entity.position, Configuration.HERO_VIEW_RADIUS );
+		return true;
+	}
+
+	static function playerCanSee( player:Player, entity:GameEntity ) {
+		if( !insideVisibleMap( entity.position )) return false;
+		if( entity.getOwner() == player ) return true;
+		if( entity.position.inRange( basePositions[player.index], Configuration.BASE_VIEW_RADIUS)) return true;
+		for( hero in player.heros ) if( heroCanSee( hero, entity )) return true;
+
+		return false;
+	}
+
+	static function spawnNewMobs( turn:Int ) {
+		final newMobs = mobSpawner.update( turn );
+		for( mob in newMobs ) allMobs.push( mob );
+		for( mob in newMobs ) newEntities.push( mob );
+	}
+
+	static function moveMobs() {
+		for( mob in allMobs ) {
+			if( !insideMap( mob.position )) {
+				removeMob( mob );
+				continue;
+			}
+
+			if( !mob.moveCancelled() ) {
+				if( !mob.activeControls.isEmpty()) {
+					var computedDestination = computeControlResult( mob, Configuration.MOB_MOVE_SPEED );
+					final newSpeed = Vector.fromVectors( mob.position, computedDestination );
+					
+					final baseWallIntersectionResult = baseWallIntersection( mob.position, computedDestination );
+					computedDestination = snapToGameZone( baseWallIntersectionResult == null ? computedDestination : baseWallIntersectionResult );
+
+					mob.position = computedDestination.symmetricTruncate( symmetryOrigin );
+					if( !newSpeed.isZero()) mob.speed = newSpeed.normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
+				} else {
+					mob.position = mob.position.add( mob.speed ).symmetricTruncate( symmetryOrigin );
+				}
+			}
+
+			for( idx in 0...basePositions.length ) {
+				final base = basePositions[idx];
+				if( mob.position.inRange( base, Configuration.BASE_RADIUS ) && mob.health > 0 ) {
+					removeMob( mob );
+					final p = gameManager.getPlayer( idx );
+					p.damageBase();
+					if( p.baseHealth > 0 ) gameManager.addTooltip( p, "Base attacked!" );
+
+					final a:BaseAttack = {
+						player: idx,
+						mob: mob.id
+					}
+					baseAttacks.push( a );
+					continue;
+				}
+
+				if( mobCanDetectBase( mob, base )) {
+					final v = Vector.fromVectors( mob.position, base );
+					final distanceToStep = int( Math.min( v.length(), Configuration.MOB_MOVE_SPEED ));
+					mob.speed = base.sub( mob.position ).normalize().mult( distanceToStep ).truncate();
+					gameManager.getPlayer( idx ).spottet.set( mob.id, true );
+				
+				} else if( mob.position.inRange(base, Configuration.BASE_ATTRACTION_RADIUS )) {
+					var objective = new Vector( 1, 1 );
+					if( mob.position.x < 0 || mob.position.y < 0 ) objective = objective.mult( -1 );
+					mob.speed = objective.normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
+				}
+			}
+		}
+	}
+
+	static function removeMob( mob:Mob ) mobRemovals.push( mob );
+
+	static function performCombat() {
+		final killedMobs = new HashSet<Mob>( allMobs.length );
+		final manaGain:Map<Player, Array<Int>> = [];
+
+		//Deal hero damage to mobs
+		for( hero in allHeros ) {
+			final mobs = getMobsAround( hero, Configuration.HERO_ATTACK_RANGE, allMobs );
+			final mobsHit = new List<Int>();
+			final isOutsideBaseRadius = !hero.position.inRange( basePositions[hero.owner.index], Configuration.BASE_ATTRACTION_RADIUS );
+
+			for( mob in mobs ) {
+				mob.hit( Configuration.HERO_ATTACK_DAMAGE );
+
+				manaGain.compute( hero.owner, ( k, v ) -> {
+					if( v == null ){
+						return [Configuration.HERO_ATTACK_DAMAGE, isOutsideBaseRadius ? Configuration.HERO_ATTACK_DAMAGE : 0];
+					} else {
+						v[0] += Configuration.HERO_ATTACK_DAMAGE;
+						v[1] += isOutsideBaseRadius ? Configuration.HERO_ATTACK_DAMAGE : 0;
+					}
+					return v;
+				});
+
+				if( !mob.isAlive() ) killedMobs.set( mob );
+				mobsHit.add( mob.id );
+			}
+
+			if( mobsHit.length > 0 ) {
+				final a:Attack = {
+					hero: hero.id,
+					mobs: mobsHit
+				}
+			}
+		}
+
+		for( mob in killedMobs ) removeMob( mob );
+
+		return manaGain;
+	}
+
+	static function moveHeros() {
+		//Handle hero MOVES
+		for( hero in intentMap[MOVE] ) {
+			final move = hero.intent;
+			hero.position = snapToGameZone( move.destination );
+		}
+	}
+
+	static function handlePlayerCommands() {
+		for( player in gameManager.getActivePlayers() ) {
+			try {
+				handleCommands( player, player.getOutputs());
+			} catch( e:Dynamic ) {
+				player.deactivate( "Timeout" );
+				gameManager.addToGameSummary( player.name + " has not provided " + player.getExpectedOutputLines() + " lines in time" );
+			}
+		}
+	}
+		
+	/**
+	 * Called before player outputs are handled
+	 */
+	 static function resetGameTurnData() {
+		// Reset intentions
+		for( h in allHeros ) {
+			h.intent = Action.IDLE;
+			h.message = "";
+		}
+		for( a in intentMap ) {
+			a.splice( 0, a.length );
+		}
+
+		// Remove dead mobs
+		for( mob in mobRemovals ) {
+			allMobs.remove( mob );
+		}
+		mobRemovals.splice( 0, mobRemovals.length );
+
+		// Reset mobs
+		for( mob in allMobs ) mob.reset();
+
+		// Reset view info
+		newEntities.splice( 0, newEntities.length );
+		attacks.splice( 0, attacks.length );
+		spellUses.splice( 0, spellUses.length );
+		baseAttacks.splice( 0, baseAttacks.length );
+		// gameManager.getPlayers().stream()
+		//     .forEach(Player::resetViewData);
+	}
+
+	static function getAllEnemyUnitsAround( hero:Hero, range:Int ) {
+		return getAllAround( hero, range, allEntities().filter( e -> e.getOwner() != hero.owner ));
+	}
+
+	static function getAllAround( e:GameEntity, range:Int, stream:Array<GameEntity >) {
+		return stream.filter( other -> other.position.inRange( e.position, range ));
+	}
+
+	static function getMobsAround( e:GameEntity, range:Int, stream:Array<Mob>) {
+		return stream.filter( other -> other.position.inRange( e.position, range ));
+	}
+
+	static function mobCanDetectBase( mob:Mob, base:Vector ) {
+		return insideVisibleMap( mob.position ) && mob.position.inRange( base, Configuration.BASE_ATTRACTION_RADIUS );
+	}
+
+	static final PLAYER_WAIT_PATTERN = new EReg(
+		"^WAIT"
+		+ "\\s+(.+)"
+		+ "\\s*$", ""
+	);
+	
+	static final PLAYER_MOVE_PATTERN = new EReg(
+		"^MOVE\\s+(\\d+)\\s+(\\d+)"
+		+ "\\s+(.+)?"
+		+ "\\s*$", ""
+	);
+
+	static final PLAYER_WIND_PATTERN = new EReg(
+		"^SPELL\\s+"
+		+ "WIND\\s+(\\d+)\\s+(\\d+)"
+		+ "\\s+(.+)?"
+		+ "\\s*$", ""
+	);
+	
+	static final PLAYER_SHIELD_PATTERN = new EReg(
+		"^SPELL\\s+"
+		+ "SHIELD\\s+(\\d+)"
+		+ "\\s+(.+)?"
+		+ "\\s*$", ""
+	);
+	static final PLAYER_CONTROL_PATTERN = new EReg(
+		"^SPELL\\s+"
+		+ "CONTROL\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
+		+ "\\s+(.+)?"
+		+ "\\s*$", ""
+	);
+
+	static final EXPECTED = Configuration.ENABLE_WIND || Configuration.ENABLE_CONTROL || Configuration.ENABLE_WIND
+		? "MOVE <x> <y> | SPELL <spell_command> | WAIT"
+		: "MOVE <x> <y> | WAIT";
+	
+	static function handleCommands( player:Player, lines:Array<String> ) {
+		var i = 0;
+		for( line in lines ) {
+			final hero = player.heros[i++];
+			if( !hero.activeControls.isEmpty()) {
+				final computedDestination = computeControlResult( hero, Configuration.HERO_MOVE_SPEED );
+
+				final intent = new Action( MOVE );
+				intent.forced = true;
+				intent.destination = computedDestination.symmetricTruncate( symmetryOrigin );
+				hero.activeControls.clear();
+				recordIntention( hero, intent );
+				hero.message = "";
+				continue;
+			}
+			try {
+				// Message
+				if( PLAYER_WAIT_PATTERN.match( line )) {
+					final message = PLAYER_WAIT_PATTERN.matched( 1 );
+					if( message != null ) matchMessage( hero, message );
+					continue;
+				}
+				
+				if( PLAYER_MOVE_PATTERN.match( line )) {
+					final x = parseInt( PLAYER_MOVE_PATTERN.matched( 1 ));
+					final y = parseInt( PLAYER_MOVE_PATTERN.matched( 2 ));
+					if( hero.position.x != x || hero.position.y != y ) {
+						final intent = new Action( MOVE );
+						final speed = Configuration.HERO_MOVE_SPEED;
+						final target = stepTo( hero.position, new Vector( x, y ), speed );
+                        
+						// Don't use doubles for internal positions else players won't be able to determine state N+1 from state N.
+						intent.destination = target.symmetricTruncate( symmetryOrigin );
+						recordIntention( hero, intent );
+					}
+					final message = PLAYER_MOVE_PATTERN.matched( 3 );
+					if( message != null ) matchMessage( hero, message );
+					continue;
+				}
+
+				if( Configuration.ENABLE_WIND ) {
+					if( PLAYER_WIND_PATTERN.match( line )) {
+						final x = parseInt( PLAYER_WIND_PATTERN.matched( 1 ));
+						final y = parseInt( PLAYER_WIND_PATTERN.matched( 2 ));
+						final intent = new Action( WIND );
+						intent.destination = new Vector( x, y );
+						recordIntention( hero, intent );
+						//Message
+						final message = PLAYER_WIND_PATTERN.matched( 3 );
+						if( message != null ) matchMessage( hero, message );
+						continue;
+					}
+				}
+
+				if( Configuration.ENABLE_SHIELD ) {
+					if( PLAYER_SHIELD_PATTERN.match( line )) {
+						final entityId = parseInt( PLAYER_SHIELD_PATTERN.matched( 1 ));
+						final intent = new Action( SHIELD );
+						intent.target = entityId;
+						recordIntention( hero, intent );
+						//Message
+						final message = PLAYER_SHIELD_PATTERN.matched( 2 );
+						if( message != null ) matchMessage( hero, message );
+						continue;
+					}
+				}
+				
+				if( Configuration.ENABLE_CONTROL ) {
+					if( PLAYER_CONTROL_PATTERN.match( line )) {
+						final entityId = parseInt( PLAYER_CONTROL_PATTERN.matched( 1 ));
+						final x = parseInt( PLAYER_CONTROL_PATTERN.matched( 2 ));
+						final y = parseInt( PLAYER_CONTROL_PATTERN.matched( 3 ));
+						final intent = new Action( CONTROL );
+						intent.target = entityId;
+						intent.destination = new Vector( x, y );
+						recordIntention( hero, intent );
+						//Message
+						final message = PLAYER_CONTROL_PATTERN.matched( 4 );
+						if( message != null ) matchMessage( hero, message );
+						continue;
+					}
+				}
+
+				throw new InvalidInputException( EXPECTED, line );
+			
+			} catch( e:InvalidInputException ) {
+				player.deactivate( e.message );
+				gameManager.addToGameSummary( "Bad command" );
+				return;
+			
+			} catch( e:Exception ) {
+                player.deactivate( new InvalidInputException( EXPECTED, line ).message );
+                gameManager.addToGameSummary("Bad command");
+                return;
+			}
+		}
+	}
+
+	static function computeControlResult( e:GameEntity, moveSpeed:Int ) {
+		return e.activeControls.map( v -> stepTo( e.position, v, moveSpeed ))
+		.fold(( v, sum ) -> sum.add( v ), new Vector( 0, 0 ))
+		.mult( 1.0 / e.activeControls.length );
+	}
+
+	static function matchMessage( hero:Hero, message:String ) {
+		// String characterFilter = "[^\\p{L}\\p{M}\\p{N}\\p{P}\\p{Z}\\p{Cf}\\p{Cs}\\s]";
+		// String messageWithoutEmojis = message.replaceAll(characterFilter, "");
+		hero.message = message;
+	}
+
+	static function stepTo( position:Vector, destination:Vector, speed:Int ) {
+		final v = Vector.fromVectors( position, destination );
+		final target = v.lengthSquared() <= speed * speed ? v : v.normalize().mult( speed );
+		return position.add( target );
+	}
+
+	static function recordIntention( hero:Hero, intent:Action ) {
+		hero.intent = intent;
+		intentMap.compute( intent.type, ( key, value ) -> {
+			if( value == null ) value = new Array<Hero>();
+			value.push( hero );
+			return value;
+		});
+	}
+
+	static function sendGameStateFor( player:Player ) {
+		final entityLines:Array<String> = [];
+
+		final visibleHerosForPlayer = allHeros.filter( hero -> playerCanSee( player, hero ));
+		for( hero in visibleHerosForPlayer ) {
+			entityLines.push( '${hero.id} ${hero.type == player.index ? INPUT_TYPE_MY_HERO : INPUT_TYPE_ENEMY_HERO} ${hero.position} ${hero.shieldDuration} ${hero.isControlled() ? 1 : 0} -1 -1 -1 -1 -1' );
+		}
+
+		final visibleMobsForPlayer = allMobs.filter( mob -> playerCanSee( player, mob ));
+		for( mob in visibleMobsForPlayer ) {
+			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.speed} ${getMobStatus( mob )}' );
+		}
+
+		// <health> <mana>
+		player.sendInputLine( '${player.baseHealth} ${player.mana}' );
+		final otherPlayers = gameManager.players.filter( p -> p != player );
+		for( p in otherPlayers ) player.sendInputLine( '${p.baseHealth} ${p.mana}' );
+
+		// <entityCount>
+		player.sendInputLine( '${entityLines.length}' );
+		for( line in entityLines ) {
+            //Mobs
+            // <id> <type> <x> <y> <shieldLife> <isControlled> <health> <vx> <vy> <state> <target>
+            //Heroes
+            // <id> <type> <x> <y> <shieldLife> <isControlled> -1 -1 -1 -1 -1
+			player.sendInputLine( line );
+		}
+	}
+ 
+	static final WANDERING = 0;
+	static final ATTACKING = 1;
+
+	static function getMobStatus( mob:Mob ) {
+		if( mob.status == null || !mob.activeControls.isEmpty()) {
+			var mobSpeed:Vector;
+
+			if( !mob.activeControls.isEmpty()) {
+				final computedDestination = computeControlResult( mob, Configuration.MOB_MOVE_SPEED );
+				final newSpeed = Vector.fromVectors( mob.position, computedDestination );
+				mobSpeed = newSpeed;
+			} else {
+				mobSpeed = mob.speed;
+			}
+
+			if( mobSpeed.isZero()) {
+				mob.status = new MobStatus( WANDERING, null, 0 );
+			} else {
+				var cur = mob.position;
+				var stop = false;
+				var turns = 0;
+
+				while( !stop && turns < 8000 ) {
+					// Am I inside an attraction zone?
+					for( idx in 0...basePositions.length ) {
+						final base = basePositions[idx];
+						if( cur.inRange( base, Configuration.BASE_ATTRACTION_RADIUS )) {
+							mob.status = new MobStatus( turns == 0 ? ATTACKING : WANDERING, gameManager.getPlayer( idx ), turns );
+							stop = true;
+							break;
+						}
+					}
+					// Am I outside the map?
+					if( !insideMap( cur )) {
+						mob.status = new MobStatus( WANDERING, null, turns );
+						stop = true;
+					}
+					turns++;
+					cur = cur.add( mobSpeed ).symmetricTruncate( symmetryOrigin );
+				}
+				if( !stop ) {
+					// Failsafe
+					mob.status = new MobStatus( WANDERING, null, 0 );
+				}
+			}
+		}
+		return mob.status;
+	}
+
+	static function insideMap( p:Vector ) {
+		return p.withinBounds(
+			-Configuration.MAP_LIMIT, -Configuration.MAP_LIMIT,
+			Configuration.MAP_WIDTH + Configuration.MAP_LIMIT, Configuration.MAP_HEIGHT + Configuration.MAP_LIMIT
+		);
+	}
+
+	static function insideVisibleMap( p:Vector ) {
+		return p.withinBounds( 0, 0, Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT );
+	}
+
+	static function onEnd() {
+		var tie = false;
+		if( gameManager.getPlayers().length == 2 ) {
+			final a = gameManager.getPlayer( 0 );
+			final b = gameManager.getPlayer( 1 );
+			if( a.isActive && !b.isActive ) {
+				a.score = 1;
+				b.score = 0;
+			} else if( !a.isActive && b.isActive ) {
+				a.score = 0;
+				b.score = 1;
+			} else if( a.baseHealth != b.baseHealth || !Configuration.ENABLE_TIE_BREAK ) {
+				a.score = a.baseHealth;
+				b.score = b.baseHealth;
+			} else {
+				// Tie breaker
+				tie = true;
+				a.score = a.manaGainedOutsideOfBase;
+				b.score = b.manaGainedOutsideOfBase;
+				if( a.manaGainedOutsideOfBase == b.manaGainedOutsideOfBase ) gameManager.addToGameSummary( "Tie!" );
+				else {
+					final winner = a.manaGainedOutsideOfBase > b.manaGainedOutsideOfBase ? a : b;
+					gameManager.addToGameSummary( '${winner.name}  won the game because their heroes gained more mana outside of their base:' );
+					gameManager.addToGameSummary( '${a.name}: ${a.manaGainedOutsideOfBase} mana' );
+					gameManager.addToGameSummary( '${b.name}: ${b.manaGainedOutsideOfBase} mana' );
+				}
+			}
+		} else {
+			for( p in gameManager.getPlayers()) p.score = p.baseHealth;
+		}
+		// endScreenModule.scores = gameManager.getPlayers().map( player -> player.score );
+	}
+
+	static function asViewData( entity:GameEntity ) {
+		final res:EntityData = {
+			type: entity.type,
+			id: entity.id,
+			health: entity.type == TYPE_MOB ? cast( entity, Mob ).health : 0
+		}
+		return res;
+	}
+
+	static function asCoord( entity:GameEntity ) {
+		return new Coord( int( entity.position.x ), int( entity.position.y ));
+	}
+	
+	public static function getCurrentFrameData() {
+		
+	}
+
+	static function getGlobalData() {
+		
+	}
+
+}

@@ -1,33 +1,67 @@
 package game;
 
-import game.action.Action;
 import gameengine.core.AbstractMultiplayerPlayer;
 
 class Player extends AbstractMultiplayerPlayer {
-	
-	public var name:String;
-	public var message:Null<String>;
-	public var action:Action;
 
-	public var health:Int;
-	public var mana:Int;
-	public var heros:Array<Hero> = [];
+	public final name:String;
 
-	public function new( index:Int, herosPerPlayer:Int, ?name:String ) {
+	public final heros:Array<Hero> = [];
+	public var mana = Configuration.STARTING_MANA;
+	var manaChanged = true;
+	var baseHealthChanged = true;
+	public var baseHealth = Configuration.STARTING_BASE_HEALTH;
+	public var spottet:Map<Int, Bool> = [];
+	public var manaGainedOutsideOfBase(default, null) = 0;
+
+	public function new( index:Int, ?name:String ) {
 		this.index = index;
 		this.name = name == null ? "Nobody" : name;
-		for( _ in 0...herosPerPlayer ) heros.push( new Hero( this ) );
 	}
 
-	public function getExpectedOutputLines() return 1;
-	
-	public function reset() {
-		message = null;
-		action = Action.NO_ACTION;
+	public function getExpectedOutputLines() return heros.length;
+	public function addHero( hero:Hero ) heros.push( hero );
+
+	public function gainMana( amount:Array<Int> ) {
+		mana += amount[0];
+		manaGainedOutsideOfBase += amount[1];
+		if (Configuration.MAX_MANA > 0) {
+            if (mana > Configuration.MAX_MANA) {
+                mana = Configuration.MAX_MANA;
+            }
+            if (manaGainedOutsideOfBase > Configuration.MAX_MANA) {
+                manaGainedOutsideOfBase = Configuration.MAX_MANA;
+            }
+        }
+        manaChanged = true;
 	}
 
-	public function toString() {
-		return '$name index $index';
+	public function manaHasChanged() return manaChanged;
+
+	public function resetViewData() {
+        manaChanged = false;
+        baseHealthChanged = false;
 	}
+
+	public function spendMana( amount:Int ) {
+		mana -= amount;
+		manaChanged = true;
+	}
+
+	public function damageBase() {
+		this.baseHealth--;
+        if (this.baseHealth < 0) {
+            this.baseHealth = 0;
+        }
+        baseHealthChanged = true;
+	}
+
+	public function baseHealthHasChanged() {
+        return baseHealthChanged;
+    }
+
+	// public function toString() {
+	// 	return '$name index $index';
+	// }
 
 }

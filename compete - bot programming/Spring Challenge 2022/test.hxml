@@ -1,0 +1,8 @@
+-lib buddy
+-lib polygonal-ds
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main test.Tests
+--interp
+# --hl dest/test.hl

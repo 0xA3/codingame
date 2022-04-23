@@ -1,16 +1,18 @@
-package game;
+package agent;
+
+import game.Mob;
 
 using Lambda;
 
 class GameMap {
 	
-	public final monstersMap:Map<Int, Monster> = [];
-	public var monsters:Array<Monster> = [];
+	public final monstersMap:Map<Int, Mob> = [];
+	public var monsters:Array<Mob> = [];
 
 	public function new() {}
 
 	public function filterOutDeadMonsters( currentFrame:Int ) {
-		for( id => monster in monstersMap ) if( monster.checkIfDead( currentFrame )) monstersMap.remove( id );
+		for( id => monster in monstersMap ) if( monster.health <= 0 ) monstersMap.remove( id );
 		monsters = [for( monster in monstersMap ) monster];
 	}
 	public function copy( ) {

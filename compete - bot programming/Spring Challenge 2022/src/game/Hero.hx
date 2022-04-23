@@ -1,17 +1,24 @@
 package game;
 
-class Hero {
-	
-	public final owner:Player;
-	
-	public var x:Int;
-	public var y:Int;
+import game.action.Action;
 
-	public function new( owner:Player ) {
+class Hero extends GameEntity {
+	
+	final index:Int;
+	public final owner:Player;
+	var rotation:Float;
+	public var intent:Action;
+	public var message:String;
+
+	public function new( index:Int, position:Vector, owner:Player, rotation:Float ) {
+		super( position, owner.index );
+		this.index = index;
 		this.owner = owner;
+		this.rotation = rotation;
+		this.intent = Action.IDLE;
 	}
 
 	public function toString() {
-		return 'pos: $x:$y';
+		return 'pos: ${position.x}:${position.y}';
 	}
 }

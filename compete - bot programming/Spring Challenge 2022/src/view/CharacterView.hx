@@ -1,4 +1,4 @@
-package game.view;
+package view;
 
 import h2d.Object;
 
@@ -37,7 +37,6 @@ class CharacterView {
 		if( !object.visible ) return;
 		object.x = this.x = GameView.sX( x );
 		object.y = this.y = GameView.sY( y );
-		trace( 'xy: $x:$y  oxy ${object.x}:${object.y}' );
 	}
 
 }

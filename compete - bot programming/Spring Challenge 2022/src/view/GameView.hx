@@ -1,19 +1,20 @@
-package game.view;
+package view;
 
+import game.App;
+import game.Configuration;
+import game.EntityCreator;
 import game.data.FrameDataset;
-import game.view.CharacterView;
 import h2d.Bitmap;
 import h2d.Object;
 import h2d.Text;
+import view.CharacterView;
 
 class GameView {
 	
-	public static inline var WIDTH = 17630;
-	public static inline var HEIGHT = 9000;
 	public static inline var X0 = 48;
 	public static inline var Y0 = 116;
 	
-	static final scale = App.SCENE_WIDTH / WIDTH;
+	static final scale = App.SCENE_WIDTH / Configuration.MAP_WIDTH;
 	public static function sX( x:Int ) return x * scale + X0;
 	public static function sY( y:Int ) return y * scale + Y0;
 

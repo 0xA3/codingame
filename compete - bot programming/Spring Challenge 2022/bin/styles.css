@@ -1,0 +1,26 @@
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.controls {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  margin-left: 20px;
+  margin-top: 100px;
+  color: white;
+  opacity: 0.75;
+}
+
+.controls > div {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+select:focus {
+  outline: none;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+}
+/*# sourceMappingURL=styles.css.map */

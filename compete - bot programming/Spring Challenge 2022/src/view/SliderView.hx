@@ -1,4 +1,4 @@
-package game.view;
+package view;
 
 import h2d.Slider;
 

@@ -1,6 +1,6 @@
 package agent;
 
-import game.GameMap;
+import agent.GameMap;
 import game.Player;
 
 class Agent0 extends Agent {

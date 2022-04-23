@@ -1,14 +1,14 @@
 package game;
 
 import Math.round;
-import game.view.CharacterView;
-import game.view.SliderView;
 import h2d.Bitmap;
 import h2d.Flow;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Tile;
 import h3d.mat.BlendMode;
+import view.CharacterView;
+import view.SliderView;
 
 class EntityCreator {
 	

@@ -2,12 +2,11 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Debug Referee",
+			"name": "Debug Game",
 			"request": "launch",
 			"type": "hl",
 			"cwd": "${workspaceFolder}",
-			"program": "${workspaceFolder}/bin/app.hl",
-			"preLaunchTask": "Build Referee"
+			"preLaunchTask": "Build Game"
 		},
 		{
 			"name": "Haxe Interpreter",

@@ -22,8 +22,8 @@ class MainGame {
 				mana: 0,
 				heros: [
 					{ id: 3, x: 16499, y: 7869, rotation: halfPI },
-					{ id: 5, x: 16216, y: 8151, rotation: halfPI },
-					{ id: 4, x: 16781, y: 7586, rotation: halfPI }
+					{ id: 4, x: 16216, y: 8151, rotation: halfPI },
+					{ id: 5, x: 16781, y: 7586, rotation: halfPI }
 				]
 			}
 		],
@@ -31,12 +31,12 @@ class MainGame {
 	}
 
 	static var app:game.App;
-	// static var referee:game.Referee;
+	static var referee:game.Referee;
 
 	static function main() {
 		hxd.Res.initEmbed();
 		app = new game.App( startPositions );
-		// referee = new game.Referee();
+		game.Referee.main();
 	}
 
 }

@@ -2,7 +2,6 @@ package game;
 
 import Std.parseInt;
 import game.data.FrameDataset;
-import game.view.GameView;
 import h2d.Object;
 
 using Lambda;
@@ -23,9 +22,9 @@ class App extends hxd.App {
 	
 	final frameDatasets:Array<FrameDataset>;
 
-	var gameView:game.view.GameView;
+	var gameView:view.GameView;
 	var sliderContainer:Object;
-	var sliderView:game.view.SliderView;
+	var sliderView:view.SliderView;
 	
 	public function new( initDataset:FrameDataset ) {
 		super();
@@ -36,7 +35,7 @@ class App extends hxd.App {
 		final scene = new Object( s2d );
 		final entityCreator = new EntityCreator();
 		entityCreator.createBackground( scene );
-		gameView = new GameView( scene, entityCreator );
+		gameView = new view.GameView( scene, entityCreator );
 		gameView.initEntities( frameDatasets[0] );
 		
 		sliderContainer = new Object( s2d );
@@ -112,75 +111,6 @@ class App extends hxd.App {
 		// 	default: // no-op
 		// }
 	}
-
-	public function simulateNextFrame() {
-		// final lastFrameDataset = frameDatasets[frameDatasets.length - 1];
-		// final lastFrameScore = frameScores[frameDatasets.length - 1];
-		
-		// final aiInput:FrameDataset = {
-		// 	ashX: lastFrameDataset.ashX,
-		// 	ashY: lastFrameDataset.ashY,
-		// 	humans: lastFrameDataset.humans.filter( h -> h.isAlive ),
-		// 	zombies: lastFrameDataset.zombies.filter( z -> z.isUndead )
-		// }
-		// final zombiePositions = [for( z in aiInput.zombies ) if( z.isUndead ) 'id: ${z.id} pos ${z.x}:${z.y} next ${z.xNext}:${z.yNext}' ].join( "\n" );
-		// trace( 'frame $currentFrame ash ${aiInput.ashX}:${aiInput.ashY} zombies\n$zombiePositions' );
-	
-		// final ashMovement = ai.process( aiInput ).split(" ").map( s -> parseInt( s ));
-		// final ashTargetX = ashMovement[0];
-		// final ashTargetY = ashMovement[1];
-		
-		// final lastFrameHumans = getRemainingHumans( lastFrameDataset );
-		// final lastFrameZombies = getRemainingZombies( lastFrameDataset );
-
-		// Game.setMutFrameDataset( lastFrameDataset, mutFrameDataset );
-
-		// Game.executeRound( ashTargetX, ashTargetY, mutFrameDataset );
-		// final nextFrameDataset = getFrameDataset( mutFrameDataset );
-		// frameDatasets.push( nextFrameDataset );
-
-		// final remainingHumans = nextFrameDataset.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
-		// final remainingZombies = nextFrameDataset.zombies.fold(( z, sum ) -> z.isUndead ? sum + 1 : sum, 0 );
-
-		// final nextFrameScore = remainingHumans == 0 ? 0 : lastFrameScore + Game.calculateScore( lastFrameHumans, lastFrameZombies - remainingZombies );
-		// frameScores.push( nextFrameScore );
-
-		// currentFrame = frameDatasets.length - 1;
-		// sliderView.maxValue = currentFrame;
-		// sliderView.setFrame( currentFrame );
-		// goToFrame( currentFrame );
-		
-		// if( remainingHumans == 0 || remainingZombies == 0 ) {
-		// // if(( lastFrameHumans == 0 && remainingHumans == 0 ) || ( lastFrameZombies == 0 && remainingZombies == 0 )) {
-		// 	goToFrame( currentFrame );
-		// 	changeState( PlayPaused );
-		// }
-	}
-
-	// inline function getFrameDataset( mfd:MutFrameDataset ) {
-	// 	final fd:FrameDataset = {
-	// 		ashX: mfd.ashX,
-	// 		ashY: mfd.ashY,
-	// 		humans: mfd.humans.map( h -> {
-	// 			id: h.id,
-	// 			isAlive: h.isAlive,
-	// 			x: h.x,
-	// 			y: h.y
-	// 		}),
-	// 		zombies: mfd.zombies.map( z -> {
-	// 			id: z.id,
-	// 			isUndead: z.isUndead,
-	// 			x: z.x,
-	// 			y: z.y,
-	// 			xNext: z.xNext,
-	// 			yNext: z.yNext
-	// 		})
-	// 	}
-	// 	return fd;
-	// }
-
-	// inline function getRemainingHumans( frameDataset:FrameDataset ) return frameDataset.humans.fold(( h, sum ) -> h.isAlive ? sum + 1 : sum, 0 );
-	// inline function getRemainingZombies( frameDataset:FrameDataset ) return frameDataset.zombies.fold(( h, sum ) -> h.isUndead ? sum + 1 : sum, 0 );
 
 	function goToFrame( f:Float ) {
 		final currentFrame = Math.floor( f );

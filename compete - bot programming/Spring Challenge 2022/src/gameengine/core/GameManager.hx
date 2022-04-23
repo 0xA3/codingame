@@ -79,5 +79,16 @@ class GameManager {
 			summaryWarning = true;
 		}
 	}
-	
+
+	public function getLeagueLevel() {
+		// return 1; // Wood 2
+		return 2; // Wood 1
+	}
+
+	public function getPlayerCount() return 2;
+
+	public function getPlayer( n:Int ) return players[n];
+
+	public function getPlayers() return players;
+	public function getActivePlayers() return players.filter( p -> p.isActive );
 }
