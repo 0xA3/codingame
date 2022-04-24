@@ -1,7 +1,7 @@
 -lib xa3.format
 -lib heaps
 -lib hldx
--lib polygonal-ds
+# -lib polygonal-ds
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize

@@ -39,7 +39,6 @@ class Agent {
 		final entityCount = parseInt( inputLines[line++] ); // Amount of heros and monsters you can see
 		for( _ in 0...entityCount ) {
 			var inputs = inputLines[line].split(' ');
-			printErr( inputs.join(' '));
 			final id = parseInt( inputs[0] ); // Unique identifier
 			final type = parseInt( inputs[1] ); // 0=monster, 1=your hero, 2=opponent hero
 			final x = parseInt( inputs[2] ); // Position of this entity

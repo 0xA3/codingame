@@ -6,6 +6,6 @@ abstract class AbstractMultiplayerPlayer extends AbstractPlayer {
 
 	public function deactivate( reason:String ) {
 		isActive = false;
-		trace( reason );
+		trace( 'Deactivate Player: $reason' );
 	}
 }

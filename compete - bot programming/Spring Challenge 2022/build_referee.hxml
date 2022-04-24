@@ -1,5 +1,5 @@
 -lib xa3.format
--lib polygonal-ds
+# -lib polygonal-ds
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize

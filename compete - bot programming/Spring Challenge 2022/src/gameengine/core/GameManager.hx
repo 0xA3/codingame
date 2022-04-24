@@ -47,9 +47,9 @@ class GameManager {
 	 * Adds a tooltip for the current turn.
 	 *
 	 * @param player
-	 *            The player the tooltip information is about.
+	 * The player the tooltip information is about.
 	 * @param message
-	 *            Tooltip message.
+	 * Tooltip message.
 	 */
 	 public function addTooltip( player:Player, message:String ) {
 		currentTooltips.push( new Tooltip( player.index, message ));
@@ -60,19 +60,23 @@ class GameManager {
 	 */
 	public function endGame() {
 		gameEnd = true;
+		trace( 'endGame' );
 	}
 	
 	/**
 	 * Add a new line to the game summary for the current turn.
 	 *
 	 * @param summary
-	 *            summary line to add to the current summary.
+	 * summary line to add to the current summary.
 	 */
 	 public function addToGameSummary( summary:String ) {
+		
+		trace( summary );
+		
 		final total = currentGameSummary.length + summary.length;
 
 		if( total < GAME_SUMMARY_PER_TURN_HARD_QUOTA && total + totalGameSummaryBytes < GAME_SUMMARY_TOTAL_HARD_QUOTA ) {
-			this.currentGameSummary.push( summary );
+			currentGameSummary.push( summary );
 			totalGameSummaryBytes += total;
 		} else if( !summaryWarning ) {
 			trace("Warning: the game summary is full. Please try to send less data.");

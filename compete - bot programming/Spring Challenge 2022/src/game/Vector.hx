@@ -1,17 +1,13 @@
 package game;
 
-import polygonal.ds.HashKey;
-
-class Vector implements polygonal.ds.Hashable {
+class Vector {
 	
 	public var x:Float;
 	public var y:Float;
-	public var key:Int;
 
 	public function new( x:Float, y:Float ) {
 		this.x = x;
 		this.y = y;
-		key = HashKey.next();
 	}
 
 	public static function fromVectors(a:Vector, b:Vector) {

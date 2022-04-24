@@ -9,7 +9,6 @@ import game.action.ActionException;
 import game.action.ActionType;
 import gameengine.core.GameManager;
 import haxe.Exception;
-import polygonal.ds.HashSet;
 import view.Attack;
 import view.BaseAttack;
 import view.Coord;
@@ -53,7 +52,7 @@ class Referee {
 	var spellUses:Array<SpellUse> = [];
 	var baseAttacks:Array<BaseAttack> = [];
 	var intentMap:Map<ActionType, Array<Hero>> = [];
-	var positionKeyMap:Map<HashSet<Vector>, Float> = [];
+	var positionKeyMap:Map<haxe.ds.ObjectMap<Vector, Bool>, Float> = [];
 	
 	var corners = [new Vector(0, 0), new Vector(Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT)];
 	var startDirections = [new Vector(1, 1).normalize(), new Vector(-1, -1).normalize()];
@@ -267,7 +266,7 @@ class Referee {
 
 	function gameTurn( turn:Int ) {
 		resetGameTurnData();
-
+		
 		// Give input to players
 		for( i in 0...gameManager.players.length ) {
 			final player = gameManager.players[i];
@@ -276,6 +275,7 @@ class Referee {
 			
 			agent.giveInputs( player.getInputs());
 			player.setOutputs( agent.process().split( "\n" ));
+			trace( 'player $i: ${player.getOutputs().join(" ")}' );
 		}
 		// Get output from players
 		handlePlayerCommands();
@@ -290,10 +290,11 @@ class Referee {
 
 		if( gameManager.getActivePlayers().length < 2 ) abort();
 
-		if( repeats == 1 ) {
-			final char = Sys.getChar( false );
-			if( char == 27 || char == 3 ) Sys.exit( 0 );
-		}
+		// if( repeats == 1 ) {
+		// 	final char = Sys.getChar( false );
+		// 	trace( char );
+		// 	if( char == 27 || char == 3 ) Sys.exit( 0 );
+		// }
 	}
 
 	function performGameUpdate( turn:Int ) {
@@ -350,9 +351,9 @@ class Referee {
 			if( entity.type == TYPE_MY_HERO || entity.type == TYPE_ENEMY_HERO || baseWallIntersection != null ) {
 				predictedPosition = snapToGameZone( baseWallIntersection == null ? predictedPosition : baseWallIntersection );
 			} else if( entity.type == TYPE_MOB && isInBaseAttractionZone( entity.position ) && !isInBaseAttractionZone( predictedPosition )) {
-				final pair = new HashSet<Vector>( 2 );
-				pair.set( predictedPosition );
-				pair.set( predictedPosition.symmetric( symmetryOrigin ));
+				final pair = new Map<Vector, Bool>();
+				pair.set( predictedPosition, true );
+				pair.set( predictedPosition.symmetric( symmetryOrigin ), true );
 
 				var randomDouble:Float;
 				final existingRandom = positionKeyMap[pair];
@@ -545,8 +546,10 @@ class Referee {
 	function removeMob( mob:Mob ) mobRemovals.push( mob );
 
 	function performCombat() {
-		final killedMobs = new HashSet<Mob>( allMobs.length );
 		final manaGain:Map<Player, Array<Int>> = [];
+		if( allMobs.length == 0 ) return manaGain;
+		
+		final killedMobs:Map<Mob, Bool> = [];
 
 		//Deal hero damage to mobs
 		for( hero in allHeros ) {
@@ -567,7 +570,7 @@ class Referee {
 					return v;
 				});
 
-				if( !mob.isAlive() ) killedMobs.set( mob );
+				if( !mob.isAlive() ) killedMobs.set( mob, true );
 				mobsHit.add( mob.id );
 			}
 
@@ -579,7 +582,7 @@ class Referee {
 			}
 		}
 
-		for( mob in killedMobs ) removeMob( mob );
+		for( mob in killedMobs.keys()) removeMob( mob );
 
 		return manaGain;
 	}

@@ -1,8 +1,6 @@
 package game;
 
-import polygonal.ds.HashKey;
-
-class Mob extends GameEntity implements polygonal.ds.Hashable {
+class Mob extends GameEntity {
 	
 	public var speed = new Vector( 0, 0 );
 	public var health:Int;
@@ -13,13 +11,11 @@ class Mob extends GameEntity implements polygonal.ds.Hashable {
 	public var isUnderControlSpell = false;
 	public var isNearBase = false;
 	public var threatFor = 0;
-	public var key:Int;
 
 	public function new( position:Vector, health:Int, type = 2 ) {
 		super( position, type );
 		this.health = health;
 		pushed = false;
-		key = HashKey.next();
 	}
 
 	public function isAlive() return health > 0;
