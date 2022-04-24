@@ -41,6 +41,7 @@ class Referee {
 	var agentMe:Agent;
 	var agents:Array<Agent>;
 
+	var turn:Int;
 	var scores:Array<Array<Int>> = [];
 	var completes:Array<Array<String>> = [];
 
@@ -131,7 +132,7 @@ class Referee {
 	}
 
 	public function run() {
-		var turn = 0;
+		turn = 0;
 		// while( turn < 2 && !gameManager.gameEnd ) {
 		while( !gameManager.gameEnd ) {
 			gameTurn( turn++ );
@@ -266,7 +267,7 @@ class Referee {
 			
 			agent.giveInputs( player.getInputs());
 			player.setOutputs( agent.process().split( "\n" ));
-			trace( 'player $i: ${player.getOutputs().join(" ")}' );
+			// trace( 'player $i: ${player.getOutputs().join(" ")}' );
 		}
 		// Get output from players
 		handlePlayerCommands();
@@ -956,6 +957,8 @@ class Referee {
 		final spawns = newEntities.map( entity -> asViewData( entity ));
 
 		final dataset:FrameViewData = {
+			turn: turn,
+			
 			positions: positions,
 			messages: messages,
 			controlled: controlled,

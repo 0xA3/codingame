@@ -18,8 +18,9 @@ class EntityCreator {
 	];
 
 	final monsterTiles = [
-		hxd.Res.monster1.toTile().center(),
-		hxd.Res.monster2.toTile().center()
+		hxd.Res.mob1.toTile().center(),
+		hxd.Res.mob2.toTile().center(),
+		hxd.Res.mob3.toTile().center()
 	];
 
 	public function new() {
@@ -82,7 +83,7 @@ class EntityCreator {
 		return hero;
 	}
 	
-	public function createMonster( parent:Object, type:Int ) {
+	public function createMob( parent:Object, type:Int ) {
 		final monsterObject = new Object( parent );
 		new Bitmap( monsterTiles[type], monsterObject );
 		

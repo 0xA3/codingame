@@ -26,14 +26,14 @@ class GameView {
 	final entityCreator:EntityCreator;
 	
 	final herosLayer:Object;
-	final monstersLayer:Object;
+	final mobsLayer:Object;
 	final textLayer:Object;
 
 	final tMana1:Text;
 	final tMana2:Text;
 	
 	final heros:Array<CharacterView> = [];
-	final monsters:Array<CharacterView> = [];
+	final mobs:Map<Int, CharacterView> = [];
 	final hearts:Array<Bitmap> = [];
 	
 	public function new( scene:Object, entityCreator:EntityCreator ) {
@@ -42,7 +42,7 @@ class GameView {
 		this.entityCreator = entityCreator;
 
 		herosLayer = new Object( scene );
-		monstersLayer = new Object( scene );
+		mobsLayer = new Object( scene );
 		textLayer = new Object( scene );
 
 		tMana1 = new Text( hxd.Res.ncaa_detroit_titans_bold.toFont(), textLayer );
@@ -62,12 +62,12 @@ class GameView {
 
 		for( i in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 0 ));
 		for( i in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
-		// for( monsterData in testCaseDataset.monsters ) {
-		// 	if( monsters[monsterData.id] == null ) {
-		// 		final monsterView = entityCreator.createMonster( monstersLayer, monsterData.x, monsterData.y, 0 );
-		// 		monsters[monsterData.id] = monsterView;
+		// for( monsterData in testCaseDataset.mobs ) {
+		// 	if( mobs[monsterData.id] == null ) {
+		// 		final monsterView = entityCreator.createMonster( mobsLayer, monsterData.x, monsterData.y, 0 );
+		// 		mobs[monsterData.id] = monsterView;
 		// 	} else {
-		// 		monsters[monsterData.id].place( monsterData.x, monsterData.y );
+		// 		mobs[monsterData.id].place( monsterData.x, monsterData.y );
 		// 	}
 		// }
 	}
@@ -75,68 +75,36 @@ class GameView {
 
 	public function update( previous:FrameViewData, frame:FrameViewData, next:FrameViewData, subFrame:Float ) {
 		
+		for( mob in mobs ) mob.isVisible = false;
+
+		for( i in 0...frame.baseHealth.length ) {
+			final heartStart = i * 3;
+			final baseHealth = frame.baseHealth[i];
+			hearts[heartStart].visible = baseHealth > 0;
+			hearts[heartStart + 1].visible = baseHealth > 1;
+			hearts[heartStart + 2].visible = baseHealth > 2;
+		}
+
 		for( id => coord in frame.positions ) {
 			if( id < 6 ) { // hero
 				place( heros[id], previous.positions[id], frame.positions[id], next.positions[id], subFrame );
-			}
-		}
-		/*		final prevVelX = frame.ashX - ashPreviousX;
-		final prevVelY = frame.ashY - ashPreviousY;
-		final velX = nextFrame.ashX - frame.ashX;
-		final velY = nextFrame.ashY - frame.ashY;
-		
-		final easedRotation = quadEaseInOut( Math.min( 1, subFrame * 3 ));
-		final easedSubFrame = quadEaseInOut( subFrame );
-		
-		final angle1 = MathUtils.angle( prevVelX, prevVelY );
-		final angle2 = MathUtils.angle( velX, velY );
-		final angle = interpolate( angle1, angle2, easedRotation );
-		ash.rotate( angle);
-		
-		final ashX = interpolate( frame.ashX, nextFrame.ashX, easedSubFrame);
-		final ashY = interpolate( frame.ashY, nextFrame.ashY, easedSubFrame );
-		ash.place( ashX, ashY );
-		
-		var humansLeft = 0;
-		for( i in 0...frame.humans.length ) {
-			final humanData = frame.humans[i];
-			final humanView = humans[i];
-
-			final isDying = !humanData.isAlive && humanView.isVisible;
-			final isBecomingAlive = humanData.isAlive && !humanView.isVisible;
-
-			if( isDying ) humanView.die();
-			if( isBecomingAlive ) humanView.live();
-			if( humanData.isAlive ) {
-				humanView.place( humanData.x, humanData.y );
-				humansLeft++;
-			}
-		}
-		
-		for( i in 0...frame.zombies.length ) {
-			final zombieData = frame.zombies[i];
-			final zombieView = zombies[i];
-
-			final isDying = !zombieData.isUndead && zombieView.isVisible;
-			final isBecomingAlive = zombieData.isUndead && !zombieView.isVisible;
-
-			if( isDying ) zombieView.die();
-			if( isBecomingAlive ) zombieView.live();
-
-			if( zombieData.isUndead  ) {
-				final zombieVelX = zombieData.xNext - zombieData.x;
-				final zombieVelY = zombieData.yNext - zombieData.y;
-				zombieView.rotate( MathUtils.angle( zombieVelX, zombieVelY ));
+			} else {
+				if( !mobs.exists( id )) createMob( id );
+				final previousCoord = previous.positions.exists( id ) ? previous.positions[id] : coord ;
+				final nextCoord = next.positions.exists( id ) ? next.positions[id] : coord;
 				
-				final zombieX = interpolate( zombieData.x, zombieData.xNext, easedSubFrame );
-				final zombieY = interpolate( zombieData.y, zombieData.yNext, easedSubFrame );
-				
-				zombieView.place( zombieX, zombieY );
+				final mob = mobs[id];
+				mob.isVisible = true;
+				place( mob, previousCoord, coord, nextCoord, subFrame );
 			}
 		}
-		tHumansLeft.text = '$humansLeft';
-		tScore.text = NumberFormat.number( score );
-*/	}
+	}
+
+	function createMob( id:Int ) {
+		final mobType = id < 38 ? 0 : id < 72 ? 1 : 2; // Todo find id of Mob Type 3
+		mobs[id] = entityCreator.createMob( mobsLayer, mobType );
+		// trace( 'createMob $id' );
+	}
 
 	function place( character:CharacterView, previous:Coord, coord:Coord, next:Coord, subFrame:Float ) {
 		final dx1 = coord.x - previous.x;
@@ -152,9 +120,9 @@ class GameView {
 		final angle = interpolate( angle1, angle2, easedRotation );
 		character.rotate( angle);
 		
-		final ashX = interpolate( coord.x, next.x, easedSubFrame);
-		final ashY = interpolate( coord.y, next.y, easedSubFrame );
-		character.place( ashX, ashY );
+		final x = interpolate( coord.x, next.x, easedSubFrame);
+		final y = interpolate( coord.y, next.y, easedSubFrame );
+		character.place( x, y );
 	}
 
 	inline function interpolate( v1:Float, v2:Float, f:Float ) {

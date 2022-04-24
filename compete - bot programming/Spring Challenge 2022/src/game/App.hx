@@ -28,7 +28,7 @@ class App extends hxd.App {
 	
 	var scaleFactor = 1.0;
 	
-	final frameViewDatasets:Array<FrameViewData> = [];
+	final frameDatasets:Array<FrameViewData> = [];
 
 	var gameView:view.GameView;
 	var sliderContainer:Object;
@@ -68,18 +68,20 @@ class App extends hxd.App {
 		gameView.scene.scaleX = gameView.scene.scaleY = minScale;
 		trace( 'resize $scaleX $scaleY  width $width  height $height' );
 
-		sliderContainer.y = scaleX < scaleY ? CANVAS_HEIGHT * scaleX : CANVAS_HEIGHT * scaleY - 60;
+		// sliderContainer.y = scaleX < scaleY ? CANVAS_HEIGHT * scaleX : CANVAS_HEIGHT * scaleY - 10;
+		sliderContainer.y = CANVAS_HEIGHT - 40;
 		sliderView.width = CANVAS_WIDTH;
 	}
 
 	public function addFrameViewData( dataset:FrameViewData ) {
-		frameViewDatasets.push( dataset );
+		frameDatasets.push( dataset );
 
-		if( frameViewDatasets.length > 1 ) {
-			final previousFrame = Std.int( Math.max( 0, frameViewDatasets.length - 3 ));
-			final currentFrame = frameViewDatasets.length - 2;
-			final nextFrame = frameViewDatasets.length - 1;
-			gameView.update( frameViewDatasets[previousFrame], frameViewDatasets[currentFrame], frameViewDatasets[nextFrame], 0 );
+		if( frameDatasets.length > 1 ) {
+			final previousFrame = Std.int( Math.max( 0, frameDatasets.length - 3 ));
+			final currentFrame = frameDatasets.length - 2;
+			final nextFrame = frameDatasets.length - 1;
+			sliderView.maxValue = nextFrame;
+			gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], 0 );
 		}
 	}
 
@@ -112,8 +114,8 @@ class App extends hxd.App {
 	// }
 
 	// function initFrameDatasets( startFrameDataset:FrameDataset ) {
-	// 	frameViewDatasets.splice( 0, frameViewDatasets.length );
-	// 	frameViewDatasets.push( startFrameDataset );
+	// 	frameDatasets.splice( 0, frameDatasets.length );
+	// 	frameDatasets.push( startFrameDataset );
 	// }
 
 	override function update( dt:Float ) {
@@ -127,7 +129,7 @@ class App extends hxd.App {
 		// 		if( playCounter == 0 ) {
 		// 			goToFrame( currentFrame );
 		// 			currentFrame++;
-		// 			if( currentFrame >= frameViewDatasets.length ) changeState( Finished );
+		// 			if( currentFrame >= frameDatasets.length ) changeState( Finished );
 		// 		}
 		// 		playCounter = ( playCounter + 1 ) % PLAY_FRAME;
 		// 	default: // no-op
@@ -137,8 +139,8 @@ class App extends hxd.App {
 	function goToFrame( f:Float ) {
 		final currentFrame = Math.floor( f );
 		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
-		final nextFrame = Std.int( Math.min( frameViewDatasets.length - 1, currentFrame + 1 ));
+		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
 		final subFrame = f - currentFrame;
-		gameView.update( frameViewDatasets[previousFrame], frameViewDatasets[currentFrame], frameViewDatasets[nextFrame], subFrame );
+		gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame );
 	}
 }

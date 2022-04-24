@@ -1,7 +1,9 @@
 package view;
 
 typedef FrameViewData = {
-    // States
+    
+	var turn:Int;
+	// States
     var positions:Map<Int, Coord>;
     var messages:Map<Int, String>;
     var controlled:Array<Int>;

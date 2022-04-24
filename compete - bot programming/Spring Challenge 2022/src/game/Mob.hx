@@ -16,6 +16,7 @@ class Mob extends GameEntity {
 		super( position, type );
 		this.health = health;
 		pushed = false;
+		// trace( 'new Mob $id' );
 	}
 
 	public function isAlive() return health > 0;

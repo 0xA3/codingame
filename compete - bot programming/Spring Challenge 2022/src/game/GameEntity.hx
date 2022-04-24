@@ -10,8 +10,8 @@ abstract class GameEntity {
     public var shieldDuration:Int;
     public var pushed:Bool;
 
-	public function new( position:Vector, type:Int ) {
-		id = ENTITY_COUNT++;
+	public function new( position:Vector, type:Int, ?id:Int ) {
+		this.id = id == null ? ENTITY_COUNT++ : id;
 		this.position = position;
 		this.type = type;
 		activeControls = new List<Vector>();
