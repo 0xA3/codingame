@@ -15,8 +15,8 @@ class Mob extends GameEntity implements polygonal.ds.Hashable {
 	public var threatFor = 0;
 	public var key:Int;
 
-	public function new( position:Vector, health:Int ) {
-		super( position, Referee.TYPE_MOB );
+	public function new( position:Vector, health:Int, type = 2 ) {
+		super( position, type );
 		this.health = health;
 		pushed = false;
 		key = HashKey.next();

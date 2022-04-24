@@ -5,6 +5,8 @@ import gameengine.core.AbstractMultiplayerPlayer;
 class Player extends AbstractMultiplayerPlayer {
 
 	public final name:String;
+	public var baseX:Int;
+	public var baseY:Int;
 
 	public final heros:Array<Hero> = [];
 	public var mana = Configuration.STARTING_MANA;
@@ -14,9 +16,12 @@ class Player extends AbstractMultiplayerPlayer {
 	public var spottet:Map<Int, Bool> = [];
 	public var manaGainedOutsideOfBase(default, null) = 0;
 
-	public function new( index:Int, ?name:String ) {
+
+	public function new( index:Int, name:String, baseX:Int, baseY:Int ) {
 		this.index = index;
-		this.name = name == null ? "Nobody" : name;
+		this.name = name;
+		this.baseX = baseX;
+		this.baseY = baseY;
 	}
 
 	public function getExpectedOutputLines() return heros.length;

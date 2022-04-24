@@ -1,6 +1,5 @@
 # -D source-header=Build 2020-12-11
 -lib polygonal-ds
--lib tink_core
 -lib xa3.format
 -cp ../../codingame_extension/
 -cp src

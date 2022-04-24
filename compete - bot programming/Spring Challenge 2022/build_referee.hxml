@@ -1,11 +1,8 @@
 -lib xa3.format
--lib heaps
--lib hldx
 -lib polygonal-ds
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
 -D game
--D windowSize=1724x970
--main game.MainGame
---hl bin/app.hl
+-main game.Referee
+--hl bin/referee.hl

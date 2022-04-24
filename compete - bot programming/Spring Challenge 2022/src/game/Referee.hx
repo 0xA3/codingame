@@ -91,8 +91,8 @@ class Referee {
 		final oppName ="Agent0";
 		final myName = "Agent1";
 		// manager
-		final refereePlayer0 = new Player( 0, oppName );
-		final refereePlayer1 = new Player( 1, myName );
+		final refereePlayer0 = new Player( 0, oppName, int( corners[0].x ), int( corners[0].y ));
+		final refereePlayer1 = new Player( 1, myName, int( corners[1].x ), int( corners[1].y ));
 		gameManager = new GameManager([ refereePlayer0, refereePlayer1 ]);
 		gameSummaryManager = new GameSummaryManager();
 		
@@ -124,8 +124,12 @@ class Referee {
 		// game.init( repeats == 1 ? 1 : Std.random( 99999 ), grid );
 		
 		// agents
-		final agentPlayer0 = new Player( 0, oppName );
-		final agentPlayer1 = new Player( 1, myName );
+		final agentPlayer0 = new Player( 0, oppName, int( corners[0].x ), int( corners[0].y ));
+		final agentPlayer1 = new Player( 1, myName, int( corners[1].x ), int( corners[1].y ));
+		
+		for( hero in refereePlayer0.heros ) agentPlayer0.addHero( hero.copyToPlayer( agentPlayer0 ));
+		for( hero in refereePlayer1.heros ) agentPlayer1.addHero( hero.copyToPlayer( agentPlayer1 ));
+		
 		final mobSwarm0 = new MobSwarm();
 		final mobSwarm1 = new MobSwarm();
 
@@ -648,33 +652,33 @@ class Referee {
 
 	static final PLAYER_WAIT_PATTERN = new EReg(
 		"^WAIT"
-		+ "\\s+(.+)"
+		+ "\\s*(.+)?"
 		+ "\\s*$", ""
 	);
 	
 	static final PLAYER_MOVE_PATTERN = new EReg(
 		"^MOVE\\s+(\\d+)\\s+(\\d+)"
-		+ "\\s+(.+)?"
+		+ "\\s*(.+)?"
 		+ "\\s*$", ""
 	);
 
 	static final PLAYER_WIND_PATTERN = new EReg(
 		"^SPELL\\s+"
 		+ "WIND\\s+(\\d+)\\s+(\\d+)"
-		+ "\\s+(.+)?"
+		+ "\\s*(.+)?"
 		+ "\\s*$", ""
 	);
 	
 	static final PLAYER_SHIELD_PATTERN = new EReg(
 		"^SPELL\\s+"
 		+ "SHIELD\\s+(\\d+)"
-		+ "\\s+(.+)?"
+		+ "\\s*(.+)?"
 		+ "\\s*$", ""
 	);
 	static final PLAYER_CONTROL_PATTERN = new EReg(
 		"^SPELL\\s+"
 		+ "CONTROL\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
-		+ "\\s+(.+)?"
+		+ "\\s*(.+)?"
 		+ "\\s*$", ""
 	);
 

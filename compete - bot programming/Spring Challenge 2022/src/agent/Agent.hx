@@ -12,12 +12,14 @@ using Lambda;
 
 class Agent {
 	
+	static final HEROS_PER_PLAYER = 3;
+
 	final me:Player;
 	final opp:Player;
 	final players:Array<Player>;
 	final mobSwarm:MobSwarm;
 	
-	final typeStartIds = [6, 0, 3];
+	final typeStartIds = [HEROS_PER_PLAYER * 2, 0, HEROS_PER_PLAYER];
 	final actions = [];
 	
 	public function new( me:Player, opp:Player, mobSwarm:MobSwarm ) {

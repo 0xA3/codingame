@@ -5,6 +5,8 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import agent.MobSwarm;
+import game.Configuration;
+import game.Hero;
 import game.Mob;
 import game.Player;
 import game.Vector;
@@ -14,16 +16,27 @@ class MainAgent {
 	static function main() {
 		
 		final inputs = readline().split(' ');
+		final myBaseX = parseInt( inputs[0] );
+		final myBaseY = parseInt( inputs[1] );
 		final herosPerPlayer = parseInt( readline() ); // Always 3
 		
 		//
 		// Add Agent
 		//
 		final mobSwarm = new MobSwarm();
-		final names = ["opponent", "me"];
+
+		final oppBaseX = Configuration.MAP_WIDTH - myBaseX;
+		final oppBaseY = Configuration.MAP_HEIGHT - myBaseY;
+
+		final me = new Player( 0, "me", myBaseX, myBaseY );
+		final opp = new Player( 0, "opponent", oppBaseX, oppBaseY );
 
 		final typeStartIds = [herosPerPlayer * 2, 0, herosPerPlayer];
-		final players = [new Player( 1, names[1] ), new Player( 0, names[0] )];
+		final players = [me, opp];
+		
+		var index = 0;
+		for( player in players ) for( _ in 0...herosPerPlayer ) player.addHero( new Hero( index++, new Vector( 0, 0 ), player, 0 ));
+		
 		final agent = new Agent0( players[0], players[1], mobSwarm );
 		
 		// game loop
