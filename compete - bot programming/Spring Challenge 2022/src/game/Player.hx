@@ -8,8 +8,8 @@ class Player extends AbstractMultiplayerPlayer {
 
 	public final heros:Array<Hero> = [];
 	public var mana = Configuration.STARTING_MANA;
-	var manaChanged = true;
-	var baseHealthChanged = true;
+	public var manaChanged = true;
+	public var baseHealthChanged = true;
 	public var baseHealth = Configuration.STARTING_BASE_HEALTH;
 	public var spottet:Map<Int, Bool> = [];
 	public var manaGainedOutsideOfBase(default, null) = 0;
@@ -60,8 +60,7 @@ class Player extends AbstractMultiplayerPlayer {
         return baseHealthChanged;
     }
 
-	// public function toString() {
-	// 	return '$name index $index';
-	// }
-
+	public function toString() {
+		return '$name index $index';
+	}
 }

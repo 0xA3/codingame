@@ -3,6 +3,7 @@ package game;
 import Std.int;
 import Std.parseInt;
 import agent.Agent;
+import agent.MobSwarm;
 import game.action.Action;
 import game.action.ActionException;
 import game.action.ActionType;
@@ -29,71 +30,70 @@ class Referee {
 	public static final INPUT_TYPE_MY_HERO = 1;
 	public static final INPUT_TYPE_ENEMY_HERO = 2;
 	
-	static var gameManager:GameManager;
-	static var gameSummaryManager:GameSummaryManager;
-	
+	var gameManager:GameManager;
+	var gameSummaryManager:GameSummaryManager;
 
-	static var agentOpp:Agent;
-	static var agentMe:Agent;
-	static var agents:Array<Agent>;
+	var agentOpp:Agent;
+	var agentMe:Agent;
+	var agents:Array<Agent>;
 
-	static var repeats:Int;
-	static var currentRepeat:Int;
-	static var scores:Array<Array<Int>> = [];
-	static var completes:Array<Array<String>> = [];
+	var repeats:Int;
+	var currentRepeat:Int;
+	var scores:Array<Array<Int>> = [];
+	var completes:Array<Array<String>> = [];
 
-	static var playerCount:Int;
+	var playerCount:Int;
 	
-	static var allHeros:Array<Hero> = [];
-	static var allMobs:Array<Mob> = [];
-	static var mobRemovals:Array<Mob> = [];
-	static var mobSpawner:MobSpawner;
-	static var newEntities:Array<GameEntity> = [];
-	static var attacks:Array<Attack> = [];
-	static var spellUses:Array<SpellUse> = [];
-	static var baseAttacks:Array<BaseAttack> = [];
-	static var intentMap:Map<ActionType, Array<Hero>> = [];
-	static var positionKeyMap:Map<HashSet<Vector>, Float> = [];
+	var allHeros:Array<Hero> = [];
+	var allMobs:Array<Mob> = [];
+	var mobRemovals:Array<Mob> = [];
+	var mobSpawner:MobSpawner;
+	var newEntities:Array<GameEntity> = [];
+	var attacks:Array<Attack> = [];
+	var spellUses:Array<SpellUse> = [];
+	var baseAttacks:Array<BaseAttack> = [];
+	var intentMap:Map<ActionType, Array<Hero>> = [];
+	var positionKeyMap:Map<HashSet<Vector>, Float> = [];
 	
-	static var corners = [new Vector(0, 0), new Vector(Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT)];
-	static var startDirections = [new Vector(1, 1).normalize(), new Vector(-1, -1).normalize()];
-	static var basePositions:Array<Vector> = [];
-	
-	static var allEntities = () -> {
-		final all:Array<GameEntity> = [];
-		for( hero in allHeros) all.push( hero );
-		for( mob in allMobs ) all.push( mob );
-		return all;
-	}
+	var corners = [new Vector(0, 0), new Vector(Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT)];
+	var startDirections = [new Vector(1, 1).normalize(), new Vector(-1, -1).normalize()];
+	var basePositions:Array<Vector> = [];
+	var allEntities:()->Array<GameEntity>;
 
-	static final actionTypes = [MOVE, WIND, SHIELD, CONTROL, IDLE];
-	static final symmetryOrigin = new Vector( Configuration.MAP_WIDTH / 2, Configuration.MAP_HEIGHT / 2 );
+	final actionTypes = [MOVE, WIND, SHIELD, CONTROL, IDLE];
+	final symmetryOrigin = new Vector( Configuration.MAP_WIDTH / 2, Configuration.MAP_HEIGHT / 2 );
 
 	public static function main() {
-		
+		new Referee();
+	}
+
+	public function new() {
 		final args = Sys.args();
 		repeats = args[0] == null ? 1 : parseInt( args[0] );
+		
+		allEntities = () -> {
+			final all:Array<GameEntity> = [];
+			for( hero in allHeros) all.push( hero );
+			for( mob in allMobs ) all.push( mob );
+			return all;
+		}
+		
 		for( i in 0...repeats ) {
 			currentRepeat = i;
 			init( currentRepeat );
 			run();
 		}
-		// outputScoreAverages();
 	}
 
-	public function new() {
-		
-	}
-
-	static function init( currentRepeat:Int ) {
+	public function init( currentRepeat:Int ) {
 
 		final seed = currentRepeat;
 		final oppName ="Agent0";
 		final myName = "Agent1";
 		// manager
-		final managerPlayer0 = new Player( 0, oppName );
-		final managerPlayer1 = new Player( 1, myName );
-		gameManager = new GameManager([ managerPlayer0, managerPlayer1 ]);
+		final refereePlayer0 = new Player( 0, oppName );
+		final refereePlayer1 = new Player( 1, myName );
+		gameManager = new GameManager([ refereePlayer0, refereePlayer1 ]);
 		gameSummaryManager = new GameSummaryManager();
 		
 		computeConfiguration();
@@ -126,16 +126,25 @@ class Referee {
 		// agents
 		final agentPlayer0 = new Player( 0, oppName );
 		final agentPlayer1 = new Player( 1, myName );
-		// final board0 = game.board.copy();
-		// final board1 = game.board.copy();
+		final mobSwarm0 = new MobSwarm();
+		final mobSwarm1 = new MobSwarm();
+
+		agentOpp = new agent.Agent0( agentPlayer0, agentPlayer1, mobSwarm0 );
+		agentMe = new agent.Agent0( agentPlayer1, agentPlayer0, mobSwarm1 );
 		
-		// agentOpp = new agent.Agent0( agentPlayer0, agentPlayer1, board0 );
-		// agentMe = new agent.Agent0( agentPlayer1, agentPlayer0, board1 );
-		
-		// agents = [agentOpp, agentMe];
+		agents = [agentOpp, agentMe];
 	}
 
-	static function computeConfiguration() {
+	public function run() {
+		var turn = 0;
+		// while( actionTurn < 3 && !gameManager.gameEnd ) {
+		while( !gameManager.gameEnd ) {
+			gameTurn( turn++ );
+		}
+		onEnd();
+	}
+
+	function computeConfiguration() {
 
 		switch gameManager.getLeagueLevel() {
 			case 1:
@@ -154,21 +163,12 @@ class Referee {
 		}
 	}
 
-	static function abort() {
+	function abort() {
 		trace( 'Unexpected game end' );
 		gameManager.endGame();
 	}
 
-	static function run() {
-		var turn = 0;
-		// while( actionTurn < 3 && !gameManager.gameEnd ) {
-		while( !gameManager.gameEnd ) {
-			gameTurn( turn++ );
-		}
-		onEnd();
-	}
-
-	static function snapToGameZone( v:Vector ) {
+	function snapToGameZone( v:Vector ) {
 		var snapX = v.x;
 		var snapY = v.y;
 
@@ -201,7 +201,7 @@ class Referee {
 	 *            Ending point of Segment 2
 	 * @return Vector where the segments intersect, or null if they don't
 	 */
-	static function intersectionCoord( x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, x4:Float, y4:Float ) {
+	function intersectionCoord( x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, x4:Float, y4:Float ) {
 		final d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 		if( d == 0 ) return null;
 
@@ -214,14 +214,14 @@ class Referee {
 		return p;
 	}
 
-	static function intersectionVec( a:Vector, b:Vector, a2:Vector, b2:Vector ) {
+	function intersectionVec( a:Vector, b:Vector, a2:Vector, b2:Vector ) {
 		return intersectionCoord(
 			a.x, a.y, b.x, b.y,
 			a2.x, a2.y, b2.x, b2.y
 		);
 	}
 
-	static function initPlayers() {
+	function initPlayers() {
 		// Generate heroes
 		final spawnOffset = 1600;
 		final spaceBetweenHeroes = 400;
@@ -252,7 +252,7 @@ class Referee {
 		sendGlobalInfo();
 	}
 
-	static function sendGlobalInfo() {
+	function sendGlobalInfo() {
 		for( player in gameManager.getActivePlayers() ) {
 			// <baseX> <baseY>
 			player.sendInputLine( Std.string( basePositions[player.index] ));
@@ -261,13 +261,17 @@ class Referee {
 		}
 	}
 
-	static function gameTurn( turn:Int ) {
+	function gameTurn( turn:Int ) {
 		resetGameTurnData();
 
 		// Give input to players
-		for( player in gameManager.getActivePlayers()) {
+		for( i in 0...gameManager.players.length ) {
+			final player = gameManager.players[i];
+			final agent = agents[i];
 			sendGameStateFor( player );
-			player.execute();
+			
+			agent.giveInputs( player.getInputs());
+			player.setOutputs( agent.process().split( "\n" ));
 		}
 		// Get output from players
 		handlePlayerCommands();
@@ -288,7 +292,7 @@ class Referee {
 		}
 	}
 
-	static function performGameUpdate( turn:Int ) {
+	function performGameUpdate( turn:Int ) {
 		doControl();
 		doShield();
 		moveHeros();
@@ -302,11 +306,11 @@ class Referee {
 		}
 	}
 
-	static function shieldDecay() {
+	function shieldDecay() {
 		for( e in allEntities()) if( e.shieldDuration > 0 ) e.shieldDuration--;
 	}
 
-	static function doPush() {
+	function doPush() {
 		final directionMap:Map<GameEntity, Array<Vector>> = [];
 
 		for( hero in intentMap[WIND] ) {
@@ -365,7 +369,7 @@ class Referee {
 		}
 	}
 
-	static function recordSpellUse( hero:Hero ) {
+	function recordSpellUse( hero:Hero ) {
 		final push = hero.intent;
 		final su:SpellUse = {
 			hero: hero.id,
@@ -376,7 +380,7 @@ class Referee {
 		spellUses.push( su );
 	}
 
-	static function baseWallIntersection( from:Vector, to:Vector ) {
+	function baseWallIntersection( from:Vector, to:Vector ) {
 		final w = Configuration.MAP_WIDTH - 1;
 		final h = Configuration.MAP_HEIGHT - 1;
 		final baseRadius = Configuration.BASE_ATTRACTION_RADIUS;
@@ -391,12 +395,12 @@ class Referee {
 		return intersection != null ? intersection.symmetricTruncate( symmetryOrigin ) : null;
 	}
 
-	static function isInBaseAttractionZone( v:Vector ) {
+	function isInBaseAttractionZone( v:Vector ) {
 		for( basePosition in basePositions ) if( v.inRange( basePosition, Configuration.BASE_ATTRACTION_RADIUS )) return true;
 		return false;
 	}
 
-	static function doShield() {
+	function doShield() {
 		// A protective bubble will appear around target on next turn
 		for( hero in intentMap[SHIELD] ) {
 			final control = hero.intent;
@@ -427,7 +431,7 @@ class Referee {
 		}
 	}
 	
-	static function doControl() {
+	function doControl() {
 		// Incept next action into victim's mind
 		for( hero in intentMap[CONTROL] ) {
 			final control = hero.intent;
@@ -461,12 +465,12 @@ class Referee {
 		}
 	}
 
-	static function heroCanSee( hero:Hero, entity:GameEntity ) {
+	function heroCanSee( hero:Hero, entity:GameEntity ) {
 		if( Configuration.ENABLE_FOG ) return hero.position.inRange( entity.position, Configuration.HERO_VIEW_RADIUS );
 		return true;
 	}
 
-	static function playerCanSee( player:Player, entity:GameEntity ) {
+	function playerCanSee( player:Player, entity:GameEntity ) {
 		if( !insideVisibleMap( entity.position )) return false;
 		if( entity.getOwner() == player ) return true;
 		if( entity.position.inRange( basePositions[player.index], Configuration.BASE_VIEW_RADIUS)) return true;
@@ -475,13 +479,13 @@ class Referee {
 		return false;
 	}
 
-	static function spawnNewMobs( turn:Int ) {
+	function spawnNewMobs( turn:Int ) {
 		final newMobs = mobSpawner.update( turn );
 		for( mob in newMobs ) allMobs.push( mob );
 		for( mob in newMobs ) newEntities.push( mob );
 	}
 
-	static function moveMobs() {
+	function moveMobs() {
 		for( mob in allMobs ) {
 			if( !insideMap( mob.position )) {
 				removeMob( mob );
@@ -534,9 +538,9 @@ class Referee {
 		}
 	}
 
-	static function removeMob( mob:Mob ) mobRemovals.push( mob );
+	function removeMob( mob:Mob ) mobRemovals.push( mob );
 
-	static function performCombat() {
+	function performCombat() {
 		final killedMobs = new HashSet<Mob>( allMobs.length );
 		final manaGain:Map<Player, Array<Int>> = [];
 
@@ -576,7 +580,7 @@ class Referee {
 		return manaGain;
 	}
 
-	static function moveHeros() {
+	function moveHeros() {
 		//Handle hero MOVES
 		for( hero in intentMap[MOVE] ) {
 			final move = hero.intent;
@@ -584,7 +588,7 @@ class Referee {
 		}
 	}
 
-	static function handlePlayerCommands() {
+	function handlePlayerCommands() {
 		for( player in gameManager.getActivePlayers() ) {
 			try {
 				handleCommands( player, player.getOutputs());
@@ -598,7 +602,7 @@ class Referee {
 	/**
 	 * Called before player outputs are handled
 	 */
-	 static function resetGameTurnData() {
+	 function resetGameTurnData() {
 		// Reset intentions
 		for( h in allHeros ) {
 			h.intent = Action.IDLE;
@@ -626,19 +630,19 @@ class Referee {
 		//     .forEach(Player::resetViewData);
 	}
 
-	static function getAllEnemyUnitsAround( hero:Hero, range:Int ) {
+	function getAllEnemyUnitsAround( hero:Hero, range:Int ) {
 		return getAllAround( hero, range, allEntities().filter( e -> e.getOwner() != hero.owner ));
 	}
 
-	static function getAllAround( e:GameEntity, range:Int, stream:Array<GameEntity >) {
+	function getAllAround( e:GameEntity, range:Int, stream:Array<GameEntity >) {
 		return stream.filter( other -> other.position.inRange( e.position, range ));
 	}
 
-	static function getMobsAround( e:GameEntity, range:Int, stream:Array<Mob>) {
+	function getMobsAround( e:GameEntity, range:Int, stream:Array<Mob>) {
 		return stream.filter( other -> other.position.inRange( e.position, range ));
 	}
 
-	static function mobCanDetectBase( mob:Mob, base:Vector ) {
+	function mobCanDetectBase( mob:Mob, base:Vector ) {
 		return insideVisibleMap( mob.position ) && mob.position.inRange( base, Configuration.BASE_ATTRACTION_RADIUS );
 	}
 
@@ -678,7 +682,7 @@ class Referee {
 		? "MOVE <x> <y> | SPELL <spell_command> | WAIT"
 		: "MOVE <x> <y> | WAIT";
 	
-	static function handleCommands( player:Player, lines:Array<String> ) {
+	function handleCommands( player:Player, lines:Array<String> ) {
 		var i = 0;
 		for( line in lines ) {
 			final hero = player.heros[i++];
@@ -776,25 +780,25 @@ class Referee {
 		}
 	}
 
-	static function computeControlResult( e:GameEntity, moveSpeed:Int ) {
+	function computeControlResult( e:GameEntity, moveSpeed:Int ) {
 		return e.activeControls.map( v -> stepTo( e.position, v, moveSpeed ))
 		.fold(( v, sum ) -> sum.add( v ), new Vector( 0, 0 ))
 		.mult( 1.0 / e.activeControls.length );
 	}
 
-	static function matchMessage( hero:Hero, message:String ) {
+	function matchMessage( hero:Hero, message:String ) {
 		// String characterFilter = "[^\\p{L}\\p{M}\\p{N}\\p{P}\\p{Z}\\p{Cf}\\p{Cs}\\s]";
 		// String messageWithoutEmojis = message.replaceAll(characterFilter, "");
 		hero.message = message;
 	}
 
-	static function stepTo( position:Vector, destination:Vector, speed:Int ) {
+	function stepTo( position:Vector, destination:Vector, speed:Int ) {
 		final v = Vector.fromVectors( position, destination );
 		final target = v.lengthSquared() <= speed * speed ? v : v.normalize().mult( speed );
 		return position.add( target );
 	}
 
-	static function recordIntention( hero:Hero, intent:Action ) {
+	function recordIntention( hero:Hero, intent:Action ) {
 		hero.intent = intent;
 		intentMap.compute( intent.type, ( key, value ) -> {
 			if( value == null ) value = new Array<Hero>();
@@ -803,7 +807,7 @@ class Referee {
 		});
 	}
 
-	static function sendGameStateFor( player:Player ) {
+	function sendGameStateFor( player:Player ) {
 		final entityLines:Array<String> = [];
 
 		final visibleHerosForPlayer = allHeros.filter( hero -> playerCanSee( player, hero ));
@@ -835,7 +839,7 @@ class Referee {
 	static final WANDERING = 0;
 	static final ATTACKING = 1;
 
-	static function getMobStatus( mob:Mob ) {
+	function getMobStatus( mob:Mob ) {
 		if( mob.status == null || !mob.activeControls.isEmpty()) {
 			var mobSpeed:Vector;
 
@@ -881,18 +885,18 @@ class Referee {
 		return mob.status;
 	}
 
-	static function insideMap( p:Vector ) {
+	function insideMap( p:Vector ) {
 		return p.withinBounds(
 			-Configuration.MAP_LIMIT, -Configuration.MAP_LIMIT,
 			Configuration.MAP_WIDTH + Configuration.MAP_LIMIT, Configuration.MAP_HEIGHT + Configuration.MAP_LIMIT
 		);
 	}
 
-	static function insideVisibleMap( p:Vector ) {
+	function insideVisibleMap( p:Vector ) {
 		return p.withinBounds( 0, 0, Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT );
 	}
 
-	static function onEnd() {
+	function onEnd() {
 		var tie = false;
 		if( gameManager.getPlayers().length == 2 ) {
 			final a = gameManager.getPlayer( 0 );
@@ -925,7 +929,7 @@ class Referee {
 		// endScreenModule.scores = gameManager.getPlayers().map( player -> player.score );
 	}
 
-	static function asViewData( entity:GameEntity ) {
+	function asViewData( entity:GameEntity ) {
 		final res:EntityData = {
 			type: entity.type,
 			id: entity.id,
@@ -934,15 +938,15 @@ class Referee {
 		return res;
 	}
 
-	static function asCoord( entity:GameEntity ) {
+	function asCoord( entity:GameEntity ) {
 		return new Coord( int( entity.position.x ), int( entity.position.y ));
 	}
 	
-	public static function getCurrentFrameData() {
+	public function getCurrentFrameData() {
 		
 	}
 
-	static function getGlobalData() {
+	function getGlobalData() {
 		
 	}
 

@@ -26,9 +26,9 @@ class App extends hxd.App {
 	var sliderContainer:Object;
 	var sliderView:view.SliderView;
 	
-	public function new( initDataset:FrameDataset ) {
+	public function new( referee:Referee ) {
 		super();
-		frameDatasets = [initDataset];
+		frameDatasets = [];
 	}
 
 	override function init() {

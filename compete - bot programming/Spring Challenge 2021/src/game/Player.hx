@@ -2,6 +2,7 @@ package game;
 
 import Math.max;
 import Std.int;
+import agent.Agent;
 import game.action.Action;
 import gameengine.core.AbstractMultiplayerPlayer;
 
@@ -14,9 +15,10 @@ class Player extends AbstractMultiplayerPlayer {
 	public var isWaiting = false;
 	public var bonusScore = 0;
 
-	public function new( index:Int, ?name:String ) {
+	public function new( index:Int, ?name:String, ?agent:Agent ) {
 		this.index = index;
 		this.name = name == null ? "Nobody" : name;
+		this.agent = agent;
 		sun = Config.STARTING_SUN;
 		action = Action.NO_ACTION;
 	}

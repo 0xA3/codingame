@@ -32,8 +32,14 @@ abstract class AbstractPlayer {
 	 */
 	public function execute() {
 		//gameManagerProvider.get().execute(this);
+
 		this.hasBeenExecuted = true;
 		this.hasNeverBeenExecuted = false;
+		
+	}
+
+	public function getInputs() {
+		return inputs;
 	}
 
 	public function getOutputs() {
