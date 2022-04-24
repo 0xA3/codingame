@@ -9,10 +9,13 @@ import game.action.ActionException;
 import game.action.ActionType;
 import gameengine.core.GameManager;
 import haxe.Exception;
+import tink.CoreApi.SignalTrigger;
+import tink.core.Signal;
 import view.Attack;
 import view.BaseAttack;
 import view.Coord;
 import view.EntityData;
+import view.FrameViewData;
 import view.SpellUse;
 import xa3.MTRandom;
 
@@ -29,6 +32,9 @@ class Referee {
 	public static final INPUT_TYPE_MY_HERO = 1;
 	public static final INPUT_TYPE_ENEMY_HERO = 2;
 	
+	public var frameDataset(default, null):Signal<FrameViewData>;
+	var frameDatasetTrigger:SignalTrigger<FrameViewData>;
+
 	var gameManager:GameManager;
 	var gameSummaryManager:GameSummaryManager;
 
@@ -36,8 +42,6 @@ class Referee {
 	var agentMe:Agent;
 	var agents:Array<Agent>;
 
-	var repeats:Int;
-	var currentRepeat:Int;
 	var scores:Array<Array<Int>> = [];
 	var completes:Array<Array<String>> = [];
 
@@ -62,26 +66,15 @@ class Referee {
 	final actionTypes = [MOVE, WIND, SHIELD, CONTROL, IDLE];
 	final symmetryOrigin = new Vector( Configuration.MAP_WIDTH / 2, Configuration.MAP_HEIGHT / 2 );
 
-	public static function main() {
-		new Referee();
-	}
-
 	public function new() {
-		final args = Sys.args();
-		repeats = args[0] == null ? 1 : parseInt( args[0] );
-		
 		allEntities = () -> {
 			final all:Array<GameEntity> = [];
 			for( hero in allHeros) all.push( hero );
 			for( mob in allMobs ) all.push( mob );
 			return all;
 		}
-		
-		for( i in 0...repeats ) {
-			currentRepeat = i;
-			init( currentRepeat );
-			run();
-		}
+		frameDatasetTrigger = Signal.trigger();
+		frameDataset = frameDatasetTrigger.asSignal();
 	}
 
 	public function init( currentRepeat:Int ) {
@@ -167,7 +160,6 @@ class Referee {
 	}
 
 	function abort() {
-		trace( 'Unexpected game end' );
 		gameManager.endGame();
 	}
 
@@ -281,8 +273,10 @@ class Referee {
 		handlePlayerCommands();
 
 		performGameUpdate( turn );
+		
+		sendCurrentFrameData();
 
-		for( player in gameManager.getPlayers()) {
+		for( player in gameManager.players ) {
 			if( player.baseHealth == 0 ) {
 				player.deactivate( "Base destroyed!" );
 			}
@@ -905,7 +899,7 @@ class Referee {
 
 	function onEnd() {
 		var tie = false;
-		if( gameManager.getPlayers().length == 2 ) {
+		if( gameManager.players.length == 2 ) {
 			final a = gameManager.getPlayer( 0 );
 			final b = gameManager.getPlayer( 1 );
 			if( a.isActive && !b.isActive ) {
@@ -931,9 +925,9 @@ class Referee {
 				}
 			}
 		} else {
-			for( p in gameManager.getPlayers()) p.score = p.baseHealth;
+			for( p in gameManager.players ) p.score = p.baseHealth;
 		}
-		// endScreenModule.scores = gameManager.getPlayers().map( player -> player.score );
+		// endScreenModule.scores = gameManager.players.map( player -> player.score );
 	}
 
 	function asViewData( entity:GameEntity ) {
@@ -949,8 +943,37 @@ class Referee {
 		return new Coord( int( entity.position.x ), int( entity.position.y ));
 	}
 	
-	public function getCurrentFrameData() {
+	function sendCurrentFrameData() {
+		final positions = [for( entity in allEntities() ) entity.id => asCoord( entity )];
+		final messages = [for( h in allHeros ) if( h.message != "" ) h.id => h.message];
+		final controlled = allEntities().filter( e -> e.isControlled() ).map( e -> e.id );
+		final pushed = allEntities().filter( e -> e.gotPushed() ).map( e -> e.id );
+		final shielded = allEntities().filter( e -> e.hadActiveShield() ).map( e -> e.id );
 		
+		final mana = gameManager.players.map( player -> player.mana );
+		final baseHealth = gameManager.players.map( player -> player.baseHealth );
+		final mobHealth = [for( mob in allMobs ) mob.id => mob.health];
+		
+		final spawns = newEntities.map( entity -> asViewData( entity ));
+
+		final dataset:FrameViewData = {
+			positions: positions,
+			messages: messages,
+			controlled: controlled,
+			pushed: pushed,
+			shielded: shielded,
+
+			mana: mana,
+			baseHealth: baseHealth,
+			mobHealth: mobHealth,
+
+			spawns: spawns,
+			attacks: attacks,
+			baseAttacks: baseAttacks,
+			spellUses: spellUses
+		}
+		
+		frameDatasetTrigger.trigger( dataset );
 	}
 
 	function getGlobalData() {

@@ -1,8 +1,8 @@
 -lib xa3.format
-# -lib polygonal-ds
+-lib tink_core
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
 -D game
--main game.Referee
+-main game.MainReferee
 --hl bin/referee.hl

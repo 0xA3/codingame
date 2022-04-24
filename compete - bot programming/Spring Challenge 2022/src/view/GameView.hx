@@ -3,7 +3,6 @@ package view;
 import game.App;
 import game.Configuration;
 import game.EntityCreator;
-import game.data.FrameDataset;
 import h2d.Bitmap;
 import h2d.Object;
 import h2d.Text;
@@ -53,35 +52,35 @@ class GameView {
 		tMana2.y = 56;
 	}
 
-	public function initEntities( testCaseDataset:FrameDataset ) {
+	public function initEntities() {
 		
 		for( heartX in heartXs ) {
 			hearts.push( entityCreator.createHeart( textLayer, heartX, heartY ));
 		}
 
-		for( i in 0...testCaseDataset.players.length ) {
-			final playerData = testCaseDataset.players[i];
-			for( heroData in playerData.heros ) {
-				if( heros[heroData.id] == null ) {
-					final heroView = entityCreator.createHero( herosLayer, heroData.x, heroData.y, heroData.rotation, i );
-					heros[heroData.id] = heroView;
-				} else {
-					heros[heroData.id].place( heroData.x, heroData.y );
-				}
-			}
-		}
-		for( monsterData in testCaseDataset.monsters ) {
-			if( monsters[monsterData.id] == null ) {
-				final monsterView = entityCreator.createMonster( monstersLayer, monsterData.x, monsterData.y, 0 );
-				monsters[monsterData.id] = monsterView;
-			} else {
-				monsters[monsterData.id].place( monsterData.x, monsterData.y );
-			}
-		}
+		// for( i in 0...testCaseDataset.players.length ) {
+		// 	final playerData = testCaseDataset.players[i];
+		// 	for( heroData in playerData.heros ) {
+		// 		if( heros[heroData.id] == null ) {
+		// 			final heroView = entityCreator.createHero( herosLayer, heroData.x, heroData.y, heroData.rotation, i );
+		// 			heros[heroData.id] = heroView;
+		// 		} else {
+		// 			heros[heroData.id].place( heroData.x, heroData.y );
+		// 		}
+		// 	}
+		// }
+		// for( monsterData in testCaseDataset.monsters ) {
+		// 	if( monsters[monsterData.id] == null ) {
+		// 		final monsterView = entityCreator.createMonster( monstersLayer, monsterData.x, monsterData.y, 0 );
+		// 		monsters[monsterData.id] = monsterView;
+		// 	} else {
+		// 		monsters[monsterData.id].place( monsterData.x, monsterData.y );
+		// 	}
+		// }
 	}
 
 
-	public function update( frame:FrameDataset, nextFrame:FrameDataset, subFrame:Float ) {
+	public function update( frame:FrameViewData, nextFrame:FrameViewData, subFrame:Float ) {
 /*		final prevVelX = frame.ashX - ashPreviousX;
 		final prevVelY = frame.ashY - ashPreviousY;
 		final velX = nextFrame.ashX - frame.ashX;

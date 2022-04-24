@@ -4,19 +4,19 @@ typedef FrameViewData = {
     // States
     var positions:Map<Int, Coord>;
     var messages:Map<Int, String>;
-    var controlled:List<Int>;
-    var pushed:List<Int>;
-    var shielded:List<Int>;
+    var controlled:Array<Int>;
+    var pushed:Array<Int>;
+    var shielded:Array<Int>;
 
     // Diffs
-    var mana:Map<Int, Int>;
-    var baseHealth:Map<Int, Int>;
+    var mana:Array<Int>;
+    var baseHealth:Array<Int>;
     var mobHealth:Map<Int, Int>;
 
     // Events
-    var spawns:List<EntityData>;
-    var attacks:List<Attack>;
-    var baseAttacks:List<BaseAttack>;
-    var spellUses:List<SpellUse>;
+    var spawns:Array<EntityData>;
+    var attacks:Array<Attack>;
+    var baseAttacks:Array<BaseAttack>;
+    var spellUses:Array<SpellUse>;
 
 }

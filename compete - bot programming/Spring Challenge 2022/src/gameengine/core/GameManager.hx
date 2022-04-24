@@ -60,7 +60,6 @@ class GameManager {
 	 */
 	public function endGame() {
 		gameEnd = true;
-		trace( 'endGame' );
 	}
 	
 	/**
@@ -85,11 +84,11 @@ class GameManager {
 	}
 
 	public function getLeagueLevel() {
-		// return 1; // Wood 2
-		return 2; // Wood 1
+		return 1; // Wood 2
+		// return 2; // Wood 1
 	}
 
-	public function getPlayerCount() return 2;
+	public function getPlayerCount() return players.length;
 
 	public function getPlayer( n:Int ) return players[n];
 

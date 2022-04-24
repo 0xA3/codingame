@@ -1,8 +1,8 @@
 package game;
 
 import Std.parseInt;
-import game.data.FrameDataset;
 import h2d.Object;
+import view.FrameViewData;
 
 using Lambda;
 
@@ -15,20 +15,20 @@ class App extends hxd.App {
 	public static inline var SCENE_HEIGHT = 832;
 	public static inline var CANVAS_WIDTH = 1724;
 	public static inline var CANVAS_HEIGHT = 970;
+	
 	var width = SCENE_WIDTH;
 	var height = SCENE_HEIGHT;
 	
 	var scaleFactor = 1.0;
 	
-	final frameDatasets:Array<FrameDataset>;
+	final frameViewDatasets:Array<FrameViewData> = [];
 
 	var gameView:view.GameView;
 	var sliderContainer:Object;
 	var sliderView:view.SliderView;
 	
-	public function new( referee:Referee ) {
+	public function new() {
 		super();
-		frameDatasets = [];
 	}
 
 	override function init() {
@@ -36,7 +36,7 @@ class App extends hxd.App {
 		final entityCreator = new EntityCreator();
 		entityCreator.createBackground( scene );
 		gameView = new view.GameView( scene, entityCreator );
-		gameView.initEntities( frameDatasets[0] );
+		gameView.initEntities();
 		
 		sliderContainer = new Object( s2d );
 		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame );
@@ -59,6 +59,15 @@ class App extends hxd.App {
 
 		sliderContainer.y = scaleX < scaleY ? CANVAS_HEIGHT * scaleX : CANVAS_HEIGHT * scaleY - 60;
 		sliderView.width = width;
+	}
+
+	public function addFrameViewData( dataset:FrameViewData ) {
+		frameViewDatasets.push( dataset );
+		if( frameViewDatasets.length > 1 ) {
+			final currentFrame = frameViewDatasets.length - 2;
+			final nextFrame = frameViewDatasets.length - 1;
+			gameView.update( frameViewDatasets[currentFrame], frameViewDatasets[nextFrame], 0 );
+		}
 	}
 
 	// public function select( id:Int ) {
@@ -90,8 +99,8 @@ class App extends hxd.App {
 	// }
 
 	// function initFrameDatasets( startFrameDataset:FrameDataset ) {
-	// 	frameDatasets.splice( 0, frameDatasets.length );
-	// 	frameDatasets.push( startFrameDataset );
+	// 	frameViewDatasets.splice( 0, frameViewDatasets.length );
+	// 	frameViewDatasets.push( startFrameDataset );
 	// }
 
 	override function update( dt:Float ) {
@@ -105,7 +114,7 @@ class App extends hxd.App {
 		// 		if( playCounter == 0 ) {
 		// 			goToFrame( currentFrame );
 		// 			currentFrame++;
-		// 			if( currentFrame >= frameDatasets.length ) changeState( Finished );
+		// 			if( currentFrame >= frameViewDatasets.length ) changeState( Finished );
 		// 		}
 		// 		playCounter = ( playCounter + 1 ) % PLAY_FRAME;
 		// 	default: // no-op
@@ -114,8 +123,8 @@ class App extends hxd.App {
 
 	function goToFrame( f:Float ) {
 		final currentFrame = Math.floor( f );
-		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
+		final nextFrame = Std.int( Math.min( frameViewDatasets.length - 1, currentFrame + 1 ));
 		final subFrame = f - currentFrame;
-		gameView.update( frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame );
+		gameView.update( frameViewDatasets[currentFrame], frameViewDatasets[nextFrame], subFrame );
 	}
 }
