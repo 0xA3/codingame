@@ -2,11 +2,13 @@ package view;
 
 import game.App;
 import game.Configuration;
-import game.EntityCreator;
 import h2d.Bitmap;
 import h2d.Object;
 import h2d.Text;
 import view.CharacterView;
+import view.EntityCreator;
+
+using xa3.MathUtils;
 
 class GameView {
 	
@@ -14,8 +16,8 @@ class GameView {
 	public static inline var Y0 = 116;
 	
 	static final scale = App.SCENE_WIDTH / Configuration.MAP_WIDTH;
-	public static function sX( x:Int ) return x * scale + X0;
-	public static function sY( y:Int ) return y * scale + Y0;
+	public static function sX( x:Float ) return x * scale + X0;
+	public static function sY( y:Float ) return y * scale + Y0;
 
 	final heartY = 58;
 	final heartXs = [195, 226, 256, 1334, 1365, 1395];
@@ -58,17 +60,8 @@ class GameView {
 			hearts.push( entityCreator.createHeart( textLayer, heartX, heartY ));
 		}
 
-		// for( i in 0...testCaseDataset.players.length ) {
-		// 	final playerData = testCaseDataset.players[i];
-		// 	for( heroData in playerData.heros ) {
-		// 		if( heros[heroData.id] == null ) {
-		// 			final heroView = entityCreator.createHero( herosLayer, heroData.x, heroData.y, heroData.rotation, i );
-		// 			heros[heroData.id] = heroView;
-		// 		} else {
-		// 			heros[heroData.id].place( heroData.x, heroData.y );
-		// 		}
-		// 	}
-		// }
+		for( i in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 0 ));
+		for( i in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
 		// for( monsterData in testCaseDataset.monsters ) {
 		// 	if( monsters[monsterData.id] == null ) {
 		// 		final monsterView = entityCreator.createMonster( monstersLayer, monsterData.x, monsterData.y, 0 );
@@ -80,8 +73,14 @@ class GameView {
 	}
 
 
-	public function update( frame:FrameViewData, nextFrame:FrameViewData, subFrame:Float ) {
-/*		final prevVelX = frame.ashX - ashPreviousX;
+	public function update( previous:FrameViewData, frame:FrameViewData, next:FrameViewData, subFrame:Float ) {
+		
+		for( id => coord in frame.positions ) {
+			if( id < 6 ) { // hero
+				place( heros[id], previous.positions[id], frame.positions[id], next.positions[id], subFrame );
+			}
+		}
+		/*		final prevVelX = frame.ashX - ashPreviousX;
 		final prevVelY = frame.ashY - ashPreviousY;
 		final velX = nextFrame.ashX - frame.ashX;
 		final velY = nextFrame.ashY - frame.ashY;
@@ -139,6 +138,24 @@ class GameView {
 		tScore.text = NumberFormat.number( score );
 */	}
 
+	function place( character:CharacterView, previous:Coord, coord:Coord, next:Coord, subFrame:Float ) {
+		final dx1 = coord.x - previous.x;
+		final dy1 = coord.y - previous.y;
+		final dx2 = next.x - coord.x;
+		final dy2 = next.y - coord.y;
+		
+		final easedRotation = quadEaseInOut( Math.min( 1, subFrame * 3 ));
+		final easedSubFrame = quadEaseInOut( subFrame );
+		
+		final angle1 = MathUtils.angle( dx1, dy1 );
+		final angle2 = MathUtils.angle( dx2, dy2 );
+		final angle = interpolate( angle1, angle2, easedRotation );
+		character.rotate( angle);
+		
+		final ashX = interpolate( coord.x, next.x, easedSubFrame);
+		final ashY = interpolate( coord.y, next.y, easedSubFrame );
+		character.place( ashX, ashY );
+	}
 
 	inline function interpolate( v1:Float, v2:Float, f:Float ) {
 		return v1 + ( v2 - v1 ) * f;

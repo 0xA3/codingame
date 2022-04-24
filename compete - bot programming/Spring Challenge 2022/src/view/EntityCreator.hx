@@ -1,18 +1,16 @@
-package game;
+package view;
 
-import Math.round;
 import h2d.Bitmap;
 import h2d.Flow;
 import h2d.Graphics;
 import h2d.Object;
-import h2d.Tile;
-import h3d.mat.BlendMode;
+import hxd.res.TiledMap.TiledMapData;
 import view.CharacterView;
 import view.SliderView;
 
 class EntityCreator {
 	
-	final backgroundTile = hxd.Res.background.toTile();
+	final backgroundTile = hxd.Res.background_screenshot.toTile();
 	final heartTile = hxd.Res.heart.toTile();
 	final heroTiles = [
 		hxd.Res.hero1.toTile().center(),
@@ -24,11 +22,49 @@ class EntityCreator {
 		hxd.Res.monster2.toTile().center()
 	];
 
-	public function new() {}
+	public function new() {
+		init();
+	}
 
+	function init() {
+		// createHerosTiles();
+
+	}
+
+/*	function createHerosTiles() {
+		final mapData:TiledMapData = haxe.Json.parse(hxd.Res.heroes_json.entry.getText());
+		final tileImage = hxd.Res.heroes_png.toTile();
+
+		final group = new h2d.TileGroup( tileImage );
+		
+		var tw = mapData.tilewidth;
+		var th = mapData.tileheight;
+		var mw = mapData.width;
+		var mh = mapData.height;
+
+		// make sub tiles from tile
+		var tiles = [
+			for(y in 0 ... Std.int(tileImage.height / th))
+			for(x in 0 ... Std.int(tileImage.width / tw))
+			tileImage.sub(x * tw, y * th, tw, th)
+	   ];
+	   
+	   // iterate on all layers
+	   for(layer in mapData.layers) {
+		   // iterate on x and y
+		   for(y in 0 ... mh) for (x in 0 ... mw) {
+			   // get the tile id at the current position 
+			   var tid = layer.data[x + y * mw];
+			   if (tid != 0) { // skip transparent tiles
+				   // add a tile to the TileGroup
+				   group.add(x * tw, y * th, tiles[tid - 1]);
+			   }
+		   }
+	   }
+   }
+*/
 	public function createBackground( scene:Object ) {
 		final background = new Bitmap( backgroundTile, new Graphics( scene ) );
-		// background.scaleX = background.scaleY = 4;
 	}
 
 	public function createHeart( parent:Object, x:Int, y:Int ) {
@@ -38,20 +74,19 @@ class EntityCreator {
 		return heart;
 	}
 
-	public function createHero( parent:Object, x:Int, y:Int, rotation:Float, player:Int ) {
+	public function createHero( parent:Object, player:Int ) {
 		final heroObject = new Object( parent );
 		final heroBitmap = new Bitmap( heroTiles[player], heroObject );
 		
-		final hero = new CharacterView( heroObject, x, y );
-		hero.rotate( rotation );
+		final hero = new CharacterView( heroObject );
 		return hero;
 	}
 	
-	public function createMonster( parent:Object, x:Int, y:Int, type:Int ) {
+	public function createMonster( parent:Object, type:Int ) {
 		final monsterObject = new Object( parent );
 		new Bitmap( monsterTiles[type], monsterObject );
 		
-		final monster = new CharacterView( monsterObject, x, y );
+		final monster = new CharacterView( monsterObject );
 		return monster;
 	}
 

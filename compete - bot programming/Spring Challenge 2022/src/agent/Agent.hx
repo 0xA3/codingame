@@ -81,7 +81,6 @@ class Agent {
 
 	public function process() {
 		for( i in 0...me.heros.length ) actions[i] = 'WAIT';
-
 		return actions.join( "\n" );
 	}
 }

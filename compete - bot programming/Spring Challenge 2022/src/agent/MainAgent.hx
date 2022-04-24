@@ -37,7 +37,7 @@ class MainAgent {
 		var index = 0;
 		for( player in players ) for( _ in 0...herosPerPlayer ) player.addHero( new Hero( index++, new Vector( 0, 0 ), player, 0 ));
 		
-		final agent = new Agent0( players[0], players[1], mobSwarm );
+		final agent = new AgentRandom( players[0], players[1], mobSwarm );
 		
 		// game loop
 		while( true ) {

@@ -4,12 +4,12 @@
 		{
 			"type": "hxml",
 			"label": "Build Game",
-			"file": "build_game.hxml"
+			"file": "game.hxml"
 		},
 		{
 			"type": "hxml",
 			"label": "Build Referee",
-			"file": "build_referee.hxml"
+			"file": "referee.hxml"
 		},
 		{
 			"type": "haxe",

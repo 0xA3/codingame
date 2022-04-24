@@ -9,7 +9,6 @@ import game.action.ActionException;
 import game.action.ActionType;
 import gameengine.core.GameManager;
 import haxe.Exception;
-import tink.CoreApi.SignalTrigger;
 import tink.core.Signal;
 import view.Attack;
 import view.BaseAttack;
@@ -125,15 +124,15 @@ class Referee {
 		final mobSwarm0 = new MobSwarm();
 		final mobSwarm1 = new MobSwarm();
 
-		agentOpp = new agent.Agent0( agentPlayer0, agentPlayer1, mobSwarm0 );
-		agentMe = new agent.Agent0( agentPlayer1, agentPlayer0, mobSwarm1 );
+		agentMe = new agent.AgentRandom( agentPlayer0, agentPlayer1, mobSwarm0 );
+		agentOpp = new agent.Agent0( agentPlayer1, agentPlayer0, mobSwarm1 );
 		
-		agents = [agentOpp, agentMe];
+		agents = [agentMe, agentOpp];
 	}
 
 	public function run() {
 		var turn = 0;
-		// while( actionTurn < 3 && !gameManager.gameEnd ) {
+		// while( turn < 2 && !gameManager.gameEnd ) {
 		while( !gameManager.gameEnd ) {
 			gameTurn( turn++ );
 		}
@@ -972,7 +971,6 @@ class Referee {
 			baseAttacks: baseAttacks,
 			spellUses: spellUses
 		}
-		
 		frameDatasetTrigger.trigger( dataset );
 	}
 

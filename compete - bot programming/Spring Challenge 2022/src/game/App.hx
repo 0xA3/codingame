@@ -2,6 +2,8 @@ package game;
 
 import Std.parseInt;
 import h2d.Object;
+import tink.CoreApi.Noise;
+import tink.core.Signal;
 import view.FrameViewData;
 
 using Lambda;
@@ -13,8 +15,13 @@ class App extends hxd.App {
 	
 	public static inline var SCENE_WIDTH = 1628;
 	public static inline var SCENE_HEIGHT = 832;
-	public static inline var CANVAS_WIDTH = 1724;
-	public static inline var CANVAS_HEIGHT = 970;
+	// public static inline var CANVAS_WIDTH = 1920 / 2;
+	// public static inline var CANVAS_HEIGHT = 1080 / 2;
+	public static inline var CANVAS_WIDTH = 1724 / 2;
+	public static inline var CANVAS_HEIGHT = 970 / 2;
+	
+	public var initComplete(default, null):Signal<Noise>;
+	var initTrigger:SignalTrigger<Noise>;
 	
 	var width = SCENE_WIDTH;
 	var height = SCENE_HEIGHT;
@@ -29,11 +36,14 @@ class App extends hxd.App {
 	
 	public function new() {
 		super();
+		initTrigger = Signal.trigger();
+		initComplete = initTrigger.asSignal();
 	}
 
 	override function init() {
+		
 		final scene = new Object( s2d );
-		final entityCreator = new EntityCreator();
+		final entityCreator = new view.EntityCreator();
 		entityCreator.createBackground( scene );
 		gameView = new view.GameView( scene, entityCreator );
 		gameView.initEntities();
@@ -42,6 +52,7 @@ class App extends hxd.App {
 		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame );
 
 		resize();
+		initTrigger.trigger( Noise );
 	}
 
 	public function setDimensions( width:Int, height:Int ) {
@@ -51,22 +62,24 @@ class App extends hxd.App {
 	}
 
 	public function resize() {
-		// trace( 'resize' );
-		final scaleX = width / SCENE_WIDTH;
-		final scaleY = height / SCENE_HEIGHT;
+		final scaleX = CANVAS_WIDTH / width;
+		final scaleY = CANVAS_HEIGHT / height;
 		final minScale = Math.min( scaleX, scaleY );
 		gameView.scene.scaleX = gameView.scene.scaleY = minScale;
+		trace( 'resize $scaleX $scaleY  width $width  height $height' );
 
 		sliderContainer.y = scaleX < scaleY ? CANVAS_HEIGHT * scaleX : CANVAS_HEIGHT * scaleY - 60;
-		sliderView.width = width;
+		sliderView.width = CANVAS_WIDTH;
 	}
 
 	public function addFrameViewData( dataset:FrameViewData ) {
 		frameViewDatasets.push( dataset );
+
 		if( frameViewDatasets.length > 1 ) {
+			final previousFrame = Std.int( Math.max( 0, frameViewDatasets.length - 3 ));
 			final currentFrame = frameViewDatasets.length - 2;
 			final nextFrame = frameViewDatasets.length - 1;
-			gameView.update( frameViewDatasets[currentFrame], frameViewDatasets[nextFrame], 0 );
+			gameView.update( frameViewDatasets[previousFrame], frameViewDatasets[currentFrame], frameViewDatasets[nextFrame], 0 );
 		}
 	}
 
@@ -123,8 +136,9 @@ class App extends hxd.App {
 
 	function goToFrame( f:Float ) {
 		final currentFrame = Math.floor( f );
+		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
 		final nextFrame = Std.int( Math.min( frameViewDatasets.length - 1, currentFrame + 1 ));
 		final subFrame = f - currentFrame;
-		gameView.update( frameViewDatasets[currentFrame], frameViewDatasets[nextFrame], subFrame );
+		gameView.update( frameViewDatasets[previousFrame], frameViewDatasets[currentFrame], frameViewDatasets[nextFrame], subFrame );
 	}
 }

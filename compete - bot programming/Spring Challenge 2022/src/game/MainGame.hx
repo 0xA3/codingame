@@ -2,18 +2,21 @@ package game;
 
 class MainGame {
 	
-	static var referee:game.Referee;
 	static var app:game.App;
 
 	static function main() {
 		hxd.Res.initEmbed();
-		referee = new game.Referee();
 		app = new game.App();
-
-		referee.frameDataset.handle( d -> app.addFrameViewData );
-
-		referee.init( 0 );
-		referee.run();
+		
+		app.initComplete.handle(() -> startSimulation());
 	}
 
+	static function startSimulation() {
+		final referee = new game.Referee();
+		referee.init( 0 );
+		
+		referee.frameDataset.handle( d -> app.addFrameViewData( d ));
+
+		referee.run();
+	}
 }
