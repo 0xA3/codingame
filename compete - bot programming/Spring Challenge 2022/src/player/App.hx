@@ -1,4 +1,4 @@
-package game;
+package player;
 
 import Std.parseInt;
 import h2d.Object;
@@ -30,7 +30,7 @@ class App extends hxd.App {
 	
 	final frameDatasets:Array<FrameViewData> = [];
 
-	var gameView:view.GameView;
+	var gameView:player.GameView;
 	var sliderContainer:Object;
 	var sliderView:view.SliderView;
 	
@@ -43,9 +43,9 @@ class App extends hxd.App {
 	override function init() {
 		
 		final scene = new Object( s2d );
-		final entityCreator = new view.EntityCreator();
+		final entityCreator = new player.EntityCreator();
 		entityCreator.createBackground( scene );
-		gameView = new view.GameView( scene, entityCreator );
+		gameView = new player.GameView( scene, entityCreator );
 		gameView.initEntities();
 		
 		sliderContainer = new Object( s2d );
@@ -62,8 +62,10 @@ class App extends hxd.App {
 	}
 
 	public function resize() {
-		final scaleX = CANVAS_WIDTH / width;
-		final scaleY = CANVAS_HEIGHT / height;
+		// final scaleX = CANVAS_WIDTH / width;
+		// final scaleY = CANVAS_HEIGHT / height;
+		final scaleX = 0.5;
+		final scaleY = 0.5;
 		final minScale = Math.min( scaleX, scaleY );
 		gameView.scene.scaleX = gameView.scene.scaleY = minScale;
 		trace( 'resize $scaleX $scaleY  width $width  height $height' );

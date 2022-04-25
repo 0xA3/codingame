@@ -957,8 +957,6 @@ class Referee {
 		final spawns = newEntities.map( entity -> asViewData( entity ));
 
 		final dataset:FrameViewData = {
-			turn: turn,
-			
 			positions: positions,
 			messages: messages,
 			controlled: controlled,

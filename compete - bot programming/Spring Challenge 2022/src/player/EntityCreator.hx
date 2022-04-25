@@ -1,11 +1,11 @@
-package view;
+package player;
 
+import Std.int;
 import h2d.Bitmap;
 import h2d.Flow;
 import h2d.Graphics;
 import h2d.Object;
-import hxd.res.TiledMap.TiledMapData;
-import view.CharacterView;
+import player.CharacterView;
 import view.SliderView;
 
 class EntityCreator {
@@ -17,7 +17,7 @@ class EntityCreator {
 		hxd.Res.hero2.toTile().center()
 	];
 
-	final monsterTiles = [
+	final mobTiles = [
 		hxd.Res.mob1.toTile().center(),
 		hxd.Res.mob2.toTile().center(),
 		hxd.Res.mob3.toTile().center()
@@ -54,7 +54,7 @@ class EntityCreator {
 	   for(layer in mapData.layers) {
 		   // iterate on x and y
 		   for(y in 0 ... mh) for (x in 0 ... mw) {
-			   // get the tile id at the current position 
+			   // get the tile id at the current position
 			   var tid = layer.data[x + y * mw];
 			   if (tid != 0) { // skip transparent tiles
 				   // add a tile to the TileGroup
@@ -76,19 +76,38 @@ class EntityCreator {
 	}
 
 	public function createHero( parent:Object, player:Int ) {
-		final heroObject = new Object( parent );
-		final heroBitmap = new Bitmap( heroTiles[player], heroObject );
+		final heroContainer = new Object( parent );
+		final heroObject = new Object( heroContainer );
+		new Bitmap( heroTiles[player], heroObject );
 		
-		final hero = new CharacterView( heroObject );
+		final hero = new CharacterView( heroContainer, heroObject );
 		return hero;
 	}
 	
-	public function createMob( parent:Object, type:Int ) {
-		final monsterObject = new Object( parent );
-		new Bitmap( monsterTiles[type], monsterObject );
+
+	public function createMob( parent:Object, type:Int, fullHealth:Int ) {
+		final mobContainer = new Object( parent );
+		final mobObject = new Object( mobContainer );
+		new Bitmap( mobTiles[type], mobObject );
 		
-		final monster = new CharacterView( monsterObject );
-		return monster;
+		final healthBarContainer = new Object( mobContainer );
+		healthBarContainer.x = -MobView.HEALTH_BAR_WIDTH / 2;
+		healthBarContainer.y = -32 - MobView.HEALTH_BAR_HEIGHT;
+		
+		final bgGraphics = new h2d.Graphics( healthBarContainer );
+		bgGraphics.beginFill( 0xFF0000 );
+		bgGraphics.drawRect( 0, 0, MobView.HEALTH_BAR_WIDTH, MobView.HEALTH_BAR_HEIGHT );
+
+		final healthBar = new Object( healthBarContainer );
+		final barGraphics = new h2d.Graphics( healthBar );
+		
+		barGraphics.beginFill( 0x00FF00 );
+		barGraphics.drawRect( 0, 0, MobView.HEALTH_BAR_WIDTH, MobView.HEALTH_BAR_HEIGHT );
+		
+		healthBarContainer.visible = false;
+
+		final mob = new MobView( mobContainer, mobObject, healthBarContainer, healthBar, fullHealth );
+		return mob;
 	}
 
 	public function createSlider( scene:Object, label:String, get:Void -> Float, set:Float -> Void, min:Float = 0., max:Float = 1. ) {

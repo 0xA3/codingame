@@ -1,12 +1,14 @@
-package view;
+package player;
 
-import game.App;
 import game.Configuration;
 import h2d.Bitmap;
 import h2d.Object;
 import h2d.Text;
-import view.CharacterView;
-import view.EntityCreator;
+import player.App;
+import player.CharacterView;
+import player.EntityCreator;
+import view.Coord;
+import view.FrameViewData;
 
 using xa3.MathUtils;
 
@@ -33,7 +35,7 @@ class GameView {
 	final tMana2:Text;
 	
 	final heros:Array<CharacterView> = [];
-	final mobs:Map<Int, CharacterView> = [];
+	final mobs:Map<Int, MobView> = [];
 	final hearts:Array<Bitmap> = [];
 	
 	public function new( scene:Object, entityCreator:EntityCreator ) {
@@ -41,8 +43,8 @@ class GameView {
 		this.scene = scene;
 		this.entityCreator = entityCreator;
 
-		herosLayer = new Object( scene );
 		mobsLayer = new Object( scene );
+		herosLayer = new Object( scene );
 		textLayer = new Object( scene );
 
 		tMana1 = new Text( hxd.Res.ncaa_detroit_titans_bold.toFont(), textLayer );
@@ -89,21 +91,22 @@ class GameView {
 			if( id < 6 ) { // hero
 				place( heros[id], previous.positions[id], frame.positions[id], next.positions[id], subFrame );
 			} else {
-				if( !mobs.exists( id )) createMob( id );
+				if( !mobs.exists( id )) {
+					final fullHealth = frame.mobHealth.exists( id ) ? frame.mobHealth[id] : 1;
+					final mobType = id < 38 ? 0 : id < 72 ? 1 : 2; // Todo find id of Mob Type 3
+					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth );
+				}
 				final previousCoord = previous.positions.exists( id ) ? previous.positions[id] : coord ;
 				final nextCoord = next.positions.exists( id ) ? next.positions[id] : coord;
 				
-				final mob = mobs[id];
-				mob.isVisible = true;
-				place( mob, previousCoord, coord, nextCoord, subFrame );
+				final mobView = mobs[id];
+				mobView.isVisible = true;
+				if( frame.mobHealth.exists( id )) {
+					mobView.setHealth( frame.mobHealth[id] );
+				}
+				place( mobView, previousCoord, coord, nextCoord, subFrame );
 			}
 		}
-	}
-
-	function createMob( id:Int ) {
-		final mobType = id < 38 ? 0 : id < 72 ? 1 : 2; // Todo find id of Mob Type 3
-		mobs[id] = entityCreator.createMob( mobsLayer, mobType );
-		// trace( 'createMob $id' );
 	}
 
 	function place( character:CharacterView, previous:Coord, coord:Coord, next:Coord, subFrame:Float ) {

@@ -2,11 +2,11 @@ package game;
 
 class MainGame {
 	
-	static var app:game.App;
+	static var app:player.App;
 
 	static function main() {
 		hxd.Res.initEmbed();
-		app = new game.App();
+		app = new player.App();
 		
 		app.initComplete.handle(() -> startSimulation());
 	}
