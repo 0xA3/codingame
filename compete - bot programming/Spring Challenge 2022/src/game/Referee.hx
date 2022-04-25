@@ -9,6 +9,7 @@ import game.action.ActionException;
 import game.action.ActionType;
 import gameengine.core.GameManager;
 import haxe.Exception;
+import haxe.Timer;
 import tink.core.Signal;
 import view.Attack;
 import view.BaseAttack;
@@ -62,6 +63,8 @@ class Referee {
 	var startDirections = [new Vector(1, 1).normalize(), new Vector(-1, -1).normalize()];
 	var basePositions:Array<Vector> = [];
 	var allEntities:()->Array<GameEntity>;
+
+	var timer:haxe.Timer;
 
 	final actionTypes = [MOVE, WIND, SHIELD, CONTROL, IDLE];
 	final symmetryOrigin = new Vector( Configuration.MAP_WIDTH / 2, Configuration.MAP_HEIGHT / 2 );
@@ -138,6 +141,21 @@ class Referee {
 			gameTurn( turn++ );
 		}
 		onEnd();
+	}
+
+	public function runInPlayer() {
+		turn = 0;
+		timer = new Timer( 5 );
+		timer.run = runNext;
+	}
+
+	function runNext() {
+		if( gameManager.gameEnd ) {
+			timer.stop();
+			onEnd();
+			return;
+		}
+		gameTurn( turn++ );
 	}
 
 	function computeConfiguration() {

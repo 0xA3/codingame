@@ -68,7 +68,7 @@ class App extends hxd.App {
 		final scaleY = 0.5;
 		final minScale = Math.min( scaleX, scaleY );
 		gameView.scene.scaleX = gameView.scene.scaleY = minScale;
-		trace( 'resize $scaleX $scaleY  width $width  height $height' );
+		// trace( 'resize $scaleX $scaleY  width $width  height $height' );
 
 		// sliderContainer.y = scaleX < scaleY ? CANVAS_HEIGHT * scaleX : CANVAS_HEIGHT * scaleY - 10;
 		sliderContainer.y = CANVAS_HEIGHT - 40;
@@ -85,57 +85,6 @@ class App extends hxd.App {
 			sliderView.maxValue = nextFrame;
 			gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], 0 );
 		}
-	}
-
-	// public function select( id:Int ) {
-	// 	final startFrameDataset = parseInput( testCases[id] );
-	// 	initFrameDatasets( startFrameDataset );
-	// 	gameView.initEntities( startFrameDataset );
-	// 	changeState( Simulating );
-	// }
-
-	// public function playClick() {
-	// 	final nextState = state == Playing ? PlayPaused : Playing;
-	// 	changeState( nextState );
-	// }
-
-	// function changeState( nextState:TState ) {
-	// 	switch nextState {
-	// 		case Initial: //no-op
-	// 		case Simulating:
-	// 			// ai.reset();	
-	// 			currentFrame = 0;
-	// 		case Playing:
-	// 		case PlayPaused:
-	// 		case Finished:
-	// 	}
-	// 	state = nextState;
-	// }
-	
-	// public function resetPlay() {
-	// }
-
-	// function initFrameDatasets( startFrameDataset:FrameDataset ) {
-	// 	frameDatasets.splice( 0, frameDatasets.length );
-	// 	frameDatasets.push( startFrameDataset );
-	// }
-
-	override function update( dt:Float ) {
-		// switch state {
-		// 	case Simulating:
-		// 		if( simCounter == 0 ) {
-		// 			simulateNextFrame();
-		// 		}
-		// 		simCounter = ( simCounter + 1 ) % SIM_FRAME;
-		// 	case Playing:
-		// 		if( playCounter == 0 ) {
-		// 			goToFrame( currentFrame );
-		// 			currentFrame++;
-		// 			if( currentFrame >= frameDatasets.length ) changeState( Finished );
-		// 		}
-		// 		playCounter = ( playCounter + 1 ) % PLAY_FRAME;
-		// 	default: // no-op
-		// }
 	}
 
 	function goToFrame( f:Float ) {
