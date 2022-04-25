@@ -21,10 +21,11 @@ abstract class AbstractPlayer {
 		if( hasBeenExecuted ) {
 			throw "Impossible to send new inputs after calling execute";
 		}
-		// if (this.gameManagerProvider.get().getOuputsRead()) {
+		// if (this.gameManagerProvider.get().getOutputsRead()) {
 		//     throw new RuntimeException("Sending input data to a player after reading any output is forbidden.");
 		// }
-		inputs.push(line);
+		// trace( 'sendInputLine $line' );
+		inputs.push( line );
 	}
 	
 	/**
@@ -32,24 +33,21 @@ abstract class AbstractPlayer {
 	 */
 	public function execute() {
 		//gameManagerProvider.get().execute(this);
-
 		this.hasBeenExecuted = true;
 		this.hasNeverBeenExecuted = false;
-		
 	}
 
 	public function getInputs() {
-		return inputs;
+		final copy = inputs.copy();
+		inputs.splice( 0, inputs.length );
+		return copy;
 	}
 
-	public function getOutputs() {
-		return outputs;
-	}
+	public function getOutputs() return outputs;
 	
-	public function setOutputs( outputs:Array<String> ) {
-		this.outputs = outputs;
-	}
+	public function setOutputs( outputs:Array<String> ) this.outputs = outputs;
 
-	public function resetOutputs() outputs = null;
+	public function resetInputs() inputs = [];
+	public function resetOutputs() outputs = [];
 
 }

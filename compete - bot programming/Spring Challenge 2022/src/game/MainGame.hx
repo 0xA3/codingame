@@ -17,6 +17,6 @@ class MainGame {
 		
 		referee.frameDataset.handle( d -> app.addFrameViewData( d ));
 
-		referee.runInPlayer();
+		referee.runWithTimer();
 	}
 }

@@ -11,8 +11,8 @@ class CharacterView {
 	var x( default, null ) = 0.0;
 	var y( default, null ) = 0.0;
 	public var isVisible( get, set ):Bool;
-	function get_isVisible() return object.visible;
-	function set_isVisible( v:Bool ) return object.visible = v;
+	function get_isVisible() return container.visible;
+	function set_isVisible( v:Bool ) return container.visible = v;
 
 	public function new( container:Object, object:Object ) {
 		this.container = container;
@@ -20,24 +20,24 @@ class CharacterView {
 	}
 	
 	public function show() {
-		object.visible = true;
+		container.visible = true;
 	}
 	public function hide() {
-		object.visible = false;
+		container.visible = false;
 	}
 
 	public function die() {
-		object.visible = false;
+		container.visible = false;
 	}
 
 	public function live() {
-		object.visible = true;
+		container.visible = true;
 	}
 
 	public function rotate( angle:Float ) object.rotation = angle;
 	
 	public function place( x:Float, y:Float ) {
-		if( !object.visible ) return;
+		if( !container.visible ) return;
 		container.x = this.x = sX( x );
 		container.y = this.y = sY( y );
 	}

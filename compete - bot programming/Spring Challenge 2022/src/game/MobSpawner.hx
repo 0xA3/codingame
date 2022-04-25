@@ -31,7 +31,7 @@ class MobSpawner {
 	}
 
 	function opposite( v:Vector ) {
-		return new Vector(Configuration.MAP_WIDTH - v.x, Configuration.MAP_HEIGHT - v.y);
+		return new Vector( Configuration.MAP_WIDTH - v.x, Configuration.MAP_HEIGHT - v.y );
 	}
 
 	function spawn( suddenDeath:Bool ) {
@@ -55,13 +55,13 @@ class MobSpawner {
 			for( i in 0...2 ) {
 				final location = i == 0 ? pairToUse.position : pairToUse.symmetry;
 				final direction = i == 0 ? pairToUse.direction : pairToUse.direction.symmetric();
-				final mob = new Mob( location, Std.int( currentMaxHealth ));
+				final mob = new Mob( Referee.entityId++, location, Std.int( currentMaxHealth ));
 				if( suddenDeath ) {
-					final v = Vector.fromVectors(location, i == 0 ? suddenDeathTarget : opposite(suddenDeathTarget)).normalize()
-					.mult(Configuration.MOB_MOVE_SPEED).truncate();
+					final v = Vector.fromVectors(location, i == 0 ? suddenDeathTarget : opposite( suddenDeathTarget )).normalize()
+					.mult( Configuration.MOB_MOVE_SPEED ).truncate();
 					mob.speed = v;
 				} else {
-					mob.speed = direction.rotate(directionDelta).normalize().mult(Configuration.MOB_MOVE_SPEED).truncate();
+					mob.speed = direction.rotate( directionDelta ).normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
 				}
 				newMobs.add( mob );
 			}

@@ -39,7 +39,6 @@ class GameView {
 	final hearts:Array<Bitmap> = [];
 	
 	public function new( scene:Object, entityCreator:EntityCreator ) {
-		
 		this.scene = scene;
 		this.entityCreator = entityCreator;
 
@@ -57,27 +56,13 @@ class GameView {
 	}
 
 	public function initEntities() {
-		
-		for( heartX in heartXs ) {
-			hearts.push( entityCreator.createHeart( textLayer, heartX, heartY ));
-		}
-
-		for( i in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 0 ));
-		for( i in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
-		// for( monsterData in testCaseDataset.mobs ) {
-		// 	if( mobs[monsterData.id] == null ) {
-		// 		final monsterView = entityCreator.createMonster( mobsLayer, monsterData.x, monsterData.y, 0 );
-		// 		mobs[monsterData.id] = monsterView;
-		// 	} else {
-		// 		mobs[monsterData.id].place( monsterData.x, monsterData.y );
-		// 	}
-		// }
+		for( heartX in heartXs ) hearts.push( entityCreator.createHeart( textLayer, heartX, heartY ));
+		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 0 ));
+		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
 	}
 
-
 	public function update( previous:FrameViewData, frame:FrameViewData, next:FrameViewData, subFrame:Float ) {
-		
-		for( mob in mobs ) mob.isVisible = false;
+		for( mobView in mobs ) mobView.hide();
 
 		for( i in 0...frame.baseHealth.length ) {
 			final heartStart = i * 3;
@@ -100,10 +85,14 @@ class GameView {
 				final nextCoord = next.positions.exists( id ) ? next.positions[id] : coord;
 				
 				final mobView = mobs[id];
-				mobView.isVisible = true;
 				if( frame.mobHealth.exists( id )) {
-					mobView.setHealth( frame.mobHealth[id] );
+					final health = frame.mobHealth[id];
+					if( health > 0 ) {
+						mobView.show();
+						mobView.setHealth( frame.mobHealth[id] );
+					}
 				}
+				
 				place( mobView, previousCoord, coord, nextCoord, subFrame );
 			}
 		}
@@ -121,7 +110,7 @@ class GameView {
 		final angle1 = MathUtils.angle( dx1, dy1 );
 		final angle2 = MathUtils.angle( dx2, dy2 );
 		final angle = interpolate( angle1, angle2, easedRotation );
-		character.rotate( angle);
+		if( dx2 != 0 || dy2 != 0 ) character.rotate( angle);
 		
 		final x = interpolate( coord.x, next.x, easedSubFrame);
 		final y = interpolate( coord.y, next.y, easedSubFrame );

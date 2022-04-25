@@ -59,8 +59,8 @@ class Referee {
 	var intentMap:Map<ActionType, Array<Hero>> = [];
 	var positionKeyMap:Map<haxe.ds.ObjectMap<Vector, Bool>, Float> = [];
 	
-	var corners = [new Vector(0, 0), new Vector(Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT)];
-	var startDirections = [new Vector(1, 1).normalize(), new Vector(-1, -1).normalize()];
+	var corners = [new Vector( 0, 0 ), new Vector( Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT )];
+	var startDirections = [new Vector( 1, 1 ).normalize(), new Vector( -1, -1 ).normalize()];
 	var basePositions:Array<Vector> = [];
 	var allEntities:()->Array<GameEntity>;
 
@@ -69,7 +69,15 @@ class Referee {
 	final actionTypes = [MOVE, WIND, SHIELD, CONTROL, IDLE];
 	final symmetryOrigin = new Vector( Configuration.MAP_WIDTH / 2, Configuration.MAP_HEIGHT / 2 );
 
+	public static var entityId = 0;
+
 	public function new() {
+		
+		agentMe = new agent.Agent0();
+		agentOpp = new agent.Agent();
+		
+		agents = [agentMe, agentOpp];
+		
 		allEntities = () -> {
 			final all:Array<GameEntity> = [];
 			for( hero in allHeros) all.push( hero );
@@ -83,11 +91,9 @@ class Referee {
 	public function init( currentRepeat:Int ) {
 
 		final seed = currentRepeat;
-		final oppName ="Agent0";
-		final myName = "Agent1";
 		// manager
-		final refereePlayer0 = new Player( 0, oppName, int( corners[0].x ), int( corners[0].y ));
-		final refereePlayer1 = new Player( 1, myName, int( corners[1].x ), int( corners[1].y ));
+		final refereePlayer0 = new Player( 0, "Agent0", int( corners[0].x ), int( corners[0].y ));
+		final refereePlayer1 = new Player( 1, "Agent1", int( corners[1].x ), int( corners[1].y ));
 		gameManager = new GameManager([ refereePlayer0, refereePlayer1 ]);
 		gameSummaryManager = new GameSummaryManager();
 		
@@ -113,25 +119,48 @@ class Referee {
 			trace( "Referee failed to initialize" );
 			abort();
 		}
+	}
 
-		// game
-		// game = new Game( gameManager, gameSummaryManager );
-		// game.init( repeats == 1 ? 1 : Std.random( 99999 ), grid );
-		
-		// agents
-		final agentPlayer0 = new Player( 0, oppName, int( corners[0].x ), int( corners[0].y ));
-		final agentPlayer1 = new Player( 1, myName, int( corners[1].x ), int( corners[1].y ));
-		
-		for( hero in refereePlayer0.heros ) agentPlayer0.addHero( hero.copyToPlayer( agentPlayer0 ));
-		for( hero in refereePlayer1.heros ) agentPlayer1.addHero( hero.copyToPlayer( agentPlayer1 ));
-		
-		final mobSwarm0 = new MobSwarm();
-		final mobSwarm1 = new MobSwarm();
+	function initPlayers() {
+		// Generate heroes
+		final spawnOffset = 1600;
+		final spaceBetweenHeroes = 400;
 
-		agentMe = new agent.AgentRandom( agentPlayer0, agentPlayer1, mobSwarm0 );
-		agentOpp = new agent.Agent0( agentPlayer1, agentPlayer0, mobSwarm1 );
+		for( i in 0...playerCount ) {
+			final player = gameManager.getPlayer( i );
+			var vector = ( i < 2 ? new Vector( 1, -1 ) : new Vector( 1, 1 )).normalize();
+			if( i % 2 == 1 ) {
+				vector = vector.mult( -1 );
+			}
+
+			final startPoint = corners[i];
+
+			basePositions.push( startPoint );
+			final offsets = [0, 1, -1, 2, -2, 3, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			for( j in 0...Configuration.HEROES_PER_PLAYER ) {
+				final offset = offsets[j + ( 1 - Configuration.HEROES_PER_PLAYER % 2 )];
+
+				var position = vector.mult( offset * ( spaceBetweenHeroes )).add( startPoint ).add( startDirections[i].mult( spawnOffset ))
+				.round();
+				position = snapToGameZone( position );
+				final hero = new Hero( entityId++, j, position, player, startDirections[i].angle() );
+				player.addHero( hero );
+				allHeros.push( hero );
+				newEntities.push( hero );
+			}
+		}
 		
-		agents = [agentMe, agentOpp];
+		sendGlobalInfo();
+		for( i in 0...gameManager.players.length ) agents[i].init( gameManager.players[i].getInputs() );
+	}
+
+	function sendGlobalInfo() {
+		for( player in gameManager.getActivePlayers() ) {
+			// <baseX> <baseY>
+			player.sendInputLine( basePositions[player.index].toIntString() );
+			// <heroesPerPlayer>
+			player.sendInputLine( Std.string( Configuration.HEROES_PER_PLAYER ));
+		}
 	}
 
 	public function run() {
@@ -143,13 +172,13 @@ class Referee {
 		onEnd();
 	}
 
-	public function runInPlayer() {
+	public function runWithTimer() {
 		turn = 0;
 		timer = new Timer( 5 );
-		timer.run = runNext;
+		timer.run = nextTurn;
 	}
 
-	function runNext() {
+	function nextTurn() {
 		if( gameManager.gameEnd ) {
 			timer.stop();
 			onEnd();
@@ -234,46 +263,6 @@ class Referee {
 		);
 	}
 
-	function initPlayers() {
-		// Generate heroes
-		final spawnOffset = 1600;
-		final spaceBetweenHeroes = 400;
-
-		for( i in 0...playerCount ) {
-			final player = gameManager.getPlayer( i );
-			var vector = ( i < 2 ? new Vector( 1, -1 ) : new Vector( 1, 1 )).normalize();
-			if( i % 2 == 1 ) {
-				vector = vector.mult( -1 );
-			}
-
-			final startPoint = corners[i];
-
-			basePositions.push( startPoint );
-			final offsets = [0, 1, -1, 2, -2, 3, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-			for( j in 0...Configuration.HEROES_PER_PLAYER ) {
-				final offset = offsets[j + (1 - Configuration.HEROES_PER_PLAYER % 2)];
-
-				var position = vector.mult( offset * ( spaceBetweenHeroes )).add( startPoint ).add( startDirections[i].mult( spawnOffset ))
-				.round();
-				position = snapToGameZone( position );
-				final hero = new Hero( j, position, player, startDirections[i].angle() );
-				player.addHero( hero );
-				allHeros.push( hero );
-				newEntities.push( hero );
-			}
-		}
-		sendGlobalInfo();
-	}
-
-	function sendGlobalInfo() {
-		for( player in gameManager.getActivePlayers() ) {
-			// <baseX> <baseY>
-			player.sendInputLine( Std.string( basePositions[player.index] ));
-			// <heroesPerPlayer>
-			player.sendInputLine( Std.string( Configuration.HEROES_PER_PLAYER ));
-		}
-	}
-
 	function gameTurn( turn:Int ) {
 		resetGameTurnData();
 		
@@ -283,9 +272,8 @@ class Referee {
 			final agent = agents[i];
 			sendGameStateFor( player );
 			
-			agent.giveInputs( player.getInputs());
+			agent.setInputs( player.getInputs());
 			player.setOutputs( agent.process().split( "\n" ));
-			// trace( 'player $i: ${player.getOutputs().join(" ")}' );
 		}
 		// Get output from players
 		handlePlayerCommands();
@@ -318,9 +306,7 @@ class Referee {
 		moveMobs();
 		shieldDecay();
 		spawnNewMobs( turn );
-		for( player => amount in manaGain ) {
-			player.gainMana( amount );
-		}
+		for( player => amount in manaGain ) player.gainMana( amount );
 	}
 
 	function shieldDecay() {
@@ -831,12 +817,12 @@ class Referee {
 
 		final visibleHerosForPlayer = allHeros.filter( hero -> playerCanSee( player, hero ));
 		for( hero in visibleHerosForPlayer ) {
-			entityLines.push( '${hero.id} ${hero.type == player.index ? INPUT_TYPE_MY_HERO : INPUT_TYPE_ENEMY_HERO} ${hero.position} ${hero.shieldDuration} ${hero.isControlled() ? 1 : 0} -1 -1 -1 -1 -1' );
+			entityLines.push( '${hero.id} ${hero.type == player.index ? INPUT_TYPE_MY_HERO : INPUT_TYPE_ENEMY_HERO} ${hero.position.toIntString()} ${hero.shieldDuration} ${hero.isControlled() ? 1 : 0} -1 -1 -1 -1 -1' );
 		}
 
 		final visibleMobsForPlayer = allMobs.filter( mob -> playerCanSee( player, mob ));
 		for( mob in visibleMobsForPlayer ) {
-			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.speed} ${getMobStatus( mob )}' );
+			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position.toIntString()} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.speed.toIntString()} ${getMobStatus( mob ).toStringFor( player )}' );
 		}
 
 		// <health> <mana>

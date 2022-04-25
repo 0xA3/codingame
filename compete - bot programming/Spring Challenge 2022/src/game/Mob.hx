@@ -12,8 +12,8 @@ class Mob extends GameEntity {
 	public var isNearBase = false;
 	public var threatFor = 0;
 
-	public function new( position:Vector, health:Int, type = 2 ) {
-		super( position, type );
+	public function new( id:Int, position:Vector, health:Int, type = 2 ) {
+		super( id, position, type );
 		this.health = health;
 		pushed = false;
 		// trace( 'new Mob $id' );

@@ -4,52 +4,30 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
-import agent.MobSwarm;
-import game.Configuration;
-import game.Hero;
 import game.Mob;
-import game.Player;
 import game.Vector;
 
 class MainAgent {
 
 	static function main() {
 		
-		final inputs = readline().split(' ');
-		final myBaseX = parseInt( inputs[0] );
-		final myBaseY = parseInt( inputs[1] );
-		final herosPerPlayer = parseInt( readline() ); // Always 3
+		final inputs = [readline(), readline()];
 		
-		//
-		// Add Agent
-		//
-		final mobSwarm = new MobSwarm();
+		final agent = new Agent0();
+		agent.init( inputs );
 
-		final oppBaseX = Configuration.MAP_WIDTH - myBaseX;
-		final oppBaseY = Configuration.MAP_HEIGHT - myBaseY;
-
-		final me = new Player( 0, "me", myBaseX, myBaseY );
-		final opp = new Player( 0, "opponent", oppBaseX, oppBaseY );
-
-		final typeStartIds = [herosPerPlayer * 2, 0, herosPerPlayer];
-		final players = [me, opp];
-		
-		var index = 0;
-		for( player in players ) for( _ in 0...herosPerPlayer ) player.addHero( new Hero( index++, new Vector( 0, 0 ), player, 0 ));
-		
-		final agent = new AgentRandom( players[0], players[1], mobSwarm );
-		
 		// game loop
 		while( true ) {
-			for( i in 0...players.length ) { //two integers baseHealth and mana for the remaining health and mana for both players
+			var player0HeroIndex = 0;
+			var player1HeroIndex = 0;
+				for( i in 0...agent.players.length ) { //two integers baseHealth and mana for the remaining health and mana for both players
 				var inputs = readline().split(' ');
-				players[i].baseHealth = parseInt( inputs[0] ); // Your base health
-				players[i].mana = parseInt( inputs[1] ); // Ignore in the first league; Spend ten mana to cast a spell
+				agent.players[i].baseHealth = parseInt( inputs[0] ); // Your base health
+				agent.players[i].mana = parseInt( inputs[1] ); // Ignore in the first league; Spend ten mana to cast a spell
 			}
 			final entityCount = parseInt( readline() ); // Amount of heros and monsters you can see
 			for( _ in 0...entityCount ) {
 				var inputs = readline().split(' ');
-				printErr( inputs.join(' '));
 				final id = parseInt( inputs[0] ); // Unique identifier
 				final type = parseInt( inputs[1] ); // 0=monster, 1=your hero, 2=opponent hero
 				final x = parseInt( inputs[2] ); // Position of this entity
@@ -62,11 +40,12 @@ class MainAgent {
 				final isNearBase = inputs[9] == "1"; // 0=monster with no target yet, 1=monster targeting a base
 				final threatFor = parseInt( inputs[10] ); // Given this monster's trajectory, is it a threat to 1=your base, 2=your opponent's base, 0=neither
 				
-				final entityIndex = id - typeStartIds[type];
 				switch type {
 					case 0: // Mob
-						if( !mobSwarm.mobsMap.exists( entityIndex )) mobSwarm.mobsMap.set( entityIndex, new Mob( new Vector( x, y ), id ));
-						final mob = mobSwarm.mobsMap[entityIndex];
+						if( !agent.mobSwarm.mobsMap.exists( id )) agent.mobSwarm.mobsMap.set( id, new Mob( id, new Vector( x, y ), id ));
+						final mob = agent.mobSwarm.mobsMap[id];
+						mob.position.x = x;
+						mob.position.y = y;
 						mob.shieldDuration = shieldLife;
 						mob.isUnderControlSpell = isControlled;
 						mob.health = health;
@@ -74,15 +53,16 @@ class MainAgent {
 						mob.speed.y = vy;
 						mob.isNearBase = isNearBase;
 						mob.threatFor = threatFor;
+						// printErr( 'new mob $id' );
 
 					case 1: // my Hero
-						final player = players[0];
-						final hero = player.heros[entityIndex];
+						final player = agent.players[0];
+						final hero = player.heros[player0HeroIndex++];
 						hero.position.x = x;
 						hero.position.y = y;
 					case 2: // opponent Hero
-						final player = players[1];
-						final hero = player.heros[entityIndex];
+						final player = agent.players[1];
+						final hero = player.heros[player1HeroIndex++];
 						hero.position.x = x;
 						hero.position.y = y;
 				}

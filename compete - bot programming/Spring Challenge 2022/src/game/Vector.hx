@@ -85,7 +85,7 @@ class Vector {
     }
 
     public function toIntString() {
-        return Std.int( x ) + " " + Std.int( y );
+        return '$x $y';
     }
 
     public function project(force:Vector) {

@@ -10,8 +10,8 @@ class Hero extends GameEntity {
 	public var intent:Action;
 	public var message = "";
 
-	public function new( index:Int, position:Vector, owner:Player, rotation:Float, ?id:Int ) {
-		super( position, owner.index, id );
+	public function new( id:Int, index:Int, position:Vector, owner:Player, rotation:Float ) {
+		super( id, position, owner.index );
 		this.index = index;
 		this.owner = owner;
 		this.rotation = rotation;
@@ -21,10 +21,5 @@ class Hero extends GameEntity {
 
 	public function toString() {
 		return 'pos: ${position.x}:${position.y}';
-	}
-
-	public function copyToPlayer( player:Player ) {
-		final hero = new Hero( index, position, player, rotation, id );
-		return hero;
 	}
 }
