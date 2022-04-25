@@ -323,19 +323,19 @@ class Referee {
 				recordSpellUse( hero );
 
 				final enemies = getAllEnemyUnitsAround( hero, Configuration.SPELL_WIND_RADIUS )
-					.filter( e -> !e.hadActiveShield());
+					.filter( enemy -> !enemy.hadActiveShield());
 				
 				final dir = Vector.fromVectors( hero.position, push.destination ).normalize().mult( Configuration.SPELL_WIND_DISTANCE );
 
-				for( e in enemies ) {
-					if( !directionMap.exists( e )) directionMap.set( e, [] );
-					directionMap[e].push( dir );
+				for( enemy in enemies ) {
+					if( !directionMap.exists( enemy )) directionMap.set( enemy, [] );
+					directionMap[enemy].push( dir );
 				}
 			} catch ( e:ActionException ) {
 				gameManager.addToGameSummary( hero.owner.name + " failed a WIND: " + e.message );
 			}
 		}
-
+		
 		positionKeyMap.clear();
 
 		//Calculate sum of pushes
@@ -629,20 +629,18 @@ class Referee {
 		attacks.splice( 0, attacks.length );
 		spellUses.splice( 0, spellUses.length );
 		baseAttacks.splice( 0, baseAttacks.length );
-		// gameManager.getPlayers().stream()
-		//     .forEach(Player::resetViewData);
 	}
 
 	function getAllEnemyUnitsAround( hero:Hero, range:Int ) {
 		return getAllAround( hero, range, allEntities().filter( e -> e.getOwner() != hero.owner ));
 	}
 
-	function getAllAround( e:GameEntity, range:Int, stream:Array<GameEntity >) {
-		return stream.filter( other -> other.position.inRange( e.position, range ));
+	function getAllAround( entity:GameEntity, range:Int, entities:Array<GameEntity >) {
+		return entities.filter( other -> other.position.inRange( entity.position, range ));
 	}
 
-	function getMobsAround( e:GameEntity, range:Int, stream:Array<Mob>) {
-		return stream.filter( other -> other.position.inRange( e.position, range ));
+	function getMobsAround( entity:GameEntity, range:Int, mobs:Array<Mob>) {
+		return mobs.filter( other -> other.position.inRange( entity.position, range ));
 	}
 
 	function mobCanDetectBase( mob:Mob, base:Vector ) {

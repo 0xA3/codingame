@@ -12,7 +12,7 @@ class Agent1 extends Agent {
 	
 	override function process():String {
 		turn++;
-		printErr( mobs.map( mob -> mob.id ).join( " " ));
+		// printErr( mobs.map( mob -> mob.id ).join( " " ));
 		final dangerousMobs = [];
 		for( mob in mobs ) {
 			if( mob.threatFor == 1 ) dangerousMobs.push( mob );

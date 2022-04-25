@@ -19,6 +19,8 @@ class Hero extends GameEntity {
 		// trace( 'new Hero ${this.id}' );
 	}
 
+	override function getOwner() return owner;
+
 	public function toString() {
 		return 'pos: ${position.x}:${position.y}';
 	}

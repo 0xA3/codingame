@@ -12,7 +12,7 @@ class Boss extends Agent {
 
 	public function new() {
 		super();
-		agentId = "Boss 1";
+		agentId = "Boss 2";
 	}
 	
 	override function init( inputLines:Array<String> ) {
@@ -77,7 +77,7 @@ class Boss extends Agent {
 				}
 			}
 		}
-		trace( '${me.name}\n' + actions.join( "\n" ));
+		// trace( '${me.name}\n' + actions.join( "\n" ));
 		return actions.join( "\n" );
 	}
 
