@@ -28,7 +28,7 @@ class Agent {
 	var agentId = "";
 
 	public function new() { }
-
+	
 	public function init( inputLines:Array<String> ) {
 		// trace( 'init agent $agentId\n' + inputLines.join( "\n" ) );
 		final inputs = inputLines[0].split(' ');
@@ -48,7 +48,7 @@ class Agent {
 		var index = 0;
 		for( player in players ) for( _ in 0...herosPerPlayer ) player.addHero( new Hero( index, index++, new Vector( 0, 0 ), player, 0 ));
 	}
-
+	
 	public function setInputs( inputLines:Array<String> ) {
 		// trace( 'setInputs agent $agentId\n' + inputLines.join( "\n" ));
 
@@ -84,8 +84,8 @@ class Agent {
 					mob.shieldDuration = shieldLife;
 					mob.isUnderControlSpell = isControlled;
 					mob.health = health;
-					mob.speed.x = vx;
-					mob.speed.y = vy;
+					mob.velocity.x = vx;
+					mob.velocity.y = vy;
 					mob.isNearBase = isNearBase;
 					mob.threatFor = threatFor;
 					// if( agentId != "" ) trace( '$turn $agentId new mob $shieldLife $isControlled $health $vx $vy $isNearBase $isControlled' );
@@ -103,7 +103,7 @@ class Agent {
 			}
 		}
 	}
-
+	
 	public function process() {
 		for( i in 0...me.heros.length ) actions[i] = 'WAIT';
 		return actions.join( "\n" );

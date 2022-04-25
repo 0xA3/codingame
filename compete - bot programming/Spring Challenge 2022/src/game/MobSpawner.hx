@@ -59,9 +59,9 @@ class MobSpawner {
 				if( suddenDeath ) {
 					final v = Vector.fromVectors(location, i == 0 ? suddenDeathTarget : opposite( suddenDeathTarget )).normalize()
 					.mult( Configuration.MOB_MOVE_SPEED ).truncate();
-					mob.speed = v;
+					mob.velocity = v;
 				} else {
-					mob.speed = direction.rotate( directionDelta ).normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
+					mob.velocity = direction.rotate( directionDelta ).normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
 				}
 				newMobs.add( mob );
 			}

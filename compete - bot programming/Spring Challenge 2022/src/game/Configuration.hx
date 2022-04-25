@@ -7,6 +7,7 @@ class Configuration {
 	public static final MAP_WIDTH = 17630;
     public static final MAP_HEIGHT = 9000;
     public static final MAP_LIMIT = 800;
+	public static final MAP_CENTER = new Vector( MAP_WIDTH / 2, MAP_HEIGHT / 2 );
 
     public static final BASE_ATTRACTION_RADIUS = 5000;
     public static final BASE_VIEW_RADIUS = 6000;

@@ -2,7 +2,7 @@ package game;
 
 class Mob extends GameEntity {
 	
-	public var speed = new Vector( 0, 0 );
+	public var velocity = new Vector( 0, 0 );
 	public var health:Int;
 	public var healthChanged = true;
 	public var status:MobStatus;
@@ -29,11 +29,6 @@ class Mob extends GameEntity {
 	public function heathHasChanged() return healthChanged;
 	public function moveCancelled() return !isAlive() || pushed;
 	
-	function set_speed( speed:Vector ) {
-		status = null;
-		return this.speed = speed;
-	}
-
 	public function reset() {
         pushed = false;
         healthChanged = false;

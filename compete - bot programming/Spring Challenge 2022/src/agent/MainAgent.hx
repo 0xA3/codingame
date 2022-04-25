@@ -13,7 +13,7 @@ class MainAgent {
 		
 		final inputs = [readline(), readline()];
 		
-		final agent = new Agent0();
+		final agent = new Agent1();
 		agent.init( inputs );
 
 		// game loop

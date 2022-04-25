@@ -1,6 +1,7 @@
 package player;
 
 import Std.parseInt;
+import gameengine.core.GameManager;
 import h2d.Object;
 import tink.CoreApi.Noise;
 import tink.core.Signal;
@@ -23,6 +24,8 @@ class App extends hxd.App {
 	public var initComplete(default, null):Signal<Noise>;
 	var initTrigger:SignalTrigger<Noise>;
 	
+	final gameManager:GameManager;
+	
 	var width = SCENE_WIDTH;
 	var height = SCENE_HEIGHT;
 	
@@ -34,8 +37,10 @@ class App extends hxd.App {
 	var sliderContainer:Object;
 	var sliderView:view.SliderView;
 	
-	public function new() {
+	public function new( gameManager:GameManager ) {
 		super();
+		this.gameManager = gameManager;
+		
 		initTrigger = Signal.trigger();
 		initComplete = initTrigger.asSignal();
 	}

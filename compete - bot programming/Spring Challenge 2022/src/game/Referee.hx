@@ -3,7 +3,6 @@ package game;
 import Std.int;
 import Std.parseInt;
 import agent.Agent;
-import agent.MobSwarm;
 import game.action.Action;
 import game.action.ActionException;
 import game.action.ActionType;
@@ -35,7 +34,9 @@ class Referee {
 	public var frameDataset(default, null):Signal<FrameViewData>;
 	var frameDatasetTrigger:SignalTrigger<FrameViewData>;
 
-	var gameManager:GameManager;
+	final gameManager:GameManager;
+	final corners:Array<Vector>;
+	
 	var gameSummaryManager:GameSummaryManager;
 
 	var agentOpp:Agent;
@@ -59,7 +60,6 @@ class Referee {
 	var intentMap:Map<ActionType, Array<Hero>> = [];
 	var positionKeyMap:Map<haxe.ds.ObjectMap<Vector, Bool>, Float> = [];
 	
-	var corners = [new Vector( 0, 0 ), new Vector( Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT )];
 	var startDirections = [new Vector( 1, 1 ).normalize(), new Vector( -1, -1 ).normalize()];
 	var basePositions:Array<Vector> = [];
 	var allEntities:()->Array<GameEntity>;
@@ -71,10 +71,12 @@ class Referee {
 
 	public static var entityId = 0;
 
-	public function new() {
-		
-		agentMe = new agent.Agent0();
-		agentOpp = new agent.Agent();
+	public function new( gameManager:GameManager, corners:Array<Vector>) {
+		this.gameManager = gameManager;
+		this.corners = corners;
+
+		agentMe = new agent.Agent1();
+		agentOpp = new agent.level1.Boss();
 		
 		agents = [agentMe, agentOpp];
 		
@@ -91,10 +93,6 @@ class Referee {
 	public function init( currentRepeat:Int ) {
 
 		final seed = currentRepeat;
-		// manager
-		final refereePlayer0 = new Player( 0, "Agent0", int( corners[0].x ), int( corners[0].y ));
-		final refereePlayer1 = new Player( 1, "Agent1", int( corners[1].x ), int( corners[1].y ));
-		gameManager = new GameManager([ refereePlayer0, refereePlayer1 ]);
 		gameSummaryManager = new GameSummaryManager();
 		
 		computeConfiguration();
@@ -365,7 +363,7 @@ class Referee {
 				var randomDirection = randomDouble * Math.PI * 2;
 				if( existingRandom != null ) randomDirection += Math.PI;
 
-				cast( entity, Mob ).speed = Vector.fromAngle( randomDirection ).normalize().mult( Configuration.MOB_MOVE_SPEED );
+				cast( entity, Mob ).velocity = Vector.fromAngle( randomDirection ).normalize().mult( Configuration.MOB_MOVE_SPEED );
 			}
 
 			entity.pushTo( predictedPosition );
@@ -498,15 +496,15 @@ class Referee {
 			if( !mob.moveCancelled() ) {
 				if( !mob.activeControls.isEmpty()) {
 					var computedDestination = computeControlResult( mob, Configuration.MOB_MOVE_SPEED );
-					final newSpeed = Vector.fromVectors( mob.position, computedDestination );
+					final newVelocity = Vector.fromVectors( mob.position, computedDestination );
 					
 					final baseWallIntersectionResult = baseWallIntersection( mob.position, computedDestination );
 					computedDestination = snapToGameZone( baseWallIntersectionResult == null ? computedDestination : baseWallIntersectionResult );
 
 					mob.position = computedDestination.symmetricTruncate( symmetryOrigin );
-					if( !newSpeed.isZero()) mob.speed = newSpeed.normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
+					if( !newVelocity.isZero()) mob.velocity = newVelocity.normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
 				} else {
-					mob.position = mob.position.add( mob.speed ).symmetricTruncate( symmetryOrigin );
+					mob.position = mob.position.add( mob.velocity ).symmetricTruncate( symmetryOrigin );
 				}
 			}
 
@@ -529,13 +527,13 @@ class Referee {
 				if( mobCanDetectBase( mob, base )) {
 					final v = Vector.fromVectors( mob.position, base );
 					final distanceToStep = int( Math.min( v.length(), Configuration.MOB_MOVE_SPEED ));
-					mob.speed = base.sub( mob.position ).normalize().mult( distanceToStep ).truncate();
+					mob.velocity = base.sub( mob.position ).normalize().mult( distanceToStep ).truncate();
 					gameManager.getPlayer( idx ).spottet.set( mob.id, true );
 				
 				} else if( mob.position.inRange(base, Configuration.BASE_ATTRACTION_RADIUS )) {
 					var objective = new Vector( 1, 1 );
 					if( mob.position.x < 0 || mob.position.y < 0 ) objective = objective.mult( -1 );
-					mob.speed = objective.normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
+					mob.velocity = objective.normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
 				}
 			}
 		}
@@ -822,7 +820,7 @@ class Referee {
 
 		final visibleMobsForPlayer = allMobs.filter( mob -> playerCanSee( player, mob ));
 		for( mob in visibleMobsForPlayer ) {
-			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position.toIntString()} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.speed.toIntString()} ${getMobStatus( mob ).toStringFor( player )}' );
+			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position.toIntString()} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.velocity.toIntString()} ${getMobStatus( mob ).toStringFor( player )}' );
 		}
 
 		// <health> <mana>
@@ -846,17 +844,17 @@ class Referee {
 
 	function getMobStatus( mob:Mob ) {
 		if( mob.status == null || !mob.activeControls.isEmpty()) {
-			var mobSpeed:Vector;
+			var mobVelocity:Vector;
 
 			if( !mob.activeControls.isEmpty()) {
 				final computedDestination = computeControlResult( mob, Configuration.MOB_MOVE_SPEED );
-				final newSpeed = Vector.fromVectors( mob.position, computedDestination );
-				mobSpeed = newSpeed;
+				final newVelocity = Vector.fromVectors( mob.position, computedDestination );
+				mobVelocity = newVelocity;
 			} else {
-				mobSpeed = mob.speed;
+				mobVelocity = mob.velocity;
 			}
 
-			if( mobSpeed.isZero()) {
+			if( mobVelocity.isZero()) {
 				mob.status = new MobStatus( WANDERING, null, 0 );
 			} else {
 				var cur = mob.position;
@@ -879,7 +877,7 @@ class Referee {
 						stop = true;
 					}
 					turns++;
-					cur = cur.add( mobSpeed ).symmetricTruncate( symmetryOrigin );
+					cur = cur.add( mobVelocity ).symmetricTruncate( symmetryOrigin );
 				}
 				if( !stop ) {
 					// Failsafe
