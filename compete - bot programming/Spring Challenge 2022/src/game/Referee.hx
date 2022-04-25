@@ -76,7 +76,7 @@ class Referee {
 		this.corners = corners;
 
 		agentMe = new agent.Agent1();
-		agentOpp = new agent.level1.Boss();
+		agentOpp = new agent.level2.Boss();
 		
 		agents = [agentMe, agentOpp];
 		

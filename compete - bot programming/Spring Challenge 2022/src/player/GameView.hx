@@ -78,7 +78,7 @@ class GameView {
 			} else {
 				if( !mobs.exists( id )) {
 					final fullHealth = frame.mobHealth.exists( id ) ? frame.mobHealth[id] : 1;
-					final mobType = id < 38 ? 0 : id < 72 ? 1 : 2; // Todo find id of Mob Type 3
+					final mobType = id < 40 ? 0 : id < 75 ? 1 : 2; // Todo find id of Mob Type 3
 					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth );
 				}
 				final previousCoord = previous.positions.exists( id ) ? previous.positions[id] : coord ;

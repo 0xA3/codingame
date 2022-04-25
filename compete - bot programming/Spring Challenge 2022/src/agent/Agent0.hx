@@ -13,7 +13,7 @@ class Agent0 extends Agent {
 	override function process():String {
 		turn++;
 		final dangerousMobs = [];
-		for( id => mob in mobSwarm.mobsMap ) {
+		for( mob in mobs ) {
 			if( mob.threatFor == 1 ) dangerousMobs.push( mob );
 		}
 		if( dangerousMobs.length > 0 ) {

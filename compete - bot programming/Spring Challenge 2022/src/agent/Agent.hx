@@ -19,7 +19,7 @@ class Agent {
 	var me:Player;
 	var opp:Player;
 	public var players:Array<Player>;
-	public var mobSwarm:MobSwarm;
+	public var mobs:Array<Mob> = [];
 
 	public var typeStartIds:Array<Int> = [];
 	final actions = [];
@@ -43,15 +43,14 @@ class Agent {
 		opp = new Player( 1, "opponent", oppBaseX, oppBaseY );
 		players = [me, opp];
 		
-		mobSwarm = new MobSwarm();
-
 		var index = 0;
 		for( player in players ) for( _ in 0...herosPerPlayer ) player.addHero( new Hero( index, index++, new Vector( 0, 0 ), player, 0 ));
 	}
 	
 	public function setInputs( inputLines:Array<String> ) {
 		// trace( 'setInputs agent $agentId\n' + inputLines.join( "\n" ));
-
+		mobs.splice( 0, mobs.length );
+		
 		var player0HeroIndex = 0;
 		var player1HeroIndex = 0;
 		var line = 0;
@@ -77,10 +76,7 @@ class Agent {
 			
 			switch type {
 				case 0: // Mob
-					if( !mobSwarm.mobsMap.exists( id )) mobSwarm.mobsMap.set( id, new Mob( id, new Vector( x, y ), id ));
-					final mob = mobSwarm.mobsMap[id];
-					mob.position.x = x;
-					mob.position.y = y;
+					final mob = new Mob( id, new Vector( x, y ), health );
 					mob.shieldDuration = shieldLife;
 					mob.isUnderControlSpell = isControlled;
 					mob.health = health;
@@ -88,13 +84,15 @@ class Agent {
 					mob.velocity.y = vy;
 					mob.isNearBase = isNearBase;
 					mob.threatFor = threatFor;
+					mobs.push( mob );
 					// if( agentId != "" ) trace( '$turn $agentId new mob $shieldLife $isControlled $health $vx $vy $isNearBase $isControlled' );
-
+				
 				case 1: // my Hero
 					final player = players[0];
 					final hero = player.heros[player0HeroIndex++];
 					hero.position.x = x;
 					hero.position.y = y;
+				
 				case 2: // opponent Hero
 					final player = players[1];
 					final hero = player.heros[player1HeroIndex++];

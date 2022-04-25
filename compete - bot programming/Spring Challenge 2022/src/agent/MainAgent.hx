@@ -18,9 +18,11 @@ class MainAgent {
 
 		// game loop
 		while( true ) {
+			agent.mobs.splice( 0, agent.mobs.length );
+
 			var player0HeroIndex = 0;
 			var player1HeroIndex = 0;
-				for( i in 0...agent.players.length ) { //two integers baseHealth and mana for the remaining health and mana for both players
+			for( i in 0...agent.players.length ) { //two integers baseHealth and mana for the remaining health and mana for both players
 				var inputs = readline().split(' ');
 				agent.players[i].baseHealth = parseInt( inputs[0] ); // Your base health
 				agent.players[i].mana = parseInt( inputs[1] ); // Ignore in the first league; Spend ten mana to cast a spell
@@ -42,18 +44,15 @@ class MainAgent {
 				
 				switch type {
 					case 0: // Mob
-						if( !agent.mobSwarm.mobsMap.exists( id )) agent.mobSwarm.mobsMap.set( id, new Mob( id, new Vector( x, y ), id ));
-						final mob = agent.mobSwarm.mobsMap[id];
-						mob.position.x = x;
-						mob.position.y = y;
-						mob.shieldDuration = shieldLife;
-						mob.isUnderControlSpell = isControlled;
-						mob.health = health;
-						mob.speed.x = vx;
-						mob.speed.y = vy;
-						mob.isNearBase = isNearBase;
-						mob.threatFor = threatFor;
-						// printErr( 'new mob $id' );
+					final mob = new Mob( id, new Vector( x, y ), health );
+					mob.shieldDuration = shieldLife;
+					mob.isUnderControlSpell = isControlled;
+					mob.health = health;
+					mob.velocity.x = vx;
+					mob.velocity.y = vy;
+					mob.isNearBase = isNearBase;
+					mob.threatFor = threatFor;
+					agent.mobs.push( mob );
 
 					case 1: // my Hero
 						final player = agent.players[0];
