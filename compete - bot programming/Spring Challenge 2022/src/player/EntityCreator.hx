@@ -26,48 +26,10 @@ class EntityCreator {
 	];
 
 	public function new() {
-		init();
 	}
 
-	function init() {
-		// createHerosTiles();
-
-	}
-
-/*	function createHerosTiles() {
-		final mapData:TiledMapData = haxe.Json.parse(hxd.Res.heroes_json.entry.getText());
-		final tileImage = hxd.Res.heroes_png.toTile();
-
-		final group = new h2d.TileGroup( tileImage );
-		
-		var tw = mapData.tilewidth;
-		var th = mapData.tileheight;
-		var mw = mapData.width;
-		var mh = mapData.height;
-
-		// make sub tiles from tile
-		var tiles = [
-			for(y in 0 ... Std.int(tileImage.height / th))
-			for(x in 0 ... Std.int(tileImage.width / tw))
-			tileImage.sub(x * tw, y * th, tw, th)
-	   ];
-	   
-	   // iterate on all layers
-	   for(layer in mapData.layers) {
-		   // iterate on x and y
-		   for(y in 0 ... mh) for (x in 0 ... mw) {
-			   // get the tile id at the current position
-			   var tid = layer.data[x + y * mw];
-			   if (tid != 0) { // skip transparent tiles
-				   // add a tile to the TileGroup
-				   group.add(x * tw, y * th, tiles[tid - 1]);
-			   }
-		   }
-	   }
-   }
-*/
 	public function createBackground( scene:Object ) {
-		new Bitmap( backgroundTile, new Graphics( scene ) );
+		return new Bitmap( backgroundTile, new Graphics( scene ) );
 	}
 
 	public function createHeart( parent:Object, x:Int, y:Int ) {

@@ -48,6 +48,8 @@ class GameView {
 	final mobs:Map<Int, MobView> = [];
 	final hearts:Array<Bitmap> = [];
 	
+	public var isMouseDown = false;
+
 	public function new( s2d:Scene, scene:Object, entityCreator:EntityCreator ) {
 		this.s2d = s2d;
 		this.scene = scene;
@@ -175,7 +177,11 @@ class GameView {
 	}
 
 	public function mouseOver( screenX:Float, screenY:Float, frame:FrameViewData ) {
-		
+		if( isMouseDown ) {
+			overlay.visible = false;
+			return;
+		}
+
 		final mapX = ( screenX / App.scaleFactor - X0 ) / scale;
 		final mapY = ( screenY / App.scaleFactor - Y0 ) / scale;
 		
@@ -197,7 +203,6 @@ class GameView {
 			overlayText.text = overTexts.join( "\n" );
 		}
 
-		
 		final boxWidth = overlayText.textWidth + 20;
 		final boxHeight = overlayText.textHeight + 20;
 		overlayBox.scaleX = boxWidth / 100;
@@ -205,6 +210,7 @@ class GameView {
 		
 		overlay.x = screenX + boxWidth < s2d.width ? screenX + 10 : screenX - boxWidth + 10;
 		overlay.y = screenY + boxHeight < s2d.height - 10 ? screenY + 20 : screenY - boxHeight + 10;
+		overlay.visible = true;
 	}
 
 	static inline var OVER_DISTANCE = 400;

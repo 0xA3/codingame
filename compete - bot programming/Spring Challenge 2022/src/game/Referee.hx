@@ -76,8 +76,8 @@ class Referee {
 		this.gameManager = gameManager;
 		this.corners = corners;
 
-		agentMe = new agent.Agent1();
-		agentOpp = new agent.Boss1();
+		agentMe = new agent.Mathis2();
+		agentOpp = new agent.Boss2();
 		
 		agents = [agentMe, agentOpp];
 		

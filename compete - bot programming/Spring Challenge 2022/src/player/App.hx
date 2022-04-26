@@ -1,7 +1,9 @@
 package player;
 
 import gameengine.core.GameManager;
+import h2d.Interactive;
 import h2d.Object;
+import hxd.Window;
 import tink.CoreApi.Noise;
 import tink.core.Signal;
 import view.FrameViewData;
@@ -18,8 +20,8 @@ class App extends hxd.App {
 	public static inline var SCENE_HEIGHT = 832;
 	// public static inline var CANVAS_WIDTH = 1920 / 2;
 	// public static inline var CANVAS_HEIGHT = 1080 / 2;
-	public static inline var CANVAS_WIDTH = 1724 / 2;
-	public static inline var CANVAS_HEIGHT = 970 / 2;
+	public static inline var CANVAS_WIDTH = 1724;
+	public static inline var CANVAS_HEIGHT = 970;
 	
 	public var initComplete(default, null):Signal<Noise>;
 	var initTrigger:SignalTrigger<Noise>;
@@ -31,6 +33,7 @@ class App extends hxd.App {
 	
 	public static var scaleFactor = 1.0;
 	
+	var stage:Window;
 	var currentFrame:Int;
 	final frameDatasets:Array<FrameViewData> = [];
 
@@ -48,6 +51,8 @@ class App extends hxd.App {
 
 	override function init() {
 		
+		stage = Window.getInstance();
+		stage.addResizeEvent( onResize );
 		final scene = new Object( s2d );
 		final entityCreator = new player.EntityCreator();
 		entityCreator.createBackground( scene );
@@ -57,7 +62,7 @@ class App extends hxd.App {
 		sliderContainer = new Object( s2d );
 		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame );
 
-		resize();
+		onResize();
 		initTrigger.trigger( Noise );
 	}
 
@@ -67,28 +72,26 @@ class App extends hxd.App {
 		this.height = height;
 	}
 
-	public function resize() {
-		// final scaleX = CANVAS_WIDTH / width;
-		// final scaleY = CANVAS_HEIGHT / height;
-		final scaleX = 0.5;
-		final scaleY = 0.5;
+	override public function onResize() {
+		final scaleX = stage.width / CANVAS_WIDTH;
+		final scaleY = stage.height / CANVAS_HEIGHT;
+
 		final minScale = Math.min( scaleX, scaleY );
 		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
-		// trace( 'resize $scaleX $scaleY  width $width  height $height' );
 
-		// sliderContainer.y = scaleX < scaleY ? CANVAS_HEIGHT * scaleX : CANVAS_HEIGHT * scaleY - 10;
-		sliderContainer.y = CANVAS_HEIGHT - 40;
-		sliderView.width = CANVAS_WIDTH;
+		sliderContainer.y = stage.height - 40;
+		sliderView.width = stage.width;
 	}
 
 	public function addFrameViewData( dataset:FrameViewData ) {
 		frameDatasets.push( dataset );
 
 		if( frameDatasets.length > 1 ) {
-			final previousFrame = Std.int( Math.max( 0, frameDatasets.length - 3 ));
-			final currentFrame = frameDatasets.length - 2;
 			final nextFrame = frameDatasets.length - 1;
 			sliderView.maxValue = nextFrame;
+			
+			// final previousFrame = Std.int( Math.max( 0, frameDatasets.length - 3 ));
+			// final currentFrame = frameDatasets.length - 2;
 			// gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], 0 );
 		}
 	}
@@ -107,7 +110,6 @@ class App extends hxd.App {
 	}
 
 	override function update( dt:Float ) {
-		
 		gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
 	}
 }
