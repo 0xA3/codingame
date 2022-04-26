@@ -1,6 +1,5 @@
 package player;
 
-import Std.parseInt;
 import gameengine.core.GameManager;
 import h2d.Object;
 import tink.CoreApi.Noise;
@@ -88,8 +87,13 @@ class App extends hxd.App {
 			final currentFrame = frameDatasets.length - 2;
 			final nextFrame = frameDatasets.length - 1;
 			sliderView.maxValue = nextFrame;
-			gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], 0 );
+			// gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], 0 );
 		}
+	}
+
+	public function updateFirstFrame() {
+		if( frameDatasets.length < 2 ) return;
+		gameView.update( frameDatasets[0], frameDatasets[1], frameDatasets[1], 0 );
 	}
 
 	function goToFrame( f:Float ) {

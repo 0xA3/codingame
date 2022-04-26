@@ -1,4 +1,4 @@
-package agent.level1;
+package agent;
 
 import Std.int;
 import game.Configuration;
@@ -7,7 +7,7 @@ import game.Hero;
 import game.Mob;
 import game.Vector;
 
-class Boss extends Agent {
+class Boss1 extends Agent {
 	
 	var myBase:Base;
 	var enemyBase:Base;
@@ -40,20 +40,20 @@ class Boss extends Agent {
 
 		for( i in 0...me.heros.length ) {
 			final hero = me.heros[i];
-			var action = 'MOVE ${myBase.attractionCenter.add( heroAssociatedVector[i] ).toIntString()}';
+			var action = 'MOVE ${myBase.attractionCenter.add( heroAssociatedVector[i] )}';
 
 			final heroCloseMobs = getMobsInDistance( hero, mobs, Configuration.HERO_VIEW_RADIUS );
 			sortEntitiesByDistance( heroCloseMobs, hero.position );
 
 			if( threateningMobs.length > 0 && i == 0 && turn < 100 ) {
 				final mobTargeted = threateningMobs[0];
-				action = 'MOVE ${mobTargeted.position.add( mobTargeted.velocity ).toIntString()}';
+				action = 'MOVE ${mobTargeted.position.add( mobTargeted.velocity )}';
 			} else if( threateningMobs.length > 0 && i == 1 && turn < 45 ) {
 				final mobTargeted = threateningMobs[0];
-				action = 'MOVE ${mobTargeted.position.add( mobTargeted.velocity ).toIntString()}';
+				action = 'MOVE ${mobTargeted.position.add( mobTargeted.velocity )}';
 			} else if( threateningMobs.length > 0 && i == 2 && turn < 15 ) {
 				final mobTargeted = threateningMobs[0];
-				action = 'MOVE ${mobTargeted.position.add( mobTargeted.velocity ).toIntString()}';
+				action = 'MOVE ${mobTargeted.position.add( mobTargeted.velocity )}';
 			} else {
 				final randomx = Std.random( Configuration.MAP_WIDTH );
 				final randomy = Std.random( Configuration.MAP_HEIGHT );
@@ -76,15 +76,11 @@ class Boss extends Agent {
 	}
 
 	function sortEntitiesByDistance( entities:Array<GameEntity>, v:Vector ) {
-		entities.sort(( a, b ) -> {
-			return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() );
-		});
+		entities.sort(( a, b ) -> return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() ));
 	}
 
 	function sortMobsByDistance( entities:Array<Mob>, v:Vector ) {
-		entities.sort(( a, b ) -> {
-			return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() );
-		});
+		entities.sort(( a, b ) -> return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() ));
 	}
 
 	function getMobsInDistance( hero:Hero, mobs:Array<Mob>, distance:Int ) {

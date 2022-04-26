@@ -7,15 +7,18 @@ import player.GameView.sY;
 class CharacterView {
 
 	public final container:Object;
+	public final infoContainer:Object;
 	public final object:Object;
+
 	var x( default, null ) = 0.0;
 	var y( default, null ) = 0.0;
 	public var isVisible( get, set ):Bool;
 	function get_isVisible() return container.visible;
 	function set_isVisible( v:Bool ) return container.visible = v;
 
-	public function new( container:Object, object:Object ) {
+	public function new( container:Object, infoContainer:Object, object:Object ) {
 		this.container = container;
+		this.infoContainer = infoContainer;
 		this.object = object;
 	}
 	

@@ -76,7 +76,8 @@ class Referee {
 		this.corners = corners;
 
 		agentMe = new agent.Agent1();
-		agentOpp = new agent.level2.Boss();
+		// agentOpp = new agent.Boss2();
+		agentOpp = new agent.Random();
 		
 		agents = [agentMe, agentOpp];
 		
@@ -155,7 +156,7 @@ class Referee {
 	function sendGlobalInfo() {
 		for( player in gameManager.getActivePlayers() ) {
 			// <baseX> <baseY>
-			player.sendInputLine( basePositions[player.index].toIntString() );
+			player.sendInputLine( basePositions[player.index].toString() );
 			// <heroesPerPlayer>
 			player.sendInputLine( Std.string( Configuration.HEROES_PER_PLAYER ));
 		}
@@ -813,12 +814,12 @@ class Referee {
 
 		final visibleHerosForPlayer = allHeros.filter( hero -> playerCanSee( player, hero ));
 		for( hero in visibleHerosForPlayer ) {
-			entityLines.push( '${hero.id} ${hero.type == player.index ? INPUT_TYPE_MY_HERO : INPUT_TYPE_ENEMY_HERO} ${hero.position.toIntString()} ${hero.shieldDuration} ${hero.isControlled() ? 1 : 0} -1 -1 -1 -1 -1' );
+			entityLines.push( '${hero.id} ${hero.type == player.index ? INPUT_TYPE_MY_HERO : INPUT_TYPE_ENEMY_HERO} ${hero.position} ${hero.shieldDuration} ${hero.isControlled() ? 1 : 0} -1 -1 -1 -1 -1' );
 		}
 
 		final visibleMobsForPlayer = allMobs.filter( mob -> playerCanSee( player, mob ));
 		for( mob in visibleMobsForPlayer ) {
-			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position.toIntString()} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.velocity.toIntString()} ${getMobStatus( mob ).toStringFor( player )}' );
+			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.velocity} ${getMobStatus( mob ).toStringFor( player )}' );
 		}
 
 		// <health> <mana>

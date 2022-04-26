@@ -1,6 +1,5 @@
 package agent;
 
-import CodinGame.print;
 import CodinGame.printErr;
 
 class Agent0 extends Agent {
@@ -12,6 +11,8 @@ class Agent0 extends Agent {
 	
 	override function process():String {
 		turn++;
+		actions.splice( 0, actions.length );
+		
 		final dangerousMobs = [];
 		for( mob in mobs ) {
 			if( mob.threatFor == 1 ) dangerousMobs.push( mob );
@@ -25,10 +26,10 @@ class Agent0 extends Agent {
 				return 0;
 			});
 			// for( mob in dangerousMobs ) printErr( 'dangerous mob ${mob.id} distance ${mob.position.distance( me.basePosition )}' );
-			for( i in 0...me.heros.length ) actions[i] = 'MOVE ${dangerousMobs[0].position.toIntString()}';	
+			for( i in 0...me.heros.length ) actions[i] = 'MOVE ${dangerousMobs[0].position}';	
 		} else {
 			for( i in 0...me.heros.length ) actions[i] = 'WAIT';
 		}
-		return actions.join( "\n" );
+		return printActions();
 	}
 }

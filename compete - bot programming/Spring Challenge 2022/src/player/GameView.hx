@@ -31,10 +31,9 @@ class GameView {
 	final mobsLayer:Object;
 	final textLayer:Object;
 
-	final tMana1:Text;
-	final tMana2:Text;
+	final textfieldsMana:Array<Text>;
 	
-	final heros:Array<CharacterView> = [];
+	final heros:Array<HeroView> = [];
 	final mobs:Map<Int, MobView> = [];
 	final hearts:Array<Bitmap> = [];
 	
@@ -46,13 +45,17 @@ class GameView {
 		herosLayer = new Object( scene );
 		textLayer = new Object( scene );
 
-		tMana1 = new Text( hxd.Res.ncaa_detroit_titans_bold.toFont(), textLayer );
-		tMana1.x = 387;
-		tMana1.y = 56;
-		
-		tMana2 = new Text( hxd.Res.ncaa_detroit_titans_bold.toFont(), textLayer );
-		tMana2.x = 1526;
-		tMana2.y = 56;
+		textfieldsMana = [
+			new Text( hxd.Res.times_new_roman.toFont(), textLayer ),
+			new Text( hxd.Res.times_new_roman.toFont(), textLayer )
+		];
+		textfieldsMana[0].textAlign = Right;
+		textfieldsMana[0].x = 446;
+		textfieldsMana[0].y = 54;
+		textfieldsMana[1].textAlign = Right;
+		textfieldsMana[1].x = 1582;
+		textfieldsMana[1].y = 54;
+
 	}
 
 	public function initEntities() {
@@ -64,6 +67,10 @@ class GameView {
 	public function update( previous:FrameViewData, frame:FrameViewData, next:FrameViewData, subFrame:Float ) {
 		for( mobView in mobs ) mobView.hide();
 
+		for( i in 0...frame.mana.length ) {
+			textfieldsMana[i].text = '${frame.mana[i]}';
+		}
+		
 		for( i in 0...frame.baseHealth.length ) {
 			final heartStart = i * 3;
 			final baseHealth = frame.baseHealth[i];
@@ -95,6 +102,9 @@ class GameView {
 				
 				place( mobView, previousCoord, coord, nextCoord, subFrame );
 			}
+		}
+		for( id => message in frame.messages ) {
+			heros[id].setMessage( message );
 		}
 	}
 

@@ -1,11 +1,10 @@
-package agent.level2;
+package agent;
 
 import Std.int;
 import game.Configuration;
-import game.GameEntity;
 import game.Mob;
 
-class Boss extends Agent {
+class Boss2 extends Agent {
 
 	var postX:Array<Int>;
 	var postY:Array<Int>;
@@ -58,7 +57,7 @@ class Boss extends Agent {
 				if( canWind( me.mana ) && hero.position.distance( target.position ) < Configuration.SPELL_WIND_RADIUS ) {
 					actions[i] = 'SPELL WIND ${Configuration.MAP_WIDTH - me.basePosition.x} ${Configuration.MAP_HEIGHT - me.basePosition.y}';
 				} else {
-					actions[i] = 'MOVE ${target.position.toIntString()}';
+					actions[i] = 'MOVE ${target.position}';
 				}
 			}
 		}
@@ -73,7 +72,7 @@ class Boss extends Agent {
 				if( canWind( me.mana ) && hero.position.distance( target.position ) < Configuration.SPELL_WIND_RADIUS ) {
 					actions[i] = 'SPELL WIND ${Configuration.MAP_WIDTH - me.basePosition.x} ${Configuration.MAP_HEIGHT - me.basePosition.y}';
 				} else {
-					actions[i] = 'MOVE ${target.position.toIntString()}';
+					actions[i] = 'MOVE ${target.position}';
 				}
 			}
 		}

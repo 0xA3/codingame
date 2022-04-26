@@ -1,10 +1,11 @@
 package agent;
 
-import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
+import Std.int;
 import Std.parseInt;
 import game.Configuration;
+import game.GameEntity;
 import game.Hero;
 import game.Mob;
 import game.Player;
@@ -14,14 +15,11 @@ using Lambda;
 
 class Agent {
 	
-	static final HEROS_PER_PLAYER = 3;
-
 	var me:Player;
 	var opp:Player;
 	public var players:Array<Player>;
 	public var mobs:Array<Mob> = [];
 
-	public var typeStartIds:Array<Int> = [];
 	final actions = [];
 	
 	var turn = -1;
@@ -106,4 +104,37 @@ class Agent {
 		for( i in 0...me.heros.length ) actions[i] = 'WAIT';
 		return actions.join( "\n" );
 	}
+
+	function control( unitId:Int, position:Vector, message = "" ) {
+		actions.push( 'SPELL CONTROL $unitId $position' + ( message == "" ? message : ' $message' ));
+	}
+	
+	function move( position:Vector, message = "" ) {
+		actions.push( 'MOVE $position' + ( message == "" ? message : ' $message' ));
+	}
+
+	function push( position:Vector, message = "" ) {
+		actions.push( 'SPELL WIND $position' + ( message == "" ? message : ' $message' ));
+	}
+	
+	function shield( unitId:Int, message = "" ) {
+		actions.push( 'SPELL SHIELD $unitId' + ( message == "" ? message : ' $message' ));
+	}
+
+	function sortEntitiesByDistance( entities:Array<GameEntity>, v:Vector ) {
+		entities.sort(( a, b ) -> return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() ));
+	}
+
+	function sortMobsByDistance( entities:Array<Mob>, v:Vector ) {
+		entities.sort(( a, b ) -> return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() ));
+	}
+
+	function getMobsInDistance( hero:Hero, mobs:Array<Mob>, distance:Int ) {
+		final mobsInDistance:Array<GameEntity> = [];
+		for( mob in mobs ) if( hero.position.distance( mob.position ) < distance ) mobsInDistance.push( mob );
+		return mobsInDistance;
+	}
+
+
+	function printActions() return actions.join( "\n" );
 }

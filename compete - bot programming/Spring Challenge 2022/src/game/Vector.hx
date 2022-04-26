@@ -1,5 +1,7 @@
 package game;
 
+import Std.int;
+
 class Vector {
 	
 	public var x:Float;
@@ -81,11 +83,7 @@ class Vector {
     }
 
     public function toString() {
-        return "[" + x + ", " + y + "]";
-    }
-
-    public function toIntString() {
-        return '$x $y';
+        return '${int( x )} ${int( y )}';
     }
 
     public function project(force:Vector) {

@@ -1,10 +1,26 @@
 package agent;
 
-import CodinGame.print;
 import CodinGame.printErr;
+import game.Configuration;
+import game.Vector;
 
 class Agent1 extends Agent {
 	
+	// var me:Player;
+	// var opp:Player;
+	// public var players:Array<Player>;
+	// public var mobs:Array<Mob> = [];
+
+	// final actions = [];
+	
+	static final farmPositions = [
+		new Vector( 4000, 8500 ),
+		new Vector( 9000, 1000 ),
+		new Vector( 8000, 8500 ),
+	];
+
+	var target = new Vector( 0, 0 );
+
 	public function new() {
 		super();
 		agentId = "Agent1";
@@ -12,23 +28,30 @@ class Agent1 extends Agent {
 	
 	override function process():String {
 		turn++;
-		// printErr( mobs.map( mob -> mob.id ).join( " " ));
-		final dangerousMobs = [];
-		for( mob in mobs ) {
-			if( mob.threatFor == 1 ) dangerousMobs.push( mob );
+		actions.splice( 0, actions.length );
+		
+		farmMana();
+
+		return printActions();
+	}
+
+	function farmMana() {
+		final targetMobs = mobs.filter( mob -> mob.position.x > 0 && mob.position.y > 0 );
+		
+		for( i in 0...me.heros.length ) {
+			final hero = me.heros[i];
+			target = farmPositions[i];
+			if( targetMobs.length == 0 ) {
+				move( target, '$i move to farm position' );
+				continue;
+			}
+			
+			sortMobsByDistance( targetMobs, hero.position );
+			final mob = targetMobs.shift();
+			if( mob.position.distance( hero.position ) < Configuration.HERO_VIEW_RADIUS ) {
+				target = mob.position.add( mob.velocity );
+				move( target, '$i attack ${mob.id}' );
+			}
 		}
-		if( dangerousMobs.length > 0 ) {
-			dangerousMobs.sort(( a, b ) -> {
-				final da = a.position.distance( me.basePosition );
-				final db = b.position.distance( me.basePosition );
-				if( da < db ) return -1;
-				if( da > db ) return 1;
-				return 0;
-			});
-			for( i in 0...me.heros.length ) actions[i] = 'MOVE ${dangerousMobs[0].position.toIntString()}';	
-		} else {
-			for( i in 0...me.heros.length ) actions[i] = 'WAIT';
-		}
-		return actions.join( "\n" );
 	}
 }
