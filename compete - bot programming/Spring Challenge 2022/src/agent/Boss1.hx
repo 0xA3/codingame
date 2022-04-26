@@ -1,7 +1,7 @@
 package agent;
 
 import Std.int;
-import game.Configuration;
+import game.Config;
 import game.GameEntity;
 import game.Hero;
 import game.Mob;
@@ -42,7 +42,7 @@ class Boss1 extends Agent {
 			final hero = me.heros[i];
 			var action = 'MOVE ${myBase.attractionCenter.add( heroAssociatedVector[i] )}';
 
-			final heroCloseMobs = getMobsInDistance( hero, mobs, Configuration.HERO_VIEW_RADIUS );
+			final heroCloseMobs = getMobsInDistance( hero, mobs, Config.HERO_VIEW_RADIUS );
 			sortEntitiesByDistance( heroCloseMobs, hero.position );
 
 			if( threateningMobs.length > 0 && i == 0 && turn < 100 ) {
@@ -55,13 +55,13 @@ class Boss1 extends Agent {
 				final mobTargeted = threateningMobs[0];
 				action = 'MOVE ${mobTargeted.position.add( mobTargeted.velocity )}';
 			} else {
-				final randomx = Std.random( Configuration.MAP_WIDTH );
-				final randomy = Std.random( Configuration.MAP_HEIGHT );
+				final randomx = Std.random( Config.MAP_WIDTH );
+				final randomy = Std.random( Config.MAP_HEIGHT );
 				action = 'MOVE $randomx $randomy';
 			}
 			actions[i] = action;
 		}
-		trace( "\n" + actions.join( "\n" ));
+		// trace( "\n" + actions.join( "\n" ));
 		return actions.join( "\n" );
 	
 	}
@@ -78,16 +78,6 @@ class Boss1 extends Agent {
 	function sortEntitiesByDistance( entities:Array<GameEntity>, v:Vector ) {
 		entities.sort(( a, b ) -> return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() ));
 	}
-
-	function sortMobsByDistance( entities:Array<Mob>, v:Vector ) {
-		entities.sort(( a, b ) -> return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() ));
-	}
-
-	function getMobsInDistance( hero:Hero, mobs:Array<Mob>, distance:Int ) {
-		final mobsInDistance:Array<GameEntity> = [];
-		for( mob in mobs ) if( hero.position.distance( mob.position ) < distance ) mobsInDistance.push( mob );
-		return mobsInDistance;
-	}
 }
 
 class Base {
@@ -98,7 +88,7 @@ class Base {
 	public function new( base:Vector, playerBase:Int ) {
 		baseCenter = base;
 		this.playerBase = playerBase;
-		attractionCenter = baseCenter.add( new Vector( 1, 1 )).normalize().mult( Configuration.BASE_ATTRACTION_RADIUS / 2 );
-		if( base.y > Configuration.MAP_HEIGHT / 2 ) attractionCenter = attractionCenter.symmetric( Configuration.MAP_CENTER );
+		attractionCenter = baseCenter.add( new Vector( 1, 1 )).normalize().mult( Config.BASE_ATTRACTION_RADIUS / 2 );
+		if( base.y > Config.MAP_HEIGHT / 2 ) attractionCenter = attractionCenter.symmetric( Config.MAP_CENTER );
 	}
 }

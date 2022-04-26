@@ -1,7 +1,7 @@
 package agent;
 
 import Std.int;
-import game.Configuration;
+import game.Config;
 import game.Mob;
 
 class Boss2 extends Agent {
@@ -28,7 +28,7 @@ class Boss2 extends Agent {
 		turn++;
 
 		var closestEnemyToBase:Mob = null;
-		var minDistToBase:Float = Configuration.MAP_WIDTH + Configuration.MAP_HEIGHT;
+		var minDistToBase:Float = Config.MAP_WIDTH + Config.MAP_HEIGHT;
 		for( mob in mobs ) {
 			final curDist = mob.position.distance( me.basePosition );
 			if( curDist < minDistToBase ) {
@@ -43,7 +43,7 @@ class Boss2 extends Agent {
 			final hero = me.heros[i];
 
 			var target:Mob = null;
-			var minDist:Float = Configuration.MAP_WIDTH + Configuration.MAP_HEIGHT;
+			var minDist:Float = Config.MAP_WIDTH + Config.MAP_HEIGHT;
 			for( mob in mobs ) {
 				if( mob == closestEnemyToBase ) continue;
 				final curDist = mob.position.distance( hero.position );
@@ -54,8 +54,8 @@ class Boss2 extends Agent {
 			}
 			if( target == null ) actions[i] = 'MOVE ${postX[i]} ${postY[i]}';
 			else {
-				if( canWind( me.mana ) && hero.position.distance( target.position ) < Configuration.SPELL_WIND_RADIUS ) {
-					actions[i] = 'SPELL WIND ${Configuration.MAP_WIDTH - me.basePosition.x} ${Configuration.MAP_HEIGHT - me.basePosition.y}';
+				if( canWind( me.mana ) && hero.position.distance( target.position ) < Config.SPELL_WIND_RADIUS ) {
+					actions[i] = 'SPELL WIND ${Config.MAP_WIDTH - me.basePosition.x} ${Config.MAP_HEIGHT - me.basePosition.y}';
 				} else {
 					actions[i] = 'MOVE ${target.position}';
 				}
@@ -69,8 +69,8 @@ class Boss2 extends Agent {
 			if( target == null || minDistToBase > 5000 ) {
 				actions[i] = "WAIT";
 			} else {
-				if( canWind( me.mana ) && hero.position.distance( target.position ) < Configuration.SPELL_WIND_RADIUS ) {
-					actions[i] = 'SPELL WIND ${Configuration.MAP_WIDTH - me.basePosition.x} ${Configuration.MAP_HEIGHT - me.basePosition.y}';
+				if( canWind( me.mana ) && hero.position.distance( target.position ) < Config.SPELL_WIND_RADIUS ) {
+					actions[i] = 'SPELL WIND ${Config.MAP_WIDTH - me.basePosition.x} ${Config.MAP_HEIGHT - me.basePosition.y}';
 				} else {
 					actions[i] = 'MOVE ${target.position}';
 				}

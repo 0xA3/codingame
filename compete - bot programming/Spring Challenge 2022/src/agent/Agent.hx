@@ -4,7 +4,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
-import game.Configuration;
+import game.Config;
 import game.GameEntity;
 import game.Hero;
 import game.Mob;
@@ -34,15 +34,15 @@ class Agent {
 		final myBaseY = parseInt( inputs[1] );
 		final herosPerPlayer = parseInt( inputLines[1] ); // Always 3
 		
-		final oppBaseX = Configuration.MAP_WIDTH - myBaseX;
-		final oppBaseY = Configuration.MAP_HEIGHT - myBaseY;
+		final oppBaseX = Config.MAP_WIDTH - myBaseX;
+		final oppBaseY = Config.MAP_HEIGHT - myBaseY;
 
 		me = new Player( 0, "me", myBaseX, myBaseY );
 		opp = new Player( 1, "opponent", oppBaseX, oppBaseY );
 		players = [me, opp];
 		
-		var index = 0;
-		for( player in players ) for( _ in 0...herosPerPlayer ) player.addHero( new Hero( index, index++, new Vector( 0, 0 ), player, 0 ));
+		var id = 0;
+		for( player in players ) for( i in 0...herosPerPlayer ) player.addHero( new Hero( id++, i, new Vector( 0, 0 ), player, 0 ));
 	}
 	
 	public function setInputs( inputLines:Array<String> ) {
@@ -105,28 +105,49 @@ class Agent {
 		return actions.join( "\n" );
 	}
 
-	function control( unitId:Int, position:Vector, message = "" ) {
-		actions.push( 'SPELL CONTROL $unitId $position' + ( message == "" ? message : ' $message' ));
+	function control( hero:Int, unitId:Int, position:Vector, message = "" ) {
+		actions[hero] = 'SPELL CONTROL $unitId $position' + ( message == "" ? message : ' $message' );
 	}
 	
-	function move( position:Vector, message = "" ) {
-		actions.push( 'MOVE $position' + ( message == "" ? message : ' $message' ));
+	function move( hero:Int, position:Vector, message = "" ) {
+		actions[hero] = 'MOVE $position' + ( message == "" ? message : ' $message' );
 	}
 
-	function push( position:Vector, message = "" ) {
-		actions.push( 'SPELL WIND $position' + ( message == "" ? message : ' $message' ));
+	function push( hero:Int, position:Vector, message = "" ) {
+		actions[hero] = 'SPELL WIND $position' + ( message == "" ? message : ' $message' );
 	}
 	
-	function shield( unitId:Int, message = "" ) {
-		actions.push( 'SPELL SHIELD $unitId' + ( message == "" ? message : ' $message' ));
+	function shield( hero:Int, unitId:Int, message = "" ) {
+		actions[hero] = 'SPELL SHIELD $unitId' + ( message == "" ? message : ' $message' );
 	}
 
-	function sortEntitiesByDistance( entities:Array<GameEntity>, v:Vector ) {
-		entities.sort(( a, b ) -> return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() ));
+	function wait( hero:Int, message = "" ) {
+		actions[hero] = 'WAIT' + ( message == "" ? message : ' $message' );
 	}
 
-	function sortMobsByDistance( entities:Array<Mob>, v:Vector ) {
-		entities.sort(( a, b ) -> return int( Vector.fromVectors( a.position, v ).lengthSquared() ) - int( Vector.fromVectors( b.position, v ).lengthSquared() ));
+	function mirrorVectors( a:Array<Vector> ) {
+		for( v in a ) mirrorVector( v );
+	}
+	
+	function mirrorVector( v:Vector ) {
+		v.x = Config.MAP_WIDTH - v.x;
+		v.y = Config.MAP_HEIGHT - v.y;
+	}
+	
+	function sortMobsByDistance( mobs:Array<Mob>, pos:Vector ) {
+		mobs.sort(( a, b ) -> {
+			final da = Vector.fromVectors( a.position, pos ).lengthSquared();
+			final db = Vector.fromVectors( b.position, pos ).lengthSquared();
+			return int( da - db );
+		});
+	}
+
+	function sortHerosByDistance( heros:Array<Hero>, pos:Vector ) {
+		heros.sort(( a, b ) -> {
+			final da = Vector.fromVectors( a.position, pos ).lengthSquared();
+			final db = Vector.fromVectors( b.position, pos ).lengthSquared();
+			return int( da - db );
+		});
 	}
 
 	function getMobsInDistance( hero:Hero, mobs:Array<Mob>, distance:Int ) {
@@ -136,5 +157,10 @@ class Agent {
 	}
 
 
-	function printActions() return actions.join( "\n" );
+	function printActions() {
+		for( i in 0...3 ) {
+			if( actions[i] == null ) throw 'Error in frame $turn: action $i is null';
+		}
+		return actions.join( "\n" );
+	}
 }
