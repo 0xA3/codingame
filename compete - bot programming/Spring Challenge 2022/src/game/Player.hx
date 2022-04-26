@@ -8,10 +8,10 @@ class Player extends AbstractMultiplayerPlayer {
 	public var basePosition:Vector;
 
 	public final heros:Array<Hero> = [];
-	public var mana = Configuration.STARTING_MANA;
+	public var mana = Config.STARTING_MANA;
 	public var manaChanged = true;
 	public var baseHealthChanged = true;
-	public var baseHealth = Configuration.STARTING_BASE_HEALTH;
+	public var baseHealth = Config.STARTING_BASE_HEALTH;
 	public var spottet:Map<Int, Bool> = [];
 	public var manaGainedOutsideOfBase(default, null) = 0;
 
@@ -28,12 +28,12 @@ class Player extends AbstractMultiplayerPlayer {
 	public function gainMana( amount:Array<Int> ) {
 		mana += amount[0];
 		manaGainedOutsideOfBase += amount[1];
-		if (Configuration.MAX_MANA > 0) {
-            if (mana > Configuration.MAX_MANA) {
-                mana = Configuration.MAX_MANA;
+		if (Config.MAX_MANA > 0) {
+            if (mana > Config.MAX_MANA) {
+                mana = Config.MAX_MANA;
             }
-            if (manaGainedOutsideOfBase > Configuration.MAX_MANA) {
-                manaGainedOutsideOfBase = Configuration.MAX_MANA;
+            if (manaGainedOutsideOfBase > Config.MAX_MANA) {
+                manaGainedOutsideOfBase = Config.MAX_MANA;
             }
         }
         manaChanged = true;

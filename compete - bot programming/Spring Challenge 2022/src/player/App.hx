@@ -5,6 +5,7 @@ import h2d.Object;
 import tink.CoreApi.Noise;
 import tink.core.Signal;
 import view.FrameViewData;
+import xa3.MapUtils.size;
 
 using Lambda;
 
@@ -28,8 +29,9 @@ class App extends hxd.App {
 	var width = SCENE_WIDTH;
 	var height = SCENE_HEIGHT;
 	
-	var scaleFactor = 1.0;
+	public static var scaleFactor = 1.0;
 	
+	var currentFrame:Int;
 	final frameDatasets:Array<FrameViewData> = [];
 
 	var gameView:player.GameView;
@@ -49,7 +51,7 @@ class App extends hxd.App {
 		final scene = new Object( s2d );
 		final entityCreator = new player.EntityCreator();
 		entityCreator.createBackground( scene );
-		gameView = new player.GameView( scene, entityCreator );
+		gameView = new player.GameView( s2d, scene, entityCreator );
 		gameView.initEntities();
 		
 		sliderContainer = new Object( s2d );
@@ -71,7 +73,7 @@ class App extends hxd.App {
 		final scaleX = 0.5;
 		final scaleY = 0.5;
 		final minScale = Math.min( scaleX, scaleY );
-		gameView.scene.scaleX = gameView.scene.scaleY = minScale;
+		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 		// trace( 'resize $scaleX $scaleY  width $width  height $height' );
 
 		// sliderContainer.y = scaleX < scaleY ? CANVAS_HEIGHT * scaleX : CANVAS_HEIGHT * scaleY - 10;
@@ -97,10 +99,15 @@ class App extends hxd.App {
 	}
 
 	function goToFrame( f:Float ) {
-		final currentFrame = Math.floor( f );
+		currentFrame = Math.floor( f );
 		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
 		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
 		final subFrame = f - currentFrame;
 		gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame );
+	}
+
+	override function update( dt:Float ) {
+		
+		gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
 	}
 }

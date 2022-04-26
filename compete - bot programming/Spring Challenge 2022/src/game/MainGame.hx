@@ -7,7 +7,7 @@ class MainGame {
 	
 	static var app:player.App;
 
-	static final corners = [new Vector( 0, 0 ), new Vector( Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT )];
+	static final corners = [new Vector( 0, 0 ), new Vector( Config.MAP_WIDTH, Config.MAP_HEIGHT )];
 	static var gameManager:GameManager;
 	
 	static function main() {

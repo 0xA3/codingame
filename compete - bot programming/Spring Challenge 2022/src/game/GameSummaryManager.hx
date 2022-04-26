@@ -27,7 +27,7 @@ class GameSummaryManager {
 
     public function addWait( player:Player ) lines.push( 'player ${player.index} is waiting' );
 
-    public function addRound( round:Int ) lines.push( 'Round $round/${Configuration.MAX_ROUNDS - 1}' );
+    public function addRound( round:Int ) lines.push( 'Round $round/${Config.MAX_ROUNDS - 1}' );
 
     public function addError( error:String ) lines.push( error );
 

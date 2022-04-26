@@ -1,8 +1,12 @@
 package player;
 
-import game.Configuration;
+import Std.int;
+import game.Config;
+import game.Vector;
 import h2d.Bitmap;
+import h2d.Graphics;
 import h2d.Object;
+import h2d.Scene;
 import h2d.Text;
 import player.App;
 import player.CharacterView;
@@ -17,10 +21,14 @@ class GameView {
 	public static inline var X0 = 48;
 	public static inline var Y0 = 116;
 	
-	static final scale = App.SCENE_WIDTH / Configuration.MAP_WIDTH;
+	public static final TAU = 2 * Math.PI;
+	static final scale = App.SCENE_WIDTH / Config.MAP_WIDTH;
 	public static function sX( x:Float ) return x * scale + X0;
 	public static function sY( y:Float ) return y * scale + Y0;
 
+	final s2d:Scene;
+
+	final timesFont = hxd.Res.times_new_roman_bold.toFont();
 	final heartY = 58;
 	final heartXs = [195, 226, 256, 1334, 1365, 1395];
 
@@ -32,12 +40,16 @@ class GameView {
 	final textLayer:Object;
 
 	final textfieldsMana:Array<Text>;
-	
+	final overlay:Object;
+	final overlayBox:Graphics;
+	final overlayText:Text;
+
 	final heros:Array<HeroView> = [];
 	final mobs:Map<Int, MobView> = [];
 	final hearts:Array<Bitmap> = [];
 	
-	public function new( scene:Object, entityCreator:EntityCreator ) {
+	public function new( s2d:Scene, scene:Object, entityCreator:EntityCreator ) {
+		this.s2d = s2d;
 		this.scene = scene;
 		this.entityCreator = entityCreator;
 
@@ -46,8 +58,8 @@ class GameView {
 		textLayer = new Object( scene );
 
 		textfieldsMana = [
-			new Text( hxd.Res.times_new_roman.toFont(), textLayer ),
-			new Text( hxd.Res.times_new_roman.toFont(), textLayer )
+			new Text( timesFont, textLayer ),
+			new Text( timesFont, textLayer )
 		];
 		textfieldsMana[0].textAlign = Right;
 		textfieldsMana[0].x = 446;
@@ -56,6 +68,20 @@ class GameView {
 		textfieldsMana[1].x = 1582;
 		textfieldsMana[1].y = 54;
 
+		overlay = new Object( s2d );
+		
+		overlayBox = new Graphics( overlay );
+		overlayBox.beginFill( 0x000000 );
+		overlayBox.drawRect( 0, 0, 100, 100 );
+		overlayBox.endFill();
+		overlayBox.x = -10;
+		overlayBox.y = -10;
+		overlayBox.alpha = 0.6;
+		
+		overlayText = new Text( timesFont, overlay );
+
+		overlay.x = 500;
+		overlay.y = 500;
 	}
 
 	public function initEntities() {
@@ -79,9 +105,19 @@ class GameView {
 			hearts[heartStart + 2].visible = baseHealth > 2;
 		}
 
+		final mobPositions = [for( id => coord in frame.positions ) if( id >= 6 ) new Vector( coord.x, coord.y )];
+
 		for( id => coord in frame.positions ) {
 			if( id < 6 ) { // hero
-				place( heros[id], previous.positions[id], frame.positions[id], next.positions[id], subFrame );
+				var isAttacking = false;
+				final heroPosition = new Vector( coord.x, coord.y );
+				for( mobPos in mobPositions ) {
+					if( heroPosition.distance( mobPos ) <= Config.HERO_ATTACK_RANGE ) {
+						isAttacking = true;
+						break;
+					}
+				}
+				place( heros[id], previous.positions[id], frame.positions[id], next.positions[id], subFrame, isAttacking );
 			} else {
 				if( !mobs.exists( id )) {
 					final fullHealth = frame.mobHealth.exists( id ) ? frame.mobHealth[id] : 1;
@@ -108,7 +144,7 @@ class GameView {
 		}
 	}
 
-	function place( character:CharacterView, previous:Coord, coord:Coord, next:Coord, subFrame:Float ) {
+	function place( character:CharacterView, previous:Coord, coord:Coord, next:Coord, subFrame:Float, isAttacking = false ) {
 		final dx1 = coord.x - previous.x;
 		final dy1 = coord.y - previous.y;
 		final dx2 = next.x - coord.x;
@@ -119,9 +155,9 @@ class GameView {
 		
 		final angle1 = MathUtils.angle( dx1, dy1 );
 		final angle2 = MathUtils.angle( dx2, dy2 );
-		final angle = interpolate( angle1, angle2, easedRotation );
-		if( dx2 != 0 || dy2 != 0 ) character.rotate( angle);
-		
+		final angle = interpolate( angle1, angle2, easedRotation ) + ( isAttacking ? subFrame * TAU : 0 );
+		if( isAttacking || dx2 != 0 || dy2 != 0 ) character.rotate( angle);
+
 		final x = interpolate( coord.x, next.x, easedSubFrame);
 		final y = interpolate( coord.y, next.y, easedSubFrame );
 		character.place( x, y );
@@ -136,6 +172,46 @@ class GameView {
 			return 1 / 2 * k * k;
 		}
 		return -1 / 2 * ((k - 1) * (k - 3) - 1);
+	}
+
+	public function mouseOver( screenX:Float, screenY:Float, frame:FrameViewData ) {
+		
+		final mapX = ( screenX / App.scaleFactor - X0 ) / scale;
+		final mapY = ( screenY / App.scaleFactor - Y0 ) / scale;
+		
+		final overIds = [];
+		for( id => pos in frame.positions ) {
+			if( isOver( mapX, mapY, pos )) {
+				overIds.push( id );
+			}
+		}
+		if( overIds.length == 0 ) {
+			overlayText.text = 'x: ${int( mapX )}\ny: ${int( mapY )}';
+		} else {
+			var overTexts = [];
+			for( id in overIds ) {
+				final headline = id < 6 ? "HERO" : "MOB";
+				final coord = frame.positions[id];
+				overTexts.push( '$headline $id\nx: ${coord.x}\ny: ${coord.y}' );
+			}
+			overlayText.text = overTexts.join( "\n" );
+		}
+
+		
+		final boxWidth = overlayText.textWidth + 20;
+		final boxHeight = overlayText.textHeight + 20;
+		overlayBox.scaleX = boxWidth / 100;
+		overlayBox.scaleY = boxHeight / 100;
+		
+		overlay.x = screenX + boxWidth < s2d.width ? screenX + 10 : screenX - boxWidth + 10;
+		overlay.y = screenY + boxHeight < s2d.height - 10 ? screenY + 20 : screenY - boxHeight + 10;
+	}
+
+	static inline var OVER_DISTANCE = 400;
+
+	inline function isOver( mouseX:Float, mouseY:Float, c2:Coord ) {
+		if( Math.abs( c2.x - mouseX ) < OVER_DISTANCE && Math.abs( c2.y - mouseY ) < OVER_DISTANCE ) return true;
+		return false;
 	}
 
 }

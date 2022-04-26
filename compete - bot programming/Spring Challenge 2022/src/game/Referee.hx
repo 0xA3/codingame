@@ -3,6 +3,7 @@ package game;
 import Std.int;
 import Std.parseInt;
 import agent.Agent;
+import agent.Boss2;
 import game.action.Action;
 import game.action.ActionException;
 import game.action.ActionType;
@@ -67,7 +68,7 @@ class Referee {
 	var timer:haxe.Timer;
 
 	final actionTypes = [MOVE, WIND, SHIELD, CONTROL, IDLE];
-	final symmetryOrigin = new Vector( Configuration.MAP_WIDTH / 2, Configuration.MAP_HEIGHT / 2 );
+	final symmetryOrigin = new Vector( Config.MAP_WIDTH / 2, Config.MAP_HEIGHT / 2 );
 
 	public static var entityId = 0;
 
@@ -76,8 +77,7 @@ class Referee {
 		this.corners = corners;
 
 		agentMe = new agent.Agent1();
-		// agentOpp = new agent.Boss2();
-		agentOpp = new agent.Random();
+		agentOpp = new agent.Boss1();
 		
 		agents = [agentMe, agentOpp];
 		
@@ -101,9 +101,9 @@ class Referee {
 		MTRandom.initializeRandGenerator( seed );
 
 		mobSpawner = new MobSpawner(
-			Configuration.MOB_SPAWN_LOCATIONS,
-			Configuration.MOB_SPAWN_MAX_DIRECTION_DELTA,
-			Configuration.MOB_SPAWN_RATE
+			Config.MOB_SPAWN_LOCATIONS,
+			Config.MOB_SPAWN_MAX_DIRECTION_DELTA,
+			Config.MOB_SPAWN_RATE
 		);
 
 		try {
@@ -136,8 +136,8 @@ class Referee {
 
 			basePositions.push( startPoint );
 			final offsets = [0, 1, -1, 2, -2, 3, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-			for( j in 0...Configuration.HEROES_PER_PLAYER ) {
-				final offset = offsets[j + ( 1 - Configuration.HEROES_PER_PLAYER % 2 )];
+			for( j in 0...Config.HEROES_PER_PLAYER ) {
+				final offset = offsets[j + ( 1 - Config.HEROES_PER_PLAYER % 2 )];
 
 				var position = vector.mult( offset * ( spaceBetweenHeroes )).add( startPoint ).add( startDirections[i].mult( spawnOffset ))
 				.round();
@@ -158,7 +158,7 @@ class Referee {
 			// <baseX> <baseY>
 			player.sendInputLine( basePositions[player.index].toString() );
 			// <heroesPerPlayer>
-			player.sendInputLine( Std.string( Configuration.HEROES_PER_PLAYER ));
+			player.sendInputLine( Std.string( Config.HEROES_PER_PLAYER ));
 		}
 	}
 
@@ -191,17 +191,17 @@ class Referee {
 		switch gameManager.getLeagueLevel() {
 			case 1:
 				// Wood 2
-				Configuration.ENABLE_TIE_BREAK = false;
-				Configuration.ENABLE_WIND = false;
-				Configuration.ENABLE_CONTROL = false;
-				Configuration.ENABLE_SHIELD = false;
-				Configuration.ENABLE_FOG = false;
+				Config.ENABLE_TIE_BREAK = false;
+				Config.ENABLE_WIND = false;
+				Config.ENABLE_CONTROL = false;
+				Config.ENABLE_SHIELD = false;
+				Config.ENABLE_FOG = false;
 			case 2:
 				// Wood 1
-				Configuration.ENABLE_WIND = true;
-				Configuration.ENABLE_CONTROL = false;
-				Configuration.ENABLE_SHIELD = false;
-				Configuration.ENABLE_FOG = true;
+				Config.ENABLE_WIND = true;
+				Config.ENABLE_CONTROL = false;
+				Config.ENABLE_SHIELD = false;
+				Config.ENABLE_FOG = true;
 		}
 	}
 
@@ -214,9 +214,9 @@ class Referee {
 		var snapY = v.y;
 
 		if ( snapX < 0 ) snapX = 0;
-		if ( snapX >= Configuration.MAP_WIDTH ) snapX = Configuration.MAP_WIDTH - 1;
+		if ( snapX >= Config.MAP_WIDTH ) snapX = Config.MAP_WIDTH - 1;
 		if ( snapY < 0) snapY = 0;
-		if ( snapY >= Configuration.MAP_HEIGHT ) snapY = Configuration.MAP_HEIGHT - 1;
+		if ( snapY >= Config.MAP_HEIGHT ) snapY = Config.MAP_HEIGHT - 1;
 		
 		return new Vector( snapX, snapY );
 	};
@@ -317,16 +317,16 @@ class Referee {
 
 		for( hero in intentMap[WIND] ) {
 			try {
-				if( hero.owner.mana < Configuration.SPELL_WIND_COST ) throw new ActionException( "Not enough mana" );
+				if( hero.owner.mana < Config.SPELL_WIND_COST ) throw new ActionException( "Not enough mana" );
 
-				hero.owner.spendMana( Configuration.SPELL_WIND_COST );
+				hero.owner.spendMana( Config.SPELL_WIND_COST );
 				final push = hero.intent;
 				recordSpellUse( hero );
 
-				final enemies = getAllEnemyUnitsAround( hero, Configuration.SPELL_WIND_RADIUS )
+				final enemies = getAllEnemyUnitsAround( hero, Config.SPELL_WIND_RADIUS )
 					.filter( enemy -> !enemy.hadActiveShield());
 				
-				final dir = Vector.fromVectors( hero.position, push.destination ).normalize().mult( Configuration.SPELL_WIND_DISTANCE );
+				final dir = Vector.fromVectors( hero.position, push.destination ).normalize().mult( Config.SPELL_WIND_DISTANCE );
 
 				for( enemy in enemies ) {
 					if( !directionMap.exists( enemy )) directionMap.set( enemy, [] );
@@ -364,7 +364,7 @@ class Referee {
 				var randomDirection = randomDouble * Math.PI * 2;
 				if( existingRandom != null ) randomDirection += Math.PI;
 
-				cast( entity, Mob ).velocity = Vector.fromAngle( randomDirection ).normalize().mult( Configuration.MOB_MOVE_SPEED );
+				cast( entity, Mob ).velocity = Vector.fromAngle( randomDirection ).normalize().mult( Config.MOB_MOVE_SPEED );
 			}
 
 			entity.pushTo( predictedPosition );
@@ -383,9 +383,9 @@ class Referee {
 	}
 
 	function baseWallIntersection( from:Vector, to:Vector ) {
-		final w = Configuration.MAP_WIDTH - 1;
-		final h = Configuration.MAP_HEIGHT - 1;
-		final baseRadius = Configuration.BASE_ATTRACTION_RADIUS;
+		final w = Config.MAP_WIDTH - 1;
+		final h = Config.MAP_HEIGHT - 1;
+		final baseRadius = Config.BASE_ATTRACTION_RADIUS;
 		var intersection:Vector = null;
 		if( to.y >= h ) intersection = intersectionCoord( from.x, from.y, to.x, to.y, w - baseRadius, h, w, h );
 		else if( to.y < 0 ) intersection = intersectionCoord(from.x, from.y, to.x, to.y, 0, 0, baseRadius, 0);
@@ -398,7 +398,7 @@ class Referee {
 	}
 
 	function isInBaseAttractionZone( v:Vector ) {
-		for( basePosition in basePositions ) if( v.inRange( basePosition, Configuration.BASE_ATTRACTION_RADIUS )) return true;
+		for( basePosition in basePositions ) if( v.inRange( basePosition, Config.BASE_ATTRACTION_RADIUS )) return true;
 		return false;
 	}
 
@@ -407,7 +407,7 @@ class Referee {
 		for( hero in intentMap[SHIELD] ) {
 			final control = hero.intent;
 			try {
-				if( hero.owner.mana < Configuration.SPELL_PROTECT_COST ) {
+				if( hero.owner.mana < Config.SPELL_PROTECT_COST ) {
 					throw new ActionException( "Not enough mana" );
 				}
 				final targeted = allEntities().filter( other -> other.id == control.target )[0];
@@ -417,7 +417,7 @@ class Referee {
 				
 				if( heroCanSee( hero, entity )) {
 					
-					hero.owner.spendMana( Configuration.SPELL_PROTECT_COST );
+					hero.owner.spendMana( Config.SPELL_PROTECT_COST );
 					recordSpellUse( hero );
 					
 					if( !entity.hasActiveShield() ) entity.applyShield();
@@ -439,7 +439,7 @@ class Referee {
 			final control = hero.intent;
 			
 			try {
-				if( hero.owner.mana < Configuration.SPELL_PROTECT_COST ) throw new ActionException( "Not enough mana" );
+				if( hero.owner.mana < Config.SPELL_PROTECT_COST ) throw new ActionException( "Not enough mana" );
 				
 				final targeted = allEntities().filter( other -> other.id == control.target )[0];
 				
@@ -448,7 +448,7 @@ class Referee {
 
 				if( heroCanSee( hero, victim )) {
 					
-					hero.owner.spendMana( Configuration.SPELL_CONTROL_COST );
+					hero.owner.spendMana( Config.SPELL_CONTROL_COST );
 					recordSpellUse( hero );
 
 					if( !victim.hasActiveShield() ) victim.applyShield();
@@ -468,14 +468,14 @@ class Referee {
 	}
 
 	function heroCanSee( hero:Hero, entity:GameEntity ) {
-		if( Configuration.ENABLE_FOG ) return hero.position.inRange( entity.position, Configuration.HERO_VIEW_RADIUS );
+		if( Config.ENABLE_FOG ) return hero.position.inRange( entity.position, Config.HERO_VIEW_RADIUS );
 		return true;
 	}
 
 	function playerCanSee( player:Player, entity:GameEntity ) {
 		if( !insideVisibleMap( entity.position )) return false;
 		if( entity.getOwner() == player ) return true;
-		if( entity.position.inRange( basePositions[player.index], Configuration.BASE_VIEW_RADIUS)) return true;
+		if( entity.position.inRange( basePositions[player.index], Config.BASE_VIEW_RADIUS)) return true;
 		for( hero in player.heros ) if( heroCanSee( hero, entity )) return true;
 
 		return false;
@@ -496,14 +496,14 @@ class Referee {
 
 			if( !mob.moveCancelled() ) {
 				if( !mob.activeControls.isEmpty()) {
-					var computedDestination = computeControlResult( mob, Configuration.MOB_MOVE_SPEED );
+					var computedDestination = computeControlResult( mob, Config.MOB_MOVE_SPEED );
 					final newVelocity = Vector.fromVectors( mob.position, computedDestination );
 					
 					final baseWallIntersectionResult = baseWallIntersection( mob.position, computedDestination );
 					computedDestination = snapToGameZone( baseWallIntersectionResult == null ? computedDestination : baseWallIntersectionResult );
 
 					mob.position = computedDestination.symmetricTruncate( symmetryOrigin );
-					if( !newVelocity.isZero()) mob.velocity = newVelocity.normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
+					if( !newVelocity.isZero()) mob.velocity = newVelocity.normalize().mult( Config.MOB_MOVE_SPEED ).truncate();
 				} else {
 					mob.position = mob.position.add( mob.velocity ).symmetricTruncate( symmetryOrigin );
 				}
@@ -511,7 +511,7 @@ class Referee {
 
 			for( idx in 0...basePositions.length ) {
 				final base = basePositions[idx];
-				if( mob.position.inRange( base, Configuration.BASE_RADIUS ) && mob.health > 0 ) {
+				if( mob.position.inRange( base, Config.BASE_RADIUS ) && mob.health > 0 ) {
 					removeMob( mob );
 					final p = gameManager.getPlayer( idx );
 					p.damageBase();
@@ -527,14 +527,14 @@ class Referee {
 
 				if( mobCanDetectBase( mob, base )) {
 					final v = Vector.fromVectors( mob.position, base );
-					final distanceToStep = int( Math.min( v.length(), Configuration.MOB_MOVE_SPEED ));
+					final distanceToStep = int( Math.min( v.length(), Config.MOB_MOVE_SPEED ));
 					mob.velocity = base.sub( mob.position ).normalize().mult( distanceToStep ).truncate();
 					gameManager.getPlayer( idx ).spottet.set( mob.id, true );
 				
-				} else if( mob.position.inRange(base, Configuration.BASE_ATTRACTION_RADIUS )) {
+				} else if( mob.position.inRange(base, Config.BASE_ATTRACTION_RADIUS )) {
 					var objective = new Vector( 1, 1 );
 					if( mob.position.x < 0 || mob.position.y < 0 ) objective = objective.mult( -1 );
-					mob.velocity = objective.normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
+					mob.velocity = objective.normalize().mult( Config.MOB_MOVE_SPEED ).truncate();
 				}
 			}
 		}
@@ -550,19 +550,19 @@ class Referee {
 
 		//Deal hero damage to mobs
 		for( hero in allHeros ) {
-			final mobs = getMobsAround( hero, Configuration.HERO_ATTACK_RANGE, allMobs );
+			final mobs = getMobsAround( hero, Config.HERO_ATTACK_RANGE, allMobs );
 			final mobsHit = new List<Int>();
-			final isOutsideBaseRadius = !hero.position.inRange( basePositions[hero.owner.index], Configuration.BASE_ATTRACTION_RADIUS );
+			final isOutsideBaseRadius = !hero.position.inRange( basePositions[hero.owner.index], Config.BASE_ATTRACTION_RADIUS );
 
 			for( mob in mobs ) {
-				mob.hit( Configuration.HERO_ATTACK_DAMAGE );
+				mob.hit( Config.HERO_ATTACK_DAMAGE );
 
 				manaGain.compute( hero.owner, ( k, v ) -> {
 					if( v == null ){
-						return [Configuration.HERO_ATTACK_DAMAGE, isOutsideBaseRadius ? Configuration.HERO_ATTACK_DAMAGE : 0];
+						return [Config.HERO_ATTACK_DAMAGE, isOutsideBaseRadius ? Config.HERO_ATTACK_DAMAGE : 0];
 					} else {
-						v[0] += Configuration.HERO_ATTACK_DAMAGE;
-						v[1] += isOutsideBaseRadius ? Configuration.HERO_ATTACK_DAMAGE : 0;
+						v[0] += Config.HERO_ATTACK_DAMAGE;
+						v[1] += isOutsideBaseRadius ? Config.HERO_ATTACK_DAMAGE : 0;
 					}
 					return v;
 				});
@@ -645,7 +645,7 @@ class Referee {
 	}
 
 	function mobCanDetectBase( mob:Mob, base:Vector ) {
-		return insideVisibleMap( mob.position ) && mob.position.inRange( base, Configuration.BASE_ATTRACTION_RADIUS );
+		return insideVisibleMap( mob.position ) && mob.position.inRange( base, Config.BASE_ATTRACTION_RADIUS );
 	}
 
 	static final PLAYER_WAIT_PATTERN = new EReg(
@@ -680,7 +680,7 @@ class Referee {
 		+ "\\s*$", ""
 	);
 
-	static final EXPECTED = Configuration.ENABLE_WIND || Configuration.ENABLE_CONTROL || Configuration.ENABLE_WIND
+	static final EXPECTED = Config.ENABLE_WIND || Config.ENABLE_CONTROL || Config.ENABLE_WIND
 		? "MOVE <x> <y> | SPELL <spell_command> | WAIT"
 		: "MOVE <x> <y> | WAIT";
 	
@@ -689,7 +689,7 @@ class Referee {
 		for( line in lines ) {
 			final hero = player.heros[i++];
 			if( !hero.activeControls.isEmpty()) {
-				final computedDestination = computeControlResult( hero, Configuration.HERO_MOVE_SPEED );
+				final computedDestination = computeControlResult( hero, Config.HERO_MOVE_SPEED );
 
 				final intent = new Action( MOVE );
 				intent.forced = true;
@@ -712,7 +712,7 @@ class Referee {
 					final y = parseInt( PLAYER_MOVE_PATTERN.matched( 2 ));
 					if( hero.position.x != x || hero.position.y != y ) {
 						final intent = new Action( MOVE );
-						final speed = Configuration.HERO_MOVE_SPEED;
+						final speed = Config.HERO_MOVE_SPEED;
 						final target = stepTo( hero.position, new Vector( x, y ), speed );
                         
 						// Don't use doubles for internal positions else players won't be able to determine state N+1 from state N.
@@ -724,7 +724,7 @@ class Referee {
 					continue;
 				}
 
-				if( Configuration.ENABLE_WIND ) {
+				if( Config.ENABLE_WIND ) {
 					if( PLAYER_WIND_PATTERN.match( line )) {
 						final x = parseInt( PLAYER_WIND_PATTERN.matched( 1 ));
 						final y = parseInt( PLAYER_WIND_PATTERN.matched( 2 ));
@@ -738,7 +738,7 @@ class Referee {
 					}
 				}
 
-				if( Configuration.ENABLE_SHIELD ) {
+				if( Config.ENABLE_SHIELD ) {
 					if( PLAYER_SHIELD_PATTERN.match( line )) {
 						final entityId = parseInt( PLAYER_SHIELD_PATTERN.matched( 1 ));
 						final intent = new Action( SHIELD );
@@ -751,7 +751,7 @@ class Referee {
 					}
 				}
 				
-				if( Configuration.ENABLE_CONTROL ) {
+				if( Config.ENABLE_CONTROL ) {
 					if( PLAYER_CONTROL_PATTERN.match( line )) {
 						final entityId = parseInt( PLAYER_CONTROL_PATTERN.matched( 1 ));
 						final x = parseInt( PLAYER_CONTROL_PATTERN.matched( 2 ));
@@ -846,7 +846,7 @@ class Referee {
 			var mobVelocity:Vector;
 
 			if( !mob.activeControls.isEmpty()) {
-				final computedDestination = computeControlResult( mob, Configuration.MOB_MOVE_SPEED );
+				final computedDestination = computeControlResult( mob, Config.MOB_MOVE_SPEED );
 				final newVelocity = Vector.fromVectors( mob.position, computedDestination );
 				mobVelocity = newVelocity;
 			} else {
@@ -864,7 +864,7 @@ class Referee {
 					// Am I inside an attraction zone?
 					for( idx in 0...basePositions.length ) {
 						final base = basePositions[idx];
-						if( cur.inRange( base, Configuration.BASE_ATTRACTION_RADIUS )) {
+						if( cur.inRange( base, Config.BASE_ATTRACTION_RADIUS )) {
 							mob.status = new MobStatus( turns == 0 ? ATTACKING : WANDERING, gameManager.getPlayer( idx ), turns );
 							stop = true;
 							break;
@@ -889,13 +889,13 @@ class Referee {
 
 	function insideMap( p:Vector ) {
 		return p.withinBounds(
-			-Configuration.MAP_LIMIT, -Configuration.MAP_LIMIT,
-			Configuration.MAP_WIDTH + Configuration.MAP_LIMIT, Configuration.MAP_HEIGHT + Configuration.MAP_LIMIT
+			-Config.MAP_LIMIT, -Config.MAP_LIMIT,
+			Config.MAP_WIDTH + Config.MAP_LIMIT, Config.MAP_HEIGHT + Config.MAP_LIMIT
 		);
 	}
 
 	function insideVisibleMap( p:Vector ) {
-		return p.withinBounds( 0, 0, Configuration.MAP_WIDTH, Configuration.MAP_HEIGHT );
+		return p.withinBounds( 0, 0, Config.MAP_WIDTH, Config.MAP_HEIGHT );
 	}
 
 	function onEnd() {
@@ -909,7 +909,7 @@ class Referee {
 			} else if( !a.isActive && b.isActive ) {
 				a.score = 0;
 				b.score = 1;
-			} else if( a.baseHealth != b.baseHealth || !Configuration.ENABLE_TIE_BREAK ) {
+			} else if( a.baseHealth != b.baseHealth || !Config.ENABLE_TIE_BREAK ) {
 				a.score = a.baseHealth;
 				b.score = b.baseHealth;
 			} else {

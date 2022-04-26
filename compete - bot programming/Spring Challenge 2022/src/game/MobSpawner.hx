@@ -8,7 +8,7 @@ class MobSpawner {
 	final maxDirectionDelta:Float;
 	final spawnRate:Int;
 	var lastSpawn:Int;
-	var currentMaxHealth:Float = Configuration.MOB_STARTING_MAX_ENERGY;
+	var currentMaxHealth:Float = Config.MOB_STARTING_MAX_ENERGY;
 
 	public function new( spawnLocations:Array<SpawnLocation>, maxDirectionDelta:Float, spawnRate:Int ) {
 
@@ -31,7 +31,7 @@ class MobSpawner {
 	}
 
 	function opposite( v:Vector ) {
-		return new Vector( Configuration.MAP_WIDTH - v.x, Configuration.MAP_HEIGHT - v.y );
+		return new Vector( Config.MAP_WIDTH - v.x, Config.MAP_HEIGHT - v.y );
 	}
 
 	function spawn( suddenDeath:Bool ) {
@@ -42,11 +42,11 @@ class MobSpawner {
 			var suddenDeathTarget:Vector = null;
 
 			if( suddenDeath ) {
-				var tx = MTRandom.quickIntRand( Configuration.BASE_ATTRACTION_RADIUS );
-				var ty = MTRandom.quickIntRand( Configuration.BASE_ATTRACTION_RADIUS );
+				var tx = MTRandom.quickIntRand( Config.BASE_ATTRACTION_RADIUS );
+				var ty = MTRandom.quickIntRand( Config.BASE_ATTRACTION_RADIUS );
 				if( MTRandom.quickRand() < 0.5 ) {
-					tx = Configuration.MAP_WIDTH - tx;
-					ty = Configuration.MAP_HEIGHT - ty;
+					tx = Config.MAP_WIDTH - tx;
+					ty = Config.MAP_HEIGHT - ty;
 				}
 				suddenDeathTarget = new Vector( tx, ty );
 			}
@@ -58,15 +58,15 @@ class MobSpawner {
 				final mob = new Mob( Referee.entityId++, location, Std.int( currentMaxHealth ));
 				if( suddenDeath ) {
 					final v = Vector.fromVectors(location, i == 0 ? suddenDeathTarget : opposite( suddenDeathTarget )).normalize()
-					.mult( Configuration.MOB_MOVE_SPEED ).truncate();
+					.mult( Config.MOB_MOVE_SPEED ).truncate();
 					mob.velocity = v;
 				} else {
-					mob.velocity = direction.rotate( directionDelta ).normalize().mult( Configuration.MOB_MOVE_SPEED ).truncate();
+					mob.velocity = direction.rotate( directionDelta ).normalize().mult( Config.MOB_MOVE_SPEED ).truncate();
 				}
 				newMobs.add( mob );
 			}
 		}
-		currentMaxHealth += Configuration.MOB_GROWTH_MAX_ENERGY;
+		currentMaxHealth += Config.MOB_GROWTH_MAX_ENERGY;
 		return newMobs;
 	}
 }

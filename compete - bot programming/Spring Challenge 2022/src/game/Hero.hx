@@ -4,7 +4,7 @@ import game.action.Action;
 
 class Hero extends GameEntity {
 	
-	final index:Int;
+	public final index:Int;
 	public final owner:Player;
 	public var rotation:Float;
 	public var intent:Action;

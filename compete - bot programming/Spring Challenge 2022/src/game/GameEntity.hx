@@ -19,10 +19,10 @@ abstract class GameEntity {
 	}
 
 	function applyControl( destination:Vector ) activeControls.add( destination );
-	public function applyShield() shieldDuration = Configuration.SPELL_PROTECT_DURATION + 1;
+	public function applyShield() shieldDuration = Config.SPELL_PROTECT_DURATION + 1;
 	public function getOwner() return null;
-	public function hasActiveShield() return shieldDuration > 0 && shieldDuration < Configuration.SPELL_PROTECT_DURATION + 1;
-	public function hadActiveShield() return shieldDuration > 0 && shieldDuration < Configuration.SPELL_PROTECT_DURATION;
+	public function hasActiveShield() return shieldDuration > 0 && shieldDuration < Config.SPELL_PROTECT_DURATION + 1;
+	public function hadActiveShield() return shieldDuration > 0 && shieldDuration < Config.SPELL_PROTECT_DURATION;
 	public function gotPushed() return pushed;
 	public function isControlled() return !activeControls.isEmpty();
 	public function pushTo( position:Vector ) this.position = position;

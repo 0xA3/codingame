@@ -1,6 +1,6 @@
 package game;
 
-class Configuration {
+class Config {
 
 	public static final MAX_ROUNDS = 220;
 	

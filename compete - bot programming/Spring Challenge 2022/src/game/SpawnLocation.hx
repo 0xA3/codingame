@@ -8,7 +8,7 @@ class SpawnLocation {
 
 	public function new( x:Int, y:Int ) {
         position = new Vector(x, y);
-        symmetry = new Vector(Configuration.MAP_WIDTH - x, Configuration.MAP_HEIGHT - y);
-        direction = new Vector(0, position.y <= Configuration.MAP_HEIGHT / 2 ? 1 : -1);
+        symmetry = new Vector(Config.MAP_WIDTH - x, Config.MAP_HEIGHT - y);
+        direction = new Vector(0, position.y <= Config.MAP_HEIGHT / 2 ? 1 : -1);
 	}
 }
