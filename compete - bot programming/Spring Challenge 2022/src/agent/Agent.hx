@@ -157,6 +157,12 @@ class Agent {
 		return mobsInDistance;
 	}
 
+	function getNearPosition( pos1:Vector, pos2:Vector, distanceFromPos2:Float ) {
+		final h2p = pos2.sub( pos1 ).normalize();
+		final nearDistance = pos1.distance( pos2 ) - distanceFromPos2;
+		final nearDelta = h2p.mult( nearDistance );
+		return pos1.add( nearDelta );
+	}
 
 	function printActions() {
 		for( i in 0...3 ) {

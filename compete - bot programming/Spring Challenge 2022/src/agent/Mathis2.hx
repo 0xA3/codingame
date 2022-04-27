@@ -30,7 +30,7 @@ class Mathis2 extends Agent {
 
 		// Attack
 		if( me.mana >= 10 && spiderIsNearEnemy ) {
-			push( ATTACKER, opp.basePosition );
+			push( ATTACKER, opp.basePosition, 'push to ${opp.basePosition}' );
 		} else {
 			var defaultPosition = defaultPositions[ATTACKER];
 			var message = "to default";

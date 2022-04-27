@@ -1,9 +1,12 @@
 package test.game;
 
+import agent.Agent;
+import game.GameEntity;
 import game.Hero;
 import game.Player;
 import game.Referee;
 import game.Vector;
+import gameengine.core.GameManager;
 
 using buddy.Should;
 
@@ -12,16 +15,16 @@ class TestHandleCommands extends buddy.BuddySuite {
 	
 	public function new() {
 		
-		@include describe( "Test HandleCommands", {
+		describe( "Test HandleCommands", {
 			
 			var player:Player;
 			var hero:Hero;
 			var referee:Referee;
 			beforeEach({
 				player = new Player( 0, "", 0, 0 );
-				hero = new Hero( 0, new Vector( 0, 0 ), player, 0 );
+				hero = new Hero( 0, 0, new Vector( 0, 0 ), player, 0 );
 				player.addHero( hero );
-				referee = new Referee();
+				referee = new Referee( new GameManager( [player, player] ), [], new Agent(), new Agent() );
 			});
 
 			it( "wait", {

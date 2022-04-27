@@ -3,7 +3,6 @@ package game;
 import Std.int;
 import Std.parseInt;
 import agent.Agent;
-import agent.Boss2;
 import game.action.Action;
 import game.action.ActionException;
 import game.action.ActionType;
