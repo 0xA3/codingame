@@ -37,12 +37,12 @@ class Referee {
 
 	final gameManager:GameManager;
 	final corners:Array<Vector>;
+	final agentMe:Agent;
+	final agentOpp:Agent;
+	final agents:Array<Agent>;
 	
 	var gameSummaryManager:GameSummaryManager;
 
-	var agentOpp:Agent;
-	var agentMe:Agent;
-	var agents:Array<Agent>;
 
 	var turn:Int;
 	var scores:Array<Array<Int>> = [];
@@ -72,12 +72,11 @@ class Referee {
 
 	public static var entityId = 0;
 
-	public function new( gameManager:GameManager, corners:Array<Vector>) {
+	public function new( gameManager:GameManager, corners:Array<Vector>, agentMe:Agent, agentOpp:Agent ) {
 		this.gameManager = gameManager;
 		this.corners = corners;
-
-		agentMe = new agent.Mathis2();
-		agentOpp = new agent.Boss2();
+		this.agentMe = agentMe;
+		this.agentOpp = agentOpp;
 		
 		agents = [agentMe, agentOpp];
 		
@@ -819,7 +818,8 @@ class Referee {
 
 		final visibleMobsForPlayer = allMobs.filter( mob -> playerCanSee( player, mob ));
 		for( mob in visibleMobsForPlayer ) {
-			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.velocity} ${getMobStatus( mob ).toStringFor( player )}' );
+			mob.status = getMobStatus( mob );
+			entityLines.push( '${mob.id} $INPUT_TYPE_MOB ${mob.position} ${mob.shieldDuration} ${mob.isControlled() ? 1 : 0} ${mob.health} ${mob.velocity} ${mob.status.toStringFor( player )}' );
 		}
 
 		// <health> <mana>
@@ -838,52 +838,40 @@ class Referee {
 		}
 	}
  
-	static final WANDERING = 0;
-	static final ATTACKING = 1;
-
 	function getMobStatus( mob:Mob ) {
 		if( mob.status == null || !mob.activeControls.isEmpty()) {
 			var mobVelocity:Vector;
 
-			if( !mob.activeControls.isEmpty()) {
+			if( mob.activeControls.isEmpty()) mobVelocity = mob.velocity;
+			else {
 				final computedDestination = computeControlResult( mob, Config.MOB_MOVE_SPEED );
 				final newVelocity = Vector.fromVectors( mob.position, computedDestination );
 				mobVelocity = newVelocity;
-			} else {
-				mobVelocity = mob.velocity;
 			}
-
-			if( mobVelocity.isZero()) {
-				mob.status = new MobStatus( WANDERING, null, 0 );
-			} else {
-				var cur = mob.position;
-				var stop = false;
+			
+			if( mobVelocity.isZero()) return new MobStatus( MobStatus.WANDERING, null, 0 );
+			else {
+				var mobPos = mob.position;
 				var turns = 0;
-
-				while( !stop && turns < 8000 ) {
+				while( turns < 8000 ) {
 					// Am I inside an attraction zone?
 					for( idx in 0...basePositions.length ) {
 						final base = basePositions[idx];
-						if( cur.inRange( base, Config.BASE_ATTRACTION_RADIUS )) {
-							mob.status = new MobStatus( turns == 0 ? ATTACKING : WANDERING, gameManager.getPlayer( idx ), turns );
-							stop = true;
-							break;
+						if( mobPos.inRange( base, Config.BASE_ATTRACTION_RADIUS )) {
+							return new MobStatus( turns == 0 ? MobStatus.ATTACKING : MobStatus.WANDERING, gameManager.getPlayer( idx ), turns );
 						}
 					}
 					// Am I outside the map?
-					if( !insideMap( cur )) {
-						mob.status = new MobStatus( WANDERING, null, turns );
-						stop = true;
+					if( !insideMap( mobPos )) {
+						return new MobStatus( MobStatus.WANDERING, null, turns );
 					}
 					turns++;
-					cur = cur.add( mobVelocity ).symmetricTruncate( symmetryOrigin );
+					mobPos = mobPos.add( mobVelocity ).symmetricTruncate( symmetryOrigin );
 				}
-				if( !stop ) {
-					// Failsafe
-					mob.status = new MobStatus( WANDERING, null, 0 );
-				}
+				return new MobStatus( MobStatus.WANDERING, null, 0 );
 			}
 		}
+		
 		return mob.status;
 	}
 

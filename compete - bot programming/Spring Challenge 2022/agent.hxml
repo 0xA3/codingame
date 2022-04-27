@@ -6,6 +6,7 @@
 -D analyzer-optimize
 -D js-es=6
 -D js-classic;
+-D no-traces;
 --dce full
 -main agent.MainAgent
 --js dest/app.js

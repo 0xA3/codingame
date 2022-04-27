@@ -21,7 +21,7 @@ class Mathis1 extends Agent {
 
 			spidersRanked.push({ threatLevel: threatLevel, spider: spider });
 		}
-		spidersRanked.sort(( a, b ) -> int( a.threatLevel - b.threatLevel ));
+		spidersRanked.sort(( a, b ) -> int( b.threatLevel - a.threatLevel ));
 
 		for( i in 0...me.heros.length ) {
 			if( spidersRanked.length > i ) move( i, spidersRanked[i].spider.position );

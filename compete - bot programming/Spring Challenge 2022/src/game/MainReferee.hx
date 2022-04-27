@@ -2,6 +2,7 @@ package game;
 
 import Std.int;
 import Std.parseInt;
+import agent.CurrentAgents;
 import gameengine.core.GameManager;
 
 class MainReferee {
@@ -17,7 +18,7 @@ class MainReferee {
 		
 		final gameManager = new GameManager([ player0, player1 ]);
 		
-		final referee = new Referee( gameManager, corners );
+		final referee = new Referee( gameManager, corners, CurrentAgents.agentMe, CurrentAgents.agentOpp );
 
 		for( i in 0...repeats ) {
 			referee.init( i );

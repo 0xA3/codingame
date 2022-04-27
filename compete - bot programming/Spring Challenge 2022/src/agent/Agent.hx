@@ -105,24 +105,25 @@ class Agent {
 		return actions.join( "\n" );
 	}
 
-	function control( hero:Int, unitId:Int, position:Vector, message = "" ) {
-		actions[hero] = 'SPELL CONTROL $unitId $position' + ( message == "" ? message : ' $message' );
+	function control( heroId:Int, unitId:Int, position:Vector, message = "" ) {
+		actions[heroId] = 'SPELL CONTROL $unitId $position' + ( message == "" ? message : ' $message' );
 	}
 	
-	function move( hero:Int, position:Vector, message = "" ) {
-		actions[hero] = 'MOVE $position' + ( message == "" ? message : ' $message' );
+	function move( heroId:Int, position:Vector, message = "" ) {
+		// trace( 'move $heroId $position' );
+		actions[heroId] = 'MOVE $position' + ( message == "" ? message : ' $message' );
 	}
 
-	function push( hero:Int, position:Vector, message = "" ) {
-		actions[hero] = 'SPELL WIND $position' + ( message == "" ? message : ' $message' );
+	function push( heroId:Int, position:Vector, message = "" ) {
+		actions[heroId] = 'SPELL WIND $position' + ( message == "" ? message : ' $message' );
 	}
 	
-	function shield( hero:Int, unitId:Int, message = "" ) {
-		actions[hero] = 'SPELL SHIELD $unitId' + ( message == "" ? message : ' $message' );
+	function shield( heroId:Int, unitId:Int, message = "" ) {
+		actions[heroId] = 'SPELL SHIELD $unitId' + ( message == "" ? message : ' $message' );
 	}
 
-	function wait( hero:Int, message = "" ) {
-		actions[hero] = 'WAIT' + ( message == "" ? message : ' $message' );
+	function wait( heroId:Int, message = "" ) {
+		actions[heroId] = 'WAIT' + ( message == "" ? message : ' $message' );
 	}
 
 	function mirrorVectors( a:Array<Vector> ) {

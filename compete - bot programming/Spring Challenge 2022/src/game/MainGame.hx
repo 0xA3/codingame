@@ -1,6 +1,7 @@
 package game;
 
 import Std.int;
+import agent.CurrentAgents;
 import gameengine.core.GameManager;
 
 class MainGame {
@@ -23,7 +24,7 @@ class MainGame {
 	}
 
 	static function startSimulation() {
-		final referee = new game.Referee( gameManager, corners );
+		final referee = new game.Referee( gameManager, corners, CurrentAgents.agentMe, CurrentAgents.agentOpp );
 		referee.init( 0 );
 		
 		referee.frameDataset.handle( d -> app.addFrameViewData( d ));

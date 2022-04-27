@@ -13,7 +13,7 @@ class MainAgent {
 		
 		final inputs = [readline(), readline()];
 		
-		final agent = new agent.Mathis1();
+		final agent = CurrentAgents.agentMe;
 		agent.init( inputs );
 
 		// game loop

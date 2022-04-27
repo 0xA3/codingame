@@ -2,12 +2,14 @@ package game;
 
 class Mob extends GameEntity {
 	
+	// Referee and Agent vars
 	public var velocity = new Vector( 0, 0 );
 	public var health:Int;
 	public var healthChanged = true;
 	public var status:MobStatus;
 	public var nextControls = new List<Vector>();
 
+	// Agent Vars
 	public var isUnderControlSpell = false;
 	public var isNearBase = false;
 	public var threatFor = 0;
@@ -44,6 +46,10 @@ class Mob extends GameEntity {
 		super.pushTo( position );
 		status = null;
 		pushed = true;
+	}
+
+	public function toString() {
+		return 'Mob id: $id, velocity $velocity, health: $health, status $status, nextControls: $nextControls';
 	}
 
 }

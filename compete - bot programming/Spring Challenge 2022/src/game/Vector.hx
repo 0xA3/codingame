@@ -40,7 +40,11 @@ class Vector {
     }
 
 	public function distance(v:Vector) {
-		return Math.sqrt(( v.x - x ) * ( v.x - x ) + ( v.y - y ) * ( v.y - y ));
+		return Math.sqrt( distanceSq( v ));
+	}
+
+	public function distanceSq(v:Vector) {
+		return ( v.x - x ) * ( v.x - x ) + ( v.y - y ) * ( v.y - y );
 	}
 
     public function inRange(v:Vector, range:Float) {

@@ -6,6 +6,9 @@ class MobStatus {
 	var target:Player;
 	var turns:Int;
 
+	public static final WANDERING = 0;
+	public static final ATTACKING = 1;
+
     static final YOU = 1;
     static final ENEMY = 2;
     static final NEITHER = 0;
@@ -16,5 +19,15 @@ class MobStatus {
 		this.turns = turns;
 	}
 
-	public function toStringFor( player:Player ) return '$state ${target == null ? NEITHER : (target == player ? YOU : ENEMY)}';
+	public function toStringFor( player:Player ) {
+		final isNearBase = state;
+		final targetFor = target == null ? NEITHER
+						: target == player ? YOU : ENEMY;
+		
+		return '$isNearBase $targetFor';
+	}
+
+	public function toString() {
+		return 'state: $state target: ${target == null ? "null" : Std.string( target.index )}, turns $turns';
+	}
 }
