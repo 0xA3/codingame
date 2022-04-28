@@ -12,6 +12,7 @@ import game.Player;
 import game.Vector;
 
 using Lambda;
+using xa3.MathUtils;
 
 class Agent {
 	
@@ -104,6 +105,13 @@ class Agent {
 		for( i in 0...me.heros.length ) actions[i] = 'WAIT';
 		return actions.join( "\n" );
 	}
+	
+	function printActions() {
+		// for( i in 0...3 ) {
+		// 	if( actions[i] == null ) throw 'Error in frame $turn: action $i is null';
+		// }
+		return actions.join( "\n" );
+	}
 
 	function control( heroId:Int, unitId:Int, position:Vector, message = "" ) {
 		actions[heroId] = 'SPELL CONTROL $unitId $position' + ( message == "" ? message : ' $message' );
@@ -151,6 +159,33 @@ class Agent {
 		});
 	}
 
+	static inline var FRAME = 29;
+	
+	function pairHerosWithClosestMobs( heros:Array<Hero>, mobs:Array<Mob> ) {
+		final combinations = [];
+		for( hero in heros ) {
+			for( i in 0...mobs.length.min( 2 ) ) {
+				final mob = mobs[i];
+				combinations.push({ hero: hero, mob: mob, distanceSq: hero.position.distanceSq( mob.position ) });
+			}
+		}
+		combinations.sort(( a, b ) -> int( a.distanceSq - b.distanceSq ));
+		// if( turn == FRAME ) for( combination in combinations ) printErr( 'hero ${combination.hero.index}  mob ${combination.mob.id}  distanceSq ${combination.distanceSq}' );
+	
+		var assignedHeros = [];
+		var assignedMobs = [];
+		for( combination in combinations ) {
+			if( assignedHeros.contains( combination.hero ) || assignedMobs.contains( combination.mob )) continue;
+			assignedHeros.push( combination.hero );
+			assignedMobs.push( combination.mob );
+		}
+		
+		final pairs:Array<HeroMobPair> = [];
+		for( i in 0...assignedHeros.length ) pairs.push({ hero: assignedHeros[i], mob: assignedMobs[i] });
+		// for( pair in pairs ) printErr( 'hero ${pair.hero.index} mob ${pair.mob.id}' );
+		return pairs;
+	}
+	
 	function getMobsInDistance( hero:Hero, mobs:Array<Mob>, distance:Int ) {
 		final mobsInDistance:Array<GameEntity> = [];
 		for( mob in mobs ) if( hero.position.distance( mob.position ) < distance ) mobsInDistance.push( mob );
@@ -163,11 +198,9 @@ class Agent {
 		final nearDelta = h2p.mult( nearDistance );
 		return pos1.add( nearDelta );
 	}
+}
 
-	function printActions() {
-		for( i in 0...3 ) {
-			if( actions[i] == null ) throw 'Error in frame $turn: action $i is null';
-		}
-		return actions.join( "\n" );
-	}
+typedef HeroMobPair = {
+	final hero:Hero;
+	final mob:Mob;
 }

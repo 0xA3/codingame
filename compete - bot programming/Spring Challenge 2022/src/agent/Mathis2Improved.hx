@@ -7,8 +7,6 @@ import game.Hero;
 import game.Mob;
 import game.Vector;
 
-using xa3.MathUtils;
-
 class Mathis2Improved extends Agent {
 
 	public function new() {
@@ -82,7 +80,7 @@ class Mathis2Improved extends Agent {
 					final stepsFromBase = mob.position.distance( me.basePosition ) / Config.MOB_MOVE_SPEED;
 					
 					final isKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE > mob.health;
-					if( !isKillable && me.mana >= Config.SPELL_WIND_COST ) {
+					if( !isKillable && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana >= Config.SPELL_WIND_COST ) {
 						push( hero.index, opp.basePosition, 'push away' );
 						hasPushed = true;
 					} else {
@@ -99,38 +97,4 @@ class Mathis2Improved extends Agent {
 		
 		return printActions();
 	}
-
-	function pairHerosWithClosestMobs( heros:Array<Hero>, mobs:Array<Mob> ) {
-		final combinations = [];
-		for( hero in heros ) {
-			for( i in 0...mobs.length.min( 2 ) ) {
-				final mob = mobs[i];
-				combinations.push({ hero: hero, mob: mob, distanceSq: hero.position.distanceSq( mob.position ) });
-			}
-		}
-		combinations.sort(( a, b ) -> int( a.distanceSq - b.distanceSq ));
-		// if( turn == 77 ) for( combination in combinations ) printErr( 'hero ${combination.hero.index}  mob ${combination.mob.id}  distanceSq ${combination.distanceSq}' );
-	
-		final herosToAssign = [];
-		for( combination in combinations ) if( !herosToAssign.contains( combination.hero )) herosToAssign.push( combination.hero );
-		
-		final pairs:Array<HeroMobPair> = [];
-		var assignedMobs = [];
-		for( hero in herosToAssign ) {
-			for( combination in combinations ) {
-				if( hero == combination.hero && !assignedMobs.contains( combination.mob )) {
-					// if( turn == 77 ) printErr( 'combination ${hero.index} with ${combination.mob.id}' );
-					pairs.push({ hero: hero, mob: combination.mob });
-					assignedMobs.push( combination.mob );
-					break;
-				}
-			}
-		}
-		return pairs;
-	}
-}
-
-typedef HeroMobPair = {
-	final hero:Hero;
-	final mob:Mob;
 }

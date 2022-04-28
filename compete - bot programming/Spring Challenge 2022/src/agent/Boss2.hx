@@ -39,6 +39,7 @@ class Boss2 extends Agent {
 
 		final nbHerosRoaming = 2;
 		
+		var windMana = 0;
 		for( i in 0...nbHerosRoaming ) {
 			final hero = me.heros[i];
 
@@ -54,8 +55,9 @@ class Boss2 extends Agent {
 			}
 			if( target == null ) actions[i] = 'MOVE ${postX[i]} ${postY[i]}';
 			else {
-				if( canWind( me.mana ) && hero.position.distance( target.position ) < Config.SPELL_WIND_RADIUS ) {
+				if( me.mana - windMana >= Config.SPELL_WIND_COST && hero.position.distance( target.position ) < Config.SPELL_WIND_RADIUS ) {
 					actions[i] = 'SPELL WIND ${Config.MAP_WIDTH - me.basePosition.x} ${Config.MAP_HEIGHT - me.basePosition.y}';
+					windMana += Config.SPELL_WIND_COST;
 				} else {
 					actions[i] = 'MOVE ${target.position}';
 				}
@@ -69,8 +71,9 @@ class Boss2 extends Agent {
 			if( target == null || minDistToBase > 5000 ) {
 				actions[i] = "WAIT";
 			} else {
-				if( canWind( me.mana ) && hero.position.distance( target.position ) < Config.SPELL_WIND_RADIUS ) {
+				if( me.mana - windMana >= Config.SPELL_WIND_COST && hero.position.distance( target.position ) < Config.SPELL_WIND_RADIUS ) {
 					actions[i] = 'SPELL WIND ${Config.MAP_WIDTH - me.basePosition.x} ${Config.MAP_HEIGHT - me.basePosition.y}';
+					windMana += Config.SPELL_WIND_COST;
 				} else {
 					actions[i] = 'MOVE ${target.position}';
 				}
@@ -79,7 +82,5 @@ class Boss2 extends Agent {
 		// trace( '${me.name}\n' + actions.join( "\n" ));
 		return actions.join( "\n" );
 	}
-
-	function canWind( mana:Int ) return mana >= 10;
 }
 

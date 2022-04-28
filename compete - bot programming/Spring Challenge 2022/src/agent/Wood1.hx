@@ -2,11 +2,11 @@ package agent;
 
 import CodinGame.printErr;
 
-class Agent0 extends Agent {
+class Wood1 extends Agent {
 	
 	public function new() {
 		super();
-		agentId = "Agent0";
+		agentId = "Wood1";
 	}
 	
 	override function process():String {

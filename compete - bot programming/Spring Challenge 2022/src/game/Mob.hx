@@ -13,6 +13,7 @@ class Mob extends GameEntity {
 	public var isUnderControlSpell = false;
 	public var isNearBase = false;
 	public var threatFor = 0;
+	public var threatLevel = 0.0;
 
 	public function new( id:Int, position:Vector, health:Int, type = 2 ) {
 		super( id, position, type );
