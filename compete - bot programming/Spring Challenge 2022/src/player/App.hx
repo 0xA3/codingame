@@ -56,12 +56,13 @@ class App extends hxd.App {
 		final scene = new Object( s2d );
 		final entityCreator = new player.EntityCreator();
 		entityCreator.createBackground( scene );
+		
+		sliderContainer = new Object( s2d );
+		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame, over );
+
 		gameView = new player.GameView( s2d, scene, entityCreator );
 		gameView.initEntities();
 		
-		sliderContainer = new Object( s2d );
-		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame );
-
 		onResize();
 		initTrigger.trigger( Noise );
 	}
@@ -106,10 +107,17 @@ class App extends hxd.App {
 		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
 		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
 		final subFrame = f - currentFrame;
+		over( f );
 		gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame );
 	}
 
+	function over( f:Float ) {
+		gameView.over( s2d.mouseX, sliderContainer.y - 4, f );
+	}
+
 	override function update( dt:Float ) {
-		gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
+		if( s2d.mouseY < sliderContainer.y - 10 ) {
+			gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
+		}
 	}
 }

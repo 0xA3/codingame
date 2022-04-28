@@ -21,6 +21,8 @@ class GameView {
 	public static inline var X0 = 48;
 	public static inline var Y0 = 116;
 	
+	static inline var PADDING = 4;
+
 	public static final TAU = 2 * Math.PI;
 	static final scale = App.SCENE_WIDTH / Config.MAP_WIDTH;
 	public static function sX( x:Float ) return x * scale + X0;
@@ -76,8 +78,8 @@ class GameView {
 		overlayBox.beginFill( 0x000000 );
 		overlayBox.drawRect( 0, 0, 100, 100 );
 		overlayBox.endFill();
-		overlayBox.x = -10;
-		overlayBox.y = -10;
+		overlayBox.x = -PADDING;
+		overlayBox.y = -PADDING;
 		overlayBox.alpha = 0.6;
 		
 		overlayText = new Text( timesFont, overlay );
@@ -176,12 +178,12 @@ class GameView {
 		return -1 / 2 * ((k - 1) * (k - 3) - 1);
 	}
 
-	public function mouseOver( screenX:Float, screenY:Float, frame:FrameViewData ) {
-		if( isMouseDown ) {
-			overlay.visible = false;
-			return;
-		}
+	public function over( screenX:Float, screenY:Float, frame:Float ) {
+		overlayText.text = '${hxd.Math.fmt( frame )}';
+		adjustBox( screenX, screenY );
+	}
 
+	public function mouseOver( screenX:Float, screenY:Float, frame:FrameViewData ) {
 		final mapX = ( screenX / App.scaleFactor - X0 ) / scale;
 		final mapY = ( screenY / App.scaleFactor - Y0 ) / scale;
 		
@@ -196,15 +198,22 @@ class GameView {
 		} else {
 			var overTexts = [];
 			for( id in overIds ) {
-				final headline = id < 6 ? "HERO" : "MOB";
 				final coord = frame.positions[id];
-				overTexts.push( '$headline $id\nx: ${coord.x}\ny: ${coord.y}' );
+				if( id < 6 ) {
+					overTexts.push( 'HERO $id\nx: ${coord.x}\ny: ${coord.y}' );
+				} else {
+					final health = frame.mobHealth[id];
+					overTexts.push( 'MOB $id\nhealth: $health\nx: ${coord.x}\ny: ${coord.y}' );
+				}
 			}
 			overlayText.text = overTexts.join( "\n" );
 		}
-
-		final boxWidth = overlayText.textWidth + 20;
-		final boxHeight = overlayText.textHeight + 20;
+		adjustBox( screenX, screenY );
+	}
+	
+	function adjustBox( screenX:Float, screenY:Float ) {
+		final boxWidth = overlayText.textWidth + PADDING * 2;
+		final boxHeight = overlayText.textHeight + PADDING * 2;
 		overlayBox.scaleX = boxWidth / 100;
 		overlayBox.scaleY = boxHeight / 100;
 		

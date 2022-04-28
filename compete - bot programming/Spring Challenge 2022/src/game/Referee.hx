@@ -89,9 +89,8 @@ class Referee {
 		frameDataset = frameDatasetTrigger.asSignal();
 	}
 
-	public function init( currentRepeat:Int ) {
-
-		final seed = currentRepeat;
+	public function init( seed:Int ) {
+		
 		gameSummaryManager = new GameSummaryManager();
 		
 		computeConfiguration();
@@ -437,7 +436,7 @@ class Referee {
 			final control = hero.intent;
 			
 			try {
-				if( hero.owner.mana < Config.SPELL_PROTECT_COST ) throw new ActionException( "Not enough mana" );
+				if( hero.owner.mana < Config.SPELL_CONTROL_COST ) throw new ActionException( "Not enough mana" );
 				
 				final targeted = allEntities().filter( other -> other.id == control.target )[0];
 				
@@ -449,18 +448,14 @@ class Referee {
 					hero.owner.spendMana( Config.SPELL_CONTROL_COST );
 					recordSpellUse( hero );
 
-					if( !victim.hasActiveShield() ) victim.applyShield();
+					if( !victim.hasActiveShield() ) victim.applyControl( control.destination );
 					else throw new ActionException("Entity " + victim.id + " already has a shield up");
-	
 				} else {
-					
 					if( playerCanSee( hero.owner, victim )) throw new ActionException( "Entity " + victim.id + " is not within range of Hero " + hero.id );
 					else throw new ActionException( "Hero " + hero.id + " doesn't know where entity " + victim.id + " is" );
 				}
-				
 			} catch ( e:ActionException ) {
 				gameManager.addToGameSummary( hero.owner.name + " failed a CONTROL: " + e.message );
-				
 			}
 		}
 	}

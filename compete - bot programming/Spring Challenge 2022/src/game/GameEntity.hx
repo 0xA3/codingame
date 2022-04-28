@@ -18,7 +18,7 @@ abstract class GameEntity {
 		shieldDuration = 0;
 	}
 
-	function applyControl( destination:Vector ) activeControls.add( destination );
+	public function applyControl( destination:Vector ) activeControls.add( destination );
 	public function applyShield() shieldDuration = Config.SPELL_PROTECT_DURATION + 1;
 	public function getOwner() return null;
 	public function hasActiveShield() return shieldDuration > 0 && shieldDuration < Config.SPELL_PROTECT_DURATION + 1;

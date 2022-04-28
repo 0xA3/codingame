@@ -82,7 +82,7 @@ class EntityCreator {
 		return mob;
 	}
 
-	public function createSlider( scene:Object, label:String, get:Void -> Float, set:Float -> Void, min:Float = 0., max:Float = 1. ) {
+	public function createSlider( scene:Object, label:String, get:Void -> Float, set:Float -> Void, over:Float -> Void, min:Float = 0., max:Float = 1. ) {
 		var flow = new h2d.Flow( scene );
 
 		flow.horizontalSpacing = 5;
@@ -92,7 +92,7 @@ class EntityCreator {
 		textInput.maxWidth = 70;
 		textInput.textAlign = Right;
 
-		var slider = new h2d.Slider( 100, 10, flow );
+		var slider = new player.SliderExt( 100, 10, flow );
 		slider.minValue = min;
 		slider.maxValue = max;
 		slider.value = get();
@@ -104,6 +104,9 @@ class EntityCreator {
 			textInput.text = '${hxd.Math.fmt( slider.value )}';
 			flow.needReflow = true;
 		};
+		slider.onOverValue = () -> {
+			over( slider.overValue );
+		}
 		textInput.onChange = function() {
 			var v = Std.parseFloat( textInput.text );
 			if( Math.isNaN( v )) return;
