@@ -14,11 +14,13 @@ import game.Vector;
 using Lambda;
 using xa3.MathUtils;
 
-class Agent implements IAgent {
+class Agent2 implements IAgent {
 	
 	var me:Player;
 	var opp:Player;
 	public var players:Array<Player>;
+	
+	var mobMap:Map<Int, Mob> = [];
 	public var mobs:Array<Mob> = [];
 
 	final actions = [];
@@ -49,6 +51,7 @@ class Agent implements IAgent {
 	
 	public function setInputs( inputLines:Array<String> ) {
 		// trace( 'setInputs agent $agentId\n' + inputLines.join( "\n" ));
+		mobMap.clear();
 		mobs.splice( 0, mobs.length );
 		
 		var player0HeroIndex = 0;
@@ -84,7 +87,7 @@ class Agent implements IAgent {
 					mob.velocity.y = vy;
 					mob.isNearBase = isNearBase;
 					mob.threatFor = threatFor;
-					mobs.push( mob );
+					mobMap.set( id, mob );
 					// if( agentId != "" ) trace( '$turn $agentId new mob $shieldLife $isControlled $health $vx $vy $isNearBase $isControlled' );
 				
 				case 1: // my Hero
@@ -100,6 +103,19 @@ class Agent implements IAgent {
 					hero.position.y = y;
 			}
 		}
+		
+		// if( turn == 10 ) trace( '$turn ' + [for( mob in mobMap ) '${mob.id} ${mob.position}'].join(" ") );
+		
+		for( id => mob in mobMap ) {
+			final symmetricMobId = id % 2 == 0 ? id + 1 : id - 1;
+			if( !mobMap.exists( symmetricMobId )) {
+				final mirrorMob = mob.createMirrorMob( symmetricMobId );
+				// if( turn == 10 ) trace( '$turn new mirrorMob ${mirrorMob.id} ${mirrorMob.position} of mob $id' );
+				
+				mobMap.set( symmetricMobId, mirrorMob );
+			}
+		}
+		mobs = [for( mob in mobMap ) mob];
 	}
 	
 	public function process() {

@@ -8,7 +8,7 @@ import game.Vector;
 
 using xa3.MathUtils;
 
-class Agent1 extends Agent {
+class Wood extends Agent {
 	
 	// var me:Player;
 	// var opp:Player;

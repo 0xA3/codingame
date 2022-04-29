@@ -22,6 +22,15 @@ class Mob extends GameEntity {
 		// trace( 'new Mob $id' );
 	}
 
+	public function createMirrorMob( mirrorId:Int ) {
+		final mirrorPos = new Vector( Config.MAP_WIDTH - position.x, Config.MAP_HEIGHT - position.y );
+		final mirrorMob = new Mob( mirrorId, mirrorPos, health, type );
+		mirrorMob.velocity = velocity.mult( -1 );
+		mirrorMob.isNearBase = isNearBase;
+		mirrorMob.threatFor = threatFor == 0 ? 0 : 3 - threatFor;
+		return mirrorMob;
+	}
+
 	public function isAlive() return health > 0;
 
 	public function hit( damage:Int ) {

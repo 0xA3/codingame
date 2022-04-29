@@ -37,7 +37,7 @@ class Gold1 extends Agent {
 		
 		farmPositions = [
 			new Vector( 4000, 8500 ),
-			new Vector( 8500, 500 ),
+			new Vector( 7998, 498 ),
 			new Vector( 8000, 8500 )
 		];
 		
@@ -58,35 +58,35 @@ class Gold1 extends Agent {
 	override function process():String {
 		turn++;
 		actions.splice( 0, actions.length );
+		spentMana = 0;
 		
 		final heros = me.heros;
-		final attackingOppHeros = opp.heros.filter( oppHero -> oppHero.position.x != 0 && oppHero.position.distance( me.basePosition ) < Config.BASE_VIEW_RADIUS );
+		final oppAttackers = opp.heros.filter( oppHero -> oppHero.position.x != 0 && oppHero.position.distance( me.basePosition ) < Config.BASE_VIEW_RADIUS );
 		
-		if( turn < 50 ) farmFormation( heros, attackingOppHeros );
-		else attackFormation( heros, attackingOppHeros );
+		if( turn < 50 ) farmFormation( heros, oppAttackers );
+		else attackFormation( heros, oppAttackers );
 
 		return printActions();
 	}
 	
-	function farmFormation( heros:Array<Hero>, attackingOppHeros:Array<Hero> ) {
+	function farmFormation( heros:Array<Hero>, oppAttackers:Array<Hero> ) {
 		
-		final farmHeros = attackingOppHeros.length == 0 ? heros : [heros[0], heros[2]];
-		final defendHeros = attackingOppHeros.length == 0 ? [] : [heros[1]];
+		final farmHeros = oppAttackers.length == 0 ? heros : [heros[0], heros[2]];
+		final defenseHeros = oppAttackers.length == 0 ? [] : [heros[1]];
 		// if( turn == 17 ) trace( '$turn ' + opp.heros.map( oppHero -> '${oppHero.id} ${oppHero.position} ${oppHero.position.distance( me.basePosition )}' ));
-		// if( turn == 17 ) printErr( '$turn attackingOppHeros $attackingOppHeros  mobs ${mobs.length}' );
+		// if( turn == 17 ) printErr( '$turn oppAttackers $oppAttackers  mobs ${mobs.length}' );
 		
 		if( mobs.length > 0 ) {
 			final importantMobs = filterImportantMobs( mobs, farmPositions );
 			rankMobs( importantMobs );
 			// if( turn == 15 ) for( mob in importantMobs ) printErr( '${mob.id}' );
 			final heroMobPairs = pairHerosWithClosestMobs( heros, importantMobs.slice( 0, heros.length ));
-			for( heroMobPair in heroMobPairs ) {
-				defenseMoveOrPush( heroMobPair.hero, heroMobPair.mob );
-			}
+			for( heroMobPair in heroMobPairs ) defenseMoveOrPush( heroMobPair.hero, heroMobPair.mob );
 		}
+		
 		for( hero in farmHeros ) if( actions[hero.index] == null ) move( hero.index, farmPositions[hero.index], 'to farm' );
-		for( hero in defendHeros ) if( actions[hero.index] == null ) {
-			final defensePosition = attackingOppHeros.length > 0 ? attackingOppHeros[0].position : attackPositions[hero.index];
+		for( hero in defenseHeros ) if( actions[hero.index] == null ) {
+			final defensePosition = oppAttackers.length > 0 ? getDefensePosition( oppAttackers[0].position ) : attackPositions[hero.index];
 			move( hero.index, defensePosition, 'to defend' );
 		}
 	}
@@ -95,28 +95,37 @@ class Gold1 extends Agent {
 		final stepsFromBase = mob.position.distance( me.basePosition ) / Config.MOB_MOVE_SPEED;
 
 		final isKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE > mob.health;
-		if( !isKillable && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana >= Config.SPELL_WIND_COST ) {
+		// if( !isKillable && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana + spentMana >= Config.SPELL_WIND_COST ) {
+		if( hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana + spentMana >= Config.SPELL_WIND_COST ) {
 			push( hero.index, opp.basePosition, 'push away' );
 		} else {
 			move( hero.index, mob.position, 'to ${mob.id}' );
 		}
 	}
 
-	function attackFormation( heros:Array<Hero>, attackingOppHeros:Array<Hero> ) {
-		final attackHeros = attackingOppHeros.length == 0 ? heros : [heros[0], heros[2]];
-		final defendHeros = [heros[1]];
+	function attackFormation( heros:Array<Hero>, oppAttackers:Array<Hero> ) {
+		final attackHeros = oppAttackers.length == 0 ? heros : [heros[0], heros[2]];
+		final defenseHeros = [heros[1]];
 		
 		if( mobs.length > 0 ) {
+			// defense
 			rankMobs( mobs );
-			final heroMobPairs = pairHerosWithClosestMobs( defendHeros, mobs.slice( 0, defendHeros.length ));
+			final heroMobPairs = pairHerosWithClosestMobs( defenseHeros, mobs.slice( 0, defenseHeros.length ));
 			for( heroMobPair in heroMobPairs ) defenseMoveOrPush( heroMobPair.hero, heroMobPair.mob );
 			
+			// attack
 			final otherMobs = mobs.filter( mob -> mob.position.distance( opp.basePosition ) < Config.MAP_WIDTH / 2 );
 			final attackHeroMobPairs = pairHerosWithClosestMobs( attackHeros, otherMobs );
 			for( heroMobPair in attackHeroMobPairs ) {
 				final hero = heroMobPair.hero;
 				final mob = heroMobPair.mob;
-				if( mob.position.distance( hero.position ) < Config.SPELL_WIND_RADIUS  && mob.position.distance( opp.basePosition ) < Config.BASE_ATTRACTION_RADIUS + Config.SPELL_WIND_DISTANCE ) {
+				final heroBaseDist = mob.position.distance( opp.basePosition );
+				final mobBaseDist = mob.position.distance( opp.basePosition );
+				if( mob.shieldDuration > 0 || me.mana + spentMana < Config.SPELL_WIND_COST ) {
+					move( hero.index, mob.position, 'to ${mob.id}' );
+				} else if( mobBaseDist > heroBaseDist ) {
+					control( hero.index, mob.id, opp.basePosition, 'control ${mob.id}' );
+				} else if( mob.position.distance( hero.position ) < Config.SPELL_WIND_RADIUS ) {
 					push( hero.index, opp.basePosition, 'push to' );
 				} else {
 					move( hero.index, mob.position, 'to ${mob.id}' );
@@ -124,10 +133,14 @@ class Gold1 extends Agent {
 			}
 		}
 		for( hero in attackHeros ) if( actions[hero.index] == null ) move( hero.index, attackPositions[hero.index], 'to attack' );
-		for( hero in defendHeros ) if( actions[hero.index] == null ) {
-			final defensePosition = attackingOppHeros.length > 0 ? attackingOppHeros[0].position : attackPositions[hero.index];
+		for( hero in defenseHeros ) if( actions[hero.index] == null ) {
+			final defensePosition = oppAttackers.length > 0 ? getDefensePosition( oppAttackers[0].position ) : attackPositions[hero.index];
 			move( hero.index, defensePosition, 'to defend' );
 		}
+	}
+	
+	function getDefensePosition( oppAttackerPosition:Vector ) {
+		return me.basePosition.add( oppAttackerPosition.sub( me.basePosition ).mult( 0.8 ));
 	}
 
 	static inline var FILTER_DIST = 1200;

@@ -3,6 +3,7 @@ package game;
 import Std.int;
 import Std.parseInt;
 import agent.Agent;
+import agent.IAgent;
 import game.action.Action;
 import game.action.ActionException;
 import game.action.ActionType;
@@ -36,9 +37,9 @@ class Referee {
 
 	final gameManager:GameManager;
 	final corners:Array<Vector>;
-	final agentMe:Agent;
-	final agentOpp:Agent;
-	final agents:Array<Agent>;
+	final agentMe:IAgent;
+	final agentOpp:IAgent;
+	final agents:Array<IAgent>;
 	
 	var gameSummaryManager:GameSummaryManager;
 
@@ -71,7 +72,7 @@ class Referee {
 
 	public static var entityId = 0;
 
-	public function new( gameManager:GameManager, corners:Array<Vector>, agentMe:Agent, agentOpp:Agent ) {
+	public function new( gameManager:GameManager, corners:Array<Vector>, agentMe:IAgent, agentOpp:IAgent ) {
 		this.gameManager = gameManager;
 		this.corners = corners;
 		this.agentMe = agentMe;
@@ -330,7 +331,7 @@ class Referee {
 					directionMap[enemy].push( dir );
 				}
 			} catch ( e:ActionException ) {
-				gameManager.addToGameSummary( hero.owner.name + " failed a WIND: " + e.message );
+				gameManager.addToGameSummary( '$turn ${hero.owner.name} failed a WIND: ${e.message}' );
 			}
 		}
 		
@@ -425,7 +426,7 @@ class Referee {
 					else throw new ActionException( "Hero " + hero.id + " doesn't know where entity " + entity.id + " is" );
 				}
 			} catch ( e:ActionException ) {
-				gameManager.addToGameSummary( hero.owner.name + " failed a SHIELD: " + e.message );
+				gameManager.addToGameSummary( '$turn ${hero.owner.name} failed a SHIELD: ${e.message}' );
 			}
 		}
 	}
@@ -455,7 +456,7 @@ class Referee {
 					else throw new ActionException( "Hero " + hero.id + " doesn't know where entity " + victim.id + " is" );
 				}
 			} catch ( e:ActionException ) {
-				gameManager.addToGameSummary( hero.owner.name + " failed a CONTROL: " + e.message );
+				gameManager.addToGameSummary( '$turn ${hero.owner.name} failed a CONTROL: ${e.message}' );
 			}
 		}
 	}
