@@ -11,6 +11,11 @@ abstract class AbstractPlayer {
 	var hasBeenExecuted:Bool;
 	var hasNeverBeenExecuted = true;
 
+	public function init() {
+		inputs = [];
+		outputs = [];
+	}
+
 	/**
 	 * Adds a new line to the input to send to the player on execute.
 	 *

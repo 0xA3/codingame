@@ -22,6 +22,17 @@ class Player extends AbstractMultiplayerPlayer {
 		basePosition = new Vector( baseX, baseY );
 	}
 
+	override public function init() {
+		super.init();
+		heros.splice( 0, heros.length );
+		mana = Config.STARTING_MANA;
+		manaChanged = true;
+		baseHealthChanged = true;
+		baseHealth = Config.STARTING_BASE_HEALTH;
+		spottet.clear();
+		manaGainedOutsideOfBase = 0;
+	}
+
 	public function getExpectedOutputLines() return heros.length;
 	public function addHero( hero:Hero ) heros.push( hero );
 

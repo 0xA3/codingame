@@ -104,7 +104,7 @@ class Referee {
 			Config.MOB_SPAWN_RATE
 		);
 
-		try {
+		// try {
 			playerCount = gameManager.getPlayerCount();
 			
 			for( type in actionTypes ) {
@@ -112,23 +112,24 @@ class Referee {
 			}
 			initPlayers();
 			
-		} catch( e ) {
-			trace( "Referee failed to initialize" );
-			abort();
-		}
+		// } catch( e ) {
+			// trace( 'Referee failed to initialize $e' );
+			// abort();
+		// }
 	}
 
 	function initPlayers() {
 		// Generate heroes
 		final spawnOffset = 1600;
 		final spaceBetweenHeroes = 400;
+		
+		newEntities.splice( 0, newEntities.length );
 
 		for( i in 0...playerCount ) {
-			final player = gameManager.getPlayer( i );
+			final player = gameManager.players[i];
+			player.init();
 			var vector = ( i < 2 ? new Vector( 1, -1 ) : new Vector( 1, 1 )).normalize();
-			if( i % 2 == 1 ) {
-				vector = vector.mult( -1 );
-			}
+			if( i % 2 == 1 ) vector = vector.mult( -1 );
 
 			final startPoint = corners[i];
 
@@ -137,8 +138,12 @@ class Referee {
 			for( j in 0...Config.HEROES_PER_PLAYER ) {
 				final offset = offsets[j + ( 1 - Config.HEROES_PER_PLAYER % 2 )];
 
-				var position = vector.mult( offset * ( spaceBetweenHeroes )).add( startPoint ).add( startDirections[i].mult( spawnOffset ))
-				.round();
+				var position = vector.mult( offset * ( spaceBetweenHeroes ))
+					.add( startPoint )
+					.add( startDirections[i]
+					.mult( spawnOffset ))
+					.round();
+					
 				position = snapToGameZone( position );
 				final hero = new Hero( entityId++, j, position, player, startDirections[i].angle() );
 				player.addHero( hero );
@@ -148,7 +153,11 @@ class Referee {
 		}
 		
 		sendGlobalInfo();
-		for( i in 0...gameManager.players.length ) agents[i].init( gameManager.players[i].getInputs() );
+		for( i in 0...gameManager.players.length ) {
+			final inputs = gameManager.players[i].getInputs();
+			// trace( 'player $i inputs $inputs' );
+			agents[i].init( inputs );
+		}
 	}
 
 	function sendGlobalInfo() {
@@ -167,6 +176,7 @@ class Referee {
 			gameTurn( turn++ );
 		}
 		onEnd();
+		return gameManager.players.map( player -> player.score );
 	}
 
 	public function runWithTimer() {
