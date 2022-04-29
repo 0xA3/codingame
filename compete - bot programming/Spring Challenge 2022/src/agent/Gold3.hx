@@ -22,7 +22,7 @@ class Gold3 extends Agent2 {
 	static final ATTACK_DISTANCE = Config.BASE_RADIUS * 1.2;
 
 	var defaultPositions:Array<Vector>;
-	var attackPosition:Vector;
+	var attackPosition = new Vector( 0, 0 );
 	var attackAngle = 0.0;
 
 	override function init(inputLines:Array<String>) {
@@ -30,11 +30,9 @@ class Gold3 extends Agent2 {
 		final isTopLeft = me.basePosition.x == 0;
 		
 		defaultPositions = [new Vector( 14000, 5500 ), new Vector( 6500, 2500 ), new Vector( 3700, 6000 )];
-		attackPosition = new Vector( 14000, 5500 );
 
 		if( !isTopLeft ) {
 			mirrorVectors( defaultPositions );
-			mirrorVector( attackPosition );
 		}
 
 		attackAngle = attackPosition.sub( opp.basePosition ).angle();

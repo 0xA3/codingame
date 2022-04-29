@@ -20,8 +20,6 @@ class Agent2 implements IAgent {
 	var opp:Player;
 	public var players:Array<Player>;
 	
-	var mobMap:Map<Int, Mob> = [];
-	var mirrorMobMap:Map<Int, Mob> = [];
 	public var mobs:Array<Mob> = [];
 
 	final actions = [];
@@ -52,7 +50,6 @@ class Agent2 implements IAgent {
 	
 	public function setInputs( inputLines:Array<String> ) {
 		// trace( 'setInputs agent $agentId\n' + inputLines.join( "\n" ));
-		mobMap.clear();
 		mobs.splice( 0, mobs.length );
 		
 		var player0HeroIndex = 0;
@@ -88,7 +85,7 @@ class Agent2 implements IAgent {
 					mob.velocity.y = vy;
 					mob.isNearBase = isNearBase;
 					mob.threatFor = threatFor;
-					mobMap.set( id, mob );
+					mobs.push( mob );
 					// if( agentId != "" ) trace( '$turn $agentId new mob $shieldLife $isControlled $health $vx $vy $isNearBase $isControlled' );
 				
 				case 1: // my Hero
@@ -104,29 +101,6 @@ class Agent2 implements IAgent {
 					hero.position.y = y;
 			}
 		}
-		
-		// if( turn == 10 ) trace( '$turn ' + [for( mob in mobMap ) '${mob.id} ${mob.position}'].join(" ") );
-		mirrorMobMap.clear();
-		for( id => mob in mobMap ) {
-			final symmetricMobId = id % 2 == 0 ? id + 1 : id - 1;
-			if( !mobMap.exists( symmetricMobId )) {
-				final mirrorMob = mob.createMirrorMob( symmetricMobId );
-				// if( turn == 10 ) trace( '$turn new mirrorMob ${mirrorMob.id} ${mirrorMob.position} of mob $id' );
-				mirrorMobMap.set( symmetricMobId, mirrorMob );
-			}
-		}
-		// realityCheck
-		for( id => mirrorMob in mirrorMobMap ) {
-			var isInView = false;
-			for( hero in me.heros ) {
-				if( hero.position.distanceSq( mirrorMob.position ) < Config.HERO_VIEW_RADIUS * Config.HERO_VIEW_RADIUS ) {
-					isInView = true;
-					break;
-				}
-			}
-			if( !isInView ) mobMap.set( id, mirrorMob ); // only add if no hero can see the mirroredMob
-		}
-		mobs = [for( mob in mobMap ) mob];
 	}
 	
 	public function process() {
