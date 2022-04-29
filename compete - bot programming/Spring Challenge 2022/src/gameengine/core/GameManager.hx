@@ -85,7 +85,8 @@ class GameManager {
 
 	public function getLeagueLevel() {
 		// return 1; // Wood 2
-		return 2; // Wood 1
+		// return 2; // Wood 1
+		return 3; // Above Wood
 	}
 
 	public function getPlayerCount() return players.length;

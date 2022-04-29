@@ -86,11 +86,13 @@ class App extends hxd.App {
 
 	public function addFrameViewData( dataset:FrameViewData ) {
 		frameDatasets.push( dataset );
+		gameView.createMobs( dataset );
 
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
 			sliderView.maxValue = nextFrame;
 			
+
 			// final previousFrame = Std.int( Math.max( 0, frameDatasets.length - 3 ));
 			// final currentFrame = frameDatasets.length - 2;
 			// gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], 0 );

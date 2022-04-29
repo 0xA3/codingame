@@ -94,6 +94,18 @@ class GameView {
 		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
 	}
 
+	public function createMobs( frame:FrameViewData ) {
+		for( id => coord in frame.positions ) {
+			if( id >= 6 ) {
+				if( !mobs.exists( id )) {
+					final fullHealth = frame.mobHealth.exists( id ) ? frame.mobHealth[id] : 1;
+					final mobType = id < 40 ? 0 : id < 75 ? 1 : 2;
+					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth );
+				}
+			}
+		}
+	}
+
 	public function update( previous:FrameViewData, frame:FrameViewData, next:FrameViewData, subFrame:Float ) {
 		for( mobView in mobs ) mobView.hide();
 
@@ -123,11 +135,6 @@ class GameView {
 				}
 				place( heros[id], previous.positions[id], frame.positions[id], next.positions[id], subFrame, isAttacking );
 			} else {
-				if( !mobs.exists( id )) {
-					final fullHealth = frame.mobHealth.exists( id ) ? frame.mobHealth[id] : 1;
-					final mobType = id < 40 ? 0 : id < 75 ? 1 : 2; // Todo find id of Mob Type 3
-					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth );
-				}
 				final previousCoord = previous.positions.exists( id ) ? previous.positions[id] : coord ;
 				final nextCoord = next.positions.exists( id ) ? next.positions[id] : coord;
 				

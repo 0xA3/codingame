@@ -27,7 +27,7 @@ class TestAgent extends buddy.BuddySuite {
 			});
 		});
 		
-		@include describe( "Test pairHerosWithClosestMobs", {
+		describe( "Test pairHerosWithClosestMobs", {
 			final player = new Player( 0, "", 0, 0 );
 			var agent:agent.Agent;
 			var heros:Array<Hero>;
