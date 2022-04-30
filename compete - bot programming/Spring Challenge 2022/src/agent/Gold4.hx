@@ -7,16 +7,18 @@ import game.Hero;
 import game.Mob;
 import game.Vector;
 
+using Lambda;
+
 class Gold4 extends Agent2 {
 
 	public function new() {
 		super();
 		agentId = "Gold 4";
 	}
-	
 	static inline var ATTACKER = 0;
 	static inline var DEFENDER1 = 1;
 	static inline var DEFENDER2 = 2;
+	static final TAU = Math.PI * 2;
 
 	static inline var PATROL_FREQUENCY = 20;
 	static final ATTACK_DISTANCE = Config.BASE_RADIUS * 1.2;
@@ -84,19 +86,31 @@ class Gold4 extends Agent2 {
 			var hasPushed = false;
 			for( heroMobPair in heroMobPairs ) {
 				
-				if( !hasPushed ) {
+				if( !hasPushed ) { // only push with one defender
 					final hero = heroMobPair.hero;
 					final mob = heroMobPair.mob;
-					final stepsFromBase = mob.position.distance( me.basePosition ) / Config.MOB_MOVE_SPEED;
+					final mobBaseDistance = mob.position.distance( me.basePosition );
 					
-					final isKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE > mob.health;
-					if( !isKillable && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana >= Config.SPELL_WIND_COST ) {
-						push( hero.index, opp.basePosition, 'push away' );
-						hasPushed = true;
+					if( mobBaseDistance < Config.BASE_ATTRACTION_RADIUS - Config.SPELL_WIND_DISTANCE && mob.shieldDuration == 0 && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana >= Config.SPELL_WIND_COST ) {
+						
+						final oppHerosInPushRange = opp.heros.filter( oppHero -> mob.position.distance( hero.position ) < Config.SPELL_WIND_RADIUS );
+						final pushToPosition = getPushToPosition( mob, oppHerosInPushRange );
+
+						final stepsFromBase = mob.position.distance( me.basePosition ) / Config.MOB_MOVE_SPEED;
+						final isKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE > mob.health;
+						
+						if( oppHerosInPushRange.length > 0 ) {
+							push( hero.index, pushToPosition, 'push away $pushToPosition' );
+							hasPushed = true;
+						} else if( !isKillable ) {
+							push( hero.index, pushToPosition, 'push away $pushToPosition' );
+							hasPushed = true;
+						} else {
+							move( heroMobPair.hero.index, heroMobPair.mob.position, 'to ${heroMobPair.mob.id}' );
+						}
 					} else {
 						move( heroMobPair.hero.index, heroMobPair.mob.position, 'to ${heroMobPair.mob.id}' );
 					}
-	
 				} else {
 					move( heroMobPair.hero.index, heroMobPair.mob.position, 'to ${heroMobPair.mob.id}' );
 				}
@@ -106,6 +120,37 @@ class Gold4 extends Agent2 {
 		}
 		
 		return printActions();
+	}
+
+	function getPushToPosition( mob:Mob, oppHerosInPushRange:Array<Hero> ) {
+		var pushToPosition = opp.basePosition;
+		final mobDistance = mob.position.distance( me.basePosition );
+
+		var posFactor = 0.0;
+		for( angleDeg in 0...20 ) {
+			final angle = angleDeg / 20 * 360 / 180 * Math.PI;
+			final windDestination = new Vector(
+				 mob.position.x + Math.sin( angle ) * Config.SPELL_WIND_DISTANCE,
+				 mob.position.y + Math.cos( angle ) * Config.SPELL_WIND_DISTANCE
+			);
+			if( windDestination.x < 0 || windDestination.y < 0 || windDestination.x > Config.MAP_WIDTH || windDestination.y > Config.MAP_HEIGHT ) continue;
+			final baseDistance = windDestination.distance( me.basePosition );
+			if( baseDistance < mobDistance ) continue;
+			
+			final oppHeroDistances = oppHerosInPushRange.map( oppHero -> windDestination.distance( oppHero.position ));
+			final smallestOppHeroDistance = oppHeroDistances.fold(( dist, smallestDist ) -> Math.min( dist, smallestDist ), Config.MAP_WIDTH );
+			
+			final baseFactor = baseDistance / Config.BASE_ATTRACTION_RADIUS;
+			final oppHeroFactor = smallestOppHeroDistance / Config.SPELL_WIND_RADIUS;
+			final factors = baseFactor * oppHeroFactor;
+			if( turn == 38 ) trace( '$turn  test $angleDeg  angle $angle  windDestination $windDestination  baseDistance $baseDistance  smallestHeroDist $smallestOppHeroDistance' );
+			if( factors > posFactor ) {
+				posFactor = factors;
+				pushToPosition = windDestination;
+			}
+		}
+		if( turn == 38 ) trace( '$turn  windDestination $pushToPosition  factors $posFactor' );
+		return pushToPosition;
 	}
 
 	static inline var FILTER_DIST = 1200;
