@@ -10,13 +10,14 @@ class MainReferee {
 	static final corners = [new Vector( 0, 0 ), new Vector( Config.MAP_WIDTH, Config.MAP_HEIGHT )];
 	
 	static final scoreTotals = [0, 0];
+	static var ties = 0;
 
 	public static function main() {
 		final args = Sys.args();
 		final repeats = args[0] == null ? 2 : parseInt( args[0] );
 		
-		final player0 = new Player( 0, "Agent0", int( corners[0].x ), int( corners[0].y ));
-		final player1 = new Player( 1, "Agent1", int( corners[1].x ), int( corners[1].y ));
+		final player0 = new Player( 0, CurrentAgents.agentMe.agentId, int( corners[0].x ), int( corners[0].y ));
+		final player1 = new Player( 1, CurrentAgents.agentOpp.agentId, int( corners[1].x ), int( corners[1].y ));
 		
 		final gameManager = new GameManager([ player0, player1 ]);
 		
@@ -25,10 +26,25 @@ class MainReferee {
 		for( i in 0...repeats ) {
 			referee.init( i );
 			final scores = referee.run();
-			for( i in 0...scores.length ) scoreTotals[i] += scores[i];
+			var winner = "";
+			
+			if( scores[0] > scores[1] ) {
+				scoreTotals[0]++;
+				winner = player0.name;
+			
+			} else if( scores[0] < scores[1] ) {
+				scoreTotals[1]++;
+				winner = player1.name;
+			
+			} else {
+				ties++;
+				winner = "Tie!";
+			}
+			
+			Sys.println( 'Game $i  Winner: $winner' );
 		}
 		
-		Sys.println( '${player0.name} wins ${scoreTotals[0]}' );
-		Sys.println( '${player1.name} wins ${scoreTotals[1]}' );
+		Sys.println( '${player0.name} wins: ${scoreTotals[0]}  ${scoreTotals[0] / repeats * 100}%' );
+		Sys.println( '${player1.name} wins ${scoreTotals[1]} ${scoreTotals[1] / repeats * 100}%' );
 	}
 }

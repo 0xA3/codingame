@@ -25,7 +25,7 @@ class Agent2 implements IAgent {
 	final actions = [];
 	
 	var turn = -1;
-	var agentId = "";
+	public var agentId = "";
 	var spentMana = 0;
 
 	public function new() { }

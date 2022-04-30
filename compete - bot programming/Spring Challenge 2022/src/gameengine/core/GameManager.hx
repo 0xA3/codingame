@@ -82,7 +82,7 @@ class GameManager {
 	 */
 	 public function addToGameSummary( summary:String ) {
 		
-		trace( summary );
+		#if Game trace( summary ); #end
 		
 		final total = currentGameSummary.length + summary.length;
 
