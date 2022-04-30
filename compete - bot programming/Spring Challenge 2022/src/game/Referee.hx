@@ -782,16 +782,16 @@ class Referee {
 					}
 				}
 
-				throw new InvalidInputException( EXPECTED, line );
+				throw new InvalidInputException( player.name, EXPECTED, line );
 			
 			} catch( e:InvalidInputException ) {
 				player.deactivate( e.message );
-				gameManager.addToGameSummary( "Bad command" );
+				gameManager.addToGameSummary( 'Turn: $turn, Player: ${e.playerId}, Bad command: ${e.got}' );
 				return;
 			
 			} catch( e:Exception ) {
-                player.deactivate( new InvalidInputException( EXPECTED, line ).message );
-                gameManager.addToGameSummary("Bad command");
+                player.deactivate( new InvalidInputException( "unknown", EXPECTED, line ).message );
+                gameManager.addToGameSummary( '$turn Bad command ${e.message}' );
                 return;
 			}
 		}
