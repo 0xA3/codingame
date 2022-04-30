@@ -23,9 +23,8 @@ abstract class AbstractPlayer {
 	 * The input to send.
 	 */
 	 public function sendInputLine( line:String ) {
-		if( hasBeenExecuted ) {
-			throw "Impossible to send new inputs after calling execute";
-		}
+		if( hasBeenExecuted ) throw "Impossible to send new inputs after calling execute";
+		
 		// if (this.gameManagerProvider.get().getOutputsRead()) {
 		//     throw new RuntimeException("Sending input data to a player after reading any output is forbidden.");
 		// }

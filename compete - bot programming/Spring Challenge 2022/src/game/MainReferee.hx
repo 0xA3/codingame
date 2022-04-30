@@ -27,6 +27,8 @@ class MainReferee {
 			final scores = referee.run();
 			for( i in 0...scores.length ) scoreTotals[i] += scores[i];
 		}
-		trace( scoreTotals );
+		
+		Sys.println( '${player0.name} wins ${scoreTotals[0]}' );
+		Sys.println( '${player1.name} wins ${scoreTotals[1]}' );
 	}
 }

@@ -41,6 +41,18 @@ class GameManager {
 		this.players = players;
 	}
 
+	public function init() {
+		currentTooltips.splice( 0, currentTooltips.length );
+		currentGameSummary.splice( 0, currentGameSummary.length );
+		gameEnd = false;
+
+		initDone = false;
+		outputsRead = false;
+		totalViewDataBytesSent = 0;
+		totalGameSummaryBytes = 0;
+		totalTurnTime = 0;
+	}
+
 	public static function formatErrorMessage( message:String ) return message;
 
 	/**

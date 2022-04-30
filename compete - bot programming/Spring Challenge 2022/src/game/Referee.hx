@@ -91,9 +91,18 @@ class Referee {
 	}
 
 	public function init( seed:Int ) {
-		
+		gameManager.init();
 		gameSummaryManager = new GameSummaryManager();
 		
+		allHeros.splice( 0, allHeros.length );
+		allMobs.splice( 0, allMobs.length );
+		mobRemovals.splice( 0, mobRemovals.length );
+		newEntities.splice( 0, newEntities.length );
+		attacks.splice( 0, attacks.length );
+		spellUses.splice( 0, spellUses.length );
+		baseAttacks.splice( 0, baseAttacks.length );
+		basePositions.splice( 0, basePositions.length );
+
 		computeConfiguration();
 
 		MTRandom.initializeRandGenerator( seed );
@@ -119,6 +128,8 @@ class Referee {
 	}
 
 	function initPlayers() {
+		
+		entityId = 0;
 		// Generate heroes
 		final spawnOffset = 1600;
 		final spaceBetweenHeroes = 400;
@@ -830,7 +841,7 @@ class Referee {
 		// <health> <mana>
 		player.sendInputLine( '${player.baseHealth} ${player.mana}' );
 		final otherPlayers = gameManager.players.filter( p -> p != player );
-		for( p in otherPlayers ) player.sendInputLine( '${p.baseHealth} ${p.mana}' );
+		for( player in otherPlayers ) player.sendInputLine( '${player.baseHealth} ${player.mana}' );
 
 		// <entityCount>
 		player.sendInputLine( '${entityLines.length}' );
@@ -896,6 +907,7 @@ class Referee {
 		if( gameManager.players.length == 2 ) {
 			final a = gameManager.getPlayer( 0 );
 			final b = gameManager.getPlayer( 1 );
+			// trace( 'isActive ${a.isActive} ${b.isActive}  baseHealth ${a.baseHealth} ${b.baseHealth} manaOutside  ${a.manaGainedOutsideOfBase} ${b.manaGainedOutsideOfBase}' );
 			if( a.isActive && !b.isActive ) {
 				a.score = 1;
 				b.score = 0;

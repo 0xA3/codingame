@@ -49,7 +49,7 @@ class Agent2 implements IAgent {
 	}
 	
 	public function setInputs( inputLines:Array<String> ) {
-		// trace( 'setInputs agent $agentId\n' + inputLines.join( "\n" ));
+		// trace( 'setInputs agent $agentId turn $turn\n' + inputLines.join( "\n" ));
 		mobs.splice( 0, mobs.length );
 		
 		var player0HeroIndex = 0;

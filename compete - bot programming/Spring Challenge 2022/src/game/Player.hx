@@ -34,7 +34,10 @@ class Player extends AbstractMultiplayerPlayer {
 	}
 
 	public function getExpectedOutputLines() return heros.length;
-	public function addHero( hero:Hero ) heros.push( hero );
+	public function addHero( hero:Hero ) {
+		heros.push( hero );
+		// trace( 'player $name  index $index  hero ${heros.length}' );
+	}
 
 	public function gainMana( amount:Array<Int> ) {
 		mana += amount[0];

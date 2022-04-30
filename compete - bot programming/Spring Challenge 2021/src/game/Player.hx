@@ -21,6 +21,7 @@ class Player extends AbstractMultiplayerPlayer {
 		this.agent = agent;
 		sun = Config.STARTING_SUN;
 		action = Action.NO_ACTION;
+		trace( 'new player $index  ${this.name}' );
 	}
 
 	public function getExpectedOutputLines() return 1;
