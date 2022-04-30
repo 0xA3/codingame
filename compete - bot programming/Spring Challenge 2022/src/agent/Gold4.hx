@@ -7,11 +7,11 @@ import game.Hero;
 import game.Mob;
 import game.Vector;
 
-class Gold3 extends Agent2 {
+class Gold4 extends Agent2 {
 
 	public function new() {
 		super();
-		agentId = "Gold 3";
+		agentId = "Gold 4";
 	}
 	
 	static inline var ATTACKER = 0;
@@ -54,6 +54,7 @@ class Gold3 extends Agent2 {
 		final patrolProgress = Math.sin( turn / PATROL_FREQUENCY * Math.PI * 2 ) * Math.PI / 6;
 		attackPosition.x = opp.basePosition.x + Math.sin( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
 		attackPosition.y = opp.basePosition.y + Math.cos( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
+		// if( turn < 11 ) trace( '$turn  ${turn / PATROL_FREQUENCY}  $patrolProgress  $attackPosition' );
 
 		if( me.mana >= Config.SPELL_PROTECT_COST && mobsNearEnemyBase.length > 0 ) {
 			shield( ATTACKER, mobsNearEnemyBase[0].id, 'shield ${mobsNearEnemyBase[0].id}' );
