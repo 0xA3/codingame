@@ -38,10 +38,10 @@ class MainReferee {
 			
 			} else {
 				ties++;
-				winner = "Tie!";
+				winner = "Tie!  ";
 			}
 			
-			Sys.println( 'Game $i  Winner: $winner' );
+			Sys.println( 'Game $i  Winner: $winner   ${scoreTotals[0]}:${scoreTotals[1]}:$ties   ${Math.round( scoreTotals[0] / ( i + 1 ) * 100 )}% : ${Math.round( scoreTotals[1] / ( i + 1 ) * 100 )}% : ${Math.round( ties / ( i + 1 ) * 100 )}%' );
 		}
 		
 		Sys.println( '${player0.name} wins: ${scoreTotals[0]}  ${scoreTotals[0] / repeats * 100}%' );
