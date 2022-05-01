@@ -9,11 +9,11 @@ import game.Vector;
 
 using xa3.MathUtils;
 
-class Gold9 extends Agent2 {
+class Gold10 extends Agent2 {
 
 	public function new() {
 		super();
-		agentId = "Gold 9";
+		agentId = "Gold 10";
 	}
 	
 	static inline var ATTACKER = 0;
