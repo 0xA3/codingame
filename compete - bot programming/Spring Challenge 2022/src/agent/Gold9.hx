@@ -13,7 +13,7 @@ class Gold9 extends Agent2 {
 
 	public function new() {
 		super();
-		agentId = "Gold 9";
+		agentId = "Gold  9";
 	}
 	
 	static inline var ATTACKER = 0;
@@ -28,7 +28,7 @@ class Gold9 extends Agent2 {
 	var pushPosition = new Vector( Config.MAP_WIDTH - 300, Config.MAP_HEIGHT - 300 );
 	var attackAngle = 0.0;
 
-	var commandQueue:Array<Command> = [];
+	var commandQueue:Array<TCommand> = [];
 
 	override function init(inputLines:Array<String>) {
 		super.init( inputLines );

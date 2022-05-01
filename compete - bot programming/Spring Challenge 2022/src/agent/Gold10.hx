@@ -28,7 +28,7 @@ class Gold10 extends Agent2 {
 	var pushPosition = new Vector( Config.MAP_WIDTH - 300, Config.MAP_HEIGHT - 300 );
 	var attackAngle = 0.0;
 
-	var commandQueue:Array<Command> = [];
+	var commandQueue:Array<TCommand> = [];
 
 	override function init(inputLines:Array<String>) {
 		super.init( inputLines );
@@ -130,7 +130,10 @@ class Gold10 extends Agent2 {
 			rankMobs( importantMobs );
 
 			final defenders = defenderIds.map( index -> me.heros[index] );
-			final heroMobPairs = pairHerosWithClosestMobs( defenders, importantMobs );
+			final heroMobPairs:Array<HeroMobPair> = importantMobs.length > 0 && importantMobs[0].position.distanceSq( me.basePosition ) < 3000 * 3000
+				? [{ hero: defenders[0], mob: importantMobs[0] },{ hero: defenders[1], mob: importantMobs[0] }]
+				: pairHerosWithClosestMobs( defenders, importantMobs );
+				
 			var hasPushed = false;
 			for( heroMobPair in heroMobPairs ) {
 				

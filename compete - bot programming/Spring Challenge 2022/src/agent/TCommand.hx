@@ -1,5 +1,5 @@
 package agent;
 
-enum Command {
+enum TCommand {
 	AfterPush;
 }
