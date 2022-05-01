@@ -144,10 +144,14 @@ class Gold8 extends Agent2 {
 	function filterImportantMobs( mobs:Array<Mob>, positions:Array<Vector> ) {
 		final importantMobs = [];
 		for( mob in mobs ) {
-			for( position in positions ) {
-				if( mob.threatFor == 1 || position.distanceSq( mob.position ) < FILTER_DIST * FILTER_DIST ) {
-					importantMobs.push( mob );
-					break;
+			if( mob.threatFor == 1 || mob.position.distanceSq( me.basePosition ) < Config.BASE_VIEW_RADIUS * Config.BASE_VIEW_RADIUS ) {
+				importantMobs.push( mob );
+			} else {
+				for( position in positions ) {
+					if( mob.threatFor == 1 || position.distanceSq( mob.position ) < FILTER_DIST * FILTER_DIST ) {
+						importantMobs.push( mob );
+						break;
+					}
 				}
 			}
 		}
