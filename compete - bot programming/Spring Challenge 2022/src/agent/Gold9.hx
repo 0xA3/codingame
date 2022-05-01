@@ -9,11 +9,15 @@ import game.Vector;
 
 using xa3.MathUtils;
 
-class Gold8 extends Agent2 {
+enum Command {
+	AfterPush;
+}
+
+class Gold9 extends Agent2 {
 
 	public function new() {
 		super();
-		agentId = "Gold 8";
+		agentId = "Gold 9";
 	}
 	
 	static inline var ATTACKER = 0;
@@ -28,7 +32,7 @@ class Gold8 extends Agent2 {
 	var pushPosition = new Vector( Config.MAP_WIDTH - 300, Config.MAP_HEIGHT - 300 );
 	var attackAngle = 0.0;
 
-	var commandQueue:Array<String> = [];
+	var commandQueue:Array<Command> = [];
 
 	override function init(inputLines:Array<String>) {
 		super.init( inputLines );
@@ -49,7 +53,8 @@ class Gold8 extends Agent2 {
 		actions.splice( 0, actions.length );
 		
 		if( commandQueue.length > 0 ) {
-			actions[ATTACKER] = commandQueue.shift();
+			commandQueue.shift();
+			checkAfterPush();
 		} else {
 			attack();
 		}
@@ -90,7 +95,7 @@ class Gold8 extends Agent2 {
 		
 		} else if( me.mana >= Config.SPELL_WIND_COST && pushMobs.length > 0 ) {
 			push( ATTACKER, pushPosition, 'push inside' );
-			commandQueue.push( 'MOVE ${opp.basePosition} and move to it' );
+			commandQueue.push( AfterPush );
 		
 		} else {
 			var message = 'to patrol';
@@ -102,6 +107,20 @@ class Gold8 extends Agent2 {
 				}
 			}
 			move( ATTACKER, attackPosition, message );
+		}
+	}
+
+	function checkAfterPush() {
+		final pushMobs = mobs.filter( mob ->
+			// mob.health > 10 &&
+			mob.shieldDuration == 0 &&
+			me.heros[ATTACKER].position.distance( mob.position ) < Config.SPELL_WIND_RADIUS
+		);
+		
+		if( me.mana >= Config.SPELL_WIND_COST && pushMobs.length > 0 ) {
+			push( ATTACKER, pushPosition, 'double push' );
+		} else {
+			move( ATTACKER, opp.basePosition, 'follow' );
 		}
 	}
 
