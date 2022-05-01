@@ -64,10 +64,13 @@ class Gold7 extends Agent2 {
 		attackPosition.y = opp.basePosition.y + Math.cos( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
 
 		final shieldMobs = mobs.filter( mob -> {
+			final isInHeroRange = mob.position.distanceSq( me.heros[ATTACKER].position ) <= Config.HERO_VIEW_RADIUS * Config.HERO_VIEW_RADIUS;
+			final enemyHerosNearMob = opp.heros.filter( hero -> hero.position.distanceSq( mob.position ) <= Config.HERO_ATTACK_RANGE * Config.HERO_ATTACK_RANGE ).length;
 			final stepsFromBase = mob.position.distance( opp.basePosition ) / Config.MOB_MOVE_SPEED;
-			final isUnKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE <= mob.health;
+			final isUnKillable = stepsFromBase * ( Config.HERO_ATTACK_DAMAGE * enemyHerosNearMob ) <= mob.health;
 			return	mob.shieldDuration == 0 &&
 					mob.threatFor == 2 &&
+					isInHeroRange &&
 					isUnKillable;
 		});
 		shieldMobs.sort(( a, b ) -> b.health - a.health );
@@ -81,6 +84,7 @@ class Gold7 extends Agent2 {
 
 		if( me.mana >= Config.SPELL_PROTECT_COST && shieldMobs.length > 0 ) {
 			shield( ATTACKER, shieldMobs[0].id, 'shield ${shieldMobs[0].id}' );
+			// printErr( 'turn $turn  shield ${shieldMobs[0].id}' );
 		
 		} else if( me.mana >= Config.SPELL_WIND_COST && pushMobs.length > 0 ) {
 			push( ATTACKER, pushPosition, 'push inside' );
