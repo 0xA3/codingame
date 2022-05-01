@@ -63,6 +63,15 @@ class Gold6 extends Agent2 {
 		attackPosition.x = opp.basePosition.x + Math.sin( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
 		attackPosition.y = opp.basePosition.y + Math.cos( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
 
+		final shieldMobs = mobs.filter( mob -> {
+			final stepsFromBase = mob.position.distance( opp.basePosition ) / Config.MOB_MOVE_SPEED;
+			final isUnKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE <= mob.health;
+			return	mob.shieldDuration == 0 &&
+					mob.threatFor == 2 &&
+					isUnKillable;
+		});
+		shieldMobs.sort(( a, b ) -> b.health - a.health );
+
 		final pushMobs = mobs.filter( mob ->
 			mob.health > 10 &&
 			mob.shieldDuration == 0 &&
@@ -70,11 +79,13 @@ class Gold6 extends Agent2 {
 		);
 		sortMobsByDistance( pushMobs, opp.basePosition );
 
-		// if( me.mana >= Config.SPELL_PROTECT_COST && mobsNearEnemyBase.length > 0 ) {
-			// shield( ATTACKER, mobsNearEnemyBase[0].id, 'shield ${mobsNearEnemyBase[0].id}' );
-		if( me.mana >= Config.SPELL_WIND_COST && pushMobs.length > 0 ) {
+		if( me.mana >= Config.SPELL_PROTECT_COST && shieldMobs.length > 0 ) {
+			shield( ATTACKER, shieldMobs[0].id, 'shield ${shieldMobs[0].id}' );
+		
+		} else if( me.mana >= Config.SPELL_WIND_COST && pushMobs.length > 0 ) {
 			push( ATTACKER, pushPosition, 'push inside' );
 			commandQueue.push( 'MOVE ${opp.basePosition}' );
+		
 		} else {
 			var message = 'to patrol';
 			for( mob in mobs ) { // find mobs near defaultPosition
@@ -107,8 +118,8 @@ class Gold6 extends Agent2 {
 					final mob = heroMobPair.mob;
 					final stepsFromBase = mob.position.distance( me.basePosition ) / Config.MOB_MOVE_SPEED;
 					
-					final isKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE > mob.health;
-					if( !isKillable && mob.shieldDuration == 0 && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana >= Config.SPELL_WIND_COST ) {
+					final isUnKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE <= mob.health;
+					if( isUnKillable && mob.shieldDuration == 0 && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana >= Config.SPELL_WIND_COST ) {
 						push( hero.index, opp.basePosition, 'push away' );
 						hasPushed = true;
 					} else {
