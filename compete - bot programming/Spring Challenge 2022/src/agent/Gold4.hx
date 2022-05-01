@@ -7,18 +7,16 @@ import game.Hero;
 import game.Mob;
 import game.Vector;
 
-using Lambda;
-
 class Gold4 extends Agent2 {
 
 	public function new() {
 		super();
 		agentId = "Gold 4";
 	}
+	
 	static inline var ATTACKER = 0;
 	static inline var DEFENDER1 = 1;
 	static inline var DEFENDER2 = 2;
-	static final TAU = Math.PI * 2;
 
 	static inline var PATROL_FREQUENCY = 20;
 	static final ATTACK_DISTANCE = Config.BASE_RADIUS * 1.2;
@@ -26,6 +24,8 @@ class Gold4 extends Agent2 {
 	var defaultPositions:Array<Vector>;
 	var attackPosition = new Vector( 0, 0 );
 	var attackAngle = 0.0;
+
+	var commandQueue:Array<String> = [];
 
 	override function init(inputLines:Array<String>) {
 		super.init( inputLines );
@@ -56,24 +56,27 @@ class Gold4 extends Agent2 {
 		final patrolProgress = Math.sin( turn / PATROL_FREQUENCY * Math.PI * 2 ) * Math.PI / 6;
 		attackPosition.x = opp.basePosition.x + Math.sin( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
 		attackPosition.y = opp.basePosition.y + Math.cos( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
-		// if( turn < 11 ) trace( '$turn  ${turn / PATROL_FREQUENCY}  $patrolProgress  $attackPosition' );
 
-		if( me.mana >= Config.SPELL_PROTECT_COST && mobsNearEnemyBase.length > 0 ) {
-			shield( ATTACKER, mobsNearEnemyBase[0].id, 'shield ${mobsNearEnemyBase[0].id}' );
-		} else if( me.mana >= Config.SPELL_WIND_COST && mobIsInPushRange ) {
-			push( ATTACKER, opp.basePosition, 'push inside' );
+		if( commandQueue.length > 0 ) {
+			actions[ATTACKER] = commandQueue.shift();
 		} else {
-			var message = 'to patrol';
-			for( mob in mobs ) { // find mobs near defaultPosition
-				final dist = mob.position.distance( opp.basePosition );
-				if( dist < Config.BASE_VIEW_RADIUS ) {
-					attackPosition = mob.position; // getNearPosition( me.heros[ATTACKER].position, mob.position, Config.HERO_ATTACK_RANGE + 1 );
-					message = 'to ${mob.id}';
+			if( me.mana >= Config.SPELL_PROTECT_COST && mobsNearEnemyBase.length > 0 ) {
+				shield( ATTACKER, mobsNearEnemyBase[0].id, 'shield ${mobsNearEnemyBase[0].id}' );
+			} else if( me.mana >= Config.SPELL_WIND_COST && mobIsInPushRange ) {
+				push( ATTACKER, opp.basePosition, 'push inside' );
+				commandQueue.push( 'MOVE ${opp.basePosition}' );
+			} else {
+				var message = 'to patrol';
+				for( mob in mobs ) { // find mobs near defaultPosition
+					final dist = mob.position.distance( opp.basePosition );
+					if( dist < Config.BASE_VIEW_RADIUS ) {
+						attackPosition = mob.position; // getNearPosition( me.heros[ATTACKER].position, mob.position, Config.HERO_ATTACK_RANGE + 1 );
+						message = 'to ${mob.id}';
+					}
 				}
+				move( ATTACKER, attackPosition, message );
 			}
-			move( ATTACKER, attackPosition, message );
 		}
-
 		final defenderIds = [DEFENDER1, DEFENDER2];
 		// Defense
 		if( mobs.length == 0 ) for( i in 0...defenderIds.length ) move( defenderIds[i], defaultPositions[defenderIds[i]], 'to default' );
@@ -86,31 +89,19 @@ class Gold4 extends Agent2 {
 			var hasPushed = false;
 			for( heroMobPair in heroMobPairs ) {
 				
-				if( !hasPushed ) { // only push with one defender
+				if( !hasPushed ) {
 					final hero = heroMobPair.hero;
 					final mob = heroMobPair.mob;
-					final mobBaseDistance = mob.position.distance( me.basePosition );
+					final stepsFromBase = mob.position.distance( me.basePosition ) / Config.MOB_MOVE_SPEED;
 					
-					if( mobBaseDistance < Config.BASE_ATTRACTION_RADIUS - Config.SPELL_WIND_DISTANCE && mob.shieldDuration == 0 && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana >= Config.SPELL_WIND_COST ) {
-						
-						final oppHerosInPushRange = opp.heros.filter( oppHero -> mob.position.distance( hero.position ) < Config.SPELL_WIND_RADIUS );
-						final pushToPosition = getPushToPosition( mob, oppHerosInPushRange );
-
-						final stepsFromBase = mob.position.distance( me.basePosition ) / Config.MOB_MOVE_SPEED;
-						final isKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE > mob.health;
-						
-						if( oppHerosInPushRange.length > 0 ) {
-							push( hero.index, pushToPosition, 'push away $pushToPosition' );
-							hasPushed = true;
-						} else if( !isKillable ) {
-							push( hero.index, pushToPosition, 'push away $pushToPosition' );
-							hasPushed = true;
-						} else {
-							move( heroMobPair.hero.index, heroMobPair.mob.position, 'to ${heroMobPair.mob.id}' );
-						}
+					final isKillable = stepsFromBase * Config.HERO_ATTACK_DAMAGE > mob.health;
+					if( !isKillable && mob.shieldDuration == 0 && hero.position.distance( mob.position ) < Config.SPELL_WIND_RADIUS && me.mana >= Config.SPELL_WIND_COST ) {
+						push( hero.index, opp.basePosition, 'push away' );
+						hasPushed = true;
 					} else {
 						move( heroMobPair.hero.index, heroMobPair.mob.position, 'to ${heroMobPair.mob.id}' );
 					}
+	
 				} else {
 					move( heroMobPair.hero.index, heroMobPair.mob.position, 'to ${heroMobPair.mob.id}' );
 				}
@@ -120,37 +111,6 @@ class Gold4 extends Agent2 {
 		}
 		
 		return printActions();
-	}
-
-	function getPushToPosition( mob:Mob, oppHerosInPushRange:Array<Hero> ) {
-		var pushToPosition = opp.basePosition;
-		final mobDistance = mob.position.distance( me.basePosition );
-
-		var posFactor = 0.0;
-		for( angleDeg in 0...20 ) {
-			final angle = angleDeg / 20 * 360 / 180 * Math.PI;
-			final windDestination = new Vector(
-				 mob.position.x + Math.sin( angle ) * Config.SPELL_WIND_DISTANCE,
-				 mob.position.y + Math.cos( angle ) * Config.SPELL_WIND_DISTANCE
-			);
-			if( windDestination.x < 0 || windDestination.y < 0 || windDestination.x > Config.MAP_WIDTH || windDestination.y > Config.MAP_HEIGHT ) continue;
-			final baseDistance = windDestination.distance( me.basePosition );
-			if( baseDistance < mobDistance ) continue;
-			
-			final oppHeroDistances = oppHerosInPushRange.map( oppHero -> windDestination.distance( oppHero.position ));
-			final smallestOppHeroDistance = oppHeroDistances.fold(( dist, smallestDist ) -> Math.min( dist, smallestDist ), Config.MAP_WIDTH );
-			
-			final baseFactor = baseDistance / Config.BASE_ATTRACTION_RADIUS;
-			final oppHeroFactor = smallestOppHeroDistance / Config.SPELL_WIND_RADIUS;
-			final factors = baseFactor * oppHeroFactor;
-			if( turn == 38 ) trace( '$turn  test $angleDeg  angle $angle  windDestination $windDestination  baseDistance $baseDistance  smallestHeroDist $smallestOppHeroDistance' );
-			if( factors > posFactor ) {
-				posFactor = factors;
-				pushToPosition = windDestination;
-			}
-		}
-		if( turn == 38 ) trace( '$turn  windDestination $pushToPosition  factors $posFactor' );
-		return pushToPosition;
 	}
 
 	static inline var FILTER_DIST = 1200;
