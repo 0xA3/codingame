@@ -54,6 +54,7 @@ class Gold11 extends Agent2 {
 		} else {
 			attack();
 		}
+		// if( turn > 50 ) shadowOppHero();
 		
 		defend();
 		
@@ -69,10 +70,12 @@ class Gold11 extends Agent2 {
 		final shieldMobs = mobs.filter( mob -> {
 			final isInHeroRange = mob.position.distanceSq( me.heros[ATTACKER].position ) <= Config.HERO_VIEW_RADIUS * Config.HERO_VIEW_RADIUS;
 			final enemyHerosNearMob = opp.heros.filter( hero -> hero.position.distanceSq( mob.position ) <= Config.HERO_ATTACK_RANGE * Config.HERO_ATTACK_RANGE ).length.max( 1 );
-			final stepsFromBase = mob.position.distance( opp.basePosition ) / Config.MOB_MOVE_SPEED;
+			final distanceFromBase = mob.position.distance( opp.basePosition );
+			final stepsFromBase = distanceFromBase / Config.MOB_MOVE_SPEED;
 			final isUnKillable = stepsFromBase * ( Config.HERO_ATTACK_DAMAGE * enemyHerosNearMob ) <= mob.health;
 			return	mob.shieldDuration == 0 &&
 					mob.threatFor == 2 &&
+					distanceFromBase < Config.BASE_ATTRACTION_RADIUS &&
 					isInHeroRange &&
 					isUnKillable;
 		});
@@ -140,7 +143,7 @@ class Gold11 extends Agent2 {
 				if( !hasPushed ) {
 					final hero = heroMobPair.hero;
 					final mob = heroMobPair.mob;
-					final distanceFromBase = mob.position.distance( me.basePosition );
+					final distanceFromBase = mob.position.add( mob.velocity ).distance( me.basePosition );
 					final stepsFromBase = distanceFromBase / Config.MOB_MOVE_SPEED;
 					
 					final oppHeroIsNearMob = opp.heros.filter( hero -> hero.position.distanceSq( mob.position ) <= Config.SPELL_WIND_RADIUS * Config.SPELL_WIND_RADIUS ).length > 0;
