@@ -51,6 +51,7 @@ class GameManager {
 		totalViewDataBytesSent = 0;
 		totalGameSummaryBytes = 0;
 		totalTurnTime = 0;
+		for( player in players ) player.init();
 	}
 
 	public static function formatErrorMessage( message:String ) return message;
@@ -103,8 +104,5 @@ class GameManager {
 
 	public function getPlayerCount() return players.length;
 
-	public function getPlayer( n:Int ) return players[n];
-
-	public function getPlayers() return players;
 	public function getActivePlayers() return players.filter( p -> p.isActive );
 }

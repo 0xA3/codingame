@@ -41,9 +41,6 @@ class Referee {
 	final agentOpp:IAgent;
 	final agents:Array<IAgent>;
 	
-	var gameSummaryManager:GameSummaryManager;
-
-
 	var turn:Int;
 	var scores:Array<Array<Int>> = [];
 	var completes:Array<Array<String>> = [];
@@ -59,7 +56,7 @@ class Referee {
 	var spellUses:Array<SpellUse> = [];
 	var baseAttacks:Array<BaseAttack> = [];
 	var intentMap:Map<ActionType, Array<Hero>> = [];
-	var positionKeyMap:Map<haxe.ds.ObjectMap<Vector, Bool>, Float> = [];
+	var positionKeyMap:Map<String, Float> = [];
 	
 	var startDirections = [new Vector( 1, 1 ).normalize(), new Vector( -1, -1 ).normalize()];
 	var basePositions:Array<Vector> = [];
@@ -92,7 +89,6 @@ class Referee {
 
 	public function init( seed:Int ) {
 		gameManager.init();
-		gameSummaryManager = new GameSummaryManager();
 		
 		allHeros.splice( 0, allHeros.length );
 		allMobs.splice( 0, allMobs.length );
@@ -102,6 +98,7 @@ class Referee {
 		spellUses.splice( 0, spellUses.length );
 		baseAttacks.splice( 0, baseAttacks.length );
 		basePositions.splice( 0, basePositions.length );
+		positionKeyMap.clear();
 
 		computeConfiguration();
 
@@ -113,7 +110,7 @@ class Referee {
 			Config.MOB_SPAWN_RATE
 		);
 
-		// try {
+		try {
 			playerCount = gameManager.getPlayerCount();
 			
 			for( type in actionTypes ) {
@@ -121,10 +118,10 @@ class Referee {
 			}
 			initPlayers();
 			
-		// } catch( e ) {
-			// trace( 'Referee failed to initialize $e' );
-			// abort();
-		// }
+		} catch( e ) {
+			trace( 'Referee failed to initialize $e' );
+			abort();
+		}
 	}
 
 	function initPlayers() {
@@ -138,7 +135,7 @@ class Referee {
 
 		for( i in 0...playerCount ) {
 			final player = gameManager.players[i];
-			player.init();
+			
 			var vector = ( i < 2 ? new Vector( 1, -1 ) : new Vector( 1, 1 )).normalize();
 			if( i % 2 == 1 ) vector = vector.mult( -1 );
 
@@ -284,6 +281,16 @@ class Referee {
 	function gameTurn( turn:Int ) {
 		resetGameTurnData();
 		
+		// check symmetric execution
+		// final p0Health = gameManager.players[0].baseHealth;
+		// final p1Health = gameManager.players[1].baseHealth;
+		// final p0Mana = gameManager.players[0].mana;
+		// final p1Mana = gameManager.players[1].mana;
+		// if( p0Health != p1Health || p0Mana != p1Mana ) {
+		// 	trace( 'turn $turn  p0: ($p0Health $p0Mana)  p1 ($p1Health $p1Mana)' );
+		// 	abort();
+		// }
+
 		// Give input to players
 		for( i in 0...gameManager.players.length ) {
 			final player = gameManager.players[i];
@@ -356,7 +363,7 @@ class Referee {
 			}
 		}
 		
-		positionKeyMap.clear();
+		// positionKeyMap.clear();
 
 		//Calculate sum of pushes
 		for( entity => directions in directionMap ) {
@@ -367,21 +374,27 @@ class Referee {
 			if( entity.type == TYPE_MY_HERO || entity.type == TYPE_ENEMY_HERO || baseWallIntersection != null ) {
 				predictedPosition = snapToGameZone( baseWallIntersection == null ? predictedPosition : baseWallIntersection );
 			} else if( entity.type == TYPE_MOB && isInBaseAttractionZone( entity.position ) && !isInBaseAttractionZone( predictedPosition )) {
-				final pair = new Map<Vector, Bool>();
-				pair.set( predictedPosition, true );
-				pair.set( predictedPosition.symmetric( symmetryOrigin ), true );
-
-				var randomDouble:Float;
-				final existingRandom = positionKeyMap[pair];
-
-				if( existingRandom == null ) {
-					randomDouble = MTRandom.quickRand();
-					positionKeyMap.set( pair, randomDouble );
+				
+				var randomDirection = 0.0;
+				
+				final positionKey = '$predictedPosition';
+				final symPositionKey = '${predictedPosition.symmetric( symmetryOrigin )}';
+				if( positionKeyMap.exists( positionKey )) {
+					final randomDouble = positionKeyMap[positionKey];
+					randomDirection = randomDouble * Math.PI * 2;
+					// trace( 'positionKey $positionKey  random $randomDouble' );
+				
+				} else if( positionKeyMap.exists( symPositionKey )) {
+					final randomDouble = positionKeyMap[symPositionKey];
+					randomDirection = randomDouble * Math.PI * 2 + Math.PI;
+					// trace( 'symitionKey $positionKey  random $randomDouble' );
+				
+				} else {
+					final randomDouble = MTRandom.quickRand();
+					positionKeyMap.set( positionKey, randomDouble );
+					randomDirection = randomDouble * Math.PI * 2;
+					// trace( 'positionKey $positionKey   new random $randomDouble' );
 				}
-				else randomDouble = existingRandom;
-
-				var randomDirection = randomDouble * Math.PI * 2;
-				if( existingRandom != null ) randomDirection += Math.PI;
 
 				cast( entity, Mob ).velocity = Vector.fromAngle( randomDirection ).normalize().mult( Config.MOB_MOVE_SPEED );
 			}
@@ -528,7 +541,7 @@ class Referee {
 				final base = basePositions[idx];
 				if( mob.position.inRange( base, Config.BASE_RADIUS ) && mob.health > 0 ) {
 					removeMob( mob );
-					final p = gameManager.getPlayer( idx );
+					final p = gameManager.players[idx];
 					p.damageBase();
 					if( p.baseHealth > 0 ) gameManager.addTooltip( p, "Base attacked!" );
 
@@ -544,7 +557,7 @@ class Referee {
 					final v = Vector.fromVectors( mob.position, base );
 					final distanceToStep = int( Math.min( v.length(), Config.MOB_MOVE_SPEED ));
 					mob.velocity = base.sub( mob.position ).normalize().mult( distanceToStep ).truncate();
-					gameManager.getPlayer( idx ).spottet.set( mob.id, true );
+					gameManager.players[idx].spottet.set( mob.id, true );
 				
 				} else if( mob.position.inRange(base, Config.BASE_ATTRACTION_RADIUS )) {
 					var objective = new Vector( 1, 1 );
@@ -874,7 +887,7 @@ class Referee {
 					for( idx in 0...basePositions.length ) {
 						final base = basePositions[idx];
 						if( mobPos.inRange( base, Config.BASE_ATTRACTION_RADIUS )) {
-							return new MobStatus( turns == 0 ? MobStatus.ATTACKING : MobStatus.WANDERING, gameManager.getPlayer( idx ), turns );
+							return new MobStatus( turns == 0 ? MobStatus.ATTACKING : MobStatus.WANDERING, gameManager.players[idx], turns );
 						}
 					}
 					// Am I outside the map?
@@ -905,9 +918,9 @@ class Referee {
 	function onEnd() {
 		var tie = false;
 		if( gameManager.players.length == 2 ) {
-			final a = gameManager.getPlayer( 0 );
-			final b = gameManager.getPlayer( 1 );
-			// trace( 'isActive ${a.isActive} ${b.isActive}  baseHealth ${a.baseHealth} ${b.baseHealth} manaOutside  ${a.manaGainedOutsideOfBase} ${b.manaGainedOutsideOfBase}' );
+			final a = gameManager.players[0];
+			final b = gameManager.players[1];
+			// trace( 'isActive ${a.isActive} : ${b.isActive}, baseHealth ${a.baseHealth}:${b.baseHealth}, mana ${a.mana}:${b.mana}, manaOutside  ${a.manaGainedOutsideOfBase}:${b.manaGainedOutsideOfBase}' );
 			if( a.isActive && !b.isActive ) {
 				a.score = 1;
 				b.score = 0;

@@ -14,14 +14,17 @@ class MainReferee {
 
 	public static function main() {
 		final args = Sys.args();
-		final repeats = args[0] == null ? 2 : parseInt( args[0] );
+		final repeats = args[0] == null ? 1 : parseInt( args[0] );
 		
-		final player0 = new Player( 0, CurrentAgents.agentMe.agentId, int( corners[0].x ), int( corners[0].y ));
-		final player1 = new Player( 1, CurrentAgents.agentOpp.agentId, int( corners[1].x ), int( corners[1].y ));
+		final agentMe = CurrentAgents.agentMe;
+		final agentOpp = CurrentAgents.agentOpp;
+
+		final playerMe = new Player( 0, agentMe.agentId, int( corners[0].x ), int( corners[0].y ));
+		final playerOpp = new Player( 1, agentOpp.agentId, int( corners[1].x ), int( corners[1].y ));
 		
-		final gameManager = new GameManager([ player0, player1 ]);
+		final gameManager = new GameManager([ playerMe, playerOpp ]);
 		
-		final referee = new Referee( gameManager, corners, CurrentAgents.agentMe, CurrentAgents.agentOpp );
+		final referee = new Referee( gameManager, corners, agentMe, agentOpp );
 
 		for( i in 0...repeats ) {
 			referee.init( i );
@@ -30,11 +33,11 @@ class MainReferee {
 			
 			if( scores[0] > scores[1] ) {
 				scoreTotals[0]++;
-				winner = player0.name;
+				winner = playerMe.name;
 			
 			} else if( scores[0] < scores[1] ) {
 				scoreTotals[1]++;
-				winner = player1.name;
+				winner = playerOpp.name;
 			
 			} else {
 				ties++;
@@ -44,7 +47,8 @@ class MainReferee {
 			Sys.println( 'Game $i  Winner: $winner   ${scoreTotals[0]}:${scoreTotals[1]}:$ties   ${Math.round( scoreTotals[0] / ( i + 1 ) * 100 )}% : ${Math.round( scoreTotals[1] / ( i + 1 ) * 100 )}% : ${Math.round( ties / ( i + 1 ) * 100 )}%' );
 		}
 		
-		Sys.println( '${player0.name} wins: ${scoreTotals[0]}  ${scoreTotals[0] / repeats * 100}%' );
-		Sys.println( '${player1.name} wins ${scoreTotals[1]} ${scoreTotals[1] / repeats * 100}%' );
+		Sys.println( '${playerMe.name} wins: ${scoreTotals[0]}  ${scoreTotals[0] / repeats * 100}%' );
+		Sys.println( '${playerOpp.name} wins: ${scoreTotals[1]} ${scoreTotals[1] / repeats * 100}%' );
+		Sys.println( 'Ties $ties ${ties / repeats * 100}%' );
 	}
 }
