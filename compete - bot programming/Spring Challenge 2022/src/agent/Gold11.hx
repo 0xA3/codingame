@@ -9,11 +9,11 @@ import game.Vector;
 
 using xa3.MathUtils;
 
-class Gold9 extends Agent2 {
+class Gold11 extends Agent2 {
 
 	public function new() {
 		super();
-		agentId = "Gold 9";
+		agentId = "Gold 11";
 	}
 	
 	static inline var ATTACKER = 0;
@@ -130,7 +130,10 @@ class Gold9 extends Agent2 {
 			rankMobs( importantMobs );
 
 			final defenders = defenderIds.map( index -> me.heros[index] );
-			final heroMobPairs = pairHerosWithClosestMobs( defenders, importantMobs );
+			final heroMobPairs:Array<HeroMobPair> = importantMobs.length > 0 && importantMobs[0].position.distanceSq( me.basePosition ) < 3000 * 3000
+				? [{ hero: defenders[0], mob: importantMobs[0] },{ hero: defenders[1], mob: importantMobs[0] }]
+				: pairHerosWithClosestMobs( defenders, importantMobs );
+				
 			var hasPushed = false;
 			for( heroMobPair in heroMobPairs ) {
 				
