@@ -7,6 +7,8 @@ import game.Hero;
 import game.Mob;
 import game.Vector;
 
+using xa3.MathUtils;
+
 class Gold7 extends Agent2 {
 
 	public function new() {
@@ -65,7 +67,7 @@ class Gold7 extends Agent2 {
 
 		final shieldMobs = mobs.filter( mob -> {
 			final isInHeroRange = mob.position.distanceSq( me.heros[ATTACKER].position ) <= Config.HERO_VIEW_RADIUS * Config.HERO_VIEW_RADIUS;
-			final enemyHerosNearMob = opp.heros.filter( hero -> hero.position.distanceSq( mob.position ) <= Config.HERO_ATTACK_RANGE * Config.HERO_ATTACK_RANGE ).length;
+			final enemyHerosNearMob = opp.heros.filter( hero -> hero.position.distanceSq( mob.position ) <= Config.HERO_ATTACK_RANGE * Config.HERO_ATTACK_RANGE ).length.max( 1 );
 			final stepsFromBase = mob.position.distance( opp.basePosition ) / Config.MOB_MOVE_SPEED;
 			final isUnKillable = stepsFromBase * ( Config.HERO_ATTACK_DAMAGE * enemyHerosNearMob ) <= mob.health;
 			return	mob.shieldDuration == 0 &&
@@ -134,9 +136,7 @@ class Gold7 extends Agent2 {
 					move( heroMobPair.hero.index, heroMobPair.mob.position, 'to ${heroMobPair.mob.id}' );
 				}
 			}
-
 		}
-
 	}
 
 	static inline var FILTER_DIST = 1200;
