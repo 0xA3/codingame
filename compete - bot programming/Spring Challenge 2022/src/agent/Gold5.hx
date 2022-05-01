@@ -55,23 +55,20 @@ class Gold5 extends Agent2 {
 	}
 
 	function attack() {
-		final mobsNearEnemyBase = mobs.filter( mob ->
-			mob.health > 10 &&
-			mob.shieldDuration == 0 &&
-			mob.position.distanceSq( opp.basePosition ) < 2000 * 2000 &&
-			me.heros[ATTACKER].position.distance( mob.position ) < Config.HERO_VIEW_RADIUS
-		);
-		
-		sortMobsByDistance( mobsNearEnemyBase, opp.basePosition );
-		final mobIsInPushRange = mobs.filter( mob -> mob.shieldDuration == 0 && me.heros[ATTACKER].position.distance( mob.position ) < Config.SPELL_WIND_RADIUS ).length > 0;
-
 		final patrolProgress = Math.sin( turn / PATROL_FREQUENCY * Math.PI * 2 ) * Math.PI / 6;
 		attackPosition.x = opp.basePosition.x + Math.sin( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
 		attackPosition.y = opp.basePosition.y + Math.cos( attackAngle + patrolProgress ) * Config.BASE_ATTRACTION_RADIUS;
 
-		if( me.mana >= Config.SPELL_PROTECT_COST && mobsNearEnemyBase.length > 0 ) {
-			shield( ATTACKER, mobsNearEnemyBase[0].id, 'shield ${mobsNearEnemyBase[0].id}' );
-		} else if( me.mana >= Config.SPELL_WIND_COST && mobIsInPushRange ) {
+		final pushMobs = mobs.filter( mob ->
+			mob.health > 10 &&
+			mob.shieldDuration == 0 &&
+			me.heros[ATTACKER].position.distance( mob.position ) < Config.SPELL_WIND_RADIUS
+		);
+		sortMobsByDistance( pushMobs, opp.basePosition );
+
+		// if( me.mana >= Config.SPELL_PROTECT_COST && mobsNearEnemyBase.length > 0 ) {
+			// shield( ATTACKER, mobsNearEnemyBase[0].id, 'shield ${mobsNearEnemyBase[0].id}' );
+		if( me.mana >= Config.SPELL_WIND_COST && pushMobs.length > 0 ) {
 			push( ATTACKER, opp.basePosition, 'push inside' );
 			commandQueue.push( 'MOVE ${opp.basePosition}' );
 		} else {
