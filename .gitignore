@@ -1,8 +1,11 @@
+*.jpg
 *.js
 *.map
 !*manual*.js
 *.hl
 *.lua
+*.pdf
+*.psd
 *.py
 *.url
 *.jpg

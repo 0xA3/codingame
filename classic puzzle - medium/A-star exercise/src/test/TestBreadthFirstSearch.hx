@@ -10,7 +10,7 @@ class TestBreadthFirstSearch extends buddy.BuddySuite {
 	public function new() {
 		
 		describe( "Test BreadthFirstSearch", {
-			
+
 			it( "3-node Graph", {
 				
 				final input =

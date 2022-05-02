@@ -32,7 +32,7 @@ class UniformCostSearch { // Dijkstra’s Algorithm
 						frontier.sort();
 					}
 					nextNode.visited = true;
-					CodinGame.printErr( frontier );
+					// CodinGame.printErr( frontier );
 				}
 			}
 		}

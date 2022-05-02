@@ -10,7 +10,7 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 	public function new() {
 		
 		describe( "Test UniformCostSearch", {
-
+@include
 			it( "3-node Graph", {
 				
 				final input =
@@ -21,6 +21,7 @@ class TestUniformCostSearch extends buddy.BuddySuite {
 				1 2 20";
 
 				final p = ParseInput.parse( input );
+				trace( p );
 				final nodes = Main.createNodes( p.n, p.distances, p.edges );
 				final path = UniformCostSearch.getPath( nodes, p.s, p.g );
 				path.toString().should.be( "[0,1,2]" );

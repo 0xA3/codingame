@@ -1,6 +1,6 @@
 using Lambda;
 
-class GreedyBestFirstSearch { // Dijkstra’s Algorithm
+class GreedyBestFirstSearch {
 	
 	public static function getPath( nodes:Array<PathNode>, start:Int, goal:Int ) {
 		
@@ -14,7 +14,7 @@ class GreedyBestFirstSearch { // Dijkstra’s Algorithm
 		while( !frontier.isEmpty()) {
 			final currentNode = frontier.pop();
 			if( currentNode.id == goal ) {
-				CodinGame.printErr( 'found goal' );
+				// CodinGame.printErr( 'found goal' );
 				return backtrack( nodes, start, goal );
 			}
 			
@@ -27,7 +27,7 @@ class GreedyBestFirstSearch { // Dijkstra’s Algorithm
 					nextNode.previous = currentNode.id;
 					frontier.add( nextNode );
 					nextNode.visited = true;
-					CodinGame.printErr( frontier );
+					// CodinGame.printErr( frontier );
 				}
 			}
 		}
