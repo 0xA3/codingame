@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug",
+			"request": "launch",
+			"type": "hl",
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Build"
+		},
+		{
+			"name": "Haxe Interpreter",
+			"type": "haxe-eval",
+			"request": "launch"
+		}
+	]
+}
