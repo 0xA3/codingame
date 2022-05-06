@@ -9,9 +9,6 @@ class SwitchButton {
 	final bitmap1:Bitmap;
 	final bitmap2:Bitmap;
 	
-	var currentBitmap:Bitmap;
-	var otherBitmap:Bitmap;
-
 	public function new( interactive:Interactive, bitmap1:Bitmap, bitmap2:Bitmap ) {
 		this.interactive = interactive;
 		this.bitmap1 = bitmap1;
@@ -27,4 +24,18 @@ class SwitchButton {
 			bitmap2.alpha = 1;
 		}
 	}
+
+	public function setState( state:Int ) {
+		switch state {
+			case 0:
+				bitmap1.visible = true;
+				bitmap2.visible = false;
+			case 1:
+				bitmap1.visible = false;
+				bitmap2.visible = true;
+			default: throw 'Error: state must be 0 or 1';
+		}
+	}
+
+	public dynamic function click( e:hxd.Event ) {}
 }
