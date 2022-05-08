@@ -36,8 +36,8 @@ class EntityCreator {
 	}
 
 	public static function createButtons( container:Object, library:GameplayerLibrary ) {
-		final buttonsMap = Json.parse( hxd.Res.load( "buttons_map.json" ).toText() );
-		final buttonsTile = hxd.Res.buttons.toTile();
+		final buttonsMap = Json.parse( hxd.Res.load( "gameplayer/buttons_map.json" ).toText() );
+		final buttonsTile = hxd.Res.gameplayer.buttons.toTile();
 
 		final rewind = new Bitmap( createSubTile( buttonsTile, buttonsMap.frames.end.frame ));
 		final prev = new Bitmap( createSubTile( buttonsTile, buttonsMap.frames.next.frame ));
@@ -115,7 +115,7 @@ class EntityCreator {
 	}
 
 	static function createTextfield( container:Object, library:GameplayerLibrary ) {
-		var font = hxd.Res.OpenSans10.toFont();
+		var font = hxd.Res.gameplayer.OpenSans10.toFont();
 		var textfield = new h2d.Text( font, container );
 		textfield.x = 170;
 		textfield.y = -33;
@@ -182,7 +182,7 @@ class EntityCreator {
 		rectangle3.beginFill( 0xf2bb13 );
 		rectangle3.drawRect( 0, 0, 70, 28 );
 		rectangle3.endFill();
-		final tooltipText = new Text( hxd.Res.OpenSans9.toFont(), tooltipContainer );
+		final tooltipText = new Text( hxd.Res.gameplayer.OpenSans9.toFont(), tooltipContainer );
 		tooltipText.textAlign = Center;
 		tooltipText.text = "0/0";
 		tooltipText.textColor = 0x252e38;

@@ -7,7 +7,7 @@ class GameplayerMain extends hxd.App {
 
 	static function main() {
 		hxd.Res.initEmbed();
-		new Main();
+		new GameplayerMain();
 	}
 
 	override function init() {

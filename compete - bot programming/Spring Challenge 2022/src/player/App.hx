@@ -1,6 +1,7 @@
 package player;
 
 import gameengine.core.GameManager;
+import gameplayer.Gameplayer;
 import h2d.Interactive;
 import h2d.Object;
 import hxd.Window;
@@ -115,8 +116,8 @@ class App extends hxd.App {
 
 	override function update( dt:Float ) {
 		gameplayer.update( dt );
-		// if( s2d.mouseY < sliderContainer.y - 10 ) {
-			// gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
-		// }
+		if( s2d.mouseY < stage.height - Gameplayer.HEIGHT ) {
+			gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
+		}
 	}
 }

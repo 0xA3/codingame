@@ -13,6 +13,7 @@ import hxd.Window;
 class Gameplayer {
 	
 	static final DEFAULT_WIDTH = 800;
+	public static final HEIGHT = 58;
 
 	final s2d:Scene;
 	final window:Window;
@@ -61,7 +62,7 @@ class Gameplayer {
 		return maxFrame;
 	}
 	
-	public function init( framesPerSecond:Float ) {
+	public function init( framesPerSecond = 1.0 ) {
 		EntityCreator.populateLibrary( window, new Object( s2d ), library );
 		try { library.verify(); }
 		catch( e ) {
@@ -80,7 +81,6 @@ class Gameplayer {
 		bEnd = library.bEnd;
 		slider = library.slider;
 		tooltip = library.tooltip;
-		slider.onChange = onSliderChange;
 		
 		bRewind.onClick = rewind;
 		bPrev.onClick = prev;
@@ -89,8 +89,9 @@ class Gameplayer {
 		bEnd.onClick = end;
 		frameCounter = library.frameCounter;
 
-		slider.onPush = tooltip.show;
+		slider.onPush = onSliderPush;
 		slider.onRelease = tooltip.hide;
+		slider.onChange = onSliderChange;
 
 		bRewind.deactivate();
 		bPrev.deactivate();
@@ -148,7 +149,7 @@ class Gameplayer {
 
 	public function prev( ?e:hxd.Event ) {
 		pause();
-		final frame = currentFrame % 1 < 0.5 ? Math.floor( currentFrame - 1 ) : Math.floor( currentFrame );
+		final frame = currentFrame % 1 < 0.1 ? Math.floor( currentFrame - 1 ) : Math.floor( currentFrame );
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
@@ -182,7 +183,7 @@ class Gameplayer {
 	
 	public function next( ?e:hxd.Event ) {
 		pause();
-		final frame = Math.floor( currentFrame + 1 );
+		final frame = currentFrame % 1 > 0.9 ? Math.floor( currentFrame + 2 ) : Math.floor( currentFrame + 1 );
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
@@ -203,6 +204,11 @@ class Gameplayer {
 		var scaleX = window.width / DEFAULT_WIDTH;
 		gameplayerBackground.scaleX = scaleX;
 		slider.resize( scaleX );
+	}
+	
+	function onSliderPush() {
+		pause();
+		tooltip.show();
 	}
 	
 	function onSliderChange() {
