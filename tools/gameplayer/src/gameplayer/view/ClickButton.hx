@@ -33,7 +33,6 @@ class ClickButton {
 			interactive.onClick = onClick;
 			isActivated = true;
 		}
-		
 	}
 
 	public function deactivate() {

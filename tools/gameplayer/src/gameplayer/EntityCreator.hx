@@ -3,9 +3,11 @@ package gameplayer;
 import gameplayer.view.ClickButton;
 import gameplayer.view.Slider;
 import gameplayer.view.SwitchButton;
+import gameplayer.view.Tooltip;
 import h2d.Bitmap;
 import h2d.Interactive;
 import h2d.Object;
+import h2d.Text;
 import h2d.Tile;
 import haxe.Json;
 import hxd.Window;
@@ -16,7 +18,9 @@ class EntityCreator {
 		library.gameplayerContainer = container;
 		createBackground( container, library );
 		createButtons( container, library );
-		createScrollbar( window, container, library );
+		createTextfield( container, library );
+		createSlider( window, container, library );
+		createTooltip(  window, container, library );
 	}
 
 	public static function createBackground( container:Object, library:GameplayerLibrary ) {
@@ -42,6 +46,7 @@ class EntityCreator {
 		final next = new Bitmap( createSubTile( buttonsTile, buttonsMap.frames.next.frame ));
 		final end = new Bitmap( createSubTile( buttonsTile, buttonsMap.frames.end.frame ));
 		final handle = new Bitmap( createSubTile( buttonsTile, buttonsMap.frames.drag.frame ));
+		final tooltipArrow = new Bitmap( createSubTile( buttonsTile, buttonsMap.frames.tooltip_arrow.frame ));
 		
 		rewind.scaleX = -1;
 		prev.scaleX = -1;
@@ -66,6 +71,7 @@ class EntityCreator {
 		library.bNext = createClickButton( bContainers[3], interactives[3], next );
 		library.bEnd = createClickButton( bContainers[4], interactives[4], end );
 		library.handle = handle;
+		library.tooltipArrow = tooltipArrow;
 	}
 
 	static function createSubTile( tile:Tile, frame:{ x:Int, y:Int, w:Int, h:Int } ) {
@@ -108,7 +114,17 @@ class EntityCreator {
 		rectangle.alpha = 0.25;
 	}
 
-	public static function createScrollbar( window:Window, container:Object, library:GameplayerLibrary ) {
+	static function createTextfield( container:Object, library:GameplayerLibrary ) {
+		var font = hxd.Res.OpenSans10.toFont();
+		var textfield = new h2d.Text( font, container );
+		textfield.x = 170;
+		textfield.y = -33;
+		textfield.text = "0/0";
+
+		library.frameCounter = textfield;
+	}
+
+	static function createSlider( window:Window, container:Object, library:GameplayerLibrary ) {
 		final sliderContainer = new Object( container );
 		sliderContainer.y = -44;
 
@@ -136,9 +152,10 @@ class EntityCreator {
 		handleContainer.y = -4;
 		
 		final handle = library.handle;
-		handle.x = -handle.tile.width / 2;
-		handle.y = -handle.tile.height / 2;
-		handleContainer.addChild( handle );
+		// handle.x = -handle.tile.width / 2;
+		handle.tile.setCenterRatio();
+		handle.y = -4;
+		sliderContainer.addChild( handle );
 
 		library.sliderContainer = sliderContainer;
 		library.slider = new Slider(
@@ -147,8 +164,37 @@ class EntityCreator {
 			backgroundContainer,
 			barContainer,
 			barInteractiveContainer,
-			handleContainer,
+			handle,
 			barInteractive
+		);
+	}
+
+	static function createTooltip( window:Window, container:Object, library:GameplayerLibrary ) {
+		
+		final tooltipArrow = library.tooltipArrow;
+		tooltipArrow.tile.setCenterRatio( 0.5, 1 );
+		tooltipArrow.y = -62;
+		tooltipArrow.visible = false;
+		container.addChild( tooltipArrow );
+
+		final tooltipContainer = new Object( container );
+		tooltipContainer.y = -96;
+		final rectangle3 = new h2d.Graphics( tooltipContainer );
+		rectangle3.beginFill( 0xf2bb13 );
+		rectangle3.drawRect( 0, 0, 70, 28 );
+		rectangle3.endFill();
+		final tooltipText = new Text( hxd.Res.OpenSans9.toFont(), tooltipContainer );
+		tooltipText.textAlign = Center;
+		tooltipText.text = "0/0";
+		tooltipText.textColor = 0x252e38;
+		tooltipText.maxWidth = 70;
+		tooltipText.y = 5;
+		
+		library.tooltip = new Tooltip(
+			window,
+			tooltipArrow,
+			tooltipContainer,
+			tooltipText
 		);
 	}
 }

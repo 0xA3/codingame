@@ -1,10 +1,13 @@
 package gameplayer;
 
+import Std.int;
 import gameplayer.view.ClickButton;
 import gameplayer.view.Slider;
 import gameplayer.view.SwitchButton;
+import gameplayer.view.Tooltip;
 import h2d.Object;
 import h2d.Scene;
+import h2d.Text;
 import hxd.Window;
 
 class Gameplayer {
@@ -23,8 +26,10 @@ class Gameplayer {
 	var bNext:ClickButton;
 	var bEnd:ClickButton;
 	var bPlay:SwitchButton;
+	var frameCounter:Text;
 
 	public var slider:Slider;
+	public var tooltip:Tooltip;
 
 	var currentFrame = -1.0;
 	
@@ -35,12 +40,9 @@ class Gameplayer {
 
 	public var maxFrame(default, set):Int = 0;
 	function set_maxFrame( max:Int ) {
-		trace( 'set_maxFrame $max' );
 		if( max == maxFrame ) return max;
 		if( max > maxFrame ) {
-			trace( 'max > maxFrame' );
 			if( currentFrame == maxFrame ) {
-				trace( 'currentFrame == maxFrame' );
 				bNext.activate();
 				bEnd.activate();
 			}
@@ -52,7 +54,8 @@ class Gameplayer {
 			}
 		}
 		maxFrame = max;
-		slider.update( currentFrame / maxFrame );
+		slider.update( currentFrame, maxFrame );
+		frameCounter.text = '${int( currentFrame )}/$maxFrame';
 		return maxFrame;
 	}
 	
@@ -72,6 +75,7 @@ class Gameplayer {
 		bNext = library.bNext;
 		bEnd = library.bEnd;
 		slider = library.slider;
+		tooltip = library.tooltip;
 		slider.onChange = onSliderChange;
 		
 		bRewind.onClick = rewind;
@@ -79,6 +83,10 @@ class Gameplayer {
 		bPlay.onClick = playPause;
 		bNext.onClick = next;
 		bEnd.onClick = end;
+		frameCounter = library.frameCounter;
+
+		slider.onPush = tooltip.show;
+		slider.onRelease = tooltip.hide;
 
 		bRewind.deactivate();
 		bPrev.deactivate();
@@ -94,7 +102,7 @@ class Gameplayer {
 	public function update( dt:Float ) {
 		if( state == Playing ) {
 			final frame = Math.min( maxFrame, currentFrame + dt / 60 );
-			slider.update( frame / maxFrame );
+			slider.update( frame, maxFrame );
 			updateButtons( frame );
 		}
 	}
@@ -119,12 +127,13 @@ class Gameplayer {
 				bEnd.deactivate();
 			}
 		}
+		frameCounter.text = '${int( frame )}/$maxFrame';
 	}
 
 	public function rewind( ?e:hxd.Event ) {
 		pause();
 		final frame = 0;
-		slider.update( frame / maxFrame );
+		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
 	}
@@ -132,12 +141,13 @@ class Gameplayer {
 	public function prev( ?e:hxd.Event ) {
 		pause();
 		final frame = currentFrame % 1 < 0.5 ? Math.floor( currentFrame - 1 ) : Math.floor( currentFrame ) ;
-		slider.update( frame / maxFrame );
+		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
 	}
 	
 	public function playPause( ?e:hxd.Event ) {
+		trace( 'playPause' );
 		switch state {
 			case Paused: play();
 			case Playing: pause();
@@ -163,7 +173,7 @@ class Gameplayer {
 	public function next( ?e:hxd.Event ) {
 		pause();
 		final frame = Math.floor( currentFrame + 1 );
-		slider.update( frame / maxFrame );
+		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
 	}
@@ -171,7 +181,7 @@ class Gameplayer {
 	public function end( ?e:hxd.Event ) {
 		pause();
 		final frame = maxFrame;
-		slider.update( frame / maxFrame );
+		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
 	}
@@ -186,6 +196,7 @@ class Gameplayer {
 	function onSliderChange() {
 		final frame = slider.dragFraction * maxFrame;
 		updateButtons( frame );
+		tooltip.update( frame, maxFrame );
 		currentFrame = frame;
 		onChange();
 	}

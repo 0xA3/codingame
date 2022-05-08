@@ -3,8 +3,10 @@ package gameplayer;
 import gameplayer.view.ClickButton;
 import gameplayer.view.Slider;
 import gameplayer.view.SwitchButton;
+import gameplayer.view.Tooltip;
 import h2d.Bitmap;
 import h2d.Object;
+import h2d.Text;
 
 class GameplayerLibrary {
 
@@ -17,10 +19,14 @@ class GameplayerLibrary {
 	public var bNext:ClickButton;
 	public var bEnd:ClickButton;
 
+	public var frameCounter:Text;
+
 	public var handle:Bitmap;
+	public var tooltipArrow:Bitmap;
 
 	public var sliderContainer:Object;
 	public var slider:Slider;
+	public var tooltip:Tooltip;
 
 	public function new() {}
 

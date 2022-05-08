@@ -1,7 +1,9 @@
 package gameplayer.view;
 
+import h2d.Bitmap;
 import h2d.Interactive;
 import h2d.Object;
+import h2d.Text;
 import hxd.Event;
 import hxd.Window;
 
@@ -12,10 +14,10 @@ sliderContainer y -44
 			rectangle
 		barContainer
 			rectangle
-	barInteractiveContainer
-		barInteractive
 	handleContainer
 		handle
+	barInteractiveContainer
+		barInteractive
 */
 
 class Slider {
@@ -28,8 +30,7 @@ class Slider {
 	final backgroundContainer:Object;
 	final barContainer:Object;
 	final barInteractiveContainer:Object;
-	final handleContainer:Object;
-
+	final handle:Bitmap;
 	final barInteractive:Interactive;
 
 	var isDragging = false;
@@ -41,7 +42,7 @@ class Slider {
 		backgroundContainer:Object,
 		barContainer:Object,
 		barInteractiveContainer:Object,
-		handleContainer:Object,
+		handle:Bitmap,
 		barInteractive:Interactive
 	 ) {
 		this.window = window;
@@ -49,20 +50,22 @@ class Slider {
 		this.backgroundContainer = backgroundContainer;
 		this.barContainer = barContainer;
 		this.barInteractiveContainer = barInteractiveContainer;
-		this.handleContainer = handleContainer;
+		this.handle = handle;
 		this.barInteractive = barInteractive;
 
 		barInteractive.onOver = e -> expand();
 		barInteractive.onOut = e -> { if( !isDragging ) contract(); }
 		barInteractive.onPush = e -> {
 			isDragging = true;
-			slide();
+			onPush();
+			onSlide();
 			window.addEventTarget( onMove );
 		}
 		
 		barInteractive.onRelease = e -> {
 			isDragging = false;
 			window.removeEventTarget( onMove );
+			onRelease();
 		}
 
 		barInteractive.onReleaseOutside = e -> contract();
@@ -72,44 +75,46 @@ class Slider {
 
 	function onMove( e:hxd.Event ) {
 		switch e.kind {
-			case EMove: slide();
+			case EMove: onSlide();
 			default: // no-op
 		}
 	}
 
-	function slide() {
+	function onSlide() {
 		final mouseX = window.mouseX;	
-		handleContainer.x = mouseX;
+		handle.x = mouseX;
 		dragFraction = mouseX / window.width;
 		barContainer.scaleX = backgroundContainer.scaleX * dragFraction;
 		onChange();
 	}
 
-	public function update( fraction:Float ) {
-		dragFraction = fraction;
-		final x = fraction * window.width;
+	public function update( frame:Float, maxFrame:Int ) {
+		dragFraction = frame / maxFrame;
+		final x = dragFraction * window.width;
 		barContainer.scaleX = backgroundContainer.scaleX * dragFraction;
-		handleContainer.x = x;
+		handle.x = x;
 	}
-
-	public dynamic function onChange() { }
 
 	function contract() {
 		barHeightContainer.scaleY = HEIGHT_CONTRACTED / HEIGHT_EXPANDED;
-		handleContainer.y = -HEIGHT_CONTRACTED / 2;
-		handleContainer.scaleX = handleContainer.scaleY = 0.1;
+		handle.y = -HEIGHT_CONTRACTED / 2;
+		handle.scaleX = handle.scaleY = 0.1;
 	}
 
 	function expand() {
 		barHeightContainer.scaleY = 1;
-		handleContainer.y = -HEIGHT_EXPANDED / 2;
-		handleContainer.scaleX = handleContainer.scaleY = 1;
+		handle.y = -HEIGHT_EXPANDED / 2;
+		handle.scaleX = handle.scaleY = 1;
 	}
 
 	public function resize( scaleX:Float ) {
 		backgroundContainer.scaleX = scaleX;
 		barInteractiveContainer.scaleX = scaleX;
 		barContainer.scaleX = scaleX * dragFraction;
-		handleContainer.x = dragFraction * window.width;
+		handle.x = dragFraction * window.width;
 	}
+
+	public dynamic function onChange() { }
+	public dynamic function onPush() { }
+	public dynamic function onRelease() { }
 }
