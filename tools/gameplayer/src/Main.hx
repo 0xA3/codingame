@@ -12,6 +12,12 @@ class Main extends hxd.App {
 
 	override function init() {
 		gamePlayer = new Gameplayer( s2d, Window.getInstance() );
-		gamePlayer.init();	
+		gamePlayer.init();
+
+		gamePlayer.maxFrame = 10;
+	}
+
+	override function update( dt:Float ) {
+		gamePlayer.update( dt );
 	}
 }

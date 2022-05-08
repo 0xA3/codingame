@@ -1,7 +1,7 @@
 package gameplayer;
 
 import gameplayer.view.ClickButton;
-import gameplayer.view.ScrollBar;
+import gameplayer.view.Slider;
 import gameplayer.view.SwitchButton;
 import h2d.Object;
 import h2d.Scene;
@@ -13,108 +13,182 @@ class Gameplayer {
 
 	final s2d:Scene;
 	final window:Window;
-	var container:Object;
-	var background:Object;
+	final library = new GameplayerLibrary();
+	var gameplayerContainer:Object;
+	var gameplayerBackground:Object;
 	var state:TPlayerState = Paused;
 
-	public var bRewind(default, null):ClickButton;
-	public var bPrev(default, null):ClickButton;
-	public var bNext(default, null):ClickButton;
-	public var bEnd(default, null):ClickButton;
-	public var bPlay(default, null):SwitchButton;
+	var bRewind:ClickButton;
+	var bPrev:ClickButton;
+	var bNext:ClickButton;
+	var bEnd:ClickButton;
+	var bPlay:SwitchButton;
 
-	public var scrollbar:ScrollBar;
-	
-	public var currentFrame(default, set):Float = 0;
-	function set_currentFrame( frame:Float ) {
-		if( frame != currentFrame ) {
-			update( frame );
-			this.currentFrame = frame;
-		}
-		return frame;
-	}
-	
-	public var maxFrame(default, set):Int = 0;
-	function set_maxFrame( maxFrame:Int ) {
-		if( this.maxFrame != maxFrame ) {
-			this.maxFrame = maxFrame;
-			if( currentFrame > maxFrame ) currentFrame = maxFrame;
-			else update( currentFrame );
-		}
-		return maxFrame;
-	}
+	public var slider:Slider;
 
+	var currentFrame = -1.0;
+	
 	public function new( s2d:Scene, window:Window ) {
 		this.s2d = s2d;
 		this.window = window;
 	}
 
-	public  function init() {
-		container = new Object( s2d );
-		background = EntityCreator.createBackground( container );
-		final bitmaps = EntityCreator.createBitmaps( container );
-		final interactives = EntityCreator.createInteractives( container );
-		
-		final clickButtons = [];
-		for( i in 0...5 ) {
-			switch i {
-				case 0, 1, 3, 4:
-					clickButtons.push( new ClickButton( interactives[i], bitmaps[i] ));
-				default: // no-op
+	public var maxFrame(default, set):Int = 0;
+	function set_maxFrame( max:Int ) {
+		trace( 'set_maxFrame $max' );
+		if( max == maxFrame ) return max;
+		if( max > maxFrame ) {
+			trace( 'max > maxFrame' );
+			if( currentFrame == maxFrame ) {
+				trace( 'currentFrame == maxFrame' );
+				bNext.activate();
+				bEnd.activate();
+			}
+		} else { // max < maxFrame
+			if( currentFrame >= max ) {
+				bNext.deactivate();
+				bEnd.deactivate();
+				currentFrame = max;
 			}
 		}
-		bRewind = clickButtons[0];
-		bPrev = clickButtons[1];
-		bNext = clickButtons[2];
-		bEnd = clickButtons[3];
-		bPlay = new SwitchButton( interactives[2], bitmaps[2], bitmaps[5] );
+		maxFrame = max;
+		slider.update( currentFrame / maxFrame );
+		return maxFrame;
+	}
+	
+	public function init() {
+		EntityCreator.populateLibrary( window, new Object( s2d ), library );
+		try { library.verify(); }
+		catch( e ) {
+			trace( e );
+			Sys.exit( 0 );
+		}
 		
-		final scrollbarContainer = new Object( container );
-		scrollbarContainer.y = -44;
-		scrollbar = EntityCreator.createScrollbar( scrollbarContainer );
+		gameplayerContainer = library.gameplayerContainer;
+		gameplayerBackground = library.gameplayerBackground;
+		bRewind = library.bRewind;
+		bPrev = library.bPrev;
+		bPlay = library.bPlay;
+		bNext = library.bNext;
+		bEnd = library.bEnd;
+		slider = library.slider;
+		slider.onChange = onSliderChange;
+		
+		bRewind.onClick = rewind;
+		bPrev.onClick = prev;
+		bPlay.onClick = playPause;
+		bNext.onClick = next;
+		bEnd.onClick = end;
+
+		bRewind.deactivate();
+		bPrev.deactivate();
+		bNext.deactivate();
+		bEnd.deactivate();
 
 		window.addResizeEvent( onResize );
 		onResize();
+		updateButtons( 0 );
 		currentFrame = 0;
 	}
 	
-	function play() {
-		if( state == Paused ) {
-			state = Playing;
+	public function update( dt:Float ) {
+		if( state == Playing ) {
+			final frame = Math.min( maxFrame, currentFrame + dt / 60 );
+			slider.update( frame / maxFrame );
+			updateButtons( frame );
+		}
+	}
+
+	function updateButtons( frame:Float ) {
+		if( frame < currentFrame ) {
+			if( frame <= 0 ) {
+				bRewind.deactivate();
+				bPrev.deactivate();
+			}
+			if( currentFrame == maxFrame ) {
+				bNext.activate();
+				bEnd.activate();
+			}
+		} else if( frame > currentFrame ) {
+			if( currentFrame == 0 ) {
+				bRewind.activate();
+				bPrev.activate();
+			}
+			if( frame >= maxFrame ) {
+				bNext.deactivate();
+				bEnd.deactivate();
+			}
+		}
+	}
+
+	public function rewind( ?e:hxd.Event ) {
+		pause();
+		final frame = 0;
+		slider.update( frame / maxFrame );
+		updateButtons( frame );
+		currentFrame = frame;
+	}
+
+	public function prev( ?e:hxd.Event ) {
+		pause();
+		final frame = currentFrame % 1 < 0.5 ? Math.floor( currentFrame - 1 ) : Math.floor( currentFrame ) ;
+		slider.update( frame / maxFrame );
+		updateButtons( frame );
+		currentFrame = frame;
+	}
+	
+	public function playPause( ?e:hxd.Event ) {
+		switch state {
+			case Paused: play();
+			case Playing: pause();
+		}
+	}
+	
+	public function pause( ?e:hxd.Event ) {
+		if( state == Playing ) {
+			trace( 'onPause' );
+			state = Paused;
 			bPlay.setState( 0 );
 		}
 	}
 
-	function update( frame:Float ) { trace( 'update $frame' );
-		if( frame == currentFrame ) return;
-		if( frame == 0 ) {
-			bRewind.deactivate();
-			bPrev.deactivate();
-			trace( 'deactivate rewind prev' );
-		} else if( currentFrame == 0 ) {
-			bRewind.activate();
-			bPrev.activate();
-			trace( 'activate rewind prev' );
+	public function play( ?e:hxd.Event ) {
+		if( state == Paused ) {
+			trace( 'onPlay' );
+			state = Playing;
+			bPlay.setState( 1 );
 		}
-		if( frame == maxFrame ) {
-			bNext.deactivate();
-			bEnd.deactivate();
-			if( state == Playing ) {
-				state = Paused;
-				bPlay.setState( 1 );
-			}
-			trace( 'deactivate next end' );
-		} else if( currentFrame == maxFrame ) {
-			bNext.activate();
-			bEnd.activate();
-			trace( 'activate next end' );
-		}
+	}
+	
+	public function next( ?e:hxd.Event ) {
+		pause();
+		final frame = Math.floor( currentFrame + 1 );
+		slider.update( frame / maxFrame );
+		updateButtons( frame );
+		currentFrame = frame;
+	}
+
+	public function end( ?e:hxd.Event ) {
+		pause();
+		final frame = maxFrame;
+		slider.update( frame / maxFrame );
+		updateButtons( frame );
+		currentFrame = frame;
 	}
 
 	function onResize() {
-		container.y = window.height;
+		gameplayerContainer.y = window.height;
 		var scaleX = window.width / DEFAULT_WIDTH;
-		background.scaleX = scaleX;
-		scrollbar.resize( scaleX );
+		gameplayerBackground.scaleX = scaleX;
+		slider.resize( scaleX );
 	}
+	
+	function onSliderChange() {
+		final frame = slider.dragFraction * maxFrame;
+		updateButtons( frame );
+		currentFrame = frame;
+		onChange();
+	}
+
+	public dynamic function onChange() { }
 }

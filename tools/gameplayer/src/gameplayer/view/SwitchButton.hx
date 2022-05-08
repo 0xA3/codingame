@@ -2,14 +2,17 @@ package gameplayer.view;
 
 import h2d.Bitmap;
 import h2d.Interactive;
+import h2d.Object;
 
 class SwitchButton {
 	
+	public final object:Object;
 	public final interactive:Interactive;
 	final bitmap1:Bitmap;
 	final bitmap2:Bitmap;
 	
-	public function new( interactive:Interactive, bitmap1:Bitmap, bitmap2:Bitmap ) {
+	public function new( object:Object, interactive:Interactive, bitmap1:Bitmap, bitmap2:Bitmap ) {
+		this.object = object;
 		this.interactive = interactive;
 		this.bitmap1 = bitmap1;
 		this.bitmap2 = bitmap2;
@@ -37,5 +40,5 @@ class SwitchButton {
 		}
 	}
 
-	public dynamic function click( e:hxd.Event ) {}
+	public dynamic function onClick( e:hxd.Event ) {}
 }
