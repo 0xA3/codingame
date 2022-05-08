@@ -1,5 +1,6 @@
 package gameplayer;
 
+import Std.int;
 import gameplayer.view.ClickButton;
 import gameplayer.view.Slider;
 import gameplayer.view.SwitchButton;
@@ -35,7 +36,6 @@ class EntityCreator {
 	}
 
 	public static function createButtons( container:Object, library:GameplayerLibrary ) {
-		
 		final buttonsMap = Json.parse( hxd.Res.load( "buttons_map.json" ).toText() );
 		final buttonsTile = hxd.Res.buttons.toTile();
 
@@ -100,8 +100,8 @@ class EntityCreator {
 
 	static function centerBitmap( width:Float, height:Float, bitmap:Bitmap ) {
 		bitmap.x = bitmap.scaleX > 0
-		? width / 2 - bitmap.tile.width / 2
-		: width / 2 + bitmap.tile.width / 2;
+		? int( width / 2 - bitmap.tile.width / 2 )
+		: int( width / 2 + bitmap.tile.width / 2 );
 		
 		bitmap.y = height / 2 - bitmap.tile.height / 2;
 	};
@@ -170,7 +170,6 @@ class EntityCreator {
 	}
 
 	static function createTooltip( window:Window, container:Object, library:GameplayerLibrary ) {
-		
 		final tooltipArrow = library.tooltipArrow;
 		tooltipArrow.tile.setCenterRatio( 0.5, 1 );
 		tooltipArrow.y = -62;

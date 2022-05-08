@@ -25,7 +25,7 @@ class SwitchButton {
 			bitmap1.alpha = 1;
 			bitmap2.alpha = 1;
 		}
-		interactive.onClick = onClick;
+		interactive.onClick = onInteractiveClick;
 	}
 
 	public function setState( state:Int ) {
@@ -40,7 +40,7 @@ class SwitchButton {
 		}
 	}
 
-	public dynamic function onClick( ?e:hxd.Event ) {
-		// trace( 'SwitchButton onClick' );
-	}
+	function onInteractiveClick( e:hxd.Event ) onClick();
+
+	public dynamic function onClick( ?e:hxd.Event ) { }
 }

@@ -9,6 +9,7 @@ import hxd.Window;
 class Tooltip {
 	
 	static inline var WIDTH = 70;
+	static inline var HALF_WIDTH = WIDTH / 2;
 
 	final window:Window;
 	final tooltipArrow:Bitmap;
@@ -33,7 +34,7 @@ class Tooltip {
 		tooltipText.text = '${int( frame )}/$maxFrame';
 		final x = frame / maxFrame * window.width;
 		tooltipArrow.x = x;
-		tooltipContainer.x = Math.max( 0, Math.min( window.width - 70, x - 35 ));
+		tooltipContainer.x = Math.max( 0, Math.min( window.width - WIDTH, x - HALF_WIDTH ));
 	}
 
 	public function show() {

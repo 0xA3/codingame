@@ -28,11 +28,13 @@ class Gameplayer {
 	var bPlay:SwitchButton;
 	var frameCounter:Text;
 
-	public var slider:Slider;
-	public var tooltip:Tooltip;
+	var slider:Slider;
+	var tooltip:Tooltip;
 
 	var currentFrame = -1.0;
 	
+	public var framesPerSecond = 1;
+
 	public function new( s2d:Scene, window:Window ) {
 		this.s2d = s2d;
 		this.window = window;
@@ -101,9 +103,11 @@ class Gameplayer {
 	
 	public function update( dt:Float ) {
 		if( state == Playing ) {
-			final frame = Math.min( maxFrame, currentFrame + dt / 60 );
+			final frame = Math.min( maxFrame, currentFrame + ( dt * framesPerSecond ));
 			slider.update( frame, maxFrame );
 			updateButtons( frame );
+			currentFrame = frame;
+			if( frame == maxFrame ) pause();
 		}
 	}
 
@@ -140,14 +144,14 @@ class Gameplayer {
 
 	public function prev( ?e:hxd.Event ) {
 		pause();
-		final frame = currentFrame % 1 < 0.5 ? Math.floor( currentFrame - 1 ) : Math.floor( currentFrame ) ;
+		final frame = currentFrame % 1 < 0.5 ? Math.floor( currentFrame - 1 ) : Math.floor( currentFrame );
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
 	}
 	
 	public function playPause( ?e:hxd.Event ) {
-		trace( 'playPause' );
+		// trace( 'playPause' );
 		switch state {
 			case Paused: play();
 			case Playing: pause();
@@ -156,17 +160,17 @@ class Gameplayer {
 	
 	public function pause( ?e:hxd.Event ) {
 		if( state == Playing ) {
-			trace( 'onPause' );
+			// trace( 'onPause' );
 			state = Paused;
-			bPlay.setState( 0 );
+			bPlay.setState( 1 );
 		}
 	}
 
 	public function play( ?e:hxd.Event ) {
 		if( state == Paused ) {
-			trace( 'onPlay' );
+			// trace( 'onPlay' );
 			state = Playing;
-			bPlay.setState( 1 );
+			bPlay.setState( 0 );
 		}
 	}
 	
