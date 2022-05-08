@@ -185,11 +185,6 @@ class GameView {
 		return -1 / 2 * ((k - 1) * (k - 3) - 1);
 	}
 
-	public function over( screenX:Float, screenY:Float, frame:Float ) {
-		overlayText.text = '${hxd.Math.fmt( frame )}';
-		adjustBox( screenX, screenY );
-	}
-
 	public function mouseOver( screenX:Float, screenY:Float, frame:FrameViewData ) {
 		final mapX = ( screenX / App.scaleFactor - X0 ) / scale;
 		final mapY = ( screenY / App.scaleFactor - Y0 ) / scale;
@@ -216,6 +211,10 @@ class GameView {
 			overlayText.text = overTexts.join( "\n" );
 		}
 		adjustBox( screenX, screenY );
+	}
+
+	public function mouseOut() {
+		if( overlay.visible == true ) overlay.visible = false;
 	}
 	
 	function adjustBox( screenX:Float, screenY:Float ) {

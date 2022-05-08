@@ -89,7 +89,6 @@ class App extends hxd.App {
 			final nextFrame = frameDatasets.length - 1;
 			gameplayer.maxFrame = nextFrame;
 			
-
 			// final previousFrame = Std.int( Math.max( 0, frameDatasets.length - 3 ));
 			// final currentFrame = frameDatasets.length - 2;
 			// gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], 0 );
@@ -106,18 +105,13 @@ class App extends hxd.App {
 		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
 		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
 		final subFrame = f - currentFrame;
-		over( f );
 		gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame );
-	}
-
-	function over( f:Float ) {
-		// gameView.over( s2d.mouseX, sliderContainer.y - 4, f );
 	}
 
 	override function update( dt:Float ) {
 		gameplayer.update( dt );
 		if( s2d.mouseY < stage.height - Gameplayer.HEIGHT ) {
 			gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
-		}
+		} else gameView.mouseOut();
 	}
 }
