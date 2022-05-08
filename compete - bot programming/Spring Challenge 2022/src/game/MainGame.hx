@@ -23,9 +23,7 @@ class MainGame {
 		final player1 = new Player( 1, "Opponent", int( corners[1].x ), int( corners[1].y ));
 		gameManager = new GameManager([ player0, player1 ]);
 
-		app = new player.App( gameManager );
-		
-		app.initComplete.handle(() -> startSimulation());
+		app = new player.App( gameManager, startSimulation );
 	}
 
 	static function startSimulation() {

@@ -33,7 +33,7 @@ class Gameplayer {
 
 	var currentFrame = -1.0;
 	
-	public var framesPerSecond = 1;
+	var framesPerSecond = 1.0;
 
 	public function new( s2d:Scene, window:Window ) {
 		this.s2d = s2d;
@@ -61,13 +61,15 @@ class Gameplayer {
 		return maxFrame;
 	}
 	
-	public function init() {
+	public function init( framesPerSecond:Float ) {
 		EntityCreator.populateLibrary( window, new Object( s2d ), library );
 		try { library.verify(); }
 		catch( e ) {
 			trace( e );
 			Sys.exit( 0 );
 		}
+	
+		this.framesPerSecond = framesPerSecond;
 		
 		gameplayerContainer = library.gameplayerContainer;
 		gameplayerBackground = library.gameplayerBackground;
@@ -108,6 +110,7 @@ class Gameplayer {
 			updateButtons( frame );
 			currentFrame = frame;
 			if( frame == maxFrame ) pause();
+			onChange( currentFrame );
 		}
 	}
 
@@ -140,6 +143,7 @@ class Gameplayer {
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
+		onChange( currentFrame );
 	}
 
 	public function prev( ?e:hxd.Event ) {
@@ -148,6 +152,7 @@ class Gameplayer {
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
+		onChange( currentFrame );
 	}
 	
 	public function playPause( ?e:hxd.Event ) {
@@ -171,6 +176,7 @@ class Gameplayer {
 			// trace( 'onPlay' );
 			state = Playing;
 			bPlay.setState( 0 );
+
 		}
 	}
 	
@@ -180,6 +186,7 @@ class Gameplayer {
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
+		onChange( currentFrame );
 	}
 
 	public function end( ?e:hxd.Event ) {
@@ -188,6 +195,7 @@ class Gameplayer {
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
+		onChange( currentFrame );
 	}
 
 	function onResize() {
@@ -202,8 +210,8 @@ class Gameplayer {
 		updateButtons( frame );
 		tooltip.update( frame, maxFrame );
 		currentFrame = frame;
-		onChange();
+		onChange( currentFrame );
 	}
 
-	public dynamic function onChange() { }
+	public dynamic function onChange( f:Float ) { }
 }

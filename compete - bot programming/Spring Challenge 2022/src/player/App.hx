@@ -23,10 +23,8 @@ class App extends hxd.App {
 	public static inline var CANVAS_WIDTH = 1724;
 	public static inline var CANVAS_HEIGHT = 970;
 	
-	public var initComplete(default, null):Signal<Noise>;
-	var initTrigger:SignalTrigger<Noise>;
-	
 	final gameManager:GameManager;
+	final onInitComplete:()->Void;
 	
 	var width = SCENE_WIDTH;
 	var height = SCENE_HEIGHT;
@@ -38,33 +36,34 @@ class App extends hxd.App {
 	final frameDatasets:Array<FrameViewData> = [];
 
 	var gameView:player.GameView;
-	var sliderContainer:Object;
-	var sliderView:view.SliderView;
+	var gameplayer:gameplayer.Gameplayer;
+	// var sliderContainer:Object;
+	// var sliderView:view.SliderView;
 	
-	public function new( gameManager:GameManager ) {
+	public function new( gameManager:GameManager, onInitComplete:()->Void ) {
 		super();
 		this.gameManager = gameManager;
-		
-		initTrigger = Signal.trigger();
-		initComplete = initTrigger.asSignal();
+		this.onInitComplete = onInitComplete;
 	}
 
 	override function init() {
-		
 		stage = Window.getInstance();
 		stage.addResizeEvent( onResize );
 		final scene = new Object( s2d );
 		final entityCreator = new player.EntityCreator();
 		entityCreator.createBackground( scene );
 		
-		sliderContainer = new Object( s2d );
-		sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame, over );
+		gameplayer = new gameplayer.Gameplayer( s2d, stage );
+		gameplayer.init( 2 );
+		gameplayer.onChange = goToFrame;
+		// sliderContainer = new Object( s2d );
+		// sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame, over );
 
 		gameView = new player.GameView( s2d, scene, entityCreator );
 		gameView.initEntities();
 		
 		onResize();
-		initTrigger.trigger( Noise );
+		onInitComplete();
 	}
 
 	public function setDimensions( width:Int, height:Int ) {
@@ -79,9 +78,6 @@ class App extends hxd.App {
 
 		final minScale = Math.min( scaleX, scaleY );
 		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
-
-		sliderContainer.y = stage.height - 40;
-		sliderView.width = stage.width;
 	}
 
 	public function addFrameViewData( dataset:FrameViewData ) {
@@ -90,7 +86,7 @@ class App extends hxd.App {
 
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
-			sliderView.maxValue = nextFrame;
+			gameplayer.maxFrame = nextFrame;
 			
 
 			// final previousFrame = Std.int( Math.max( 0, frameDatasets.length - 3 ));
@@ -114,12 +110,13 @@ class App extends hxd.App {
 	}
 
 	function over( f:Float ) {
-		gameView.over( s2d.mouseX, sliderContainer.y - 4, f );
+		// gameView.over( s2d.mouseX, sliderContainer.y - 4, f );
 	}
 
 	override function update( dt:Float ) {
-		if( s2d.mouseY < sliderContainer.y - 10 ) {
-			gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
-		}
+		gameplayer.update( dt );
+		// if( s2d.mouseY < sliderContainer.y - 10 ) {
+			// gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
+		// }
 	}
 }
