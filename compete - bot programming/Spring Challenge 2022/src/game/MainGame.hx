@@ -8,7 +8,7 @@ import gameengine.core.GameManager;
 class MainGame {
 	
 	static var seed:Int;
-	static var app:player.App;
+	static var app:viewer.App;
 
 	static final corners = [new Vector( 0, 0 ), new Vector( Config.MAP_WIDTH, Config.MAP_HEIGHT )];
 	static var gameManager:GameManager;
@@ -23,7 +23,7 @@ class MainGame {
 		final player1 = new Player( 1, "Opponent", int( corners[1].x ), int( corners[1].y ));
 		gameManager = new GameManager([ player0, player1 ]);
 
-		app = new player.App( gameManager, startSimulation );
+		app = new viewer.App( gameManager, startSimulation );
 	}
 
 	static function startSimulation() {

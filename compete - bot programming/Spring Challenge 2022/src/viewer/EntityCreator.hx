@@ -1,4 +1,4 @@
-package player;
+package viewer;
 
 import Std.int;
 import h2d.Bitmap;
@@ -6,8 +6,8 @@ import h2d.Flow;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Text;
-import player.CharacterView;
 import view.SliderView;
+import viewer.CharacterView;
 
 class EntityCreator {
 	
@@ -92,7 +92,7 @@ class EntityCreator {
 		textInput.maxWidth = 70;
 		textInput.textAlign = Right;
 
-		var slider = new player.SliderExt( 100, 10, flow );
+		var slider = new viewer.SliderExt( 100, 10, flow );
 		slider.minValue = min;
 		slider.maxValue = max;
 		slider.value = get();

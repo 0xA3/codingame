@@ -1,8 +1,8 @@
-package player;
+package viewer;
 
 import h2d.Object;
-import player.GameView.sX;
-import player.GameView.sY;
+import viewer.GameView.sX;
+import viewer.GameView.sY;
 
 class CharacterView {
 

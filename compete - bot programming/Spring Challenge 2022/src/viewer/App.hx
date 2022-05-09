@@ -1,4 +1,4 @@
-package player;
+package viewer;
 
 import gameengine.core.GameManager;
 import gameplayer.Gameplayer;
@@ -36,7 +36,7 @@ class App extends hxd.App {
 	var currentFrame:Int;
 	final frameDatasets:Array<FrameViewData> = [];
 
-	var gameView:player.GameView;
+	var gameView:viewer.GameView;
 	var gameplayer:gameplayer.Gameplayer;
 	// var sliderContainer:Object;
 	// var sliderView:view.SliderView;
@@ -51,7 +51,7 @@ class App extends hxd.App {
 		stage = Window.getInstance();
 		stage.addResizeEvent( onResize );
 		final scene = new Object( s2d );
-		final entityCreator = new player.EntityCreator();
+		final entityCreator = new viewer.EntityCreator();
 		entityCreator.createBackground( scene );
 		
 		gameplayer = new gameplayer.Gameplayer( s2d, stage );
@@ -60,7 +60,7 @@ class App extends hxd.App {
 		// sliderContainer = new Object( s2d );
 		// sliderView = entityCreator.createSlider( sliderContainer, "Frame", () -> 0, goToFrame, over );
 
-		gameView = new player.GameView( s2d, scene, entityCreator );
+		gameView = new viewer.GameView( s2d, scene, entityCreator );
 		gameView.initEntities();
 		
 		onResize();

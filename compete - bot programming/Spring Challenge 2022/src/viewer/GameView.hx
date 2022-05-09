@@ -1,4 +1,4 @@
-package player;
+package viewer;
 
 import Std.int;
 import game.Config;
@@ -8,11 +8,11 @@ import h2d.Graphics;
 import h2d.Object;
 import h2d.Scene;
 import h2d.Text;
-import player.App;
-import player.CharacterView;
-import player.EntityCreator;
 import view.Coord;
 import view.FrameViewData;
+import viewer.App;
+import viewer.CharacterView;
+import viewer.EntityCreator;
 
 using xa3.MathUtils;
 

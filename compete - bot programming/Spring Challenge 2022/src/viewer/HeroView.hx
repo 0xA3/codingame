@@ -1,4 +1,4 @@
-package player;
+package viewer;
 
 import h2d.Object;
 import h2d.Text;
