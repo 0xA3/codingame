@@ -1,13 +1,9 @@
 package viewer;
 
-import Std.int;
 import h2d.Bitmap;
-import h2d.Flow;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Text;
-import view.SliderView;
-import viewer.CharacterView;
 
 class EntityCreator {
 	
@@ -81,46 +77,4 @@ class EntityCreator {
 		final mob = new MobView( mobContainer, infoContainer, mobObject, healthBar, fullHealth );
 		return mob;
 	}
-
-	public function createSlider( scene:Object, label:String, get:Void -> Float, set:Float -> Void, over:Float -> Void, min:Float = 0., max:Float = 1. ) {
-		var flow = new h2d.Flow( scene );
-
-		flow.horizontalSpacing = 5;
-
-		var textInput = new h2d.Text( getFont(), flow );
-		textInput.text = label;
-		textInput.maxWidth = 70;
-		textInput.textAlign = Right;
-
-		var slider = new viewer.SliderExt( 100, 10, flow );
-		slider.minValue = min;
-		slider.maxValue = max;
-		slider.value = get();
-
-		var textInput = new h2d.TextInput( getFont(), flow );
-		textInput.text = "" + hxd.Math.fmt( slider.value );
-		slider.onChange = function() {
-			set( slider.value );
-			textInput.text = '${hxd.Math.fmt( slider.value )}';
-			flow.needReflow = true;
-		};
-		slider.onOverValue = () -> {
-			over( slider.overValue );
-		}
-		textInput.onChange = function() {
-			var v = Std.parseFloat( textInput.text );
-			if( Math.isNaN( v )) return;
-			slider.value = v;
-			set( v );
-		};
-		final setFrame = ( v:Float ) -> {
-			slider.value = v;
-			textInput.text = '${hxd.Math.fmt( v )}';
-			flow.needReflow = true;
-		}
-		return new SliderView( slider, setFrame );
-	}
-
-	function getFont() return hxd.res.DefaultFont.get();
-
 }

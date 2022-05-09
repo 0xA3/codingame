@@ -38,8 +38,6 @@ class App extends hxd.App {
 
 	var gameView:viewer.GameView;
 	var gameplayer:gameplayer.Gameplayer;
-	// var sliderContainer:Object;
-	// var sliderView:view.SliderView;
 	
 	public function new( gameManager:GameManager, onInitComplete:()->Void ) {
 		super();
