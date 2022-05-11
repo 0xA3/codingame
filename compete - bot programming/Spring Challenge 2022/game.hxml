@@ -7,7 +7,7 @@
 -cp src
 -D analyzer-optimize
 -D game
--D windowSize=862x532
-# -D windowSize=960x540
+# -D windowSize=960x587
+-D windowSize=1920x1127
 -main game.MainGame
 --hl bin/app.hl

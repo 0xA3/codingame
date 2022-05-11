@@ -4,6 +4,7 @@ import Std.int;
 import Std.parseInt;
 import agent.CurrentAgents;
 import gameengine.core.GameManager;
+import viewer.AssetConstants;
 
 class MainGame {
 	
@@ -18,6 +19,7 @@ class MainGame {
 		seed = args[0] == null ? 0 : parseInt( args[0] );
 		
 		hxd.Res.initEmbed();
+		AssetConstants.init();
 
 		final player0 = new Player( 0, "Me", int( corners[0].x ), int( corners[0].y ));
 		final player1 = new Player( 1, "Opponent", int( corners[1].x ), int( corners[1].y ));

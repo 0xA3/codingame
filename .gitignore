@@ -26,4 +26,10 @@ incoming
 *.dat
 *.bfnt
 node_modules
-/compete - bot programming/Spring Challenge 2022/res/spider_attack
+compete - bot programming/Spring Challenge 2022/res/spider_attack/beam.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_ball.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_glint.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_gust.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/heroes.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/HUD_background.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/main.json

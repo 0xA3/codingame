@@ -7,8 +7,8 @@ class HeroView extends CharacterView {
 
 	final textField:Text;
 
-	public function new( container:Object, infoContainer:Object, object:Object, textField:Text ) {
-		super( container, infoContainer, object );
+	public function new( container:Object, infoContainer:Object, object:Object, angleOffset:Float, textField:Text ) {
+		super( container, infoContainer, object, angleOffset );
 		this.textField = textField;
 	}
 

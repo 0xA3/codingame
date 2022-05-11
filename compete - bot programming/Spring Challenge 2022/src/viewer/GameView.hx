@@ -24,21 +24,24 @@ class GameView {
 	static inline var PADDING = 4;
 
 	public static final TAU = 2 * Math.PI;
-	static final scale = App.SCENE_WIDTH / Config.MAP_WIDTH;
+	public static final HPI = Math.PI / 2;
+	static final scale = App.CANVAS_WIDTH / Config.MAP_WIDTH;
 	public static function sX( x:Float ) return x * scale + X0;
 	public static function sY( y:Float ) return y * scale + Y0;
 
 	final s2d:Scene;
 
 	final timesFont = hxd.Res.times_new_roman_bold.toFont();
-	final heartY = 58;
-	final heartXs = [195, 226, 256, 1334, 1365, 1395];
+	final heartY = -30;
+	final heartXs = [147, 181, 215, 1416, 1450, 1484];
 
 	public final scene:Object;
 	final entityCreator:EntityCreator;
 	
-	final herosLayer:Object;
+	final backgroundLayer:Object;
 	final mobsLayer:Object;
+	final herosLayer:Object;
+	final hudLayer:Object;
 	final textLayer:Object;
 
 	final textfieldsMana:Array<Text>;
@@ -57,8 +60,10 @@ class GameView {
 		this.scene = scene;
 		this.entityCreator = entityCreator;
 
+		backgroundLayer = new Object( scene );
 		mobsLayer = new Object( scene );
 		herosLayer = new Object( scene );
+		hudLayer = new Object( scene );
 		textLayer = new Object( scene );
 
 		textfieldsMana = [
@@ -69,7 +74,7 @@ class GameView {
 		textfieldsMana[0].x = 446;
 		textfieldsMana[0].y = 54;
 		textfieldsMana[1].textAlign = Right;
-		textfieldsMana[1].x = 1582;
+		textfieldsMana[1].x = 1782;
 		textfieldsMana[1].y = 54;
 
 		overlay = new Object( s2d );
@@ -86,6 +91,12 @@ class GameView {
 
 		overlay.x = 500;
 		overlay.y = 500;
+
+	}
+
+	public function init() {
+		entityCreator.createHUD( backgroundLayer, mobsLayer, herosLayer, hudLayer, textLayer );
+		initEntities();
 	}
 
 	public function initEntities() {
@@ -167,7 +178,7 @@ class GameView {
 		final angle1 = MathUtils.angle( dx1, dy1 );
 		final angle2 = MathUtils.angle( dx2, dy2 );
 		final angle = interpolate( angle1, angle2, easedRotation ) + ( isAttacking ? subFrame * TAU : 0 );
-		if( isAttacking || dx2 != 0 || dy2 != 0 ) character.rotate( angle);
+		if( isAttacking || dx2 != 0 || dy2 != 0 ) character.rotate( angle );
 
 		final x = interpolate( coord.x, next.x, easedSubFrame);
 		final y = interpolate( coord.y, next.y, easedSubFrame );

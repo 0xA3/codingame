@@ -9,6 +9,7 @@ class CharacterView {
 	public final container:Object;
 	public final infoContainer:Object;
 	public final object:Object;
+	public final angleOffset:Float;
 
 	var x( default, null ) = 0.0;
 	var y( default, null ) = 0.0;
@@ -16,10 +17,11 @@ class CharacterView {
 	function get_isVisible() return container.visible;
 	function set_isVisible( v:Bool ) return container.visible = v;
 
-	public function new( container:Object, infoContainer:Object, object:Object ) {
+	public function new( container:Object, infoContainer:Object, object:Object, angleOffset = 0.0 ) {
 		this.container = container;
 		this.infoContainer = infoContainer;
 		this.object = object;
+		this.angleOffset = angleOffset;
 	}
 	
 	public function show() {
@@ -37,7 +39,7 @@ class CharacterView {
 		container.visible = true;
 	}
 
-	public function rotate( angle:Float ) object.rotation = angle;
+	public function rotate( angle:Float ) object.rotation = angle + angleOffset;
 	
 	public function place( x:Float, y:Float ) {
 		if( !container.visible ) return;

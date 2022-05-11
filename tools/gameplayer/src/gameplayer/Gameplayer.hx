@@ -13,7 +13,7 @@ import hxd.Window;
 class Gameplayer {
 	
 	static final DEFAULT_WIDTH = 800;
-	public static final HEIGHT = 58;
+	public static final HEIGHT = 48;
 
 	final s2d:Scene;
 	final window:Window;
