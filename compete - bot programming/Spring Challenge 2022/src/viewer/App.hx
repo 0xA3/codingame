@@ -45,7 +45,7 @@ class App extends hxd.App {
 		entityCreator.initTiles();
 		
 		gameView = new viewer.GameView( s2d, scene, entityCreator );
-		gameView.init();
+		gameView.init( gameManager.players[0].name, gameManager.players[1].name );
 		
 		gameplayer = new gameplayer.Gameplayer( s2d, window );
 		gameplayer.init( 2 );

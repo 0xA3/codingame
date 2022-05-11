@@ -21,8 +21,8 @@ class MainGame {
 		hxd.Res.initEmbed();
 		AssetConstants.init();
 
-		final player0 = new Player( 0, "Me", int( corners[0].x ), int( corners[0].y ));
-		final player1 = new Player( 1, "Opponent", int( corners[1].x ), int( corners[1].y ));
+		final player0 = new Player( 0, CurrentAgents.agentMe.agentId, int( corners[0].x ), int( corners[0].y ));
+		final player1 = new Player( 1, CurrentAgents.agentOpp.agentId, int( corners[1].x ), int( corners[1].y ));
 		gameManager = new GameManager([ player0, player1 ]);
 
 		app = new viewer.App( gameManager, startSimulation );

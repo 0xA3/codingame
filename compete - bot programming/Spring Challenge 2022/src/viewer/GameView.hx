@@ -44,7 +44,7 @@ class GameView {
 	final hudLayer:Object;
 	final textLayer:Object;
 
-	final textfieldsMana:Array<Text>;
+	final textfieldsMana:Array<Text> = [];
 	final overlay:Object;
 	final overlayBox:Graphics;
 	final overlayText:Text;
@@ -65,21 +65,49 @@ class GameView {
 		herosLayer = new Object( scene );
 		hudLayer = new Object( scene );
 		textLayer = new Object( scene );
-
-		textfieldsMana = [
-			new Text( timesFont, textLayer ),
-			new Text( timesFont, textLayer )
-		];
-		textfieldsMana[0].textAlign = Right;
-		textfieldsMana[0].x = 446;
-		textfieldsMana[0].y = 54;
-		textfieldsMana[1].textAlign = Right;
-		textfieldsMana[1].x = 1782;
-		textfieldsMana[1].y = 54;
-
 		overlay = new Object( s2d );
-		
 		overlayBox = new Graphics( overlay );
+		overlayText = new Text( timesFont, overlay );
+	}
+
+	public function init( player1:String, player2:String ) {
+		final textPlayer1 = new Text( entityCreator.timesBold40, textLayer );
+		final textPlayer2 = new Text( entityCreator.timesBold40, textLayer );
+		textPlayer1.textAlign = Center;
+		textPlayer2.textAlign = Center;
+		textPlayer1.x = 324;
+		textPlayer2.x = 1594;
+		textPlayer1.y = textPlayer2.y = -2;
+		textPlayer1.text = player1;
+		textPlayer2.text = player2;
+
+		final textLife1 = new Text( entityCreator.times31, textLayer );
+		final textLife2 = new Text( entityCreator.times31, textLayer );
+		textLife1.x = 157;
+		textLife2.x = 1426;
+		textLife1.y = textLife2.y = 63;
+		textLife1.text = textLife2.text = "Life";
+
+		final textMana1 = new Text( entityCreator.times31, textLayer );
+		final textMana2 = new Text( entityCreator.times31, textLayer );
+		textMana1.x = 356;
+		textMana2.x = 1626;
+		textMana1.y = textMana2.y = 63;
+		textMana1.text = textMana2.text = "Mana";
+
+		textfieldsMana.push( new Text( entityCreator.times48, textLayer ));
+		textfieldsMana.push( new Text( entityCreator.times48, textLayer ));
+		
+		for( textfield in textfieldsMana ) {
+			textfield.textAlign = Right;
+			textfield.textColor = 0x000b5fc;
+		}
+		textfieldsMana[0].textAlign = Right;
+		textfieldsMana[1].textAlign = Right;
+		textfieldsMana[0].x = 493;
+		textfieldsMana[1].x = 1765;
+		textfieldsMana[0].y = textfieldsMana[1].y = 54;
+
 		overlayBox.beginFill( 0x000000 );
 		overlayBox.drawRect( 0, 0, 100, 100 );
 		overlayBox.endFill();
@@ -87,14 +115,9 @@ class GameView {
 		overlayBox.y = -PADDING;
 		overlayBox.alpha = 0.6;
 		
-		overlayText = new Text( timesFont, overlay );
-
 		overlay.x = 500;
 		overlay.y = 500;
 
-	}
-
-	public function init() {
 		entityCreator.createHUD( backgroundLayer, mobsLayer, herosLayer, hudLayer, textLayer );
 		initEntities();
 	}

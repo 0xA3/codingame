@@ -11,6 +11,9 @@ class EntityCreator {
 	
 	public final tileLibrary:Map<String, Tile> = [];
 
+	public final times31 = hxd.Res.times_new_roman_31.toFont();
+	public final times48 = hxd.Res.times_new_roman_48.toFont();
+	public final timesBold40 = hxd.Res.times_new_roman_bold_40.toFont();
 	final timesFont = hxd.Res.times_new_roman_bold.toFont();
 	final backgroundTile = hxd.Res.spider_attack.Background.toTile();
 	
@@ -63,7 +66,7 @@ class EntityCreator {
 	public function createHero( parent:Object, player:Int ) {
 		final heroContainer = new Object( parent );
 		final infoContainer = new Object( heroContainer );
-		infoContainer.y = -32 - TEXT_HEIGHT;
+		infoContainer.y = -44 - TEXT_HEIGHT;
 		
 		final heroObject = new Object( heroContainer );
 		final heroTile = player == 0 ? tileLibrary["Chasseur_B_OK0005"] : tileLibrary["Chasseur_R_OK0005"];
@@ -82,7 +85,7 @@ class EntityCreator {
 		final mobContainer = new Object( parent );
 		final infoContainer = new Object( mobContainer );
 		infoContainer.x = -MobView.HEALTH_BAR_WIDTH / 2;
-		infoContainer.y = -32 - MobView.HEALTH_BAR_HEIGHT;
+		infoContainer.y = MobView.HEALTH_BAR_Y - MobView.HEALTH_BAR_HEIGHT;
 		
 		final mobObject = new Object( mobContainer );
 		final mobTile = switch type {

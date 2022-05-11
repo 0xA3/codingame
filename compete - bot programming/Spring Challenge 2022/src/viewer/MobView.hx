@@ -4,8 +4,9 @@ import h2d.Object;
 
 class MobView extends CharacterView {
 	
-	public static final HEALTH_BAR_WIDTH = 32;
-	public static final HEALTH_BAR_HEIGHT = 7;
+	public static final HEALTH_BAR_Y = -44;
+	public static final HEALTH_BAR_WIDTH = 48;
+	public static final HEALTH_BAR_HEIGHT = 8;
 	
 	final healthBar:Object;
 	final fullHealth:Int;
