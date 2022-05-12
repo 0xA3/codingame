@@ -1,5 +1,6 @@
 package viewer;
 
+import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Graphics;
 import h2d.Object;
@@ -54,11 +55,13 @@ class EntityCreator {
 		return new Bitmap( backgroundTile, new Graphics( scene ));
 	}
 
-	public function createHeart( parent:Object, x:Int, y:Int ) {
-		final heart = new Bitmap( tileLibrary["heart_OK0001"], new Graphics( parent ) );
-		heart.x = x;
-		heart.y = y;
-		return heart;
+	public function createLife( parent:Object, x:Int, y:Int ) {
+		final lifeTiles = AssetConstants.LIFE_FRAMES.map( frameId -> tileLibrary[frameId] );
+		final lifeAnim = new Anim( lifeTiles, new Graphics( parent ));
+		lifeAnim.x = x;
+		lifeAnim.y = y;
+		lifeAnim.pause = true;
+		return lifeAnim;
 	}
 
 	static inline var TEXT_HEIGHT = 30;
@@ -77,7 +80,7 @@ class EntityCreator {
 		final textField = new Text( timesFont, infoContainer );
 		textField.textAlign = Center;
 
-		final hero = new HeroView( heroContainer, infoContainer, heroObject, Math.PI, textField );
+		final hero = new HeroView( heroContainer, infoContainer, heroObject, Down, textField );
 		return hero;
 	}
 	
@@ -88,18 +91,18 @@ class EntityCreator {
 		infoContainer.y = MobView.HEALTH_BAR_Y - MobView.HEALTH_BAR_HEIGHT;
 		
 		final mobObject = new Object( mobContainer );
-		final mobTile = switch type {
-			case 0: tileLibrary["M1_OK0001"];
-			case 1: tileLibrary["M2_OK0001"];
-			case 2: tileLibrary["M3_OK0001"];
+		final aniFrames = switch type {
+			case 0: AssetConstants.MOB_1_FRAMES.map( frameId -> tileLibrary[frameId] );
+			case 1: AssetConstants.MOB_2_FRAMES.map( frameId -> tileLibrary[frameId] );
+			case 2: AssetConstants.MOB_3_FRAMES.map( frameId -> tileLibrary[frameId] );
 			default: throw 'Error there is no mob type $type';
 		}
 		
-		final mobBitmap = new Bitmap( mobTile, mobObject );
-		mobBitmap.x = -mobBitmap.tile.width / 2;
-		mobBitmap.y = -mobBitmap.tile.height / 2;
-		mobObject.scaleX = mobBitmap.scaleY = 1.5;
-		
+		final mobAnimation = new Anim( aniFrames, mobObject );
+		mobAnimation.x = -aniFrames[0].width;
+		mobAnimation.y = -aniFrames[0].height;
+		mobObject.scaleX = mobObject.scaleY = 1.5;
+
 		
 		final bgGraphics = new h2d.Graphics( infoContainer );
 		bgGraphics.beginFill( 0xFF0000 );
@@ -113,7 +116,7 @@ class EntityCreator {
 		
 		infoContainer.visible = false;
 
-		final mob = new MobView( mobContainer, infoContainer, mobObject, healthBar, fullHealth );
+		final mob = new MobView( mobContainer, infoContainer, mobObject, Up, healthBar, fullHealth );
 		return mob;
 	}
 }

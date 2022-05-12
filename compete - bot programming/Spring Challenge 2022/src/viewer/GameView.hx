@@ -3,6 +3,7 @@ package viewer;
 import Std.int;
 import game.Config;
 import game.Vector;
+import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Graphics;
 import h2d.Object;
@@ -32,8 +33,8 @@ class GameView {
 	final s2d:Scene;
 
 	final timesFont = hxd.Res.times_new_roman_bold.toFont();
-	final heartY = -30;
-	final heartXs = [147, 181, 215, 1416, 1450, 1484];
+	final lifeY = -30;
+	final lifeXs = [147, 181, 215, 1416, 1450, 1484];
 
 	public final scene:Object;
 	final entityCreator:EntityCreator;
@@ -51,7 +52,7 @@ class GameView {
 
 	final heros:Array<HeroView> = [];
 	final mobs:Map<Int, MobView> = [];
-	final hearts:Array<Bitmap> = [];
+	final lifes:Array<Anim> = [];
 	
 	public var isMouseDown = false;
 
@@ -123,7 +124,11 @@ class GameView {
 	}
 
 	public function initEntities() {
-		for( heartX in heartXs ) hearts.push( entityCreator.createHeart( textLayer, heartX, heartY ));
+		for( lifeX in lifeXs ) {
+			final lifeAni = entityCreator.createLife( hudLayer, lifeX, lifeY );
+			lifeAni.loop = false;
+			lifes.push( lifeAni );
+		}
 		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 0 ));
 		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
 	}
@@ -148,11 +153,11 @@ class GameView {
 		}
 		
 		for( i in 0...frame.baseHealth.length ) {
-			final heartStart = i * 3;
+			final lifeStart = i * 3;
 			final baseHealth = frame.baseHealth[i];
-			hearts[heartStart].visible = baseHealth > 0;
-			hearts[heartStart + 1].visible = baseHealth > 1;
-			hearts[heartStart + 2].visible = baseHealth > 2;
+			lifes[lifeStart].visible = baseHealth > 0;
+			lifes[lifeStart + 1].visible = baseHealth > 1;
+			lifes[lifeStart + 2].visible = baseHealth > 2;
 		}
 
 		final mobPositions = [for( id => coord in frame.positions ) if( id >= 6 ) new Vector( coord.x, coord.y )];

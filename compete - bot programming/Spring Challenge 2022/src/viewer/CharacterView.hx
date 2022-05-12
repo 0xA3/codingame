@@ -10,6 +10,7 @@ class CharacterView {
 	public final infoContainer:Object;
 	public final object:Object;
 	public final angleOffset:Float;
+	public final keyframes:Array<Float> = [];
 
 	var x( default, null ) = 0.0;
 	var y( default, null ) = 0.0;
@@ -17,11 +18,14 @@ class CharacterView {
 	function get_isVisible() return container.visible;
 	function set_isVisible( v:Bool ) return container.visible = v;
 
-	public function new( container:Object, infoContainer:Object, object:Object, angleOffset = 0.0 ) {
+	public function new( container:Object, infoContainer:Object, object:Object, direction:TDirection ) {
 		this.container = container;
 		this.infoContainer = infoContainer;
 		this.object = object;
-		this.angleOffset = angleOffset;
+		switch direction {
+			case Up: angleOffset = 0;
+			case Down: angleOffset = Math.PI;
+		}
 	}
 	
 	public function show() {
@@ -46,5 +50,4 @@ class CharacterView {
 		container.x = this.x = sX( x );
 		container.y = this.y = sY( y );
 	}
-
 }

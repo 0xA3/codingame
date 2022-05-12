@@ -11,8 +11,8 @@ class MobView extends CharacterView {
 	final healthBar:Object;
 	final fullHealth:Int;
 
-	public function new( container:Object, infoContainer:Object, object:Object, healthBar:Object, fullHealth:Int ) {
-		super( container, infoContainer, object );
+	public function new( container:Object, infoContainer:Object, object:Object, direction:TDirection, healthBar:Object, fullHealth:Int ) {
+		super( container, infoContainer, object, direction );
 		this.healthBar = healthBar;
 		this.fullHealth = fullHealth;
 	}
