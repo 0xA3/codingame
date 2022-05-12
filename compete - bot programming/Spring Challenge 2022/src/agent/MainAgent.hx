@@ -59,6 +59,7 @@ class MainAgent {
 						final hero = player.heros[player0HeroIndex++];
 						hero.position.x = x;
 						hero.position.y = y;
+						printErr( 'hero $id position $x $y' );
 					case 2: // opponent Hero
 						final player = agent.players[1];
 						final hero = player.heros[player1HeroIndex++];

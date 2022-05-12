@@ -56,7 +56,6 @@ class Gold1 extends Agent {
 	}
 
 	override function process():String {
-		turn++;
 		actions.splice( 0, actions.length );
 		spentMana = 0;
 		
@@ -66,6 +65,8 @@ class Gold1 extends Agent {
 		if( turn < 50 ) farmFormation( heros, oppAttackers );
 		else attackFormation( heros, oppAttackers );
 
+		turn++;
+		
 		return printActions();
 	}
 	

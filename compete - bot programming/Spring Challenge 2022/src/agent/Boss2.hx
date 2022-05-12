@@ -25,8 +25,6 @@ class Boss2 extends Agent {
 	}
 
 	override function process():String {
-		turn++;
-
 		var closestEnemyToBase:Mob = null;
 		var minDistToBase:Float = Config.MAP_WIDTH + Config.MAP_HEIGHT;
 		for( mob in mobs ) {
@@ -80,6 +78,8 @@ class Boss2 extends Agent {
 			}
 		}
 		// trace( '${me.name}\n' + actions.join( "\n" ));
+		turn++;
+		
 		return actions.join( "\n" );
 	}
 }

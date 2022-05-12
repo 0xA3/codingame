@@ -34,8 +34,6 @@ class Boss1 extends Agent {
 	}
 
 	override function process():String {
-		turn++;
-
 		final threateningMobs = getOrderedMonstersThreateningBase( mobs, me.basePosition );
 
 		for( i in 0...me.heros.length ) {
@@ -62,8 +60,9 @@ class Boss1 extends Agent {
 			actions[i] = action;
 		}
 		// trace( "\n" + actions.join( "\n" ));
+		turn++;
+		
 		return actions.join( "\n" );
-	
 	}
 
 	function getOrderedMonstersThreateningBase( mobs:Array<Mob>, baseCenter:Vector ) {

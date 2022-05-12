@@ -19,7 +19,6 @@ class Gold2 extends Agent2 {
 	static inline var DEFENDER2 = 2;
 
 	override function process():String {
-		turn++;
 		actions.splice( 0, actions.length );
 		var isTopLeft = me.basePosition.x == 0;
 		
@@ -79,6 +78,8 @@ class Gold2 extends Agent2 {
 
 			for( i in 0...3 ) if( actions[i] == null ) move( i, defaultPositions[i], "to default" );
 		}
+		
+		turn++;
 		
 		return printActions();
 	}

@@ -3,7 +3,6 @@ package agent;
 import CodinGame.printErr;
 import Std.int;
 import game.Config;
-import game.Hero;
 import game.Mob;
 import game.Vector;
 
@@ -37,7 +36,6 @@ class Gold3 extends Agent2 {
 	}
 	
 	override function process():String {
-		turn++;
 		actions.splice( 0, actions.length );
 		
 		final mobsNearEnemyBase = mobs.filter( mob ->
@@ -103,6 +101,8 @@ class Gold3 extends Agent2 {
 
 			for( i in 0...3 ) if( actions[i] == null ) move( i, defaultPositions[i], "to default" );
 		}
+		
+		turn++;
 		
 		return printActions();
 	}

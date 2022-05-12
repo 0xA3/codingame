@@ -25,10 +25,10 @@ class MainGame {
 		final player1 = new Player( 1, CurrentAgents.agentOpp.agentId, int( corners[1].x ), int( corners[1].y ));
 		gameManager = new GameManager([ player0, player1 ]);
 
-		app = new viewer.App( gameManager, startSimulation );
+		app = new viewer.App( gameManager, startGame );
 	}
 
-	static function startSimulation() {
+	static function startGame() {
 		final referee = new game.Referee( gameManager, corners, CurrentAgents.agentMe, CurrentAgents.agentOpp );
 		referee.init( seed );
 		

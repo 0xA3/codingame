@@ -24,7 +24,7 @@ class Agent2 implements IAgent {
 
 	final actions = [];
 	
-	var turn = -1;
+	var turn = 0;
 	public var agentId = "";
 	var spentMana = 0;
 
@@ -49,7 +49,7 @@ class Agent2 implements IAgent {
 	}
 	
 	public function setInputs( inputLines:Array<String> ) {
-		// trace( 'setInputs agent $agentId turn $turn\n' + inputLines.join( "\n" ));
+		if( turn == 0 ) trace( 'setInputs agent $agentId turn $turn\n' + inputLines.join( "\n" ));
 		mobs.splice( 0, mobs.length );
 		
 		var player0HeroIndex = 0;
@@ -93,6 +93,7 @@ class Agent2 implements IAgent {
 					final hero = player.heros[player0HeroIndex++];
 					hero.position.x = x;
 					hero.position.y = y;
+					if( agentId == "Gold 12" && turn == 0 ) trace( 'hero $id position $x $y' );
 				
 				case 2: // opponent Hero
 					final player = players[1];

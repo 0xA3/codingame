@@ -10,7 +10,6 @@ class Mathis1 extends Agent {
 	}
 	
 	override function process():String {
-		turn++;
 		actions.splice( 0, actions.length );
 
 		final spidersRanked = [];
@@ -27,6 +26,8 @@ class Mathis1 extends Agent {
 			if( spidersRanked.length > i ) move( i, spidersRanked[i].spider.position );
 			else wait( i );
 		}
+		
+		turn++;
 		
 		return printActions();
 	}

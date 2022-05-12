@@ -45,7 +45,6 @@ class Gold7 extends Agent2 {
 	}
 	
 	override function process():String {
-		turn++;
 		actions.splice( 0, actions.length );
 		
 		if( commandQueue.length > 0 ) {
@@ -57,6 +56,8 @@ class Gold7 extends Agent2 {
 		defend();
 		
 		for( i in 0...3 ) if( actions[i] == null ) move( i, defaultPositions[i], "to default" );
+		turn++;
+		
 		return printActions();
 	}
 

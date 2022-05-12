@@ -2,7 +2,6 @@ package game;
 
 import Std.int;
 import Std.parseInt;
-import agent.Agent;
 import agent.IAgent;
 import game.action.Action;
 import game.action.ActionException;
@@ -112,10 +111,7 @@ class Referee {
 
 		try {
 			playerCount = gameManager.getPlayerCount();
-			
-			for( type in actionTypes ) {
-				intentMap.set( type, [] );
-			}
+			for( type in actionTypes ) intentMap.set( type, [] );
 			initPlayers();
 			
 		} catch( e ) {
@@ -125,7 +121,6 @@ class Referee {
 	}
 
 	function initPlayers() {
-		
 		entityId = 0;
 		// Generate heroes
 		final spawnOffset = 1600;
@@ -152,6 +147,7 @@ class Referee {
 					.mult( spawnOffset ))
 					.round();
 					
+				if( i == 0 ) trace( 'initPlayers hero $j  position $position' );
 				position = snapToGameZone( position );
 				final hero = new Hero( entityId++, j, position, player, startDirections[i].angle() );
 				player.addHero( hero );
@@ -279,6 +275,7 @@ class Referee {
 	}
 
 	function gameTurn( turn:Int ) {
+		trace( "gameTurn" );
 		resetGameTurnData();
 		
 		// check symmetric execution
@@ -297,7 +294,9 @@ class Referee {
 			final agent = agents[i];
 			sendGameStateFor( player );
 			
-			agent.setInputs( player.getInputs());
+			final inputs = player.getInputs();
+			if( turn == 0 ) trace( inputs );
+			agent.setInputs( inputs );
 			player.setOutputs( agent.process().split( "\n" ));
 		}
 		// Get output from players

@@ -23,7 +23,7 @@ class Agent implements IAgent {
 
 	final actions = [];
 	
-	var turn = -1;
+	var turn = 0;
 	public var agentId = "";
 	var spentMana = 0;
 
