@@ -31,9 +31,6 @@ class Referee {
 	public static final INPUT_TYPE_MY_HERO = 1;
 	public static final INPUT_TYPE_ENEMY_HERO = 2;
 	
-	public var frameDataset(default, null):Signal<FrameViewData>;
-	var frameDatasetTrigger:SignalTrigger<FrameViewData>;
-
 	final gameManager:GameManager;
 	final corners:Array<Vector>;
 	final agentMe:IAgent;
@@ -82,8 +79,6 @@ class Referee {
 			for( mob in allMobs ) all.push( mob );
 			return all;
 		}
-		frameDatasetTrigger = Signal.trigger();
-		frameDataset = frameDatasetTrigger.asSignal();
 	}
 
 	public function init( seed:Int ) {
@@ -118,6 +113,7 @@ class Referee {
 			trace( 'Referee failed to initialize $e' );
 			abort();
 		}
+		sendCurrentFrameData();
 	}
 
 	function initPlayers() {
@@ -147,7 +143,7 @@ class Referee {
 					.mult( spawnOffset ))
 					.round();
 					
-				if( i == 0 ) trace( 'initPlayers hero $j  position $position' );
+				// if( i == 0 ) trace( 'initPlayers hero $j  position $position' );
 				position = snapToGameZone( position );
 				final hero = new Hero( entityId++, j, position, player, startDirections[i].angle() );
 				player.addHero( hero );
@@ -175,7 +171,7 @@ class Referee {
 
 	public function run() {
 		turn = 0;
-		// while( turn < 2 && !gameManager.gameEnd ) {
+		// while( turn < 1 && !gameManager.gameEnd ) {
 		while( !gameManager.gameEnd ) {
 			gameTurn( turn++ );
 		}
@@ -275,7 +271,6 @@ class Referee {
 	}
 
 	function gameTurn( turn:Int ) {
-		trace( "gameTurn" );
 		resetGameTurnData();
 		
 		// check symmetric execution
@@ -295,7 +290,7 @@ class Referee {
 			sendGameStateFor( player );
 			
 			final inputs = player.getInputs();
-			if( turn == 0 ) trace( inputs );
+			// if( turn == 0 ) trace( 'inputs\n' + inputs.join( "\n" ));
 			agent.setInputs( inputs );
 			player.setOutputs( agent.process().split( "\n" ));
 		}
@@ -853,7 +848,7 @@ class Referee {
 		// <health> <mana>
 		player.sendInputLine( '${player.baseHealth} ${player.mana}' );
 		final otherPlayers = gameManager.players.filter( p -> p != player );
-		for( player in otherPlayers ) player.sendInputLine( '${player.baseHealth} ${player.mana}' );
+		for( otherPlayer in otherPlayers ) player.sendInputLine( '${otherPlayer.baseHealth} ${otherPlayer.mana}' );
 
 		// <entityCount>
 		player.sendInputLine( '${entityLines.length}' );
@@ -990,8 +985,10 @@ class Referee {
 			baseAttacks: baseAttacks,
 			spellUses: spellUses
 		}
-		frameDatasetTrigger.trigger( dataset );
+		sendFrameDataset( dataset );
 	}
+
+	public dynamic function sendFrameDataset( dataset:FrameViewData ) {	}
 
 	function getGlobalData() {
 		

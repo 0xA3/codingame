@@ -30,9 +30,9 @@ class MainGame {
 
 	static function startGame() {
 		final referee = new game.Referee( gameManager, corners, CurrentAgents.agentMe, CurrentAgents.agentOpp );
+		referee.sendFrameDataset = app.addFrameViewData;
 		referee.init( seed );
 		
-		referee.frameDataset.handle( d -> app.addFrameViewData( d ));
 		referee.run();
 		app.updateFirstFrame();
 		

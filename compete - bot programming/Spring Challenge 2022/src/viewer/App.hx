@@ -86,7 +86,7 @@ class App extends hxd.App {
 
 	public function updateFirstFrame() {
 		if( frameDatasets.length < 2 ) return;
-		gameView.update( frameDatasets[0], frameDatasets[1], frameDatasets[1], 0 );
+		gameView.update( frameDatasets[0], frameDatasets[0], frameDatasets[1], 0 );
 	}
 
 	function goToFrame( f:Float ) {

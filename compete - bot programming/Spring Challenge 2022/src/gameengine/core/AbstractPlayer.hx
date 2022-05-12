@@ -28,7 +28,7 @@ abstract class AbstractPlayer {
 		// if (this.gameManagerProvider.get().getOutputsRead()) {
 		//     throw new RuntimeException("Sending input data to a player after reading any output is forbidden.");
 		// }
-		// trace( 'sendInputLine $line' );
+		// trace( '$index sendInputLine $line' );
 		inputs.push( line );
 	}
 	
