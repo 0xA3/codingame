@@ -985,10 +985,10 @@ class Referee {
 			baseAttacks: baseAttacks,
 			spellUses: spellUses
 		}
-		sendFrameDataset( dataset );
+		sendFrameDataset( turn, dataset );
 	}
 
-	public dynamic function sendFrameDataset( dataset:FrameViewData ) {	}
+	public dynamic function sendFrameDataset( turn:Int, dataset:FrameViewData ) {	}
 
 	function getGlobalData() {
 		

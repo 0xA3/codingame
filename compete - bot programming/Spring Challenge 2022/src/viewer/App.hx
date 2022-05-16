@@ -70,9 +70,10 @@ class App extends hxd.App {
 		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 	}
 
-	public function addFrameViewData( dataset:FrameViewData ) {
-		frameDatasets.push( dataset );
-		gameView.createMobs( currentFrame, dataset );
+	public function addFrameViewData( frame:Int, currentFrameData:FrameViewData ) {
+		frameDatasets.push( currentFrameData );
+		gameView.createMobs( currentFrameData );
+		gameView.initLife( frame, currentFrameData );
 
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;

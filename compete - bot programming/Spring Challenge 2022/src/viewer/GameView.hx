@@ -52,7 +52,7 @@ class GameView {
 
 	final heros:Array<HeroView> = [];
 	final mobs:Map<Int, MobView> = [];
-	final lifes:Array<Anim> = [];
+	final lifes:Array<Life> = [];
 	
 	public var isMouseDown = false;
 
@@ -72,30 +72,8 @@ class GameView {
 	}
 
 	public function init( player1:String, player2:String ) {
-		final textPlayer1 = new Text( entityCreator.timesBold40, textLayer );
-		final textPlayer2 = new Text( entityCreator.timesBold40, textLayer );
-		textPlayer1.textAlign = Center;
-		textPlayer2.textAlign = Center;
-		textPlayer1.x = 324;
-		textPlayer2.x = 1594;
-		textPlayer1.y = textPlayer2.y = -2;
-		textPlayer1.text = player1;
-		textPlayer2.text = player2;
 
-		final textLife1 = new Text( entityCreator.times31, textLayer );
-		final textLife2 = new Text( entityCreator.times31, textLayer );
-		textLife1.x = 157;
-		textLife2.x = 1426;
-		textLife1.y = textLife2.y = 63;
-		textLife1.text = textLife2.text = "Life";
-
-		final textMana1 = new Text( entityCreator.times31, textLayer );
-		final textMana2 = new Text( entityCreator.times31, textLayer );
-		textMana1.x = 356;
-		textMana2.x = 1626;
-		textMana1.y = textMana2.y = 63;
-		textMana1.text = textMana2.text = "Mana";
-
+		entityCreator.createTextfields( textLayer, player1, player2 );
 		textfieldsMana.push( new Text( entityCreator.times48, textLayer ));
 		textfieldsMana.push( new Text( entityCreator.times48, textLayer ));
 		
@@ -125,21 +103,35 @@ class GameView {
 
 	public function initEntities() {
 		for( lifeX in lifeXs ) {
-			final lifeAni = entityCreator.createLife( hudLayer, lifeX, lifeY );
-			lifeAni.loop = false;
-			lifes.push( lifeAni );
+			final life = entityCreator.createLife( hudLayer, lifeX, lifeY );
+			lifes.push( life );
 		}
 		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 0 ));
 		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
 	}
 
-	public function createMobs( currentFrame:Int, currentFrameData:FrameViewData ) {
+	public function createMobs( currentFrameData:FrameViewData ) {
 		for( id => coord in currentFrameData.positions ) {
 			if( id >= 6 ) {
 				if( !mobs.exists( id )) {
 					final fullHealth = currentFrameData.mobHealth.exists( id ) ? currentFrameData.mobHealth[id] : 1;
 					final mobType = id < 40 ? 0 : id < 75 ? 1 : 2;
 					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth );
+				}
+			}
+		}
+	}
+
+	public function initLife( currentFrame:Int, currentFrameData:FrameViewData ) {
+		for( i in 0...currentFrameData.baseHealth.length ) {
+			final lifes0 = i * 3;
+			final baseHealth = currentFrameData.baseHealth[i];
+			final hasLifes = [baseHealth > 0, baseHealth > 1, baseHealth > 2];
+			for( o in 0...hasLifes.length ) {
+				final life = lifes[lifes0 + o];
+				if( !hasLifes[o] && life.start == Life.MAX ) {
+					life.start = currentFrame;
+					if( i == 0 ) trace( 'player $i lose life $o at frame $currentFrame' );
 				}
 			}
 		}
@@ -160,12 +152,14 @@ class GameView {
 		}
 		
 		for( i in 0...currentFrameData.baseHealth.length ) {
-			final lifeStart = i * 3;
+			final lifes0 = i * 3;
 			final baseHealth = currentFrameData.baseHealth[i];
-			lifes[lifeStart].visible = baseHealth > 0;
-			lifes[lifeStart + 1].visible = baseHealth > 1;
-			lifes[lifeStart + 2].visible = baseHealth > 2;
+			for( o in 0...3 ) lifes[lifes0 + o].update( currentFrame + subFrame );
 		}
+		// 	lifes[lifeStart].visible = baseHealth > 0;
+		// 	lifes[lifeStart + 1].visible = baseHealth > 1;
+		// 	lifes[lifeStart + 2].visible = baseHealth > 2;
+		// }
 
 		final mobPositions = [for( id => coord in currentFrameData.positions ) if( id >= 6 ) new Vector( coord.x, coord.y )];
 

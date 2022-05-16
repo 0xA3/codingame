@@ -21,7 +21,7 @@ class EntityCreator {
 		createButtons( container, library );
 		createTextfield( container, library );
 		createSlider( window, container, library );
-		createTooltip(  window, container, library );
+		createTooltip( window, container, library );
 	}
 
 	public static function createBackground( container:Object, library:GameplayerLibrary ) {

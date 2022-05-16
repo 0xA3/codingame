@@ -9,7 +9,7 @@ class MobView extends CharacterView {
 	public static final HEALTH_BAR_Y = -44;
 	public static final HEALTH_BAR_WIDTH = 48;
 	public static final HEALTH_BAR_HEIGHT = 8;
-	public static final FPS = 15;
+	static inline var FPS = 15;
 	
 	public final anim:Anim;
 	final healthBar:Object;

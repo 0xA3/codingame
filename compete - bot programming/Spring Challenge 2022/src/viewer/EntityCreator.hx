@@ -34,6 +34,33 @@ class EntityCreator {
 		CreateTiles.create( tileLibrary, hxd.Res.spider_attack.main_png.toTile(), hxd.Res.load( "spider_attack/main.json" ).toText() );
 	}
 	
+	public function createTextfields( textLayer:Object, player1:String, player2:String ) {
+		final textPlayer1 = new Text( timesBold40, textLayer );
+		final textPlayer2 = new Text( timesBold40, textLayer );
+		textPlayer1.textAlign = Center;
+		textPlayer2.textAlign = Center;
+		textPlayer1.x = 324;
+		textPlayer2.x = 1594;
+		textPlayer1.y = textPlayer2.y = -2;
+		textPlayer1.text = player1;
+		textPlayer2.text = player2;
+
+		final textLife1 = new Text( times31, textLayer );
+		final textLife2 = new Text( times31, textLayer );
+		textLife1.x = 157;
+		textLife2.x = 1426;
+		textLife1.y = textLife2.y = 63;
+		textLife1.text = textLife2.text = "Life";
+
+		final textMana1 = new Text( times31, textLayer );
+		final textMana2 = new Text( times31, textLayer );
+		textMana1.x = 356;
+		textMana2.x = 1626;
+		textMana1.y = textMana2.y = 63;
+		textMana1.text = textMana2.text = "Mana";
+	
+	}
+
 	public function createHUD( backgroundLayer:Object, mobsLayer:Object, herosLayer:Object, hudLayer:Object, textLayer:Object ) {
 		new Bitmap( backgroundTile, backgroundLayer );
 		final left = new Bitmap( tileLibrary["left"], hudLayer );
@@ -61,7 +88,7 @@ class EntityCreator {
 		lifeAnim.x = x;
 		lifeAnim.y = y;
 		lifeAnim.pause = true;
-		return lifeAnim;
+		return new Life( lifeAnim );
 	}
 
 	static inline var TEXT_HEIGHT = 30;
