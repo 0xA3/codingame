@@ -98,9 +98,10 @@ class EntityCreator {
 			default: throw 'Error there is no mob type $type';
 		}
 		
-		final mobAnimation = new Anim( aniFrames, mobObject );
-		mobAnimation.x = -aniFrames[0].width;
-		mobAnimation.y = -aniFrames[0].height;
+		final mobAnim = new Anim( aniFrames, mobObject );
+		mobAnim.x = -aniFrames[0].width;
+		mobAnim.y = -aniFrames[0].height;
+		mobAnim.pause = true;
 		mobObject.scaleX = mobObject.scaleY = 1.5;
 
 		
@@ -116,7 +117,7 @@ class EntityCreator {
 		
 		infoContainer.visible = false;
 
-		final mob = new MobView( mobContainer, infoContainer, mobObject, Up, healthBar, fullHealth );
+		final mob = new MobView( mobContainer, infoContainer, mobObject, Up, mobAnim, healthBar, fullHealth );
 		return mob;
 	}
 }

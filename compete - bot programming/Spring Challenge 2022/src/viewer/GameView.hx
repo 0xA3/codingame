@@ -133,11 +133,11 @@ class GameView {
 		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
 	}
 
-	public function createMobs( frame:FrameViewData ) {
-		for( id => coord in frame.positions ) {
+	public function createMobs( currentFrame:Int, currentFrameData:FrameViewData ) {
+		for( id => coord in currentFrameData.positions ) {
 			if( id >= 6 ) {
 				if( !mobs.exists( id )) {
-					final fullHealth = frame.mobHealth.exists( id ) ? frame.mobHealth[id] : 1;
+					final fullHealth = currentFrameData.mobHealth.exists( id ) ? currentFrameData.mobHealth[id] : 1;
 					final mobType = id < 40 ? 0 : id < 75 ? 1 : 2;
 					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth );
 				}
@@ -145,24 +145,31 @@ class GameView {
 		}
 	}
 
-	public function update( previous:FrameViewData, frame:FrameViewData, next:FrameViewData, subFrame:Float ) {
+	public function update( currentFrame:Int, subFrame:Float, frameDatasets:Array<FrameViewData> ) {
+		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
+		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
+		
+		final currentFrameData = frameDatasets[currentFrame];
+		final previousFrameData = frameDatasets[previousFrame];
+		final nextFrameData = frameDatasets[nextFrame];
+
 		for( mobView in mobs ) mobView.hide();
 
-		for( i in 0...frame.mana.length ) {
-			textfieldsMana[i].text = '${frame.mana[i]}';
+		for( i in 0...currentFrameData.mana.length ) {
+			textfieldsMana[i].text = '${currentFrameData.mana[i]}';
 		}
 		
-		for( i in 0...frame.baseHealth.length ) {
+		for( i in 0...currentFrameData.baseHealth.length ) {
 			final lifeStart = i * 3;
-			final baseHealth = frame.baseHealth[i];
+			final baseHealth = currentFrameData.baseHealth[i];
 			lifes[lifeStart].visible = baseHealth > 0;
 			lifes[lifeStart + 1].visible = baseHealth > 1;
 			lifes[lifeStart + 2].visible = baseHealth > 2;
 		}
 
-		final mobPositions = [for( id => coord in frame.positions ) if( id >= 6 ) new Vector( coord.x, coord.y )];
+		final mobPositions = [for( id => coord in currentFrameData.positions ) if( id >= 6 ) new Vector( coord.x, coord.y )];
 
-		for( id => coord in frame.positions ) {
+		for( id => coord in currentFrameData.positions ) {
 			if( id < 6 ) { // hero
 				var isAttacking = false;
 				final heroPosition = new Vector( coord.x, coord.y );
@@ -172,24 +179,25 @@ class GameView {
 						break;
 					}
 				}
-				place( heros[id], previous.positions[id], frame.positions[id], next.positions[id], subFrame, isAttacking );
+				place( heros[id], previousFrameData.positions[id], currentFrameData.positions[id], nextFrameData.positions[id], subFrame, isAttacking );
 			} else {
-				final previousCoord = previous.positions.exists( id ) ? previous.positions[id] : coord ;
-				final nextCoord = next.positions.exists( id ) ? next.positions[id] : coord;
+				final previousCoord = previousFrameData.positions.exists( id ) ? previousFrameData.positions[id] : coord ;
+				final nextCoord = nextFrameData.positions.exists( id ) ? nextFrameData.positions[id] : coord;
 				
 				final mobView = mobs[id];
-				if( frame.mobHealth.exists( id )) {
-					final health = frame.mobHealth[id];
+				if( currentFrameData.mobHealth.exists( id )) {
+					final health = currentFrameData.mobHealth[id];
 					if( health > 0 ) {
 						mobView.show();
-						mobView.setHealth( frame.mobHealth[id] );
+						mobView.setHealth( currentFrameData.mobHealth[id] );
 					}
 				}
 				
 				place( mobView, previousCoord, coord, nextCoord, subFrame );
+				mobView.animate( currentFrame + subFrame );
 			}
 		}
-		for( id => message in frame.messages ) {
+		for( id => message in currentFrameData.messages ) {
 			heros[id].setMessage( message );
 		}
 	}
@@ -224,12 +232,12 @@ class GameView {
 		return -1 / 2 * ((k - 1) * (k - 3) - 1);
 	}
 
-	public function mouseOver( screenX:Float, screenY:Float, frame:FrameViewData ) {
+	public function mouseOver( screenX:Float, screenY:Float, currentFrameData:FrameViewData ) {
 		final mapX = ( screenX / App.scaleFactor - X0 ) / scale;
 		final mapY = ( screenY / App.scaleFactor - Y0 ) / scale;
 		
 		final overIds = [];
-		for( id => pos in frame.positions ) {
+		for( id => pos in currentFrameData.positions ) {
 			if( isOver( mapX, mapY, pos )) {
 				overIds.push( id );
 			}
@@ -239,11 +247,11 @@ class GameView {
 		} else {
 			var overTexts = [];
 			for( id in overIds ) {
-				final coord = frame.positions[id];
+				final coord = currentFrameData.positions[id];
 				if( id < 6 ) {
 					overTexts.push( 'HERO $id\nx: ${coord.x}\ny: ${coord.y}' );
 				} else {
-					final health = frame.mobHealth[id];
+					final health = currentFrameData.mobHealth[id];
 					overTexts.push( 'MOB $id\nhealth: $health\nx: ${coord.x}\ny: ${coord.y}' );
 				}
 			}

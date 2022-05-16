@@ -1,5 +1,6 @@
 package viewer;
 
+import h2d.Anim;
 import h2d.Object;
 import viewer.GameView.sX;
 import viewer.GameView.sY;
@@ -10,7 +11,6 @@ class CharacterView {
 	public final infoContainer:Object;
 	public final object:Object;
 	public final angleOffset:Float;
-	public final keyframes:Array<Float> = [];
 
 	var x( default, null ) = 0.0;
 	var y( default, null ) = 0.0;

@@ -72,7 +72,7 @@ class App extends hxd.App {
 
 	public function addFrameViewData( dataset:FrameViewData ) {
 		frameDatasets.push( dataset );
-		gameView.createMobs( dataset );
+		gameView.createMobs( currentFrame, dataset );
 
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
@@ -86,15 +86,13 @@ class App extends hxd.App {
 
 	public function updateFirstFrame() {
 		if( frameDatasets.length < 2 ) return;
-		gameView.update( frameDatasets[0], frameDatasets[0], frameDatasets[1], 0 );
+		gameView.update( 0, 0, frameDatasets );
 	}
 
 	function goToFrame( f:Float ) {
 		currentFrame = Math.floor( f );
-		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
-		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
 		final subFrame = f - currentFrame;
-		gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], subFrame );
+		gameView.update( currentFrame, subFrame, frameDatasets );
 	}
 
 	override function update( dt:Float ) {
