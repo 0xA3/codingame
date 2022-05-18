@@ -53,7 +53,6 @@ class MobView extends CharacterView {
 	}
 	
 	public function update( frame:Float ) {
-		
 		if( frame < startFrame ) {
 			infoContainer.visible = false;
 			anim.visible = false;

@@ -4,6 +4,11 @@ using StringTools;
 
 class AssetConstants {
 	
+	public static final RUN = "RUN";
+	public static final COMBAT = "COMBAT";
+	public static final IDLE = "IDLE";
+	public static final CAST = "CAST";
+
 	public static final EFFECT_HIT = 0;
 	public static final EFFECT_SHIELD = 2;
 	public static final EFFECT_BEAM = 3;
@@ -18,17 +23,17 @@ class AssetConstants {
 	public static final LIFE_FRAMES = ['heart_OK0001', 'heart_OK0002', 'heart_OK0003', 'heart_OK0004', 'heart_OK0005', 'heart_OK0006', 'heart_OK0007', 'heart_OK0008', 'heart_OK0009', 'heart_OK0010', 'heart_OK0011', 'heart_OK0012', 'heart_OK0013', 'heart_OK0014', 'heart_OK0015', 'heart_OK0016', 'heart_OK0017', 'heart_OK0018', 'heart_OK0019', 'heart_OK0020', 'heart_OK0021', 'heart_OK0022', 'heart_OK0023', 'heart_OK0024', 'heart_OK0025', 'heart_OK0026', 'heart_OK0027', 'heart_OK0028', 'heart_OK0029', 'heart_OK0030', 'heart_OK0031', 'heart_OK0032', 'heart_OK0033', 'heart_OK0034', 'heart_OK0035', 'heart_OK0036', 'heart_OK0037', 'heart_OK0038', 'heart_OK0039', 'heart_OK0040', 'heart_OK0041', 'heart_OK0042', 'heart_OK0043'];
 	
 	public static final HERO_FRAME_NAMES = [
-	  "RUN" => ["Chasseur_$_OK0001", "Chasseur_$_OK0002", "Chasseur_$_OK0003", "Chasseur_$_OK0004", "Chasseur_$_OK0005", "Chasseur_$_OK0006", "Chasseur_$_OK0007", "Chasseur_$_OK0008", "Chasseur_$_OK0009", "Chasseur_$_OK0010", "Chasseur_$_OK0011", "Chasseur_$_OK0012", "Chasseur_$_OK0013", "Chasseur_$_OK0014", "Chasseur_$_OK0015", "Chasseur_$_OK0016", "Chasseur_$_OK0017", "Chasseur_$_OK0018", "Chasseur_$_OK0019", "Chasseur_$_OK0020"],
-	  "COMBAT" => ["Chasseur_$_OK_Attak0003", "Chasseur_$_OK_Attak0004", "Chasseur_$_OK_Attak0005", "Chasseur_$_OK_Attak0006", "Chasseur_$_OK_Attak0007", "Chasseur_$_OK_Attak0008", "Chasseur_$_OK_Attak0009", "Chasseur_$_OK_Attak0010", "Chasseur_$_OK_Attak0011", "Chasseur_$_OK_Attak0012", "Chasseur_$_OK_Attak0013", "Chasseur_$_OK_Attak0014", "Chasseur_$_OK_Attak0015", "Chasseur_$_OK_Attak0016", "Chasseur_$_OK_Attak0017", "Chasseur_$_OK_Attak0018", "Chasseur_$_OK_Attak0019", "Chasseur_$_OK_Attak0020", "Chasseur_$_OK_Attak0021", "Chasseur_$_OK_Attak0022", "Chasseur_$_OK_Attak0023"],
-	  "IDLE" => ["Chasseur_$_OK_Stand"],
-	  "CAST" => ["Chasseur_$_OK_Magik"]
+	  RUN => ["Chasseur_$_OK0001", "Chasseur_$_OK0002", "Chasseur_$_OK0003", "Chasseur_$_OK0004", "Chasseur_$_OK0005", "Chasseur_$_OK0006", "Chasseur_$_OK0007", "Chasseur_$_OK0008", "Chasseur_$_OK0009", "Chasseur_$_OK0010", "Chasseur_$_OK0011", "Chasseur_$_OK0012", "Chasseur_$_OK0013", "Chasseur_$_OK0014", "Chasseur_$_OK0015", "Chasseur_$_OK0016", "Chasseur_$_OK0017", "Chasseur_$_OK0018", "Chasseur_$_OK0019", "Chasseur_$_OK0020"],
+	  COMBAT => ["Chasseur_$_OK_Attak0003", "Chasseur_$_OK_Attak0004", "Chasseur_$_OK_Attak0005", "Chasseur_$_OK_Attak0006", "Chasseur_$_OK_Attak0007", "Chasseur_$_OK_Attak0008", "Chasseur_$_OK_Attak0009", "Chasseur_$_OK_Attak0010", "Chasseur_$_OK_Attak0011", "Chasseur_$_OK_Attak0012", "Chasseur_$_OK_Attak0013", "Chasseur_$_OK_Attak0014", "Chasseur_$_OK_Attak0015", "Chasseur_$_OK_Attak0016", "Chasseur_$_OK_Attak0017", "Chasseur_$_OK_Attak0018", "Chasseur_$_OK_Attak0019", "Chasseur_$_OK_Attak0020", "Chasseur_$_OK_Attak0021", "Chasseur_$_OK_Attak0022", "Chasseur_$_OK_Attak0023"],
+	  IDLE => ["Chasseur_$_OK_Stand"],
+	  CAST => ["Chasseur_$_OK_Magik"]
 	];
 
-	public static final HERO_FRAMES = [
-	  "RUN" => [],
-	  "COMBAT" => [],
-	  "IDLE" => [],
-	  "CAST" => []
+	public static final HERO_FRAMES:Map<String, Array<Array<String>>> = [
+	  RUN => [],
+	  COMBAT => [],
+	  IDLE => [],
+	  CAST => []
 	];
 	
 	public static function init() {

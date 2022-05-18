@@ -109,13 +109,10 @@ class GameView {
 	}
 
 	public function createMobs( currentFrame:Int, currentFrameData:FrameViewData ) {
-		for( id in currentFrameData.positions.keys() ) {
-			if( id >= 6 ) {
-				if( !mobs.exists( id )) {
-					final fullHealth = currentFrameData.mobHealth.exists( id ) ? currentFrameData.mobHealth[id] : 1;
-					final mobType = id < 40 ? 0 : id < 75 ? 1 : 2;
-					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth, currentFrame );
-				}
+		for( entity in currentFrameData.spawns ) {
+			if( entity.type == 2 ) {
+				final mobType = currentFrame < 40 ? 0 : currentFrame < 90 ? 1 : 2;
+				mobs[entity.id] = entityCreator.createMob( mobsLayer, mobType, entity.health, currentFrame );
 			}
 		}
 	}
@@ -157,7 +154,12 @@ class GameView {
 		}
 	}
 
+	public function createHeroStates( currentFrame:Int, currentFrameData:FrameViewData ) {
+		if( currentFrameData.controlled.length > 0 ) trace( currentFrame, currentFrameData.controlled, currentFrameData.spellUses );
+	}
+
 	public function update( currentFrame:Int, subFrame:Float, frameDatasets:Array<FrameViewData> ) {
+		final fFrame = currentFrame + subFrame;
 		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
 		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
 		
@@ -171,13 +173,8 @@ class GameView {
 		
 		for( i in 0...currentFrameData.baseHealth.length ) {
 			final lifes0 = i * 3;
-			final baseHealth = currentFrameData.baseHealth[i];
-			for( o in 0...3 ) lifes[lifes0 + o].update( currentFrame + subFrame );
+			for( o in 0...3 ) lifes[lifes0 + o].update( fFrame );
 		}
-		// 	lifes[lifeStart].visible = baseHealth > 0;
-		// 	lifes[lifeStart + 1].visible = baseHealth > 1;
-		// 	lifes[lifeStart + 2].visible = baseHealth > 2;
-		// }
 
 		final mobPositions = [for( id => coord in currentFrameData.positions ) if( id >= 6 ) new Vector( coord.x, coord.y )];
 
@@ -191,7 +188,10 @@ class GameView {
 						break;
 					}
 				}
-				place( heros[id], previousFrameData.positions[id], currentFrameData.positions[id], nextFrameData.positions[id], subFrame, isAttacking );
+				final hero = heros[id];
+				hero.update( fFrame, Run );
+				
+				place( hero, previousFrameData.positions[id], currentFrameData.positions[id], nextFrameData.positions[id], subFrame, isAttacking );
 			} else {
 				final previousCoord = previousFrameData.positions.exists( id ) ? previousFrameData.positions[id] : coord ;
 				final nextCoord = nextFrameData.positions.exists( id ) ? nextFrameData.positions[id] : coord;
@@ -199,16 +199,13 @@ class GameView {
 				final mobView = mobs[id];
 				if( currentFrameData.mobHealth.exists( id )) {
 					final health = currentFrameData.mobHealth[id];
-					if( health > 0 ) {
-						// mobView.show();
-						mobView.setHealth( currentFrameData.mobHealth[id] );
-					}
+					if( health > 0 ) mobView.setHealth( currentFrameData.mobHealth[id] );
 				}
 				
 				place( mobView, previousCoord, coord, nextCoord, subFrame );
 			}
 		}
-		for( mobView in mobs ) mobView.update( currentFrame + subFrame );
+		for( mobView in mobs ) mobView.update( fFrame );
 
 
 		for( id => message in currentFrameData.messages ) {

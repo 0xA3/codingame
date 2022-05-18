@@ -594,10 +594,11 @@ class Referee {
 			}
 
 			if( mobsHit.length > 0 ) {
-				final a:Attack = {
+				final attack:Attack = {
 					hero: hero.id,
 					mobs: mobsHit
 				}
+				attacks.push( attack );
 			}
 		}
 

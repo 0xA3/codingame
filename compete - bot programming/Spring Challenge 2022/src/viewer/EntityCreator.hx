@@ -99,15 +99,41 @@ class EntityCreator {
 		infoContainer.y = -44 - TEXT_HEIGHT;
 		
 		final heroObject = new Object( heroContainer );
-		final heroTile = player == 0 ? tileLibrary["Chasseur_B_OK0005"] : tileLibrary["Chasseur_R_OK0005"];
-		final heroBitmap = new Bitmap( heroTile, heroObject );
-		heroBitmap.x = -heroBitmap.tile.width / 2;
-		heroBitmap.y = -heroBitmap.tile.height / 2;
 		
+		final runFrames = AssetConstants.HERO_FRAMES[AssetConstants.RUN][player];
+		final combatFrames = AssetConstants.HERO_FRAMES[AssetConstants.COMBAT][player];
+		final idleFrames = AssetConstants.HERO_FRAMES[AssetConstants.IDLE][player];
+		final castFrames = AssetConstants.HERO_FRAMES[AssetConstants.CAST][player];
+		
+		final runAnim = new Anim( runFrames.map( frameId -> tileLibrary[frameId] ), heroObject );
+		final combatAnim = new Anim( combatFrames.map( frameId -> tileLibrary[frameId] ), heroObject );
+		final idleAnim = new Anim( idleFrames.map( frameId -> tileLibrary[frameId] ), heroObject );
+		final castAnim = new Anim( castFrames.map( frameId -> tileLibrary[frameId] ), heroObject );
+		
+		centerAnim( runAnim );
+		centerAnim( combatAnim );
+		centerAnim( idleAnim );
+		centerAnim( castAnim );
+
+		runAnim.pause = true;
+		combatAnim.pause = true;
+		idleAnim.pause = true;
+		castAnim.pause = true;
+
 		final textField = new Text( timesFont, infoContainer );
 		textField.textAlign = Center;
 
-		final hero = new HeroView( heroContainer, infoContainer, heroObject, Down, textField );
+		final hero = new HeroView(
+			heroContainer,
+			infoContainer,
+			heroObject,
+			runAnim,
+			combatAnim,
+			idleAnim,
+			castAnim,
+			Down,
+			textField
+		);
 		return hero;
 	}
 	
@@ -122,8 +148,7 @@ class EntityCreator {
 		final deathAniFrames = AssetConstants.MOB_DEATH_FRAMES[type].map( frameId -> tileLibrary[frameId] );
 		
 		final mobDeathAnim = new Anim( deathAniFrames, mobObject );
-		mobDeathAnim.x = -deathAniFrames[0].width / 2;
-		mobDeathAnim.y = -deathAniFrames[0].height / 2;
+		centerAnim( mobDeathAnim );
 		mobDeathAnim.pause = true;
 
 		final aniFrames = switch type {
@@ -134,8 +159,7 @@ class EntityCreator {
 		}
 		
 		final mobAnim = new Anim( aniFrames, mobObject );
-		mobAnim.x = -aniFrames[0].width / 2;
-		mobAnim.y = -aniFrames[0].height/ 2;
+		centerAnim( mobAnim );
 		mobAnim.pause = true;
 
 		mobObject.scaleX = mobObject.scaleY = 1.5;
@@ -164,5 +188,11 @@ class EntityCreator {
 			startFrame
 		);
 		return mob;
+	}
+
+	function centerAnim( anim:Anim ) {
+		if( anim.frames.length == 0 ) throw 'Error: anim has no frames';
+		anim.x = -anim.frames[0].width / 2;
+		anim.y = -anim.frames[0].height / 2;
 	}
 }

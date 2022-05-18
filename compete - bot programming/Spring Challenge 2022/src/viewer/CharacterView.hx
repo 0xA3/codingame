@@ -1,6 +1,5 @@
 package viewer;
 
-import h2d.Anim;
 import h2d.Object;
 import viewer.GameView.sX;
 import viewer.GameView.sY;

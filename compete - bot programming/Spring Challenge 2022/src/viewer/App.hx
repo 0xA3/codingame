@@ -75,6 +75,7 @@ class App extends hxd.App {
 		gameView.createMobs( frame, currentFrameData );
 		gameView.updateMobHealth( frame, currentFrameData );
 		gameView.initLife( frame, currentFrameData );
+		gameView.createHeroStates( frame, currentFrameData );
 
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
