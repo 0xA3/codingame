@@ -111,13 +111,21 @@ class EntityCreator {
 		return hero;
 	}
 	
-	public function createMob( parent:Object, type:Int, fullHealth:Int ) {
+	public function createMob( parent:Object, type:Int, fullHealth:Int, startFrame:Int ) {
 		final mobContainer = new Object( parent );
 		final infoContainer = new Object( mobContainer );
 		infoContainer.x = -MobView.HEALTH_BAR_WIDTH / 2;
 		infoContainer.y = MobView.HEALTH_BAR_Y - MobView.HEALTH_BAR_HEIGHT;
 		
 		final mobObject = new Object( mobContainer );
+		
+		final deathAniFrames = AssetConstants.MOB_DEATH_FRAMES[type].map( frameId -> tileLibrary[frameId] );
+		
+		final mobDeathAnim = new Anim( deathAniFrames, mobObject );
+		mobDeathAnim.x = -deathAniFrames[0].width / 2;
+		mobDeathAnim.y = -deathAniFrames[0].height / 2;
+		mobDeathAnim.pause = true;
+
 		final aniFrames = switch type {
 			case 0: AssetConstants.MOB_1_FRAMES.map( frameId -> tileLibrary[frameId] );
 			case 1: AssetConstants.MOB_2_FRAMES.map( frameId -> tileLibrary[frameId] );
@@ -126,12 +134,12 @@ class EntityCreator {
 		}
 		
 		final mobAnim = new Anim( aniFrames, mobObject );
-		mobAnim.x = -aniFrames[0].width;
-		mobAnim.y = -aniFrames[0].height;
+		mobAnim.x = -aniFrames[0].width / 2;
+		mobAnim.y = -aniFrames[0].height/ 2;
 		mobAnim.pause = true;
+
 		mobObject.scaleX = mobObject.scaleY = 1.5;
 
-		
 		final bgGraphics = new h2d.Graphics( infoContainer );
 		bgGraphics.beginFill( 0xFF0000 );
 		bgGraphics.drawRect( 0, 0, MobView.HEALTH_BAR_WIDTH, MobView.HEALTH_BAR_HEIGHT );
@@ -144,7 +152,17 @@ class EntityCreator {
 		
 		infoContainer.visible = false;
 
-		final mob = new MobView( mobContainer, infoContainer, mobObject, Up, mobAnim, healthBar, fullHealth );
+		final mob = new MobView(
+			mobContainer,
+			infoContainer,
+			mobObject,
+			Up,
+			mobAnim,
+			mobDeathAnim,
+			healthBar,
+			fullHealth,
+			startFrame
+		);
 		return mob;
 	}
 }

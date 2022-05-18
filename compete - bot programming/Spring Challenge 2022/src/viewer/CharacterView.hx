@@ -35,14 +35,6 @@ class CharacterView {
 		container.visible = false;
 	}
 
-	public function die() {
-		container.visible = false;
-	}
-
-	public function live() {
-		container.visible = true;
-	}
-
 	public function rotate( angle:Float ) object.rotation = angle + angleOffset;
 	
 	public function place( x:Float, y:Float ) {

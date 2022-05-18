@@ -3,8 +3,6 @@ package viewer;
 import Std.int;
 import game.Config;
 import game.Vector;
-import h2d.Anim;
-import h2d.Bitmap;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Scene;
@@ -110,14 +108,36 @@ class GameView {
 		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
 	}
 
-	public function createMobs( currentFrameData:FrameViewData ) {
-		for( id => coord in currentFrameData.positions ) {
+	public function createMobs( currentFrame:Int, currentFrameData:FrameViewData ) {
+		for( id in currentFrameData.positions.keys() ) {
 			if( id >= 6 ) {
 				if( !mobs.exists( id )) {
 					final fullHealth = currentFrameData.mobHealth.exists( id ) ? currentFrameData.mobHealth[id] : 1;
 					final mobType = id < 40 ? 0 : id < 75 ? 1 : 2;
-					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth );
+					mobs[id] = entityCreator.createMob( mobsLayer, mobType, fullHealth, currentFrame );
 				}
+			}
+		}
+	}
+
+	public function updateMobHealth( currentFrame:Int, currentFrameData:FrameViewData ) {
+		final ids = [for( id in currentFrameData.positions.keys()) id];
+		for( id in ids ) {
+			if( id >= 6 ) {
+				final currentHealth = currentFrameData.mobHealth[id];
+				if( currentHealth <= 0 ) {
+					final mob = mobs[id];
+					mob.setEndFrame( currentFrame, true );
+					// trace( 'set mob $id to die at frame $currentFrame' );
+				}
+			}
+		}
+		
+		for( existingMobId in mobs.keys()) {
+			final mob = mobs[existingMobId];
+			if( mob.endFrame == -1 && !ids.contains( existingMobId )) {
+				mob.setEndFrame( currentFrame, false );
+				// trace( 'set endframe of mob $existingMobId to $currentFrame' );
 			}
 		}
 	}
@@ -131,7 +151,7 @@ class GameView {
 				final life = lifes[lifes0 + o];
 				if( !hasLifes[o] && life.start == Life.MAX ) {
 					life.start = currentFrame;
-					if( i == 0 ) trace( 'player $i lose life $o at frame $currentFrame' );
+					// if( i == 0 ) trace( 'player $i lose life $o at frame $currentFrame' );
 				}
 			}
 		}
@@ -144,8 +164,6 @@ class GameView {
 		final currentFrameData = frameDatasets[currentFrame];
 		final previousFrameData = frameDatasets[previousFrame];
 		final nextFrameData = frameDatasets[nextFrame];
-
-		for( mobView in mobs ) mobView.hide();
 
 		for( i in 0...currentFrameData.mana.length ) {
 			textfieldsMana[i].text = '${currentFrameData.mana[i]}';
@@ -182,15 +200,17 @@ class GameView {
 				if( currentFrameData.mobHealth.exists( id )) {
 					final health = currentFrameData.mobHealth[id];
 					if( health > 0 ) {
-						mobView.show();
+						// mobView.show();
 						mobView.setHealth( currentFrameData.mobHealth[id] );
 					}
 				}
 				
 				place( mobView, previousCoord, coord, nextCoord, subFrame );
-				mobView.animate( currentFrame + subFrame );
 			}
 		}
+		for( mobView in mobs ) mobView.update( currentFrame + subFrame );
+
+
 		for( id => message in currentFrameData.messages ) {
 			heros[id].setMessage( message );
 		}

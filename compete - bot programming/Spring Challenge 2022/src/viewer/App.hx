@@ -72,7 +72,8 @@ class App extends hxd.App {
 
 	public function addFrameViewData( frame:Int, currentFrameData:FrameViewData ) {
 		frameDatasets.push( currentFrameData );
-		gameView.createMobs( currentFrameData );
+		gameView.createMobs( frame, currentFrameData );
+		gameView.updateMobHealth( frame, currentFrameData );
 		gameView.initLife( frame, currentFrameData );
 
 		if( frameDatasets.length > 1 ) {
