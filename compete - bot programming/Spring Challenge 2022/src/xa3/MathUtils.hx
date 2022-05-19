@@ -24,8 +24,6 @@ class MathUtils {
 	public static inline function lengthSq( x:Int, y:Int ) return x * x + y * y;
 	public static inline function length( x:Int, y:Int ) return Math.sqrt( lengthSq( x, y ));
 	
-	public static inline function ceil( v:Float ) return int( Math.ceil( v ));
-	public static inline function floor( v:Float ) return int( Math.floor( v ));
 	public static inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 	public static inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
 	public static inline function abs( v:Int ) return v >= 0 ? v : -v;

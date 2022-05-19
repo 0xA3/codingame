@@ -1,5 +1,7 @@
 package viewer;
 
+import Math.ceil;
+import Std.int;
 import h2d.Anim;
 import h2d.Object;
 import h2d.Text;
@@ -15,10 +17,10 @@ class HeroView extends CharacterView {
 	final idleAnim:Anim;
 	final castAnim:Anim;
 
-	public final states:Array<THeroState> = [];
-	public final stateDurations:Array<Int> = [];
+	public final states:Array<THeroState> = [Idle];
+	public final stateDurations:Array<Int> = [0];
 
-	var state = Idle;
+	var state:THeroState;
 
 	public function new(
 		container:Object,
@@ -37,6 +39,16 @@ class HeroView extends CharacterView {
 		this.idleAnim = idleAnim;
 		this.castAnim = castAnim;
 		this.textField = textField;
+
+		changeStateTo( Idle );
+	}
+
+	public function setFrameState( frame:Int, state:THeroState ) {
+		states[frame] = state;
+		if( frame > 0 ) {
+			final prevState = states[frame - 1];
+			stateDurations[frame] = prevState == state ? stateDurations[frame - 1] + 1 : 1;
+		}
 	}
 
 	public function setMessage( message:String ) {
@@ -47,11 +59,16 @@ class HeroView extends CharacterView {
 		infoContainer.visible = true;
 	}
 
-	override public function update( frame:Float ) {
-		super.update( frame );
-
-		if( nextPos.isEqual( currentPos )) changeStateTo( Idle );
-		else changeStateTo( Run );
+	override public function update( frame:Float, intFrame:Int, subFrame:Float ) {
+		super.update( frame, intFrame, subFrame );
+		changeStateTo( states[ceil( frame )] );
+		
+		final deltaAniTime = stateDurations[intFrame] + subFrame;
+		switch state {
+			case Run: runAnim.currentFrame = int( deltaAniTime * FPS ) % runAnim.frames.length;
+			case Combat: combatAnim.currentFrame = int( deltaAniTime * FPS ) % combatAnim.frames.length;
+			default: // no-op
+		}
 	}
 
 	function changeStateTo( nextState:THeroState ) {

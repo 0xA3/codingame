@@ -40,17 +40,15 @@ class CharacterView {
 	public function show() container.visible = true;
 	public function hide() container.visible = false;
 
-	public function update( frame:Float ) {
+	public function update( frame:Float, intFrame:Int, subFrame:Float ) {
 		if( !container.visible ) return;
 		
-		final currentFrame = int( frame );
-		if( positions[currentFrame] == null ) return;
+		if( positions[intFrame] == null ) return;
 		
-		final subFrame = frame - currentFrame;
-		final previousFrame = int( max( 0, currentFrame - 1 ));
-		final nextFrame = int( min( positions.length - 1, currentFrame + 1 ));
+		final previousFrame = int( max( 0, intFrame - 1 ));
+		final nextFrame = int( min( positions.length - 1, intFrame + 1 ));
 		
-		currentPos = positions[currentFrame];
+		currentPos = positions[intFrame];
 		prevPos = positions[previousFrame] == null ? currentPos : positions[previousFrame];
 		nextPos = positions[nextFrame] == null ? currentPos : positions[nextFrame];
 

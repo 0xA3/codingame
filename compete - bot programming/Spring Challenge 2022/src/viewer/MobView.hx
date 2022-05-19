@@ -52,8 +52,8 @@ class MobView extends CharacterView {
 		}
 	}
 	
-	override public function update( frame:Float ) {
-		super.update( frame );
+	override public function update( frame:Float, intFrame:Int, subFrame:Float ) {
+		super.update( frame, intFrame, subFrame );
 		if( frame < startFrame ) {
 			infoContainer.visible = false;
 			anim.visible = false;

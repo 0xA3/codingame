@@ -113,19 +113,19 @@ class GameView {
 		updateLife( frame, currentFrameData );
 		updatePositions( frame, currentFrameData );
 		updateMobHealth( frame, currentFrameData );
-		createHeroStates( frame, currentFrameData );
+		createStatesOfHeros( frame, currentFrameData );
 	}
 
-	public function createMobs( currentFrame:Int, currentFrameData:FrameViewData ) {
+	function createMobs( frame:Int, currentFrameData:FrameViewData ) {
 		for( entity in currentFrameData.spawns ) {
 			if( entity.type == 2 ) {
-				final mobType = currentFrame < 40 ? 0 : currentFrame < 90 ? 1 : 2;
-				mobs[entity.id] = entityCreator.createMob( mobsLayer, mobType, entity.health, currentFrame );
+				final mobType = frame < 40 ? 0 : frame < 90 ? 1 : 2;
+				mobs[entity.id] = entityCreator.createMob( mobsLayer, mobType, entity.health, frame );
 			}
 		}
 	}
 
-	public function updateLife( currentFrame:Int, currentFrameData:FrameViewData ) {
+	function updateLife( frame:Int, currentFrameData:FrameViewData ) {
 		for( i in 0...currentFrameData.baseHealth.length ) {
 			final lifes0 = i * 3;
 			final baseHealth = currentFrameData.baseHealth[i];
@@ -133,32 +133,32 @@ class GameView {
 			for( o in 0...hasLifes.length ) {
 				final life = lifes[lifes0 + o];
 				if( !hasLifes[o] && life.start == Life.MAX ) {
-					life.start = currentFrame;
-					// if( i == 0 ) trace( 'player $i lose life $o at frame $currentFrame' );
+					life.start = frame;
+					// if( i == 0 ) trace( 'player $i lose life $o at frame $frame' );
 				}
 			}
 		}
 	}
 
-	public function updatePositions( currentFrame:Int, currentFrameData:FrameViewData ) {
+	function updatePositions( frame:Int, currentFrameData:FrameViewData ) {
 		for( id => coord in currentFrameData.positions ) {
 			if( id < 6 ) { // hero
-				heros[id].positions[currentFrame] = coord;
+				heros[id].positions[frame] = coord;
 			} else {
-				mobs[id].positions[currentFrame] = coord;
+				mobs[id].positions[frame] = coord;
 			}
 		}
 	}
 
-	public function updateMobHealth( currentFrame:Int, currentFrameData:FrameViewData ) {
+	function updateMobHealth( frame:Int, currentFrameData:FrameViewData ) {
 		final ids = [for( id in currentFrameData.positions.keys()) id];
 		for( id in ids ) {
 			if( id >= 6 ) {
 				final currentHealth = currentFrameData.mobHealth[id];
 				if( currentHealth <= 0 ) {
 					final mob = mobs[id];
-					mob.setEndFrame( currentFrame, true );
-					// trace( 'set mob $id to die at frame $currentFrame' );
+					mob.setEndFrame( frame, true );
+					// trace( 'set mob $id to die at frame $frame' );
 				}
 			}
 		}
@@ -166,22 +166,46 @@ class GameView {
 		for( existingMobId in mobs.keys()) {
 			final mob = mobs[existingMobId];
 			if( mob.endFrame == -1 && !ids.contains( existingMobId )) {
-				mob.setEndFrame( currentFrame, false );
-				// trace( 'set endframe of mob $existingMobId to $currentFrame' );
+				mob.setEndFrame( frame, false );
+				// trace( 'set endframe of mob $existingMobId to $frame' );
 			}
 		}
 	}
 
-	public function createHeroStates( currentFrame:Int, currentFrameData:FrameViewData ) {
-		if( currentFrameData.controlled.length > 0 ) trace( currentFrame, currentFrameData.controlled, currentFrameData.spellUses );
+	function createStatesOfHeros( frame:Int, currentFrameData:FrameViewData ) {
+		for( i in 0...heros.length ) createHeroState( frame, currentFrameData, i );
 	}
 
-	public function update( currentFrame:Int, subFrame:Float, frameDatasets:Array<FrameViewData> ) {
-		final fFrame = currentFrame + subFrame;
-		final previousFrame = Std.int( Math.max( 0, currentFrame - 1 ));
-		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
+	function createHeroState( frame:Int, currentFrameData:FrameViewData, id:Int ) {
+		final hero = heros[id];
+		final isAttacking = currentFrameData.attacks.filter( attack -> attack.hero == id ).length > 0;
+		final isCasting = currentFrameData.spellUses.filter( spellUse -> spellUse.hero == id ).length > 0;
+		if( isAttacking ) {
+			hero.setFrameState( frame, Combat );
+		}
+		else if( isCasting ) {
+			// if( id == 0 ) trace( '$frame  hero $id  Cast' );
+			hero.setFrameState( frame, Cast );
+		} else {
+			if( frame == 0 ) {
+				// if( id == 0 ) trace( '$frame  hero $id  Idle' );
+				hero.setFrameState( frame, Idle );
+			} else {
+				final currentPos = hero.positions[frame];
+				final prevPos = hero.positions[frame - 1];
+				// if( id == 0 ) trace( '$frame  hero $id  ' + ( currentPos.isEqual( prevPos ) ? "Idle" : "Run" ));
+				hero.setFrameState( frame, currentPos.isEqual( prevPos ) ? Idle : Run );
+			}
+		}
+		// if( id == 0 && frame < 100 ) trace( '$frame  hero $id  ${hero.states[frame]}  ${hero.stateDurations[frame]}' );
+	}
+
+	public function update( frame:Float, intFrame:Int, subFrame:Float, frameDatasets:Array<FrameViewData> ) {
+		final fFrame = intFrame + subFrame;
+		final previousFrame = Std.int( Math.max( 0, intFrame - 1 ));
+		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, intFrame + 1 ));
 		
-		final currentFrameData = frameDatasets[currentFrame];
+		final currentFrameData = frameDatasets[intFrame];
 
 		for( i in 0...currentFrameData.mana.length ) {
 			textfieldsMana[i].text = '${currentFrameData.mana[i]}';
@@ -192,8 +216,8 @@ class GameView {
 			for( o in 0...3 ) lifes[lifes0 + o].update( fFrame );
 		}
 
-		for( hero in heros ) hero.update( fFrame );
-		for( mob in mobs ) mob.update( fFrame );
+		for( hero in heros ) hero.update( frame, intFrame, subFrame );
+		for( mob in mobs ) mob.update( frame, intFrame, subFrame );
 
 		for( id => message in currentFrameData.messages ) {
 			heros[id].setMessage( message );

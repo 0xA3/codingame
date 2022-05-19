@@ -82,13 +82,13 @@ class App extends hxd.App {
 
 	public function updateFirstFrame() {
 		if( frameDatasets.length < 2 ) return;
-		gameView.update( 0, 0, frameDatasets );
+		gameView.update( 0, 0, 0, frameDatasets );
 	}
 
-	function goToFrame( f:Float ) {
-		currentFrame = Math.floor( f );
-		final subFrame = f - currentFrame;
-		gameView.update( currentFrame, subFrame, frameDatasets );
+	function goToFrame( frame:Float ) {
+		currentFrame = Math.floor( frame );
+		final subFrame = frame - currentFrame;
+		gameView.update( frame, currentFrame, subFrame, frameDatasets );
 	}
 
 	override function update( dt:Float ) {
