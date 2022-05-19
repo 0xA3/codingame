@@ -4,12 +4,15 @@ import Std.int;
 import h2d.Anim;
 import h2d.Object;
 
+using xa3.MathUtils;
+
 class MobView extends CharacterView {
 	
 	public static final HEALTH_BAR_Y = -44;
 	public static final HEALTH_BAR_WIDTH = 48;
 	public static final HEALTH_BAR_HEIGHT = 8;
 	static inline var FPS = 15;
+	static inline var FADE = 2;
 	
 	final anim:Anim;
 	final deathAnim:Anim;
@@ -19,6 +22,7 @@ class MobView extends CharacterView {
 	final startFrame:Int;
 	public var endFrame( default, null ) = -1;
 	var deathEndFrame:Float;
+	var fadeEndFrame:Float;
 
 	public function new(
 		container:Object,
@@ -43,6 +47,7 @@ class MobView extends CharacterView {
 	public function setEndFrame( endFrame:Int, isDying:Bool ) {
 		this.endFrame = endFrame;
 		deathEndFrame = isDying ? endFrame + deathAnim.frames.length / FPS : endFrame;
+		fadeEndFrame = isDying ? deathEndFrame + FADE : endFrame;
 	}
 
 	public function setHealth( health:Int ) {
@@ -75,6 +80,10 @@ class MobView extends CharacterView {
 
 		if( frame < deathEndFrame ) {
 			deathAnim.currentFrame = int(( frame - endFrame ) * FPS );
+			deathAnim.visible = true;
+		} else if( frame < fadeEndFrame ) {
+			deathAnim.currentFrame = deathAnim.frames.length - 1;
+			deathAnim.alpha = frame.map( deathEndFrame, fadeEndFrame, 1, 0 );
 			deathAnim.visible = true;
 		} else {
 			deathAnim.visible = false;
