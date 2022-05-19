@@ -72,18 +72,11 @@ class App extends hxd.App {
 
 	public function addFrameViewData( frame:Int, currentFrameData:FrameViewData ) {
 		frameDatasets.push( currentFrameData );
-		gameView.createMobs( frame, currentFrameData );
-		gameView.updateMobHealth( frame, currentFrameData );
-		gameView.initLife( frame, currentFrameData );
-		gameView.createHeroStates( frame, currentFrameData );
+		gameView.addFrameViewData( frame, currentFrameData );
 
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
 			gameplayer.maxFrame = nextFrame;
-			
-			// final previousFrame = Std.int( Math.max( 0, frameDatasets.length - 3 ));
-			// final currentFrame = frameDatasets.length - 2;
-			// gameView.update( frameDatasets[previousFrame], frameDatasets[currentFrame], frameDatasets[nextFrame], 0 );
 		}
 	}
 

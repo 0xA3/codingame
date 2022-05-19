@@ -3,6 +3,7 @@ package viewer;
 import h2d.Anim;
 import h2d.Object;
 import h2d.Text;
+import viewer.THeroState;
 
 class HeroView extends CharacterView {
 
@@ -14,9 +15,10 @@ class HeroView extends CharacterView {
 	final idleAnim:Anim;
 	final castAnim:Anim;
 
-	final anims:Array<Anim>;
 	public final states:Array<THeroState> = [];
-	public final stateStarts:Array<Int> = [];
+	public final stateDurations:Array<Int> = [];
+
+	var state = Idle;
 
 	public function new(
 		container:Object,
@@ -35,8 +37,6 @@ class HeroView extends CharacterView {
 		this.idleAnim = idleAnim;
 		this.castAnim = castAnim;
 		this.textField = textField;
-
-		anims = [runAnim, combatAnim, idleAnim, castAnim];
 	}
 
 	public function setMessage( message:String ) {
@@ -47,14 +47,37 @@ class HeroView extends CharacterView {
 		infoContainer.visible = true;
 	}
 
-	public function update( frame:Float, heroState:THeroState ) {
-		final currentAnim = switch heroState {
-			case Run: runAnim;
-			case Combat: combatAnim;
-			case Idle: idleAnim;
-			case Cast: castAnim;
-		}
+	override public function update( frame:Float ) {
+		super.update( frame );
 
-		for( anim in anims ) anim.visible = anim == currentAnim;
+		if( nextPos.isEqual( currentPos )) changeStateTo( Idle );
+		else changeStateTo( Run );
+	}
+
+	function changeStateTo( nextState:THeroState ) {
+		if( state == nextState ) return;
+		switch nextState {
+			case Run:
+				runAnim.visible = true;
+				combatAnim.visible = false;
+				idleAnim.visible = false;
+				castAnim.visible = false;
+			case Combat:
+				runAnim.visible = false;
+				combatAnim.visible = true;
+				idleAnim.visible = false;
+				castAnim.visible = false;
+			case Idle:
+				runAnim.visible = false;
+				combatAnim.visible = false;
+				idleAnim.visible = true;
+				castAnim.visible = false;
+			case Cast:
+				runAnim.visible = false;
+				combatAnim.visible = false;
+				idleAnim.visible = false;
+				castAnim.visible = true;
+		}
+		state = nextState;
 	}
 }

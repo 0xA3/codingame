@@ -108,11 +108,44 @@ class GameView {
 		for( _ in 0...3 ) heros.push( entityCreator.createHero( herosLayer, 1 ));
 	}
 
+	public function addFrameViewData( frame:Int, currentFrameData:FrameViewData ) {
+		createMobs( frame, currentFrameData );
+		updateLife( frame, currentFrameData );
+		updatePositions( frame, currentFrameData );
+		updateMobHealth( frame, currentFrameData );
+		createHeroStates( frame, currentFrameData );
+	}
+
 	public function createMobs( currentFrame:Int, currentFrameData:FrameViewData ) {
 		for( entity in currentFrameData.spawns ) {
 			if( entity.type == 2 ) {
 				final mobType = currentFrame < 40 ? 0 : currentFrame < 90 ? 1 : 2;
 				mobs[entity.id] = entityCreator.createMob( mobsLayer, mobType, entity.health, currentFrame );
+			}
+		}
+	}
+
+	public function updateLife( currentFrame:Int, currentFrameData:FrameViewData ) {
+		for( i in 0...currentFrameData.baseHealth.length ) {
+			final lifes0 = i * 3;
+			final baseHealth = currentFrameData.baseHealth[i];
+			final hasLifes = [baseHealth > 0, baseHealth > 1, baseHealth > 2];
+			for( o in 0...hasLifes.length ) {
+				final life = lifes[lifes0 + o];
+				if( !hasLifes[o] && life.start == Life.MAX ) {
+					life.start = currentFrame;
+					// if( i == 0 ) trace( 'player $i lose life $o at frame $currentFrame' );
+				}
+			}
+		}
+	}
+
+	public function updatePositions( currentFrame:Int, currentFrameData:FrameViewData ) {
+		for( id => coord in currentFrameData.positions ) {
+			if( id < 6 ) { // hero
+				heros[id].positions[currentFrame] = coord;
+			} else {
+				mobs[id].positions[currentFrame] = coord;
 			}
 		}
 	}
@@ -139,21 +172,6 @@ class GameView {
 		}
 	}
 
-	public function initLife( currentFrame:Int, currentFrameData:FrameViewData ) {
-		for( i in 0...currentFrameData.baseHealth.length ) {
-			final lifes0 = i * 3;
-			final baseHealth = currentFrameData.baseHealth[i];
-			final hasLifes = [baseHealth > 0, baseHealth > 1, baseHealth > 2];
-			for( o in 0...hasLifes.length ) {
-				final life = lifes[lifes0 + o];
-				if( !hasLifes[o] && life.start == Life.MAX ) {
-					life.start = currentFrame;
-					// if( i == 0 ) trace( 'player $i lose life $o at frame $currentFrame' );
-				}
-			}
-		}
-	}
-
 	public function createHeroStates( currentFrame:Int, currentFrameData:FrameViewData ) {
 		if( currentFrameData.controlled.length > 0 ) trace( currentFrame, currentFrameData.controlled, currentFrameData.spellUses );
 	}
@@ -164,8 +182,6 @@ class GameView {
 		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, currentFrame + 1 ));
 		
 		final currentFrameData = frameDatasets[currentFrame];
-		final previousFrameData = frameDatasets[previousFrame];
-		final nextFrameData = frameDatasets[nextFrame];
 
 		for( i in 0...currentFrameData.mana.length ) {
 			textfieldsMana[i].text = '${currentFrameData.mana[i]}';
@@ -176,71 +192,12 @@ class GameView {
 			for( o in 0...3 ) lifes[lifes0 + o].update( fFrame );
 		}
 
-		final mobPositions = [for( id => coord in currentFrameData.positions ) if( id >= 6 ) new Vector( coord.x, coord.y )];
-
-		for( id => coord in currentFrameData.positions ) {
-			if( id < 6 ) { // hero
-				var isAttacking = false;
-				final heroPosition = new Vector( coord.x, coord.y );
-				for( mobPos in mobPositions ) {
-					if( heroPosition.distance( mobPos ) <= Config.HERO_ATTACK_RANGE ) {
-						isAttacking = true;
-						break;
-					}
-				}
-				final hero = heros[id];
-				hero.update( fFrame, Run );
-				
-				place( hero, previousFrameData.positions[id], currentFrameData.positions[id], nextFrameData.positions[id], subFrame, isAttacking );
-			} else {
-				final previousCoord = previousFrameData.positions.exists( id ) ? previousFrameData.positions[id] : coord ;
-				final nextCoord = nextFrameData.positions.exists( id ) ? nextFrameData.positions[id] : coord;
-				
-				final mobView = mobs[id];
-				if( currentFrameData.mobHealth.exists( id )) {
-					final health = currentFrameData.mobHealth[id];
-					if( health > 0 ) mobView.setHealth( currentFrameData.mobHealth[id] );
-				}
-				
-				place( mobView, previousCoord, coord, nextCoord, subFrame );
-			}
-		}
-		for( mobView in mobs ) mobView.update( fFrame );
-
+		for( hero in heros ) hero.update( fFrame );
+		for( mob in mobs ) mob.update( fFrame );
 
 		for( id => message in currentFrameData.messages ) {
 			heros[id].setMessage( message );
 		}
-	}
-
-	function place( character:CharacterView, previous:Coord, coord:Coord, next:Coord, subFrame:Float, isAttacking = false ) {
-		final dx1 = coord.x - previous.x;
-		final dy1 = coord.y - previous.y;
-		final dx2 = next.x - coord.x;
-		final dy2 = next.y - coord.y;
-		
-		final easedRotation = quadEaseInOut( Math.min( 1, subFrame * 3 ));
-		final easedSubFrame = quadEaseInOut( subFrame );
-		
-		final angle1 = MathUtils.angle( dx1, dy1 );
-		final angle2 = MathUtils.angle( dx2, dy2 );
-		final angle = interpolate( angle1, angle2, easedRotation ) + ( isAttacking ? subFrame * TAU : 0 );
-		if( isAttacking || dx2 != 0 || dy2 != 0 ) character.rotate( angle );
-
-		final x = interpolate( coord.x, next.x, easedSubFrame);
-		final y = interpolate( coord.y, next.y, easedSubFrame );
-		character.place( x, y );
-	}
-
-	inline function interpolate( v1:Float, v2:Float, f:Float ) {
-		return v1 + ( v2 - v1 ) * f;
-	}
-	
-	public function quadEaseInOut( k:Float ) {
-		if ((k *= 2) < 1) {
-			return 1 / 2 * k * k;
-		}
-		return -1 / 2 * ((k - 1) * (k - 3) - 1);
 	}
 
 	public function mouseOver( screenX:Float, screenY:Float, currentFrameData:FrameViewData ) {
