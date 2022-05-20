@@ -1,5 +1,7 @@
 package view;
 
+import game.Vector;
+
 class Coord {
 	
 	public var x:Int;
@@ -11,8 +13,9 @@ class Coord {
 	}
 
 	public function isEqual( other:Coord ) return x == other.x && y == other.y;
+	
+	public function toString() return '$x $y';
 
-	public function toString() {
-		return '$x $y';
-	}
+	public function toVector() return new Vector( x, y );
+	
 }

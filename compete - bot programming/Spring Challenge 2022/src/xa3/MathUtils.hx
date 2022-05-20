@@ -1,7 +1,5 @@
 package xa3;
 
-import Std.int;
-
 class MathUtils {
 	
 	public static inline function angle( x:Int, y:Int ) return -Math.atan2( x, y );

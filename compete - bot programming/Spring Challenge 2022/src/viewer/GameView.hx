@@ -9,6 +9,7 @@ import h2d.Scene;
 import h2d.Text;
 import view.Coord;
 import view.FrameViewData;
+import view.SpellUse;
 import viewer.App;
 import viewer.CharacterView;
 import viewer.EntityCreator;
@@ -40,6 +41,7 @@ class GameView {
 	final backgroundLayer:Object;
 	final mobsLayer:Object;
 	final herosLayer:Object;
+	final spellsLayer:Object;
 	final hudLayer:Object;
 	final textLayer:Object;
 
@@ -48,9 +50,10 @@ class GameView {
 	final overlayBox:Graphics;
 	final overlayText:Text;
 
+	final lifes:Array<Life> = [];
 	final heros:Array<HeroView> = [];
 	final mobs:Map<Int, MobView> = [];
-	final lifes:Array<Life> = [];
+	final windSpells:Array<WindSpellView> = [];
 	
 	public var isMouseDown = false;
 
@@ -62,6 +65,7 @@ class GameView {
 		backgroundLayer = new Object( scene );
 		mobsLayer = new Object( scene );
 		herosLayer = new Object( scene );
+		spellsLayer = new Object( scene );
 		hudLayer = new Object( scene );
 		textLayer = new Object( scene );
 		overlay = new Object( s2d );
@@ -114,6 +118,7 @@ class GameView {
 		updatePositions( frame, currentFrameData );
 		updateMobHealth( frame, currentFrameData );
 		createStatesOfHeros( frame, currentFrameData );
+		createWindSpells( frame, currentFrameData );
 	}
 
 	function createMobs( frame:Int, currentFrameData:FrameViewData ) {
@@ -199,29 +204,31 @@ class GameView {
 		}
 		// if( id == 0 && frame < 100 ) trace( '$frame  hero $id  ${hero.states[frame]}  ${hero.stateDurations[frame]}' );
 	}
+	
+	function createWindSpells( frame:Int, currentFrameData:FrameViewData ) {
+		final windSpellUses = currentFrameData.spellUses.filter( spellUse -> spellUse.spell == "WIND" );
+		for( windSpellUse in windSpellUses ) {
+			final pos = currentFrameData.positions[windSpellUse.hero];
+			final windSpell = entityCreator.createWindSpell( spellsLayer, pos, windSpellUse.destination, frame - 1 );
+			windSpell.place( sX( pos.x ), sY( pos.y ));
+			windSpells.push( windSpell );
+		}
+	}
 
 	public function update( frame:Float, intFrame:Int, subFrame:Float, frameDatasets:Array<FrameViewData> ) {
-		final fFrame = intFrame + subFrame;
-		final previousFrame = Std.int( Math.max( 0, intFrame - 1 ));
-		final nextFrame = Std.int( Math.min( frameDatasets.length - 1, intFrame + 1 ));
-		
 		final currentFrameData = frameDatasets[intFrame];
 
-		for( i in 0...currentFrameData.mana.length ) {
-			textfieldsMana[i].text = '${currentFrameData.mana[i]}';
-		}
-		
+		for( i in 0...currentFrameData.mana.length ) textfieldsMana[i].text = '${currentFrameData.mana[i]}';
 		for( i in 0...currentFrameData.baseHealth.length ) {
 			final lifes0 = i * 3;
-			for( o in 0...3 ) lifes[lifes0 + o].update( fFrame );
+			for( o in 0...3 ) lifes[lifes0 + o].update( frame );
 		}
 
 		for( hero in heros ) hero.update( frame, intFrame, subFrame );
+		for( id => message in currentFrameData.messages ) heros[id].setMessage( message );
+		
 		for( mob in mobs ) mob.update( frame, intFrame, subFrame );
-
-		for( id => message in currentFrameData.messages ) {
-			heros[id].setMessage( message );
-		}
+		for( windSpell in windSpells ) windSpell.update( frame );
 	}
 
 	public function mouseOver( screenX:Float, screenY:Float, currentFrameData:FrameViewData ) {

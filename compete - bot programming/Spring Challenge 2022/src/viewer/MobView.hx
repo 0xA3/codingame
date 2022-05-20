@@ -71,9 +71,7 @@ class MobView extends CharacterView {
 			deathAnim.visible = false;
 			anim.visible = true;
 			return;
-		}
-		
-		if( frame >= endFrame ) {
+		} else {
 			infoContainer.visible = false;
 			anim.visible = false;
 		}
@@ -81,6 +79,7 @@ class MobView extends CharacterView {
 		if( frame < deathEndFrame ) {
 			deathAnim.currentFrame = int(( frame - endFrame ) * FPS );
 			deathAnim.visible = true;
+			deathAnim.alpha = 1;
 		} else if( frame < fadeEndFrame ) {
 			deathAnim.currentFrame = deathAnim.frames.length - 1;
 			deathAnim.alpha = frame.map( deathEndFrame, fadeEndFrame, 1, 0 );

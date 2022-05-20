@@ -6,6 +6,8 @@ import h2d.Graphics;
 import h2d.Object;
 import h2d.Text;
 import h2d.Tile;
+import view.Coord;
+import view.SpellUse;
 import viewer.AssetConstants;
 
 class EntityCreator {
@@ -188,6 +190,17 @@ class EntityCreator {
 			startFrame
 		);
 		return mob;
+	}
+
+	public function createWindSpell( spellsLayer:Object, pos:Coord, destination:Coord, start:Int ) {
+		final windFrames = AssetConstants.GUST_FRAMES.map( frameId -> tileLibrary[frameId] );
+		final windObject = new Object( spellsLayer );
+		final windAnim = new Anim( windFrames, windObject );
+		centerAnim( windAnim );
+		windAnim.pause = true;
+		windObject.rotation = destination.toVector().sub( pos.toVector()).angle();
+
+		return new WindSpellView( windObject, windAnim, start );
 	}
 
 	function centerAnim( anim:Anim ) {
