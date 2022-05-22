@@ -13,17 +13,17 @@ class Tests extends buddy.BuddySuite {
 		
 		describe( "Test process", {
 			
-			it( "Example", { Main.process( parse( example )).should.be( exampleResult ); });
-			it( "Basic operations", { Main.process( parse( basicOperations )).should.be( basicOperationsResult ); });
-			it( "Smoky trail", { Main.process( parse( smokyTrail )).should.be( smokyTrailResult ); });
-			it( "Traps in fames", { Main.process( parse( trapsInFames )).should.be( trapsInFamesResult ); });
-			it( "Ambushes", { Main.process( parse( ambushes )).should.be( ambushesResult ); });
+			it( "Example", { Main.process( example ).should.be( exampleResult ); });
+			it( "Basic operations", { Main.process( basicOperations ).should.be( basicOperationsResult ); });
+			it( "Smoky trail", { Main.process( smokyTrail ).should.be( smokyTrailResult ); });
+			it( "Traps in fames", { Main.process( trapsInFames ).should.be( trapsInFamesResult ); });
+			it( "Ambushes", { Main.process( ambushes ).should.be( ambushesResult ); });
 			
 		});
 
 	}
 
-	static function parse( input:String ) {
+	static function parseInput( input:String ) {
 		final inputLines = input.split( "\n" );
 		final n = parseInt( inputLines[0] );
 		final lines = [for( i in 0...n ) inputLines[i + 1].split("").map( cell -> cell.trim() == "f" ? true : false )];
@@ -34,16 +34,16 @@ class Tests extends buddy.BuddySuite {
 		return input.split( "\n" ).map( line -> line.trim()).join( "\n" );
 	}
 
-	static final example =
+	static final example = parseInput(
 	"2
 	....f....f..
-	.......fff";
+	.......fff" );
 
 	static final exampleResult = parseResult(
 	"2
 	1" );
 
-	static final basicOperations =
+	static final basicOperations = parseInput(
 	"18
 	f.f
 	fff..ffff..
@@ -62,7 +62,7 @@ class Tests extends buddy.BuddySuite {
 	fffff
 	f..fff
 	ff..
-	f.f.f.";
+	f.f.f." );
 
 	static final basicOperationsResult = parseResult(
 	"1
@@ -84,7 +84,7 @@ class Tests extends buddy.BuddySuite {
 	1
 	2" );
 
-	static final smokyTrail =
+	static final smokyTrail = parseInput(
 	"34
 	..
 	.f
@@ -119,7 +119,7 @@ class Tests extends buddy.BuddySuite {
 	.ffffffffffff..f..ff.f.fff.ffffff.f.f..ffffff.f.fff..ff.ff.ffffff..f.f.ffff.ff.
 	ff.f.fffff...ffff.ffffff.ffffffff.fff.fff.fffffffff.fff.f.fffff.ff.f..ff.f.f.f..f.f
 	ffffff.ff.ff.ff...fffffffffff..ff..ffffff.ff.fffffff..fff.f.fffffff..fffffff..ff..ffff.
-	ffff..ff.fffffff.f.fff.ffff.fff..f.fffffff..fff.ff.ff.ffffffff.f.f..f.fffff.fff.ffffffffff.f.f";
+	ffff..ff.fffffff.f.fff.ffff.fff..f.fffffff..fff.ff.ff.ffffffff.f.f..f.fffff.fff.ffffffffff.f.f" );
 
 	static final smokyTrailResult = parseResult(
 	"0
@@ -157,7 +157,7 @@ class Tests extends buddy.BuddySuite {
 	26
 	29" );
 
-	static final trapsInFames =
+	static final trapsInFames = parseInput(
 	"39
 	ff
 	ff.
@@ -197,7 +197,7 @@ class Tests extends buddy.BuddySuite {
 	f.f..ff.f.ffff.f.f..f..ff.ff.f.f.f..ff.ffff....f..ff.f.fffffffff.f.f..fff.f..ff...fff.f.fff..
 	ffff.f.f.ffffffff.fffffffffffff.ff..fffff..f.ffffff.fff.f.ff.f.fffff..f.fffffff.ffffff.fff.ff.ff
 	.f.ffff.ff.ff.fff.fffff.fffffffff..fff.f.f.ff...ff.f.f..ffffff.fff.f..fff.f.f.f.ffff..ff....ff.fff
-	......ff..f......f.f.f..f....ff.fff.f.f.f.f..f.fff.fffff....fffff.f.f.f...fffff.f.........f.ff.f..";
+	......ff..f......f.f.f..f....ff.fff.f.f.f.f..f.fff.fffff....fffff.f.f.f...fffff.f.........f.ff.f.." );
 
 	static final trapsInFamesResult = parseResult(
 	"1
@@ -240,7 +240,7 @@ class Tests extends buddy.BuddySuite {
 	26
 	22" );
 
-	static final ambushes =
+	static final ambushes = parseInput(
 	"80
 	..f
 	f.f..f
@@ -321,7 +321,7 @@ class Tests extends buddy.BuddySuite {
 	f..f.f...ff..ff.ff.fff...ff...fff.f..fff.fffff.f.ff.ff.ff.f.ff.ffff....ffff.f.f...fff....ffffff
 	.f.f.f.f...f..ff..ff.ffff.fffff.ff....fffff.fff..f.f.ffff..ff...f..f..ff.ffff..f.f.f....ff..f..ff
 	.ff.f..f.f.f..fffffffff..ff..ffff.ff.f.f.ff.f.f..f..fff.f...ff..f.fff.f..ffff....f..f.fff...fff.f
-	ff.ff......f.f..ff..f..fffff.fff..fffff.f....f.f.f.f.f.ffff...ff.ffff.fffffffff.fff..ff..f.ff.f...";
+	ff.ff......f.f..ff..f..fffff.fff..fffff.f....f.f.f.f.f.ffff...ff.ffff.fffffffff.fff..ff..f.ff.f..." );
 
 	static final ambushesResult = parseResult(
 	"1
