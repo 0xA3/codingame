@@ -15,43 +15,43 @@ class Tests extends buddy.BuddySuite {
 			
 			it( "2 input signals, 3 gates", {
 				final ip = twoInputSignalsThreeGates;
-				Main.process( ip.inputs, ip.operations).should.be( twoInputSignalsThreeGatesResult );
+				Main.process( ip.inputs, ip.operations ).should.be( twoInputSignalsThreeGatesResult );
 			});
 			it( "Inverter (NAND)", {
 				final ip = inverterNAND;
-				Main.process( ip.inputs, ip.operations).should.be( inverterNANDResult );
+				Main.process( ip.inputs, ip.operations ).should.be( inverterNANDResult );
 			});
 			it( "AND", {
 				final ip = AND;
-				Main.process( ip.inputs, ip.operations).should.be( ANDResult );
+				Main.process( ip.inputs, ip.operations ).should.be( ANDResult );
 			});
 			it( "OR", {
 				final ip = OR;
-				Main.process( ip.inputs, ip.operations).should.be( ORResult );
+				Main.process( ip.inputs, ip.operations ).should.be( ORResult );
 			});
 			it( "XOR", {
 				final ip = XOR;
-				Main.process( ip.inputs, ip.operations).should.be( XORResult );
+				Main.process( ip.inputs, ip.operations ).should.be( XORResult );
 			});
 			it( "Buffer (OR)", {
 				final ip = bufferOR;
-				Main.process( ip.inputs, ip.operations).should.be( bufferORResult );
+				Main.process( ip.inputs, ip.operations ).should.be( bufferORResult );
 			});
 			it( "NAND", {
 				final ip = NAND;
-				Main.process( ip.inputs, ip.operations).should.be( NANDResult );
+				Main.process( ip.inputs, ip.operations ).should.be( NANDResult );
 			});
 			it( "NOR", {
 				final ip = NOR;
-				Main.process( ip.inputs, ip.operations).should.be( NORResult );
+				Main.process( ip.inputs, ip.operations ).should.be( NORResult );
 			});
 			it( "NXOR", {
 				final ip = NXOR;
-				Main.process( ip.inputs, ip.operations).should.be( NXORResult );
+				Main.process( ip.inputs, ip.operations ).should.be( NXORResult );
 			});
 			it( "allGates", {
 				final ip = allGates;
-				Main.process( ip.inputs, ip.operations).should.be( allGatesResult );
+				Main.process( ip.inputs, ip.operations ).should.be( allGatesResult );
 			});
 		});
 

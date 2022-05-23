@@ -21,7 +21,7 @@ class WindSpellView {
 	}
 
 	public function update( frame:Float ) {
-		if( frame < start || frame > end ) {
+		if( frame < start || frame >= end ) {
 			anim.visible = false;
 			return;
 		}
