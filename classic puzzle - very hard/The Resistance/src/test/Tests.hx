@@ -24,7 +24,7 @@ class Tests extends buddy.BuddySuite {
 				final ip = simpleMessage;
 				Main.process( ip.sequence, ip.words ).should.be( 2 );
 			});
-			@exclude it( "Long sequence, large dictionary", {
+			it( "Long sequence, large dictionary", {
 				final ip = longSequenceLongDictionary;
 				Main.process( ip.sequence, ip.words ).should.be( 57330892800 );
 			});
@@ -32,7 +32,7 @@ class Tests extends buddy.BuddySuite {
 				final ip = sameEncodingForDifferentWords;
 				Main.process( ip.sequence, ip.words ).should.be( 125 );
 			});
-			@exclude it( "Many possibilities", {
+			it( "Many possibilities", {
 				final ip = manyPossibilities;
 				Main.process( ip.sequence, ip.words ).should.be( 2971215073 );
 			});
@@ -40,17 +40,25 @@ class Tests extends buddy.BuddySuite {
 				final ip = eeetttt;
 				Main.process( ip.sequence, ip.words ).should.be( 25 );
 			});
-			it( "E EEE", {
-				final ip = eeee;
+			it( "E EEE 1", {
+				final ip = eeee1;
+				Main.process( ip.sequence, ip.words ).should.be( 1 );
+			});
+			it( "E EEE 3", {
+				final ip = eeee3;
 				Main.process( ip.sequence, ip.words ).should.be( 2 );
+			});
+			it( "E EEE 9", {
+				final ip = eeee9;
+				Main.process( ip.sequence, ip.words ).should.be( 19 );
+			});
+			it( "BAC BANN DUC", {
+				final ip = bacbannduc;
+				Main.process( ip.sequence, ip.words ).should.be( 9 );
 			});
 			it( "BAC BANN DUTETE", {
 				final ip = bacbanndutete;
 				Main.process( ip.sequence, ip.words ).should.be( 9 );
-			});
-			it( "Ambigous words", {
-				final ip = ambigousWords;
-				Main.process( ip.sequence, ip.words ).should.be( 125 );
 			});
 		});
 
@@ -9568,11 +9576,30 @@ class Tests extends buddy.BuddySuite {
 	T
 	TT" );
 	
-	static final eeee = parseInput(
+	static final eeee1 = parseInput(
+	".
+	2
+	E
+	EEE" );
+	
+	static final eeee3 = parseInput(
 	"...
 	2
 	E
 	EEE" );
+	
+	static final eeee9 = parseInput(
+	".........
+	2
+	E
+	EEE" );
+
+	static final bacbannduc = parseInput(
+	"-....--.-.-....--.-.
+	3
+	BAC
+	BANN
+	DUC" );
 	
 	static final bacbanndutete = parseInput(
 	"-....--.-.-....--.-.
@@ -9580,14 +9607,5 @@ class Tests extends buddy.BuddySuite {
 	BAC
 	BANN
 	DUTETE" );
-	
-	static final ambigousWords = parseInput(
-	"-.-..---.-..---.-..--
-	5
-	CAT
-	KIM
-	TEXT
-	TREM
-	CEM" );
 }
 
