@@ -1,11 +1,10 @@
 import haxe.Timer;
 import Std.parseInt;
-import Main.COLDER;
-import Main.WARMER;
-import Main.SAME;
-import Main.UNKNOWN;
+import Knight.COLDER;
+import Knight.WARMER;
+import Knight.SAME;
+import Knight.UNKNOWN;
 
-@:access( Main )
 class Sim {
 	
 	static var x = 1;
@@ -19,21 +18,24 @@ class Sim {
 	static var timer:Timer;
 
 	static var bombDir = UNKNOWN;
+	
+	static var knight:Knight;
 
 	public static function main() {
-		Main.init( 5, 16, 80, x, y );
+		knight = new Knight( 5, 16, 80, x, y );
 
 		timer = new Timer( 250 );
 		timer.run = step;
 	}
 
 	static function step() {
-		final command = Main.process( bombDir );
+		final command = knight.respond( bombDir );
 		turn++;
 
 		final pos = command.split(" ").map( s -> parseInt( s ));
 		if( pos[0] == bx && pos[1] == by ) {
 			Sys.println( 'Bomb located in $turn turns' );
+			timer.stop();
 		}
 		final nextDist2 = distance2( pos[0], pos[1], bx, by );
 		if( nextDist2 > dist2 ) bombDir = COLDER;

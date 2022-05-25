@@ -2,6 +2,13 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Debug Sim",
+			"request": "launch",
+			"type": "hl",
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Build Sim"
+		},
+		{
 			"name": "Haxe Interpreter",
 			"type": "haxe-eval",
 			"request": "launch"
