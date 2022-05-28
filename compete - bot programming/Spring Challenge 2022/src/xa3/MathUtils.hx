@@ -26,4 +26,16 @@ class MathUtils {
 	public static inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 	public static inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
 	public static inline function abs( v:Int ) return v >= 0 ? v : -v;
+
+	public static inline function interpolate( v1:Float, v2:Float, f:Float ) {
+		return v1 + ( v2 - v1 ) * f;
+	}
+	
+	public static inline function quadEaseInOut( k:Float ) {
+		if ((k *= 2) < 1) {
+			return 1 / 2 * k * k;
+		}
+		return -1 / 2 * ((k - 1) * (k - 3) - 1);
+	}
+
 }

@@ -203,6 +203,15 @@ class EntityCreator {
 		return new WindSpellView( windObject, windAnim, start );
 	}
 
+	public function createShieldSpell( spellsLayer:Object, pos:Coord, mobId:Int, start:Int ) {
+		final shieldFrames = AssetConstants.SHIELD_FRAMES.map( frameId -> tileLibrary[frameId] );
+		final shieldObject = new Object( spellsLayer );
+		final shieldAnim = new Anim( shieldFrames, shieldObject );
+		centerAnim( shieldAnim );
+
+		return new ShieldSpellView( shieldObject, shieldAnim, mobId, start, pos );
+	}
+
 	function centerAnim( anim:Anim ) {
 		if( anim.frames.length == 0 ) throw 'Error: anim has no frames';
 		anim.x = -anim.frames[0].width / 2;

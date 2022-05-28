@@ -9,6 +9,10 @@ class AssetConstants {
 	public static final IDLE = "IDLE";
 	public static final CAST = "CAST";
 
+	public static final WIND = "WIND";
+	public static final SHIELD = "SHIELD";
+	public static final CONTROL = "CONTROL";
+
 	public static final EFFECT_HIT = 0;
 	public static final EFFECT_SHIELD = 2;
 	public static final EFFECT_BEAM = 3;

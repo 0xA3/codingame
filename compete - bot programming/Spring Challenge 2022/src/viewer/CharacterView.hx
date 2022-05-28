@@ -63,31 +63,18 @@ class CharacterView {
 		final dx2 = nextPos.x - currentPos.x;
 		final dy2 = nextPos.y - currentPos.y;
 		
-		final easedRotation = quadEaseInOut( Math.min( 1, subFrame * 3 ));
-		final easedSubFrame = quadEaseInOut( subFrame );
+		final easedRotation = MathUtils.quadEaseInOut( Math.min( 1, subFrame * 3 ));
+		final easedSubFrame = MathUtils.quadEaseInOut( subFrame );
 		
 		final angle1 = MathUtils.angle( dx1, dy1 );
 		final angle2 = MathUtils.angle( dx2, dy2 );
-		final angle = interpolate( angle1, angle2, easedRotation );// + ( isAttacking ? subFrame * TAU : 0 );
+		final angle = MathUtils.interpolate( angle1, angle2, easedRotation );// + ( isAttacking ? subFrame * TAU : 0 );
 		if( dx2 != 0 || dy2 != 0 ) rotate( angle );
 
-		final x = interpolate( currentPos.x, nextPos.x, easedSubFrame);
-		final y = interpolate( currentPos.y, nextPos.y, easedSubFrame );
+		final x = MathUtils.interpolate( currentPos.x, nextPos.x, easedSubFrame);
+		final y = MathUtils.interpolate( currentPos.y, nextPos.y, easedSubFrame );
 		
 		container.x = this.x = sX( x );
 		container.y = this.y = sY( y );
 	}
-
-	inline function interpolate( v1:Float, v2:Float, f:Float ) {
-		return v1 + ( v2 - v1 ) * f;
-	}
-	
-	public function quadEaseInOut( k:Float ) {
-		if ((k *= 2) < 1) {
-			return 1 / 2 * k * k;
-		}
-		return -1 / 2 * ((k - 1) * (k - 3) - 1);
-	}
-
-
 }

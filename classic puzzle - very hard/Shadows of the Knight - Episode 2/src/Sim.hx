@@ -22,7 +22,7 @@ class Sim {
 	static var knight:Knight;
 
 	public static function main() {
-		knight = new Knight( 5, 16, 80, x, y );
+		knight = new Knight( 5, 6, 80, x, y );
 
 		timer = new Timer( 250 );
 		timer.run = step;
@@ -31,7 +31,9 @@ class Sim {
 	static function step() {
 		final command = knight.respond( bombDir );
 		turn++;
-
+		
+		if( turn == 3 ) timer.stop();
+		
 		final pos = command.split(" ").map( s -> parseInt( s ));
 		if( pos[0] == bx && pos[1] == by ) {
 			Sys.println( 'Bomb located in $turn turns' );

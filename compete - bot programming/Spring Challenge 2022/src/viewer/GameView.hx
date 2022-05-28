@@ -54,6 +54,7 @@ class GameView {
 	final heros:Array<HeroView> = [];
 	final mobs:Map<Int, MobView> = [];
 	final windSpells:Array<WindSpellView> = [];
+	final shieldSpells:Array<ShieldSpellView> = [];
 	
 	public var isMouseDown = false;
 
@@ -119,6 +120,7 @@ class GameView {
 		updateMobHealth( frame, currentFrameData );
 		createStatesOfHeros( frame, currentFrameData );
 		createWindSpells( frame, currentFrameData );
+		createShieldSpells( frame, currentFrameData );
 	}
 
 	function createMobs( frame:Int, currentFrameData:FrameViewData ) {
@@ -206,7 +208,7 @@ class GameView {
 	}
 	
 	function createWindSpells( frame:Int, currentFrameData:FrameViewData ) {
-		final windSpellUses = currentFrameData.spellUses.filter( spellUse -> spellUse.spell == "WIND" );
+		final windSpellUses = currentFrameData.spellUses.filter( spellUse -> spellUse.spell == AssetConstants.WIND );
 		for( windSpellUse in windSpellUses ) {
 			final pos = currentFrameData.positions[windSpellUse.hero];
 			final windSpell = entityCreator.createWindSpell( spellsLayer, pos, windSpellUse.destination, frame - 1 );
@@ -215,6 +217,29 @@ class GameView {
 		}
 	}
 
+	function createShieldSpells( frame:Int, currentFrameData:FrameViewData ) {
+		final shieldSpellUses = currentFrameData.spellUses.filter( spellUse -> spellUse.spell == AssetConstants.SHIELD );
+		for( shieldSpellUse in shieldSpellUses ) {
+			final pos = currentFrameData.positions[shieldSpellUse.hero];
+			final shieldSpell = entityCreator.createShieldSpell( spellsLayer, pos, shieldSpellUse.target, frame );
+			shieldSpells.push( shieldSpell );
+			// trace( 'new ShieldSpell at frame $frame of hero ${shieldSpellUse.hero} pos $pos to mob ${shieldSpellUse.target}' );
+		}
+
+		for( mobId in currentFrameData.shielded ) {
+			final shieldSpellView = findShieldView( mobId );
+			shieldSpellView.addPos( frame, currentFrameData.positions[mobId] );
+		}
+	}
+
+	function findShieldView( mobId:Int ) {
+		for( i in -shieldSpells.length + 1...1 ) {
+			final shieldSpell = shieldSpells[-i];
+			if( shieldSpell.mobId == mobId ) return shieldSpell;
+		}
+		throw 'Error: no shield spell found for mob $mobId';
+	}
+	
 	public function update( frame:Float, intFrame:Int, subFrame:Float, frameDatasets:Array<FrameViewData> ) {
 		final currentFrameData = frameDatasets[intFrame];
 
@@ -229,6 +254,7 @@ class GameView {
 		
 		for( mob in mobs ) mob.update( frame, intFrame, subFrame );
 		for( windSpell in windSpells ) windSpell.update( frame );
+		for( shieldSpell in shieldSpells ) shieldSpell.update( frame, intFrame, subFrame );
 	}
 
 	public function mouseOver( screenX:Float, screenY:Float, currentFrameData:FrameViewData ) {

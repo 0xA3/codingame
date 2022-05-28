@@ -22,12 +22,12 @@ class WindSpellView {
 
 	public function update( frame:Float ) {
 		if( frame < start || frame >= end ) {
-			anim.visible = false;
+			object.visible = false;
 			return;
 		}
 
 		anim.currentFrame = int(( frame - start ) * FPS );
-		anim.visible = true;
+		object.visible = true;
 	}
 
 	public function place( x:Float, y:Float ) {
