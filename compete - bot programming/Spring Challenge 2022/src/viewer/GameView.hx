@@ -162,19 +162,8 @@ class GameView {
 		for( id in ids ) {
 			if( id >= 6 ) {
 				final currentHealth = currentFrameData.mobHealth[id];
-				if( currentHealth <= 0 ) {
-					final mob = mobs[id];
-					mob.setEndFrame( frame, true );
-					// trace( 'set mob $id to die at frame $frame' );
-				}
-			}
-		}
-		
-		for( existingMobId in mobs.keys()) {
-			final mob = mobs[existingMobId];
-			if( mob.endFrame == -1 && !ids.contains( existingMobId )) {
-				mob.setEndFrame( frame, false );
-				// trace( 'set endframe of mob $existingMobId to $frame' );
+				final isDying = currentHealth <= 0 ? true : false;
+				mobs[id].setEndFrame( frame, isDying );
 			}
 		}
 	}

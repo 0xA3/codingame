@@ -13,14 +13,15 @@ class MobView extends CharacterView {
 	public static final HEALTH_BAR_HEIGHT = 8;
 	static inline var FPS = 15;
 	static inline var FADE = 2;
-	
+
+	public var endFrame( default, null ) = -1;
+
 	final anim:Anim;
 	final deathAnim:Anim;
 	final healthBar:Object;
 	final fullHealth:Int;
 	final phase:Float;
 	final startFrame:Int;
-	public var endFrame( default, null ) = -1;
 	var deathEndFrame:Float;
 	var fadeEndFrame:Float;
 
@@ -59,6 +60,7 @@ class MobView extends CharacterView {
 	
 	override public function update( frame:Float, intFrame:Int, subFrame:Float ) {
 		super.update( frame, intFrame, subFrame );
+		
 		if( frame < startFrame ) {
 			infoContainer.visible = false;
 			anim.visible = false;
