@@ -7,7 +7,7 @@ import viewer.GameView.sY;
 
 using xa3.MathUtils;
 
-class ShieldSpellView {
+class ControlMarkerView {
 	
 	final object:Object;
 	public final mobId:Int;
@@ -32,25 +32,20 @@ class ShieldSpellView {
 		if( frame < start ) object.visible = false;
 		else if( frame <= end ) {
 			object.visible = true;
-			object.alpha = frame < start + 1 ? subFrame : 1;
-			final scale = frame < start + 1 ? frame.map( start, start + 1, 0.15, 1 ) : 1;
-			object.scaleX = object.scaleY = scale;
 			
 			final posIndex = intFrame - start;
 			final nextIndex = ( posIndex + 1 ).min( positions.length - 1 );
 			final currentPos = positions[posIndex];
 			final nextPos = positions[nextIndex];
 			place( currentPos, nextPos, subFrame );
-
-		} else if( frame <= end + 1 ) {
-			object.visible = true;
-			object.alpha = 1 - subFrame;
-			final pos = positions[positions.length - 1];
-			object.x = sX( pos.x );
-			object.y = sY( pos.y );
+			
 		} else {
 			object.visible = false;
 		}
+	}
+	
+	public function updateRotation( dt:Float ) {
+		if( object.visible ) object.rotation += dt;
 	}
 
 	function place( currentPos:Coord, nextPos:Coord, subFrame:Float ) {

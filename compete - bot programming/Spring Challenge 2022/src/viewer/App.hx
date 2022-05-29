@@ -93,6 +93,7 @@ class App extends hxd.App {
 
 	override function update( dt:Float ) {
 		gameplayer.update( dt );
+		gameView.updateControlMarkerRotation( dt );
 		if( s2d.mouseY < window.height - Gameplayer.HEIGHT ) {
 			gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
 		} else gameView.mouseOut();

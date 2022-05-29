@@ -55,6 +55,8 @@ class GameView {
 	final mobs:Map<Int, MobView> = [];
 	final windSpells:Array<WindSpellView> = [];
 	final shieldSpells:Array<ShieldSpellView> = [];
+	final controlBeams:Array<ControlBeamView> = [];
+	final controlMarkers:Array<ControlMarkerView> = [];
 	
 	public var isMouseDown = false;
 
@@ -121,6 +123,7 @@ class GameView {
 		createStatesOfHeros( frame, currentFrameData );
 		createWindSpells( frame, currentFrameData );
 		createShieldSpells( frame, currentFrameData );
+		createControlSpells( frame, currentFrameData );
 	}
 
 	function createMobs( frame:Int, currentFrameData:FrameViewData ) {
@@ -229,6 +232,33 @@ class GameView {
 		throw 'Error: no shield spell found for mob $mobId';
 	}
 	
+	function createControlSpells( frame:Int, currentFrameData:FrameViewData ) {
+		final controlSpellUses = currentFrameData.spellUses.filter( spellUse -> spellUse.spell == AssetConstants.CONTROL );
+		for( controlSpellUse in controlSpellUses ) {
+			final heroPos = currentFrameData.positions[controlSpellUse.hero];
+			final mobPos = currentFrameData.positions[controlSpellUse.target];
+			final controlBeam = entityCreator.createControlBeam( spellsLayer, controlSpellUse.hero, controlSpellUse.target, heroPos, mobPos, frame - 1 );
+			controlBeam.place( sX( heroPos.x ), sY( heroPos.y ));
+			controlBeams.push( controlBeam );
+
+			final controlMarker = entityCreator.createControlMarker( backgroundLayer, mobPos, controlSpellUse.target, frame );
+			controlMarkers.push( controlMarker );
+		}
+
+		for( mobId in currentFrameData.controlled ) {
+			final controlMarkerView = findControlView( mobId );
+			controlMarkerView.addPos( frame, currentFrameData.positions[mobId] );
+		}
+	}
+
+	function findControlView( mobId:Int ) {
+		for( i in -controlMarkers.length + 1...1 ) {
+			final controlMarker = controlMarkers[-i];
+			if( controlMarker.mobId == mobId ) return controlMarker;
+		}
+		throw 'Error: no control spell found for mob $mobId';
+	}
+	
 	public function update( frame:Float, intFrame:Int, subFrame:Float, frameDatasets:Array<FrameViewData> ) {
 		final currentFrameData = frameDatasets[intFrame];
 
@@ -244,6 +274,12 @@ class GameView {
 		for( mob in mobs ) mob.update( frame, intFrame, subFrame );
 		for( windSpell in windSpells ) windSpell.update( frame );
 		for( shieldSpell in shieldSpells ) shieldSpell.update( frame, intFrame, subFrame );
+		for( controlBeam in controlBeams ) controlBeam.update( frame, intFrame, subFrame );
+		for( controlMarker in controlMarkers ) controlMarker.update( frame, intFrame, subFrame );
+	}
+
+	public function updateControlMarkerRotation( dt:Float ) {
+		for( controlMarker in controlMarkers ) controlMarker.updateRotation( dt );
 	}
 
 	public function mouseOver( screenX:Float, screenY:Float, currentFrameData:FrameViewData ) {

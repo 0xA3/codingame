@@ -1,5 +1,6 @@
 package viewer;
 
+import game.Config;
 import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Graphics;
@@ -9,6 +10,8 @@ import h2d.Tile;
 import view.Coord;
 import view.SpellUse;
 import viewer.AssetConstants;
+
+using xa3.MathUtils;
 
 class EntityCreator {
 	
@@ -209,7 +212,32 @@ class EntityCreator {
 		final shieldAnim = new Anim( shieldFrames, shieldObject );
 		centerAnim( shieldAnim );
 
-		return new ShieldSpellView( shieldObject, shieldAnim, mobId, start, pos );
+		return new ShieldSpellView( shieldObject, mobId, start, pos );
+	}
+
+	public function createControlBeam( spellsLayer:Object, heroId:Int, mobId:Int, heroPos:Coord, mobPos:Coord, start:Int ) {
+		final beamFrames = AssetConstants.BEAM_FRAMES.map( frameId -> tileLibrary[frameId] );
+		final beamObject = new Object( spellsLayer );
+		final beamAnim = new Anim( beamFrames, beamObject );
+		beamAnim.pause = true;
+		if( beamAnim.frames.length == 0 ) throw 'Error: anim has no frames';
+		beamAnim.y = -beamAnim.frames[0].height / 2;
+		final distance = MathUtils.distance( heroPos.x, heroPos.y, mobPos.x, mobPos.y );
+		beamObject.scaleX = distance * 0.7 / Config.HERO_VIEW_RADIUS;
+		
+		final angle = MathUtils.angle( mobPos.x - heroPos.x, mobPos.y - heroPos.y ) + ( Math.PI / 2 );
+		beamObject.rotation = angle;
+
+		return new ControlBeamView( beamObject, beamAnim, heroId, start );
+	}
+
+	public function createControlMarker( backgroundLayer:Object, mobPos:Coord, mobId:Int, start:Int ) {
+		final controlMarkerObject = new Object( backgroundLayer );
+		final controlMarkerBitmap = new Bitmap( tileLibrary["controlled"], controlMarkerObject );
+		controlMarkerBitmap.x = -controlMarkerBitmap.tile.width / 2;
+		controlMarkerBitmap.y = -controlMarkerBitmap.tile.height / 2;
+
+		return new ControlMarkerView( controlMarkerObject, mobId, start, mobPos );
 	}
 
 	function centerAnim( anim:Anim ) {
