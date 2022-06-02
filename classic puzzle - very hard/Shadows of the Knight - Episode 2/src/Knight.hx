@@ -191,6 +191,6 @@ class Knight {
 			}
 		}
 		final plot = grid.map( line -> line.join( "" )).join( "\n" );
-		// printErr( 'turn $turn  pos $x:$y\n$plot' );
+		printErr( 'turn $turn  pos $x:$y\n$plot' );
 	}
 }

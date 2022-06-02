@@ -14,19 +14,22 @@ class Sim {
 	
 	static var knight:Knight;
 
-	static var x = 0;
-	static var y = 0;
-	static var bx = 1;
-	static var by = 1;
+	static var x:Int;
+	static var y:Int;
+	static var bx:Int;
+	static var by:Int;
 
 	static var dist2 = distance2( x, y, bx, by );
 	
 	public static function main() {
-		final width = 10;
-		final height = 5;
-		final maxJumps = 80;
+		final ip = Testcases.x10_0;
 
-		knight = new Knight( width, height, maxJumps, x, y );
+		x = ip.x;
+		y = ip.y;
+		bx = ip.bx;
+		by = ip.by;
+
+		knight = new Knight( ip.w, ip.h, ip.n, ip.x, ip.y );
 
 		timer = new Timer( 250 );
 		timer.run = step;
