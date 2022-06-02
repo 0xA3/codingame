@@ -7,13 +7,6 @@ import Knight.UNKNOWN;
 
 class Sim {
 	
-	static var x = 1;
-	static var y = 5;
-
-	static var bx = 4;
-	static var by = 10;
-	static var dist2 = distance2( x, y, bx, by );
-	
 	static var turn = 0;
 	static var timer:Timer;
 
@@ -21,18 +14,28 @@ class Sim {
 	
 	static var knight:Knight;
 
+	static var x = 0;
+	static var y = 0;
+	static var bx = 1;
+	static var by = 1;
+
+	static var dist2 = distance2( x, y, bx, by );
+	
 	public static function main() {
-		knight = new Knight( 5, 6, 80, x, y );
+		final width = 10;
+		final height = 5;
+		final maxJumps = 80;
+
+		knight = new Knight( width, height, maxJumps, x, y );
 
 		timer = new Timer( 250 );
 		timer.run = step;
 	}
 
 	static function step() {
-		final command = knight.respond( bombDir );
+		final command = knight.navigate( bombDir );
+		Sys.println( '> $command' );
 		turn++;
-		
-		if( turn == 3 ) timer.stop();
 		
 		final pos = command.split(" ").map( s -> parseInt( s ));
 		if( pos[0] == bx && pos[1] == by ) {

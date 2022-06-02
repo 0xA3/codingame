@@ -16,7 +16,7 @@ function main() {
 	final knight = new Knight( w, h, n, x0, y0 );
 
 	while( true ) {
-		final result = knight.respond( readline() );
+		final result = knight.navigate( readline() );
 		print( result );
 	}
 }

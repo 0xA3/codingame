@@ -1,4 +1,4 @@
 typedef Interval = {
-	var f:Int;
-	var t:Int;
+	var min:Int;
+	var max:Int;
 }

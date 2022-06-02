@@ -1,5 +1,6 @@
 import xa3.DoubleDigit;
 import CodinGame.printErr;
+import Std.int;
 
 using Lambda;
 using xa3.MathUtils;
@@ -18,7 +19,6 @@ class Knight {
 	
 	final width:Int;
 	final height:Int;
-	final grid:Array<Array<Bool>>;
 	final maxJumps:Int;
 	var prevX:Int;
 	var prevY:Int;
@@ -31,76 +31,88 @@ class Knight {
 	var turn:Int;
 
 	var dimension = Horizontal;
-	var direction = 0;
 
-	var isCorrectDirection = false;
-	var xBomb = -1;
+	var isJumpToBorder = false;
 
 	public function new( w:Int, h:Int, n:Int, x0:Int, y0:Int ) {
 		width = w;
 		height = h;
-		grid = [for( _ in 0...h ) [for( _ in 0...w ) true]];
 		maxJumps = n;
 		x = x0;
 		y = y0;
 		turn = 0;
-		ix = { f: 0, t: w - 1 };
-		iy = { f: 0, t: h - 1 };
+		ix = { min: 0, max: w - 1 };
+		iy = { min: 0, max: h - 1 };
+		plotGrid();
 	}
 	
-	public function respond( bombDir:String ) {
-		printErr( bombDir );
-		calculateArea( prevX, prevY, x, y, bombDir );
-		// final response = switch bombDir {
-		// 	case COLDER:
-		// 		if( isCorrectDirection ) {
-		// 			xBomb = x - direction;
-		// 			setX( x - direction );
-		// 			printErr( 'x found $xBomb' );
-		// 			changeDimension();
-		// 		} else return reverseDirection();
-		// 	case WARMER:
-		// 		isCorrectDirection = true;
-		// 		next();
-		// 	case SAME: changeDimension();
-		// 	case UNKNOWN: initialJump();
-		// 	default: throw 'Error: illegal bombDir $bombDir';
-		// }
-		// turn++;
-		x = Std.random( width );
-		y = Std.random( height );
-		final response = '$x $y';
+	public function navigate( bombDir:String ) {
+		if( bombDir == UNKNOWN ) return initialJump();
+		final response = switch dimension {
+			case Horizontal: navigateX( bombDir );
+			case Vertical: navigateY( bombDir );
+		}
+		turn++;
 		return response;
 	}
 
 	function initialJump() {
-		isCorrectDirection = false;
-		setX( width - 1 - x );
-		// setY( height - 1 - y );
-		return next();
-	}
-	
-	function reverseDirection() {
-		printErr( 'reverseDirection' );
-		direction *= -1;
-		return next();
-	}
-	
-	function next() {
-		if( dimension == Horizontal ) setX(( x + direction ));
-		else setY(( y + direction ));
-		
-		printErr( 'next $x $y' );
+		x = width - 1 - x;
+		y = height - 1 - y;
 		return '$x $y';
 	}
 	
-	function changeDimension() {
-		printErr( 'changeDimension' );
-		if( dimension == Vertical ) throw 'Error: dimension is already vertical';
-		if( dimension == Horizontal ) dimension = Vertical;
-		isCorrectDirection = false;
-		direction = y < height / 2 ? 1 : -1;
-		return next();
+	function navigateX( bombDir:String ) {
+		if( isJumpToBorder ) {
+			isJumpToBorder = false;
+			return toOtherBorderX();
+		}
+		calculateIntervalsX( bombDir );
+		plotGrid();
+		final isInsideIx = x >= ix.min && x <= ix.max;
+		// printErr( 'isInsideIx $isInsideIx' );
+		if( !isInsideIx ) return toBorderX();
+
+		final response = switch bombDir {
+			case WARMER: toOtherBorderX();
+			case SAME: toCenterX();
+			default: throw 'Error: illegal bombDir $bombDir';
+		}
+		return response;
+	}
+
+	function calculateIntervalsX( bombDir:String ) {
+		final center = int( ix.min + ( ix.max - ix.min ) / 2 );
+		switch bombDir {
+			case COLDER: if( x > center ) ix.max = center; else ix.min = center;
+			case WARMER: if( x > center ) ix.min = center; else ix.max = center;
+			case UNKNOWN: // no-op
+			case SAME: // no-op
+			default: throw 'Error: illegal bombDir $bombDir';
+		}
+	}
+
+	function toBorderX() {
+		final nearIx = ( x - ix.min ).abs() < ( x - ix.max ).abs() ? ix.min : ix.max;
+		isJumpToBorder = true;
+		// printErr( 'jump to borderX' );
+		setX( nearIx );
+		return '$nearIx $y';
+	}
+
+	function toOtherBorderX() {
+		final otherBorder = x == ix.min ? ix.max : ix.min;
+		// printErr( 'toOtherBorderX $otherBorder' );
+		setX( otherBorder );
+		return '$x $y';
+	}
+
+	function toCenterX() {
+		final center = int( ix.min + ( ix.max - ix.min ) / 2 );
+		dimension = Vertical;
+		// printErr( 'found bomb x $center' );
+		setX( center );
+		return '$x $y';
 	}
 
 	function setX( v:Int ) {
@@ -108,38 +120,60 @@ class Knight {
 		x = v.max( 0 ).min( width - 1 );
 	}
 
+	function navigateY( bombDir:String ) {
+		if( isJumpToBorder ) {
+			isJumpToBorder = false;
+			return toOtherBorderY();
+		}
+		calculateIntervalsY( bombDir );
+		plotGrid();
+		final isInsideIy = y >= iy.min && y <= iy.max;
+		// printErr( 'isInsideIy $isInsideIy' );
+		if( !isInsideIy ) return toBorderY();
+
+		final response = switch bombDir {
+			case WARMER: toOtherBorderY();
+			case SAME: toCenterY();
+			default: throw 'Error: illegal bombDir $bombDir';
+		}
+		return response;
+	}
+	
+	function calculateIntervalsY( bombDir:String ) {
+		final center = int( iy.min + ( iy.max - iy.min ) / 2 );
+		switch bombDir {
+			case COLDER: if( y > center ) iy.max = center; else iy.min = center;
+			case WARMER: if( y > center ) iy.min = center; else iy.max = center;
+			case UNKNOWN: // no-op
+			case SAME: // no-op
+			default: throw 'Error: illegal bombDir $bombDir';
+		}
+	}
+
+	function toBorderY() {
+		final nearIy = ( y - iy.min ).abs() < ( y - iy.max ).abs() ? iy.min : iy.max;
+		isJumpToBorder = true;
+		// printErr( 'jump to borderX' );
+		setY( nearIy );
+		return '$x $y';
+	}
+
+	function toOtherBorderY() {
+		final otherBorder = y == iy.min ? iy.max : iy.min;
+		// printErr( 'toOtherBorderY $otherBorder' );
+		setY( otherBorder );
+		return '$x $y';
+	}
+
+	function toCenterY() {
+		final center = int( ix.min + ( ix.max - ix.min ) / 2 );
+		setY( center );
+		return '$x $y';
+	}
+
 	function setY( v:Int ) {
 		prevY = y;
 		y = v.max( 0 ).min( height - 1 );
-	}
-
-	function calculateArea( x0:Int, y0:Int, x1:Int, y1:Int, response:String ) {
-		final distanceGrid = [];
-		for( gy in 0...grid.length ) {
-			final distanceLine = distanceGrid[gy] = [];
-			final line = grid[gy];
-			for( gx in 0...line.length ) {
-				if( grid[gy][gx] ) {
-					final oldDist = distance( x0, y0, gx, gy );
-					final newDist = distance( x1, y1, gx, gy );
-					distanceLine[gx] = DoubleDigit.double( Math.round( newDist ));
-					switch response {
-						case WARMER:
-							if( newDist > oldDist ) grid[gy][gx] = false;
-							// trace( '$gx:$gy  newDist $newDist   oldDist $oldDist  > ${grid[gy][gx]}' );
-						case COLDER: if( newDist < oldDist ) grid[gy][gx] = false;
-						case SAME: if( newDist != oldDist ) grid[gy][gx] = false;
-						case UNKNOWN: // no-op;
-						default: throw 'Error: illegal response $response';
-					}
-					
-				}
-			}
-		}
-		
-		// final plot = distanceGrid.map( line -> line.join( " " )).join( "\n" );
-		// trace( '$turn\n$plot' );
-		plotGrid();
 	}
 
 	function distance( x1:Int, y1:Int, x2:Int, y2:Int ) return Math.sqrt( distance2( x1, y1, x2, y2 ));
@@ -149,7 +183,14 @@ class Knight {
 	}
 
 	function plotGrid() {
-		final plot = grid.mapi(( gy, line ) -> line.mapi(( gx, cell ) -> x == gx && y == gy ? "O" : cell ? "x" : "." ).join( "" )).join( "\n" );
-		trace( '$turn\n$plot' );
+		final grid = [];
+		for( gy in 0...height ) {
+			grid[gy] = [];
+			for( gx in 0...width ) {
+				grid[gy][gx] = x == gx && y == gy ? "O" : gx >= ix.min && gx <= ix.max && gy >= iy.min && gy <= iy.max ? "x" : ".";
+			}
+		}
+		final plot = grid.map( line -> line.join( "" )).join( "\n" );
+		// printErr( 'turn $turn  pos $x:$y\n$plot' );
 	}
 }
