@@ -1,5 +1,6 @@
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
+-D sim
 -main Sim
 --hl bin/app.hl

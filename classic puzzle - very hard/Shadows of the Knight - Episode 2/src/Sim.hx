@@ -18,18 +18,30 @@ class Sim {
 	static var y:Int;
 	static var bx:Int;
 	static var by:Int;
+	static var n:Int;
 
-	static var dist2 = distance2( x, y, bx, by );
+	static var dist2:Int;
 	
 	public static function main() {
-		final ip = Testcases.x10_0;
+		final ip = Testcases.towerHorizontal;
+		if( ip.bx >= ip.w ) {
+			Sys.println( 'Error: Bomb x ${ip.bx} must be smaller than width ${ip.w}' );
+			return;
+		}
+
+		if( ip.by >= ip.h ) {
+			Sys.println( 'Error: Bomb y ${ip.by} must be smaller than height ${ip.h}' );
+			return;
+		}
+
+		knight = new Knight( ip.w, ip.h, ip.n, ip.x, ip.y );
 
 		x = ip.x;
 		y = ip.y;
 		bx = ip.bx;
 		by = ip.by;
-
-		knight = new Knight( ip.w, ip.h, ip.n, ip.x, ip.y );
+		n = ip.n;
+		dist2 = distance2( x, y, bx, by );
 
 		timer = new Timer( 250 );
 		timer.run = step;
@@ -37,8 +49,8 @@ class Sim {
 
 	static function step() {
 		final command = knight.navigate( bombDir );
-		Sys.println( '> $command' );
 		turn++;
+		Sys.println( '> $command  - ${n - turn} rounds left' );
 		
 		final pos = command.split(" ").map( s -> parseInt( s ));
 		if( pos[0] == bx && pos[1] == by ) {

@@ -30,7 +30,7 @@ class Knight {
 
 	var turn:Int;
 
-	var dimension = Horizontal;
+	var dimension:Dimension;
 
 	var isJumpToBorder = false;
 
@@ -43,16 +43,20 @@ class Knight {
 		turn = 0;
 		ix = { min: 0, max: w - 1 };
 		iy = { min: 0, max: h - 1 };
-		plotGrid();
+		dimension = width > 1 ? Horizontal : Vertical;
 	}
 	
 	public function navigate( bombDir:String ) {
+		#if sim
+		plotGrid();
+		printErr( bombDir );
+		#end
+		turn++;
 		if( bombDir == UNKNOWN ) return initialJump();
 		final response = switch dimension {
 			case Horizontal: navigateX( bombDir );
 			case Vertical: navigateY( bombDir );
 		}
-		turn++;
 		return response;
 	}
 
@@ -68,9 +72,7 @@ class Knight {
 			return toOtherBorderX();
 		}
 		calculateIntervalsX( bombDir );
-		plotGrid();
 		final isInsideIx = x >= ix.min && x <= ix.max;
-		// printErr( 'isInsideIx $isInsideIx' );
 		if( !isInsideIx ) return toBorderX();
 
 		final response = switch bombDir {
@@ -126,9 +128,7 @@ class Knight {
 			return toOtherBorderY();
 		}
 		calculateIntervalsY( bombDir );
-		plotGrid();
 		final isInsideIy = y >= iy.min && y <= iy.max;
-		// printErr( 'isInsideIy $isInsideIy' );
 		if( !isInsideIy ) return toBorderY();
 
 		final response = switch bombDir {
@@ -191,6 +191,7 @@ class Knight {
 			}
 		}
 		final plot = grid.map( line -> line.join( "" )).join( "\n" );
-		printErr( 'turn $turn  pos $x:$y\n$plot' );
+		// printErr( '$turn  pos $x:$y  intervals ${ix.min}-${ix.max} ${iy.min}-${iy.max}\n$plot' );
+		printErr( '$plot' );
 	}
 }

@@ -12,7 +12,9 @@ function main() {
 	var inputs = readline().split(' ');
 	final x0 = parseInt( inputs[0] );
 	final y0 = parseInt( inputs[1] );
-	
+
+	printErr( '{ w: $w, h: $h, n: $n, x: $x0, y: $y0, bx: 0, by: 0 }' );
+
 	final knight = new Knight( w, h, n, x0, y0 );
 
 	while( true ) {
