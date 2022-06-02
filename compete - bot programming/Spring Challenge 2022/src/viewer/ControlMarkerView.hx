@@ -44,9 +44,7 @@ class ControlMarkerView {
 		}
 	}
 	
-	public function updateRotation( dt:Float ) {
-		if( object.visible ) object.rotation += dt;
-	}
+	public function updateRotation( dt:Float ) if( object.visible ) object.rotation += dt;
 
 	function place( currentPos:Coord, nextPos:Coord, subFrame:Float ) {
 		final easedSubFrame = MathUtils.quadEaseInOut( subFrame );

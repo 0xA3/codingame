@@ -1,0 +1,1 @@
+class e{static f(t){print(t)}}class l{static main(){let t=readline().split(""),r=0,a=0;for(;a<t.length;){let n=parseInt(t[a++]);if(!(n>=r))return void e.f(!1);r=n}e.f(!0)}}l.main();

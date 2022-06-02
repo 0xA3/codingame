@@ -2,16 +2,13 @@ package viewer;
 
 import Std.int;
 import game.Config;
-import game.Vector;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Scene;
 import h2d.Text;
 import view.Coord;
 import view.FrameViewData;
-import view.SpellUse;
 import viewer.App;
-import viewer.CharacterView;
 import viewer.EntityCreator;
 
 using xa3.MathUtils;
