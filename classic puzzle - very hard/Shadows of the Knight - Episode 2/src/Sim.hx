@@ -24,7 +24,7 @@ class Sim {
 	
 	public static function main() {
 		// final ip = Testcases.x10_0;
-		final ip = Testcases.x100_0;
+		// final ip = Testcases.x100_0;
 		// final ip = Testcases.aLotOfJumpsHorizontal;
 		// final ip = Testcases.aLotOfJumpsHorizontalMirrored;
 		// final ip = Testcases.lessJumpsHorizontal;
@@ -32,7 +32,8 @@ class Sim {
 		// final ip = Testcases.exactNbOfJumpsHorizontalX;
 		// final ip = Testcases.exactNbOfJumpsHorizontalY;
 		// final ip = Testcases.xw5;
-		// final ip = Testcases.aLotOfJumps;
+		
+		final ip = Testcases.aLotOfJumps;
 		// final ip = Testcases.lessJumps;
 		// final ip = Testcases.tower;
 		// final ip = Testcases.lesserJumps;
