@@ -23,7 +23,8 @@ class Sim {
 	static var dist2:Int;
 	
 	public static function main() {
-		// final ip = Testcases.x100_0;
+		// final ip = Testcases.x10_0;
+		final ip = Testcases.x100_0;
 		// final ip = Testcases.aLotOfJumpsHorizontal;
 		// final ip = Testcases.aLotOfJumpsHorizontalMirrored;
 		// final ip = Testcases.lessJumpsHorizontal;
@@ -37,7 +38,7 @@ class Sim {
 		// final ip = Testcases.lesserJumps;
 		// final ip = Testcases.exactNbOfJumps;
 		// final ip = Testcases.moreWindows;
-		final ip = Testcases.aLotOfWindows;
+		// final ip = Testcases.aLotOfWindows;
 		// final ip = Testcases.soManyWindows;
 		if( ip.bx >= ip.w ) {
 			Sys.println( 'Error: Bomb x ${ip.bx} must be smaller than width ${ip.w}' );
@@ -58,7 +59,7 @@ class Sim {
 		n = ip.n;
 		dist2 = distance2( x, y, bx, by );
 
-		timer = new Timer( 250 );
+		timer = new Timer( 50 );
 		timer.run = step;
 	}
 
@@ -71,7 +72,8 @@ class Sim {
 		
 		final pos = command.split(" ").map( s -> parseInt( s ));
 		if( pos[0] == bx && pos[1] == by ) {
-			Sys.println( 'Bomb located in $turn turns' );
+			if( roundsLeft >= 0 ) Sys.println( 'Bomb located in $turn turns' );
+			else Sys.println( 'Failure: you are ${-roundsLeft)} ${(roundsLeft == -1 ) ? "turn" : "turns"} too late.' );
 			timer.stop();
 		}
 		final nextDist2 = distance2( pos[0], pos[1], bx, by );

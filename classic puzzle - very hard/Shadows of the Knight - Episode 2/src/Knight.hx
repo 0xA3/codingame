@@ -47,7 +47,7 @@ class Knight {
 	
 	public function navigate( bombDir:String ) {
 		#if sim
-		// plotGrid();
+		plotGrid();
 		printErr( bombDir );
 		#end
 		turn++;
@@ -79,10 +79,11 @@ class Knight {
 			return initialJump();
 		} else {
 			if( x > centerX ) {
-				nextX = int( ix.min + ( x - ix.min ) / 2 );
+				nextX = int( ix.min + ( ix.max - ix.min ) * 0.5 );
 			} else {
-				nextX = int( x + ( ix.max - x ) / 2 );
+				nextX = int( ix.min + ( ix.max - ix.min ) * 0.5 );
 			}
+			// nextX = centerX;
 			if( nextX == x ) nextX++;
 		}
 		
@@ -96,13 +97,13 @@ class Knight {
 		switch bombDir {
 			case COLDER:
 				final greater = [for( gx in 0...width ) currDistance[gx] > prevDistance[gx] ? "x" : "." ];
-				printErr( greater.join( "" ) );
+				// printErr( greater.join( "" ) );
 				if( greater.indexOf( "x" ) == -1 ) throw 'Error: no greater distance found.';
 				ix.min = greater.indexOf( "x" );
 				ix.max = greater.lastIndexOf( "x" );
 			case WARMER:
 				final smaller = [for( gx in 0...width ) currDistance[gx] < prevDistance[gx] ? "x" : "." ];
-				printErr( smaller.join("") );
+				// printErr( smaller.join("") );
 				if( smaller.indexOf( "x" ) == -1 ) throw 'Error: no greater smaller found.';
 				// printErr( '${prevDistance.join("")}\n${currDistance.join("")}\n${smaller.join("")}' );
 				ix.min = smaller.indexOf( "x" );
@@ -128,11 +129,12 @@ class Knight {
 			nextY = iy.min;
 		} else {
 			if( y > centerY ) {
-				nextY = int( iy.min + ( y - iy.min ) / 2 );
+				nextY = int( iy.min + ( iy.max - iy.min ) * 0.5 );
 			} else {
-				nextY = int( y + ( iy.max - y ) / 2 );
+				nextY = int( iy.min + ( iy.max - iy.min ) * 0.5 );
 			}
-			printErr( 'y $y iy ${iy.min}-${iy.max}' );
+			// printErr( 'y $y iy ${iy.min}-${iy.max}' );
+			// nextY = centerY;
 			if( nextY == y ) nextY++;
 		}
 		
@@ -146,14 +148,14 @@ class Knight {
 		switch bombDir {
 			case COLDER:
 				final greater = [for( gy in 0...height ) currDistance[gy] > prevDistance[gy] ? "x" : "." ];
-				printErr( greater.join( "" ) );
+				// printErr( greater.join( "" ) );
 				// printErr( 'prevY $prevY  y $y  iy ${iy.min} - ${iy.max}\n${prevDistance.join("")}\n${currDistance.join("")}' );
 				if( greater.indexOf( "x" ) == -1 ) throw 'Error: no greater distance found.';
 				iy.min = greater.indexOf( "x" );
 				iy.max = greater.lastIndexOf( "x" );
 			case WARMER:
 				final smaller = [for( gy in 0...height ) currDistance[gy] < prevDistance[gy] ? "x" : "." ];
-				printErr( smaller.join( "" ) );
+				// printErr( smaller.join( "" ) );
 				// printErr( 'prevY $prevY  y $y  iy ${iy.min} - ${iy.max}\n${prevDistance.join("")}\n${currDistance.join("")}' );
 				if( smaller.indexOf( "x" ) == -1 ) throw 'Error: no greater smaller found.';
 				iy.min = smaller.indexOf( "x" );
