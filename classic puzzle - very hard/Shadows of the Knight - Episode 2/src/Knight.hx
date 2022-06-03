@@ -1,3 +1,4 @@
+import haxe.macro.Printer;
 import xa3.DoubleDigit;
 import CodinGame.printErr;
 import Std.int;
@@ -32,14 +33,12 @@ class Knight {
 
 	var dimension:Dimension;
 
-	var isJumpToBorder = false;
-
 	public function new( w:Int, h:Int, n:Int, x0:Int, y0:Int ) {
 		width = w;
 		height = h;
 		maxJumps = n;
-		x = x0;
-		y = y0;
+		prevX = x = x0;
+		prevY = y = y0;
 		turn = 0;
 		ix = { min: 0, max: w - 1 };
 		iy = { min: 0, max: h - 1 };
@@ -48,7 +47,7 @@ class Knight {
 	
 	public function navigate( bombDir:String ) {
 		#if sim
-		plotGrid();
+		// plotGrid();
 		printErr( bombDir );
 		#end
 		turn++;
@@ -61,60 +60,59 @@ class Knight {
 	}
 
 	function initialJump() {
-		x = width - 1 - x;
-		y = height - 1 - y;
+		switch dimension {
+			case Horizontal: x = int( ix.min + ( ix.max - ix.min ) / 2 );
+			case Vertical: y = int( iy.min + ( iy.max - iy.min ) / 2 );
+		}
 		return '$x $y';
 	}
 	
 	function navigateX( bombDir:String ) {
-		if( isJumpToBorder ) {
-			isJumpToBorder = false;
-			return toOtherBorderX();
-		}
 		calculateIntervalsX( bombDir );
-		final isInsideIx = x >= ix.min && x <= ix.max;
-		if( !isInsideIx ) return toBorderX();
-
-		final response = switch bombDir {
-			case WARMER: toOtherBorderX();
-			case SAME: toCenterX();
-			default: throw 'Error: illegal bombDir $bombDir';
+		final centerX = int( ix.min + ( ix.max - ix.min ) / 2 );
+		
+		var nextX:Int;
+		if( ix.min == ix.max ) {
+			setX( ix.min );
+			dimension = Vertical;
+			printErr( 'Change dimension to Vertical ix ${ix.min}-${ix.max}' );
+			return initialJump();
+		} else {
+			if( x > centerX ) {
+				nextX = int( ix.min + ( x - ix.min ) / 2 );
+			} else {
+				nextX = int( x + ( ix.max - x ) / 2 );
+			}
+			if( nextX == x ) nextX++;
 		}
-		return response;
+		
+		setX( nextX );
+		return '$x $y';
 	}
 
 	function calculateIntervalsX( bombDir:String ) {
-		final center = int( ix.min + ( ix.max - ix.min ) / 2 );
+		final prevDistance = [for( gx in 0...width ) gx < ix.min || gx > ix.max ? 0 : ( gx - prevX ).abs()];
+		final currDistance = [for( gx in 0...width ) gx < ix.min || gx > ix.max ? 0 : ( gx - x ).abs()];
 		switch bombDir {
-			case COLDER: if( x > center ) ix.max = center; else ix.min = center;
-			case WARMER: if( x > center ) ix.min = center; else ix.max = center;
+			case COLDER:
+				final greater = [for( gx in 0...width ) currDistance[gx] > prevDistance[gx] ? "x" : "." ];
+				printErr( greater.join( "" ) );
+				if( greater.indexOf( "x" ) == -1 ) throw 'Error: no greater distance found.';
+				ix.min = greater.indexOf( "x" );
+				ix.max = greater.lastIndexOf( "x" );
+			case WARMER:
+				final smaller = [for( gx in 0...width ) currDistance[gx] < prevDistance[gx] ? "x" : "." ];
+				printErr( smaller.join("") );
+				if( smaller.indexOf( "x" ) == -1 ) throw 'Error: no greater smaller found.';
+				// printErr( '${prevDistance.join("")}\n${currDistance.join("")}\n${smaller.join("")}' );
+				ix.min = smaller.indexOf( "x" );
+				ix.max = smaller.lastIndexOf( "x" );
+				// printErr( smaller.join( "" ) + ' ${ix.min} - ${ix.max}' );
+
 			case UNKNOWN: // no-op
 			case SAME: // no-op
 			default: throw 'Error: illegal bombDir $bombDir';
 		}
-	}
-
-	function toBorderX() {
-		final nearIx = ( x - ix.min ).abs() < ( x - ix.max ).abs() ? ix.min : ix.max;
-		isJumpToBorder = true;
-		// printErr( 'jump to borderX' );
-		setX( nearIx );
-		return '$nearIx $y';
-	}
-
-	function toOtherBorderX() {
-		final otherBorder = x == ix.min ? ix.max : ix.min;
-		// printErr( 'toOtherBorderX $otherBorder' );
-		setX( otherBorder );
-		return '$x $y';
-	}
-
-	function toCenterX() {
-		final center = int( ix.min + ( ix.max - ix.min ) / 2 );
-		dimension = Vertical;
-		// printErr( 'found bomb x $center' );
-		setX( center );
-		return '$x $y';
 	}
 
 	function setX( v:Int ) {
@@ -123,52 +121,49 @@ class Knight {
 	}
 
 	function navigateY( bombDir:String ) {
-		if( isJumpToBorder ) {
-			isJumpToBorder = false;
-			return toOtherBorderY();
-		}
 		calculateIntervalsY( bombDir );
-		final isInsideIy = y >= iy.min && y <= iy.max;
-		if( !isInsideIy ) return toBorderY();
-
-		final response = switch bombDir {
-			case WARMER: toOtherBorderY();
-			case SAME: toCenterY();
-			default: throw 'Error: illegal bombDir $bombDir';
+		final centerY = int( iy.min + ( iy.max - iy.min ) / 2 );
+		var nextY:Int;
+		if( iy.min == iy.max ) {
+			nextY = iy.min;
+		} else {
+			if( y > centerY ) {
+				nextY = int( iy.min + ( y - iy.min ) / 2 );
+			} else {
+				nextY = int( y + ( iy.max - y ) / 2 );
+			}
+			printErr( 'y $y iy ${iy.min}-${iy.max}' );
+			if( nextY == y ) nextY++;
 		}
-		return response;
+		
+		setY( nextY );
+		return '$x $y';
 	}
 	
 	function calculateIntervalsY( bombDir:String ) {
-		final center = int( iy.min + ( iy.max - iy.min ) / 2 );
+		final prevDistance = [for( gy in 0...height ) gy < iy.min || gy > iy.max ? 0 : ( gy - prevY ).abs()];
+		final currDistance = [for( gy in 0...height ) gy < iy.min || gy > iy.max ? 0 : ( gy - y ).abs()];
 		switch bombDir {
-			case COLDER: if( y > center ) iy.max = center; else iy.min = center;
-			case WARMER: if( y > center ) iy.min = center; else iy.max = center;
+			case COLDER:
+				final greater = [for( gy in 0...height ) currDistance[gy] > prevDistance[gy] ? "x" : "." ];
+				printErr( greater.join( "" ) );
+				// printErr( 'prevY $prevY  y $y  iy ${iy.min} - ${iy.max}\n${prevDistance.join("")}\n${currDistance.join("")}' );
+				if( greater.indexOf( "x" ) == -1 ) throw 'Error: no greater distance found.';
+				iy.min = greater.indexOf( "x" );
+				iy.max = greater.lastIndexOf( "x" );
+			case WARMER:
+				final smaller = [for( gy in 0...height ) currDistance[gy] < prevDistance[gy] ? "x" : "." ];
+				printErr( smaller.join( "" ) );
+				// printErr( 'prevY $prevY  y $y  iy ${iy.min} - ${iy.max}\n${prevDistance.join("")}\n${currDistance.join("")}' );
+				if( smaller.indexOf( "x" ) == -1 ) throw 'Error: no greater smaller found.';
+				iy.min = smaller.indexOf( "x" );
+				iy.max = smaller.lastIndexOf( "x" );
+				// printErr( smaller.join( "" ) + ' ${ix.min} - ${ix.max}' );
+
 			case UNKNOWN: // no-op
 			case SAME: // no-op
 			default: throw 'Error: illegal bombDir $bombDir';
 		}
-	}
-
-	function toBorderY() {
-		final nearIy = ( y - iy.min ).abs() < ( y - iy.max ).abs() ? iy.min : iy.max;
-		isJumpToBorder = true;
-		// printErr( 'jump to borderX' );
-		setY( nearIy );
-		return '$x $y';
-	}
-
-	function toOtherBorderY() {
-		final otherBorder = y == iy.min ? iy.max : iy.min;
-		// printErr( 'toOtherBorderY $otherBorder' );
-		setY( otherBorder );
-		return '$x $y';
-	}
-
-	function toCenterY() {
-		final center = int( ix.min + ( ix.max - ix.min ) / 2 );
-		setY( center );
-		return '$x $y';
 	}
 
 	function setY( v:Int ) {

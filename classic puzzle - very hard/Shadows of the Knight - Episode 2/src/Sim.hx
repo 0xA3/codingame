@@ -23,7 +23,22 @@ class Sim {
 	static var dist2:Int;
 	
 	public static function main() {
-		final ip = Testcases.towerHorizontal;
+		// final ip = Testcases.x100_0;
+		// final ip = Testcases.aLotOfJumpsHorizontal;
+		// final ip = Testcases.aLotOfJumpsHorizontalMirrored;
+		// final ip = Testcases.lessJumpsHorizontal;
+		// final ip = Testcases.towerHorizontal;
+		// final ip = Testcases.exactNbOfJumpsHorizontalX;
+		// final ip = Testcases.exactNbOfJumpsHorizontalY;
+		// final ip = Testcases.xw5;
+		// final ip = Testcases.aLotOfJumps;
+		// final ip = Testcases.lessJumps;
+		// final ip = Testcases.tower;
+		// final ip = Testcases.lesserJumps;
+		// final ip = Testcases.exactNbOfJumps;
+		// final ip = Testcases.moreWindows;
+		final ip = Testcases.aLotOfWindows;
+		// final ip = Testcases.soManyWindows;
 		if( ip.bx >= ip.w ) {
 			Sys.println( 'Error: Bomb x ${ip.bx} must be smaller than width ${ip.w}' );
 			return;
@@ -50,7 +65,9 @@ class Sim {
 	static function step() {
 		final command = knight.navigate( bombDir );
 		turn++;
-		Sys.println( '> $command  - ${n - turn} rounds left' );
+		final roundsLeft = n - turn;
+		final info = roundsLeft >= 0 ? '$roundsLeft rounds left' : '${-roundsLeft} over max';
+		Sys.println( '> $command  $info' );
 		
 		final pos = command.split(" ").map( s -> parseInt( s ));
 		if( pos[0] == bx && pos[1] == by ) {
