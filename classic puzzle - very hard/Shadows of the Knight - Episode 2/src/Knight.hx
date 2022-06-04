@@ -33,6 +33,10 @@ class Knight {
 
 	var dimension:Dimension;
 
+	var xFound = false;
+	var yFound = false;
+	var xSaved = 0;
+
 	public function new( w:Int, h:Int, n:Int, x0:Int, y0:Int ) {
 		width = w;
 		height = h;
@@ -42,16 +46,22 @@ class Knight {
 		turn = 0;
 		ix = { min: 0, max: w - 1 };
 		iy = { min: 0, max: h - 1 };
-		dimension = width > 1 ? Horizontal : Vertical;
+		dimension = width == 1 ? Vertical : Horizontal;
+		if( width == 1 ) xFound = true;
+		if( height == 1 ) yFound = true;
+		// #if sim	printErr( 'pos $x:$y' ); #end
 	}
 	
 	public function navigate( bombDir:String ) {
-		#if sim
-		plotGrid();
-		printErr( bombDir );
-		#end
+		#if sim	printErr( bombDir ); #end
 		turn++;
-		if( bombDir == UNKNOWN ) return initialJump();
+		
+		switch dimension {
+			case Horizontal: calculateIntervalsX( bombDir );
+			case Vertical: calculateIntervalsY( bombDir );
+		}		
+		#if sim	plotGrid(); #end
+
 		final response = switch dimension {
 			case Horizontal: navigateX( bombDir );
 			case Vertical: navigateY( bombDir );
@@ -59,33 +69,37 @@ class Knight {
 		return response;
 	}
 
-	function initialJump() {
-		switch dimension {
-			case Horizontal: x = int( ix.min + ( ix.max - ix.min ) / 2 );
-			case Vertical: y = int( iy.min + ( iy.max - iy.min ) / 2 );
-		}
-		return '$x $y';
-	}
-	
 	function navigateX( bombDir:String ) {
-		calculateIntervalsX( bombDir );
-		final centerX = int( ix.min + ( ix.max - ix.min ) / 2 );
-		
-		var nextX:Int;
+		var nextX = 0;
 		if( ix.min == ix.max ) {
 			setX( ix.min );
-			dimension = Vertical;
-			printErr( 'Change dimension to Vertical ix ${ix.min}-${ix.max}' );
-			return initialJump();
-		} else {
-			if( x > centerX ) {
-				nextX = int( ix.min + ( ix.max - ix.min ) * 0.5 );
-			} else {
-				nextX = int( ix.min + ( ix.max - ix.min ) * 0.5 );
+			xFound = true;
+			if( !yFound ) {
+				dimension = Vertical;
+				printErr( 'x found $x - change dimension to Vertical ix ${ix.min}-${ix.max}' );
+				return navigateY( UNKNOWN );
 			}
-			// nextX = centerX;
-			if( nextX == x ) nextX++;
+		} else if( bombDir == SAME ) {
+			nextX = int( prevX + ( x - prevX ) / 2 );
+			setX( nextX );
+			if( !yFound ) {
+				printErr( 'x found $x - change dimension to Vertical ix ${ix.min}-${ix.max}' );
+				dimension = Vertical;
+				return navigateY( UNKNOWN );
+			}
 		}
+		
+		nextX = ix.mirror( x );
+		nextX = nextX.max( 0 ).min( width - 1 );
+		
+		final centroid = int( x + ( nextX - x ) / 2 );
+		if( !yFound && ix.outside( x ) && ix.onBorder( centroid )) {
+			xSaved = nextX;
+			dimension = Vertical;
+			printErr( 'save x - change dimension to Vertical ix ${ix.min}-${ix.max}' );
+			return navigateY( UNKNOWN );
+		}
+		if( nextX == x ) nextX++;
 		
 		setX( nextX );
 		return '$x $y';
@@ -131,21 +145,36 @@ class Knight {
 	}
 
 	function navigateY( bombDir:String ) {
-		calculateIntervalsY( bombDir );
-		final centerY = int( iy.min + ( iy.max - iy.min ) / 2 );
-		var nextY:Int;
+		var nextY = 0;
 		if( iy.min == iy.max ) {
 			nextY = iy.min;
-		} else {
-			if( y > centerY ) {
-				nextY = int( iy.min + ( iy.max - iy.min ) * 0.5 );
-			} else {
-				nextY = int( iy.min + ( iy.max - iy.min ) * 0.5 );
+			setY( nextY );
+			yFound = true;
+			if( !xFound ) {
+				printErr( 'y $y found  iy.min == iy.max $iy - change dimension to Horizontal iy ${iy.min}-${iy.max}' );
+				dimension = Horizontal;
+				return navigateX( UNKNOWN );
 			}
-			// printErr( 'y $y iy ${iy.min}-${iy.max}' );
-			// nextY = centerY;
-			if( nextY == y ) nextY++;
+		} else if( bombDir == SAME ) {
+			nextY = int( prevY + ( y - prevY ) / 2 );
+			setY( nextY );
+			yFound = true;
+			if( !xFound ) {
+				printErr( 'y  $y found bombDir == SAME - change dimension to Horizontal iy ${iy.min}-${iy.max}' );
+				dimension = Horizontal;
+				return navigateX( UNKNOWN );
+			}
 		}
+		nextY = iy.mirror( y );
+		nextY = nextY.max( 0 ).min( height - 1 );
+
+		final centroid = int( y + ( nextY - y ) / 2 );
+		if( !xFound && iy.outside( y ) && iy.onBorder( centroid )) {
+			dimension = Horizontal;
+			setX( xSaved );
+			printErr( 'jump to saved x and y  change dimension to Horizontal' );
+		}
+		if( nextY == y ) nextY++;
 		
 		setY( nextY );
 		return '$x $y';
@@ -201,7 +230,8 @@ class Knight {
 		for( gy in 0...height ) {
 			grid[gy] = [];
 			for( gx in 0...width ) {
-				grid[gy][gx] = x == gx && y == gy ? "O" : gx >= ix.min && gx <= ix.max && gy >= iy.min && gy <= iy.max ? "x" : ".";
+				grid[gy][gx] = x == gx && y == gy ? "O" : ix.inside( gx )&& iy.inside( gy ) ? "x" : ".";
+				// grid[gy][gx] = ix.inside( gx )&& iy.inside( gy ) ? "x" : ".";
 			}
 		}
 		final plot = grid.map( line -> line.join( "" )).join( "\n" );
