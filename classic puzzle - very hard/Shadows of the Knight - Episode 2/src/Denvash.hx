@@ -1,7 +1,7 @@
 import CodinGame.printErr;
 import Std.int;
 
-class Denvash {
+class Denvash implements IKnight {
 	
 	static final COLDER = "COLDER";
 	static final WARMER = "WARMER";
@@ -34,17 +34,24 @@ class Denvash {
 	}
 
 	public function move( bombDir:String ) {
-		printErr( bombDir );
+		#if sim	printErr( bombDir ); #end
 		
 		final tmpX = x;
 		final tmpY = y;
 		
+		// final currentOutput = [for( gx in 0...width ) gx >= current.low && gx <= current.high ? "x" : "."];
+		final coldOutput = [for( gx in 0...width ) gx >= cold.low && gx <= cold.high ? "x" : "."].join( "" );
+		final warmOutput = [for( gx in 0...width ) gx >= warm.low && gx <= warm.high ? "x" : "."].join( "" );
+		final xOutput = [for( gx in 0...width ) gx == x ? "O" : "-"].join( "" );
+		printErr( '$coldOutput colder\n$warmOutput warmer\n$xOutput $x' );
+
 		switch bombDir {
 			case WARMER: current.updateZone( warm );
 			case COLDER: current.updateZone( cold );
-			case SAME: if( !firstChance ) if( !found()) return '$x $y';
+			case SAME: if( !firstChance ) if( !found()) throw 'Error with $SAME. Position not found.';
 		}
-		if( current.low >= current.high ) if( !found()) return '$x $y';
+		if( current.low >= current.high ) if( !found()) throw 'Error ${current.low} >= ${current.high}. Position not found.';
+		
 		firstChance = false;
 		if( foundX ) y = get( y, height - 1 );
 		else x = get( x, width - 1 );
@@ -57,13 +64,16 @@ class Denvash {
 	function found() {
 		final tmpX = x;
 		final tmpY = y;
-		if( foundX ) y = int(( current.low + current.high ) / 2 );
-		else {
+		if( foundX ) {
+			y = int(( current.low + current.high ) / 2 );
+			printErr( 'found y $y' );
+		} else {
 			x = int(( current.low + current.high ) / 2 );
 			foundX = true;
             current.updateLowHigh( 0, height - 1 );
             warm.updateZone( current );
             cold.updateZone( current );
+			printErr( 'found x $x' );
 		}
 		firstChance = true;
 		return ( x == tmpX && y== tmpY );
@@ -73,6 +83,8 @@ class Denvash {
 		var low = current.low;
 		var high = current.high;
 		var give = low + high - value;
+		printErr( 'get value $value, limit $limit' );
+		printErr( 'low: $low, high: $high, give: $give, outside: $outside' );
 		if( outside ) {
 			if( value == 0 ) give = int(( give - 0 ) / 2 );
 			else if( value == limit ) give = int(( limit + give ) / 2 );
