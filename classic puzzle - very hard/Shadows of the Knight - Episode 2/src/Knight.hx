@@ -69,8 +69,6 @@ class Knight implements IKnight {
 
 		final nextX = dimension == Horizontal ? navigate( x, ix, width ) : x;
 		final nextY = dimension == Vertical ? navigate( y, iy, height ) : y;
-		// final nextX = dimension == Horizontal ? navigateX() : x;
-		// final nextY = dimension == Vertical ? navigateY() : y;
 		
 		setX( nextX );
 		setY( nextY );
@@ -125,102 +123,6 @@ class Knight implements IKnight {
 		if( next == current ) next++;
 		
 		return next;
-	}
-
-	function navigateX() {
-		var nextX = ix.mirror( x );
-		nextX = max( 0, min( nextX, height - 1 ));
-		
-		final centroid = int( x + ( nextX - x ) / 2 );
-		
-		if( ix.outside( centroid ) || ix.onBorder( centroid )) {
-			nextX = ix.getNearestBorder( nextX );
-		}
-		if( nextX == x ) nextX++;
-		
-		return nextX;
-	}
-	
-	function navigateY() {
-		var nextY = iy.mirror( y );
-		nextY = max( 0, min( nextY, height - 1 ));
-		
-		final centroid = int( y + ( nextY - y ) / 2 );
-		
-		if( iy.outside( centroid ) || iy.onBorder( centroid )) {
-			nextY = iy.getNearestBorder( nextY );
-		}
-		if( nextY == y ) nextY++;
-		
-		return nextY;
-	}
-
-	function calculateIntervalsX( bombDir:String ) {
-		final prevDistance = [for( gx in 0...width ) gx < ix.min || gx > ix.max ? 0 : abs( gx - prevX )];
-		final currDistance = [for( gx in 0...width ) gx < ix.min || gx > ix.max ? 0 : abs( gx - x )];
-		var min = -1;
-		var max = prevDistance.length - 1;
-		
-		switch bombDir {
-			case COLDER:
-				for( gx in 0...width ) {
-					if( min == -1 && currDistance[gx] > prevDistance[gx] ) min = gx;
-					if( min != -1 && currDistance[gx] <= prevDistance[gx] ) {
-						max = gx - 1;
-						break;
-					}
-				}
-				ix.min = min;
-				ix.max = max;
-			case WARMER:
-				for( gx in 0...width ) {
-					if( min == -1 && currDistance[gx] < prevDistance[gx] ) min = gx;
-					if( min != -1 && currDistance[gx] >= prevDistance[gx] ) {
-						max = gx - 1;
-						break;
-					}
-				}
-				ix.min = min;
-				ix.max = max;
-
-			case UNKNOWN: // no-op
-			case SAME: // no-op
-			default: throw 'Error: illegal bombDir $bombDir';
-		}
-	}
-
-	function calculateIntervalsY( bombDir:String ) {
-		final prevDistance = [for( gy in 0...height ) gy < iy.min || gy > iy.max ? 0 : abs( gy - prevY )];
-		final currDistance = [for( gy in 0...height ) gy < iy.min || gy > iy.max ? 0 : abs( gy - y )];
-		var min = -1;
-		var max = prevDistance.length - 1;
-		
-		switch bombDir {
-			case COLDER:
-				for( gy in 0...height ) {
-					if( min == -1 && currDistance[gy] > prevDistance[gy] ) min = gy;
-					if( min != -1 && currDistance[gy] <= prevDistance[gy] ) {
-						max = gy - 1;
-						break;
-					}
-				}
-				iy.min = min;
-				iy.max = max;
-			case WARMER:
-				for( gy in 0...height ) {
-					if( min == -1 && currDistance[gy] < prevDistance[gy] ) min = gy;
-					if( min != -1 && currDistance[gy] >= prevDistance[gy] ) {
-						max = gy - 1;
-						break;
-					}
-				}
-				iy.min = min;
-				iy.max = max;
-
-			case UNKNOWN: // no-op
-			case SAME: // no-op
-			default: throw 'Error: illegal bombDir $bombDir';
-		}
 	}
 
 	function setX( v:Int ) {
