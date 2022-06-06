@@ -12,7 +12,7 @@ class Sim {
 
 	static var bombDir = UNKNOWN;
 	
-	static var knight:Knight;
+	static var knight:IKnight;
 
 	static var x:Int;
 	static var y:Int;
@@ -24,8 +24,7 @@ class Sim {
 	
 	public static function main() {
 		// final ip = Testcases.x10_0;
-		final ip = Testcases.x10_10;
-		// final ip = Testcases.x100_0;
+		final ip = Testcases.x100_0;
 		// final ip = Testcases.aLotOfJumpsHorizontal;
 		// final ip = Testcases.aLotOfJumpsHorizontalMirrored;
 		// final ip = Testcases.lessJumpsHorizontal;
@@ -34,13 +33,16 @@ class Sim {
 		// final ip = Testcases.exactNbOfJumpsHorizontalY;
 		// final ip = Testcases.xw5;
 		
+		// final ip = Testcases.x10_2;
+		// final ip = Testcases.x10_10;
+		
 		// final ip = Testcases.aLotOfJumps;
 		// final ip = Testcases.lessJumps;
 		// final ip = Testcases.tower;
 		// final ip = Testcases.lesserJumps;
 		// final ip = Testcases.exactNbOfJumps;
 		// final ip = Testcases.moreWindows;
-		final ip = Testcases.aLotOfWindows;
+		// final ip = Testcases.aLotOfWindows;
 		// final ip = Testcases.soManyWindows;
 		if( ip.bx >= ip.w ) {
 			Sys.println( 'Error: Bomb x ${ip.bx} must be smaller than width ${ip.w}' );
@@ -52,6 +54,8 @@ class Sim {
 			return;
 		}
 
+		// knight = new Denvash( ip.w, ip.h, ip.n, ip.x, ip.y );
+		// knight = new Ethiery( ip.w, ip.h, ip.n, ip.x, ip.y );
 		knight = new Knight( ip.w, ip.h, ip.n, ip.x, ip.y );
 
 		x = ip.x;
@@ -66,7 +70,7 @@ class Sim {
 	}
 
 	static function step() {
-		final command = knight.navigate( bombDir );
+		final command = knight.move( bombDir );
 		turn++;
 		
 

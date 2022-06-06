@@ -1,17 +1,17 @@
-import haxe.macro.Printer;
-import xa3.DoubleDigit;
 import CodinGame.printErr;
 import Std.int;
+import xa3.MathUtils.abs;
+import xa3.MathUtils.max;
+import xa3.MathUtils.min;
 
 using Lambda;
-using xa3.MathUtils;
 
 enum Dimension {
 	Horizontal;
 	Vertical;
 }
 
-class Knight {
+class Knight implements IKnight {
 	
 	public static final COLDER = "COLDER";
 	public static final WARMER = "WARMER";
@@ -33,10 +33,6 @@ class Knight {
 
 	var dimension:Dimension;
 
-	var xFound = false;
-	var yFound = false;
-	var xSaved = 0;
-
 	public function new( w:Int, h:Int, n:Int, x0:Int, y0:Int ) {
 		width = w;
 		height = h;
@@ -47,67 +43,121 @@ class Knight {
 		ix = { min: 0, max: w - 1 };
 		iy = { min: 0, max: h - 1 };
 		dimension = width == 1 ? Vertical : Horizontal;
-		if( width == 1 ) xFound = true;
-		if( height == 1 ) yFound = true;
-		// #if sim	printErr( 'pos $x:$y' ); #end
 	}
 	
-	public function navigate( bombDir:String ) {
+	public function move( bombDir:String ) {
 		#if sim	printErr( bombDir ); #end
 		turn++;
 		
 		switch dimension {
-			case Horizontal: calculateIntervalsX( bombDir );
-			case Vertical: calculateIntervalsY( bombDir );
+		case Horizontal:
+			updateInterval( bombDir, prevX, x, ix, width );
+			if( ix.length == 1 ) { // x found
+				dimension = Vertical;
+				printErr( 'change to vertical' );
+				if( x != ix.min ) {
+					setX( ix.min );
+					return '$x $y';
+				}
+			}
+		case Vertical:
+			updateInterval( bombDir, prevY, y, iy, height );
+			if( iy.length == 1 ) return '$x ${iy.min}'; // bomb found
 		}		
+		
 		#if sim	plotGrid(); #end
 
-		final response = switch dimension {
-			case Horizontal: navigateX( bombDir );
-			case Vertical: navigateY( bombDir );
-		}
-		return response;
+		final nextX = dimension == Horizontal ? navigate( x, ix, width ) : x;
+		final nextY = dimension == Vertical ? navigate( y, iy, height ) : y;
+		// final nextX = dimension == Horizontal ? navigateX() : x;
+		// final nextY = dimension == Vertical ? navigateY() : y;
+		
+		setX( nextX );
+		setY( nextY );
+
+		return return '$x $y';
 	}
 
-	function navigateX( bombDir:String ) {
-		var nextX = 0;
-		if( ix.min == ix.max ) {
-			setX( ix.min );
-			xFound = true;
-			if( !yFound ) {
-				dimension = Vertical;
-				printErr( 'x found $x - change dimension to Vertical ix ${ix.min}-${ix.max}' );
-				return navigateY( UNKNOWN );
-			}
-		} else if( bombDir == SAME ) {
-			nextX = int( prevX + ( x - prevX ) / 2 );
-			setX( nextX );
-			if( !yFound ) {
-				printErr( 'x found $x - change dimension to Vertical ix ${ix.min}-${ix.max}' );
-				dimension = Vertical;
-				return navigateY( UNKNOWN );
-			}
+	function updateInterval( bombDir:String, prev:Int, current:Int, interval:Interval, length:Int ) {
+		if( bombDir == UNKNOWN ) return;
+
+		var min = -1;
+		var max = interval.max;
+		
+		switch bombDir {
+			case COLDER:
+				for( i in interval.min...interval.max + 1 ) {
+					if( min == -1 && abs( current - i ) > abs( prev - i )) min = i;
+					if( min != -1 && abs( current - i ) <= abs( prev - i )) { max = i - 1; break; }
+				}
+			case WARMER:
+				for( i in interval.min...interval.max + 1 ) {
+					if( min == -1 && abs( current - i ) < abs( prev - i )) min = i;
+					if( min != -1 && abs( current - i ) >= abs( prev - i )) { max = i - 1; break; }
+				}
+			case SAME:
+				for( i in interval.min...interval.max + 1 ) {
+					if( min == -1 && abs( current - i ) == abs( prev - i )) { min = max = i; break; }
+				}
+			default: throw 'Error: illegal bombDir $bombDir';
+		}
+		interval.min = min;
+		interval.max = max;
+	}
+
+	function navigate( current:Int, interval:Interval, length:Int ) {
+		var next = 0;
+		if( current == 0 && interval.length != length ) {
+			next = int(( 3 * interval.min + interval.max ) / 2 );
+		} else if( current == length - 1 && interval.length != length ) {
+			next = int(( interval.min + 3 * interval.max ) / 2 ) - current;
+		} else {
+			next = interval.mirror( current );
 		}
 		
-		nextX = ix.mirror( x );
-		nextX = nextX.max( 0 ).min( width - 1 );
+		next = max( 0, min( next, length - 1 ));
+		
+		final centroid = int( current + ( next - current ) / 2 );
+		
+		if( interval.outside( centroid ) || interval.onBorder( centroid )) {
+			next = interval.getNearestBorder( next );
+		}
+		if( next == current ) next++;
+		
+		return next;
+	}
+
+	function navigateX() {
+		var nextX = ix.mirror( x );
+		nextX = max( 0, min( nextX, height - 1 ));
 		
 		final centroid = int( x + ( nextX - x ) / 2 );
-		if( !yFound && ix.outside( x ) && ix.onBorder( centroid )) {
-			xSaved = nextX;
-			dimension = Vertical;
-			printErr( 'save x - change dimension to Vertical ix ${ix.min}-${ix.max}' );
-			return navigateY( UNKNOWN );
+		
+		if( ix.outside( centroid ) || ix.onBorder( centroid )) {
+			nextX = ix.getNearestBorder( nextX );
 		}
 		if( nextX == x ) nextX++;
 		
-		setX( nextX );
-		return '$x $y';
+		return nextX;
+	}
+	
+	function navigateY() {
+		var nextY = iy.mirror( y );
+		nextY = max( 0, min( nextY, height - 1 ));
+		
+		final centroid = int( y + ( nextY - y ) / 2 );
+		
+		if( iy.outside( centroid ) || iy.onBorder( centroid )) {
+			nextY = iy.getNearestBorder( nextY );
+		}
+		if( nextY == y ) nextY++;
+		
+		return nextY;
 	}
 
 	function calculateIntervalsX( bombDir:String ) {
-		final prevDistance = [for( gx in 0...width ) gx < ix.min || gx > ix.max ? 0 : ( gx - prevX ).abs()];
-		final currDistance = [for( gx in 0...width ) gx < ix.min || gx > ix.max ? 0 : ( gx - x ).abs()];
+		final prevDistance = [for( gx in 0...width ) gx < ix.min || gx > ix.max ? 0 : abs( gx - prevX )];
+		final currDistance = [for( gx in 0...width ) gx < ix.min || gx > ix.max ? 0 : abs( gx - x )];
 		var min = -1;
 		var max = prevDistance.length - 1;
 		
@@ -139,50 +189,9 @@ class Knight {
 		}
 	}
 
-	function setX( v:Int ) {
-		prevX = x;
-		x = v.max( 0 ).min( width - 1 );
-	}
-
-	function navigateY( bombDir:String ) {
-		var nextY = 0;
-		if( iy.min == iy.max ) {
-			nextY = iy.min;
-			setY( nextY );
-			yFound = true;
-			if( !xFound ) {
-				printErr( 'y $y found  iy.min == iy.max $iy - change dimension to Horizontal iy ${iy.min}-${iy.max}' );
-				dimension = Horizontal;
-				return navigateX( UNKNOWN );
-			}
-		} else if( bombDir == SAME ) {
-			nextY = int( prevY + ( y - prevY ) / 2 );
-			setY( nextY );
-			yFound = true;
-			if( !xFound ) {
-				printErr( 'y  $y found bombDir == SAME - change dimension to Horizontal iy ${iy.min}-${iy.max}' );
-				dimension = Horizontal;
-				return navigateX( UNKNOWN );
-			}
-		}
-		nextY = iy.mirror( y );
-		nextY = nextY.max( 0 ).min( height - 1 );
-
-		final centroid = int( y + ( nextY - y ) / 2 );
-		if( !xFound && iy.outside( y ) && iy.onBorder( centroid )) {
-			dimension = Horizontal;
-			setX( xSaved );
-			printErr( 'jump to saved x and y  change dimension to Horizontal' );
-		}
-		if( nextY == y ) nextY++;
-		
-		setY( nextY );
-		return '$x $y';
-	}
-	
 	function calculateIntervalsY( bombDir:String ) {
-		final prevDistance = [for( gy in 0...height ) gy < iy.min || gy > iy.max ? 0 : ( gy - prevY ).abs()];
-		final currDistance = [for( gy in 0...height ) gy < iy.min || gy > iy.max ? 0 : ( gy - y ).abs()];
+		final prevDistance = [for( gy in 0...height ) gy < iy.min || gy > iy.max ? 0 : abs( gy - prevY )];
+		final currDistance = [for( gy in 0...height ) gy < iy.min || gy > iy.max ? 0 : abs( gy - y )];
 		var min = -1;
 		var max = prevDistance.length - 1;
 		
@@ -214,15 +223,14 @@ class Knight {
 		}
 	}
 
-	function setY( v:Int ) {
-		prevY = y;
-		y = v.max( 0 ).min( height - 1 );
+	function setX( v:Int ) {
+		prevX = x;
+		x = v;
 	}
 
-	function distance( x1:Int, y1:Int, x2:Int, y2:Int ) return Math.sqrt( distance2( x1, y1, x2, y2 ));
-	
-	function distance2( x1:Int, y1:Int, x2:Int, y2:Int ) {
-		return ( x2 - x1 ) * ( x2 - x1) + ( y2 - y1 ) * ( y2 - y1 );
+	function setY( v:Int ) {
+		prevY = y;
+		y = v;
 	}
 
 	function plotGrid() {

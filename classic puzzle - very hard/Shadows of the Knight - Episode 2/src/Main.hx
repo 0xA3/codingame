@@ -16,9 +16,11 @@ function main() {
 	printErr( '{ w: $w, h: $h, n: $n, x: $x0, y: $y0, bx: 0, by: 0 }' );
 
 	final knight = new Knight( w, h, n, x0, y0 );
+	// final knight = new Denvash( w, h, n, x0, y0 );
+	// final knight = new Ethiery( w, h, n, x0, y0 );
 
 	while( true ) {
-		final result = knight.navigate( readline() );
+		final result = knight.move( readline() );
 		print( result );
 	}
 }
