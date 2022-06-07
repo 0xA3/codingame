@@ -1,5 +1,5 @@
 -main Main
--cp ../../codingame_extension/
+-cp ../../../codingame_extension/
 -cp src
 --js dest/app.js
 

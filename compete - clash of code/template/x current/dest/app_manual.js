@@ -1,0 +1,1 @@
+let t=readline().split(" "), p=(v)=>parseInt(v),r=p(t[0]),a=p(t[1]),n=readline().split(" ");print(r+(p(n[0])-r)/2+" "+(a+(p(n[1])-a)/2))

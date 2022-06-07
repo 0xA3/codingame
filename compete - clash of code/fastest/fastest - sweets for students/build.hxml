@@ -1,4 +1,4 @@
--cp ../../codingame_extension/
+-cp ../../../codingame_extension/
 -cp src
 -D analyzer-optimize
 -D js-es=6
