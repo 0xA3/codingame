@@ -1,0 +1,1 @@
+let t=readline().split(" "),r=parseInt(t[0]),a=parseInt(t[1]),n=readline().split(" "),s=parseInt(n[0])-r,l=parseInt(n[1])-a;print(Math.floor(Math.sqrt(s*s+l*l)))

@@ -1,0 +1,1 @@
+class e{static f(t){print(t)}}class l{static main(){let t=readline().split(" "),r=new Array(t.length),n=0,a=t.length;for(;n<a;){let e=n++;r[e]=+t[e]}let l=r[0],s=r[1],i=r[2],o=r[3],f=0,h=0;for(;h<i;)(o+h++)%30==15&&(f+=l);e.f(0==f?"ruined":f>=s)}}l.main();

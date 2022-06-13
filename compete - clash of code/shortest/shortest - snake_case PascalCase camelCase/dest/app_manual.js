@@ -1,0 +1,1 @@
+let f=(e)=>print(e),t=readline();t.indexOf("_")!=-1?f("snake_case"):t[0].toLowerCase()==t[0]?f("camelCase"):f("PascalCase")

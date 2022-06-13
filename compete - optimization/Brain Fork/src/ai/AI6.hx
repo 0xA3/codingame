@@ -7,7 +7,7 @@ using Distance;
 
 // add alphabet loop
 // score local  5336
-// score online 
+// score online
 class AI6 extends AI {
 	
 	public function process( magicPhrase:String ) {

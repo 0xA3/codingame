@@ -1,17 +1,17 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-
-import Std.parseInt;
-import Std.int;
 import Math.round;
+import Std.int;
+import Std.parseInt;
 
 class Main {
 	
 	static function main() {
 		
-		final input = readline();
-		print( '' );
+		final n = parseInt( readline());
+	
+		print( "" );
 	}
 }
 
