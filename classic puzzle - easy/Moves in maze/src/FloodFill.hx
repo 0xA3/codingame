@@ -7,18 +7,16 @@ class FloodFill {
 
 	final positions = new List<Position>();
 
-	public function new( inputGrid:Array<Array<String>>, startPosition:Position ) {
+	public function new( inputGrid:Array<Array<String>>, w:Int, h:Int, startPosition:Position ) {
 		this.inputGrid = inputGrid;
+		this.w = w;
+		this.h = h;
 		this.startPosition = startPosition;
-		
-		if( inputGrid == null || inputGrid.length == 0 ) throw 'Error: no inputGrid';
-		w = inputGrid[0].length;
-		h = inputGrid.length;
-
-		positions.add( startPosition );
 	}
 
 	public function fill( distanceGrid:Array<Array<Int>> ) {
+		positions.add( startPosition );
+		
 		while( !positions.isEmpty() ) {
 			final position = positions.pop();
 			final x = position.x;

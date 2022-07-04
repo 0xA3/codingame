@@ -24,31 +24,31 @@ class Tests extends buddy.BuddySuite {
 		describe( "Test process", {
 			it( "Easy", {
 				final ip = easy;
-				Main.process( ip.w, ip.h, ip.grid ).should.be( easyResult );
+				Main.process( ip.grid, ip.w, ip.h ).should.be( easyResult );
 			});
 			it( "Loop", {
 				final ip = loop;
-				Main.process( ip.w, ip.h, ip.grid ).should.be( loopResult );
+				Main.process( ip.grid, ip.w, ip.h ).should.be( loopResult );
 			});
 			it( "Through borders", {
 				final ip = throughBorders;
-				Main.process( ip.w, ip.h, ip.grid ).should.be( throughBordersResult );
+				Main.process( ip.grid, ip.w, ip.h ).should.be( throughBordersResult );
 			});
 			it( "Space", {
 				final ip = space;
-				Main.process( ip.w, ip.h, ip.grid ).should.be( spaceResult );
+				Main.process( ip.grid, ip.w, ip.h ).should.be( spaceResult );
 			});
 			it( "Unreachable", {
 				final ip = unreachable;
-				Main.process( ip.w, ip.h, ip.grid ).should.be( unreachableResult );
+				Main.process( ip.grid, ip.w, ip.h ).should.be( unreachableResult );
 			});
 			it( "Everything", {
 				final ip = everything;
-				Main.process( ip.w, ip.h, ip.grid ).should.be( everythingResult );
+				Main.process( ip.grid, ip.w, ip.h ).should.be( everythingResult );
 			});
 			it( "Blocked", {
 				final ip = blocked;
-				Main.process( ip.w, ip.h, ip.grid ).should.be( blockedResult );
+				Main.process( ip.grid, ip.w, ip.h ).should.be( blockedResult );
 			});
 		});
 

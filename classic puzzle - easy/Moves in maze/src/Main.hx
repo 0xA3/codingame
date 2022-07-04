@@ -12,13 +12,13 @@ function main() {
 	final h = parseInt( inputs[1] );
 	final grid = [for( _ in 0...h ) readline().split( "" )];
 	
-	final result = process( w, h, grid );
+	final result = process( grid, w, h );
 	print( result );
 }
 
-function process( width:Int, height:Int, inputGrid:Array<Array<String>> ) {
+function process( inputGrid:Array<Array<String>>, w:Int, h:Int ) {
 
-	final floodFill = new FloodFill( inputGrid, getStartPosition( inputGrid ));
+	final floodFill = new FloodFill( inputGrid, w, h, getStartPosition( inputGrid ));
 	
 	final distanceGrid = [for( y in 0...inputGrid.length ) [for( x in 0...inputGrid[y].length ) inputGrid[y][x] == "#" ? -2 : -1]];
 	floodFill.fill( distanceGrid );
