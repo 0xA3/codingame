@@ -71,8 +71,12 @@ function process( inputSequence:String, words:Array<String> ) {
 	// trace( 'codeLengths $codeLengths' );
 
 	final result = search( 0 );
-	final subResultOutput = subResults.map( v -> v == -1 ? "." : '$v' ).join(" ");
+	// final subResultOutput = subResults.map( v -> v == -1 ? "." : '$v' ).join(" ");
 	// trace( 'subResults [$subResultOutput]' );
+	
+	// final output = [];
+	// for( i in 0...subResults.length ) if( subResults[i] > 0 ) output.push( 'subResults[$i]: ${subResults[i]}' );
+	// trace( output.join( "\n" ));
 
 	// printErr( 'Duration ${Math.round(( Timer.stamp() - start ) * 1000 )}ms' );
 	return result;
