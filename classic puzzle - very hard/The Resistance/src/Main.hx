@@ -68,7 +68,8 @@ function process( inputSequence:String, words:Array<String> ) {
 
 	// trace( 'sequence $sequence   length ${sequence.length}' );
 	// for( code => amount in wordCodes ) trace( '$amount code $code ${codeWords[code]}' );
-	// trace( 'codeLengths $codeLengths' );
+	// final coutput = codeLengths.mapi(( i, c ) -> '$i : ${codeLengths[i]}' ).join( ", " );
+	// trace( coutput );
 
 	final result = search( 0 );
 	// final subResultOutput = subResults.map( v -> v == -1 ? "." : '$v' ).join(" ");
