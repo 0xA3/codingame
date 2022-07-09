@@ -18,7 +18,7 @@ function main() {
 
 function process( inputGrid:Array<Array<String>>, w:Int, h:Int ) {
 	var grid = [for( y in 0...inputGrid.length ) [for( x in 0...inputGrid[y].length ) inputGrid[y][x] != "." ? [inputGrid[y][x]] : []]];
-	var arrowsNum = grid.fold(( line, sumLine ) -> sumLine + line.fold(( cell, sumCell ) -> sumCell + cell.length, 0 ), 0);
+	var arrowsNum = grid.fold(( line, sumLine ) -> sumLine + line.fold(( cell, sumCell ) -> sumCell + cell.length, 0 ), 0 );
 
 	var step = 0;
 	// printGrid( step, arrowsNum, grid );
