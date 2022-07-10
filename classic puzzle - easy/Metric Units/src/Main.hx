@@ -27,8 +27,12 @@ function main() {
 
 function process( expression:String ) {
 
-	final chunks = expression.split(" ");
-	final lengths = [chunks[0], chunks[2]].map( chunk -> parseChunk( chunk ));
+	#if lua // no regular expressions for lua in codinGame
+	final chunks = expression.split(" + ");
+	final lengths = chunks.map( chunk -> parseChunk( chunk ));
+	#else
+	final lengths = parseExpression( expression );
+	#end
 	final smallerId = units[lengths[0].unit] < units[lengths[1].unit] ? 0 : 1;
 	
 	final smallerUnitLength = lengths[smallerId];
@@ -47,6 +51,7 @@ function process( expression:String ) {
 	#end
 }
 
+#if lua // no regular expressions for lua in codinGame
 function parseChunk( chunk:String ):Length {
 	if( chunk.contains( "km" )) return { amount: getValue2( chunk ), unit: "km" }
 	if( chunk.contains( "dm" )) return { amount: getValue2( chunk ), unit: "dm" }
@@ -57,6 +62,21 @@ function parseChunk( chunk:String ):Length {
 	
 	throw 'Error: parsing chunk $chunk';
 }
+#else
+function parseExpression( input:String ) {
+	final ereg = ~/([\d.]+)([cdkmu]?m)/;
+	
+	final lengths:Array<Length> = [];
+	while( ereg.match(input) ) {
+		lengths.push({
+		  amount: parseFloat( ereg.matched(1) ),
+		  unit: ereg.matched(2),
+		});
+		input = ereg.matchedRight();
+	}
+	return lengths;
+}
+#end
 
 function getValue1( s:String ) return parseFloat( s.substr( 0, s.length - 1 ));
 function getValue2( s:String ) return parseFloat( s.substr( 0, s.length - 2 ));
