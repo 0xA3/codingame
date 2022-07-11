@@ -28,59 +28,58 @@ function main() {
 function process( expression:String ) {
 
 	#if lua // no regular expressions for lua in codinGame
-	final chunks = expression.split(" + ");
-	final lengths = chunks.map( chunk -> parseChunk( chunk ));
+	final chunks = expression.split( " + " );
+	final lengths = chunks.map( chunk -> parseChunk( chunk ) );
 	#else
 	final lengths = parseExpression( expression );
 	#end
 	final smallerId = units[lengths[0].unit] < units[lengths[1].unit] ? 0 : 1;
-	
-	final smallerUnitLength = lengths[smallerId];
-	final largerUnitLength = lengths[1 - smallerId];
-	
-	final multiplier = units[largerUnitLength.unit] / units[smallerUnitLength.unit];
-	final sum = ( largerUnitLength.amount * multiplier + smallerUnitLength.amount ).round( 8 );
-	
-	// trace( 'smallerUnit ${smallerUnitLength.unit}  largerUnit ${largerUnitLength.unit}  multiplier $multiplier  sum $sum' );
+
+	final smallerLength = lengths[smallerId];
+	final largerLength = lengths[1 - smallerId];
+
+	final multiplier = units[largerLength.unit] / units[smallerLength.unit];
+	final sum = ( largerLength.amount * multiplier + smallerLength.amount ).round( 8 );
+
+	// trace( 'smallerUnit ${smallerLength.unit}  largerUnit ${largerLength.unit}  multiplier $multiplier  sum $sum' );
 	#if lua
 	final sumString = Std.string( sum );
 	final sumFormated = sumString.substr( sumString.length - 2 ) == ".0" ? sumString.substr( 0, sumString.length - 2 ) : sumString;
-	return '$sumFormated${smallerUnitLength.unit}';
+	return '$sumFormated${smallerLength.unit}';
 	#else
-	return '$sum${smallerUnitLength.unit}';
+	return '$sum${smallerLength.unit}';
 	#end
 }
 
 #if lua // no regular expressions for lua in codinGame
 function parseChunk( chunk:String ):Length {
-	if( chunk.contains( "km" )) return { amount: getValue2( chunk ), unit: "km" }
-	if( chunk.contains( "dm" )) return { amount: getValue2( chunk ), unit: "dm" }
-	if( chunk.contains( "cm" )) return { amount: getValue2( chunk ), unit: "cm" }
-	if( chunk.contains( "mm" )) return { amount: getValue2( chunk ), unit: "mm" }
-	if( chunk.contains( "um" )) return { amount: getValue2( chunk ), unit: "um" }
-	if( chunk.contains( "m" )) return { amount: getValue1( chunk ), unit: "m" }
-	
+	if( chunk.contains( "km" ) ) return {amount: getValue2( chunk ), unit: "km"}
+	if( chunk.contains( "dm" ) ) return {amount: getValue2( chunk ), unit: "dm"}
+	if( chunk.contains( "cm" ) ) return {amount: getValue2( chunk ), unit: "cm"}
+	if( chunk.contains( "mm" ) ) return {amount: getValue2( chunk ), unit: "mm"}
+	if( chunk.contains( "um" ) ) return {amount: getValue2( chunk ), unit: "um"}
+	if( chunk.contains( "m" ) ) return {amount: getValue1( chunk ), unit: "m"}
+
 	throw 'Error: parsing chunk $chunk';
 }
 #else
 function parseExpression( input:String ) {
 	final ereg = ~/([\d.]+)([cdkmu]?m)/;
-	
+
 	final lengths:Array<Length> = [];
-	while( ereg.match(input) ) {
+	while( ereg.match( input ) ) {
 		lengths.push({
-		  amount: parseFloat( ereg.matched(1) ),
-		  unit: ereg.matched(2),
-		});
+			amount: parseFloat( ereg.matched( 1 ) ),
+			unit: ereg.matched( 2 ),
+		} );
 		input = ereg.matchedRight();
 	}
 	return lengths;
 }
 #end
 
-function getValue1( s:String ) return parseFloat( s.substr( 0, s.length - 1 ));
-function getValue2( s:String ) return parseFloat( s.substr( 0, s.length - 2 ));
-
+function getValue1( s:String ) return parseFloat( s.substr( 0, s.length - 1 ) );
+function getValue2( s:String ) return parseFloat( s.substr( 0, s.length - 2 ) );
 
 typedef Length = {
 	final amount:Float;
