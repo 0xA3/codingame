@@ -23,7 +23,7 @@ class Tests extends buddy.BuddySuite{
 				final ip = test3;
 				Main.process( ip.currentLoads, ip.incomingLoad ).should.be( 94125 );
 			} );
-			@include it( "Test 4", {
+			it( "Test 4", {
 				final ip = test4;
 				Main.process( ip.currentLoads, ip.incomingLoad ).should.be( 1 );
 			} );

@@ -17,7 +17,7 @@ function main() {
 	print( result );
 }
 
-function process( currentLoads:Array<Int>, incomingLoad:Int ) {
+function process1( currentLoads:Array<Int>, incomingLoad:Int ) {
 
 	final tempLoads = currentLoads.copy();
 	tempLoads.sort( ( a, b ) -> a - b );
@@ -59,4 +59,19 @@ function process( currentLoads:Array<Int>, incomingLoad:Int ) {
 	final imbalance = tempLoads[tempLoads.length - 1] - tempLoads[0];
 	// trace( 'imbalance = ${tempLoads[tempLoads.length - 1]} - ${tempLoads[0]} = $imbalance' );
 	return imbalance == 0 ? 1 : imbalance;
+}
+
+function process( currentLoads:Array<Int>, incomingLoad:Int ) {
+	final n = currentLoads.length;
+	final l = currentLoads.copy();
+	l.sort( ( a, b ) -> a - b );
+
+	var k = incomingLoad;
+	for( i in 0...n - 1 ) {
+		final fill = ( l[i + 1] - l[i] ) * ( i + 1 );
+		if( fill <= k ) k -= fill;
+		else return l[n - 1] - l[i] - int( k / ( i + 1 ) );
+	}
+
+	return k % l.length == 0 ? 0 : 1;
 }
