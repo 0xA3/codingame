@@ -45,7 +45,7 @@ function processFrames( frameStrings:Array<String> ) {
 		final frame:Frame = { pinIds: pinIds, isSpare: isSpare, strikes:strikes }
 		frames[i] = frame;
 		
-		final totals = getTotals( frames, pins );
+		// final totals = getTotals( frames, pins );
 		// trace( '${frames[i].pinIds.map( pinId -> pins[pinId] )} ${( frames[i].isSpare ? "spare " : "" )}' + totals.join( " " ));
 	}
 
@@ -87,13 +87,6 @@ function getTotals( frames:Array<Frame>, pins:Array<Int> ) {
 
 	return totals;
 }
-
-function getNext2Pins( frames:Array<Frame>, i:Int, p:Int ) {
-	var offset = 1;
-
-}
-
-// function outputFrame( frame:Frame ) return '${frame.pins} ${(frame.isSpare ? "spare" : "" )}${(frame.strikes > 0 ? "strike" : "")}';
 
 typedef Frame = {
 	final pinIds:Array<Int>;
