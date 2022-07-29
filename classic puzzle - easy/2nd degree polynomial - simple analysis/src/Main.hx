@@ -39,9 +39,9 @@ function process( a:Float, b:Float, c:Float ) {
 
 	points.sort(( a, b ) -> a.x < b.x ? -1 : 1 );
 	#if lua
-	return points.map( point -> '$point'.replace( ".0", "" ) ).join(",");
+	return points.map( point -> '$point'.replace( ".0", "" ) ).join( "," );
 	#else
-	return points.map( point -> '$point' ).join(",");
+	return points.map( point -> '$point' ).join( "," );
 	#end
 }
 
