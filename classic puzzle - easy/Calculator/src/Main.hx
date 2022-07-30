@@ -30,7 +30,7 @@ function process( keys:Array<String> ) {
 		switch key {
 			case "AC":
 				result = 0;
-				outputs.push( '${result.round( 3 )}' );
+				outputs.push( "0" );
 				op = "";
 				input = "";
 			case "+", "-", "x", "/":
@@ -41,12 +41,16 @@ function process( keys:Array<String> ) {
 				outputs.push( '${result.round( 3 )}' );
 				op = key;
 			case "=":
-				if( input != "" ) bufferInput = input;
-				if( op != "" ) bufferOp = op;
+				if( op != "" ) {
+					bufferOp = op;
+					op = "";
+				}
+				if( input != "" ) {
+					bufferInput = input;
+					input = "";
+				}
 				result = execute( result, bufferOp, bufferInput );
 				outputs.push( '${result.round( 3 )}' );
-				op = "";
-				input = "";
 			default:
 				input += key;
 				outputs.push( input );
@@ -68,7 +72,6 @@ function execute( v1:Float, op:String, input:String ) {
 		case "-": return v1 - v2;
 		case "x": return v1 * v2;
 		case "/": return v1 / v2;
-		case "=": return v1 + v2;
 		default: return v2;
 	}
 }
