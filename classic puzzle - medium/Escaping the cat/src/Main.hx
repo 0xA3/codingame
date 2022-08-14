@@ -1,77 +1,70 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
+import Math.PI;
+import Math.atan2;
+import Math.round;
 import Std.parseInt;
 
 using Lambda;
 
+inline var MAX_TURNS = 350;
+inline var POOL_RADIUS = 500;
+inline var WIN_DISTANCE = 80;
+inline var MOUSE_SPEED = 10;
+
+var catSpeed:Int;
+var innerRadius:Float;
+
+var state = Navigate;
+var escapePosition:Vec2 = { x: 0, y: 0 }
+
 function main() {
 
-	final inputs = readline().split(' ');
-	final coinsNum = parseInt( inputs[0] );
-	final throwsNum = parseInt( inputs[1] );
-	
-	final throws = [for( i in 0...throwsNum ) readline().split(' ').map( s -> parseInt( s ))];
+	catSpeed = parseInt( readline() );
 
-	final result = process( coinsNum, throws );
-	print( result );
-}
+	innerRadius = MOUSE_SPEED / catSpeed * POOL_RADIUS;
+	// printErr( 'catSpeed $catSpeed  innerRadius $innerRadius' );
 
-function process( coinsNum:Int, throws:Array<Array<Int>> ) {
+	var turn = 0;
+	while( turn++ <= MAX_TURNS ) {
+		final inputs = readline().split(' ');
+		final mouseX = parseInt( inputs[0] );
+		final mouseY = parseInt( inputs[1] );
+		final catX = parseInt( inputs[2] );
+		final catY = parseInt( inputs[3] );
 	
-	final pairs:Array<Pair> = [for( num in 1...coinsNum * 2 + 1 ) { num: num, others: num % 2 == 0 ? getOdds( coinsNum ) : getEvens( coinsNum ) }];
-	// trace( "\n" + pairs.map( pair -> '${pair.num} ${pair.others}' ).join( "\n" ) );
-	
-	for( throwNums in throws ) {
-		final evens = throwNums.filter( v -> v % 2 == 0 );
-		final odds = throwNums.filter( v -> v % 2 == 1 );
-		for( num in throwNums ) {
-			if( num % 2 == 0 ) {
-				for( odd in odds ) {
-					pairs[num - 1].others.remove( odd );
-				}
-			} else {
-				for( even in evens ) {
-					pairs[num - 1].others.remove( even );
-				}
-			}
-		}
+		final result = process({ x: mouseX, y: mouseY }, {x: catX, y: catY });
+		print( '$result $state' );
 	}
-	// trace( "\n" + pairs.map( pair -> 'num ${pair.num} others ${pair.others}' ).join( "\n" ) );
+}
 
-	final coins:Array<Coin> = pairs.filter( pair -> pair.others.length == 1 ).map( pair -> { side1: pair.num, side2: pair.others[0] });
-	final unfinishedPairs = pairs.filter( pair -> pair.others.length > 1 );
-	
-	for( coin in coins ) {
-		var i = unfinishedPairs.length;
-		while( --i >= 0 ) {
-			final uPair = unfinishedPairs[i];
-			uPair.others.remove( coin.side2 );
-			// trace( 'num ${uPair.num}  remove ${coin.side2}  remaining ${uPair.others}' );
-			if( uPair.others.length == 1 ) {
-				coins.push({ side1: uPair.num, side2: uPair.others[0] });
-				unfinishedPairs.remove( uPair );
-			}
-		}
+function process( mousePos:Vec2, catPos:Vec2 ) {
+	return switch state {
+		case Navigate: navigate( mousePos, catPos );
+		case HaulAss: escapePosition.toIntString();
 	}
-
-	coins.sort(( a, b ) -> a.side1 - b.side1 );
-	// trace( "\n" + coins.map( coin -> '${coin.side1} : ${coin.side2}' ).join( "\n" ) );
-	final oddCoins = [for( i in 0...coinsNum ) coins[i * 2]];
-	final evenSides = oddCoins.map( coin -> coin.side2 ).join(" ");
-
-	return evenSides;
 }
 
-inline function getEvens( coinsNum:Int ) return [for( i in 1...coinsNum + 1 ) i * 2];
-inline function getOdds( coinsNum:Int ) return [ for( i in 1...coinsNum + 1 ) i * 2 - 1];
-
-typedef Pair = {
-	final num:Int;
-	final others:Array<Int>;
+function navigate( mousePos:Vec2, catPos:Vec2 ) {
+	
+	final nCat = catPos.normalize();
+	final nMouse = nCat.multiply( -1 );
+	escapePosition = nMouse.multiply( innerRadius );
+	
+	final angleRad = mousePos.angleTo( catPos );
+	final angleDeg = angleRad * 180 / PI;
+	// printErr( 'angle $angleDeg  mouse ${mousePos.length()}  innerRadius $innerRadius' );
+	if( angleDeg > 170 && mousePos.length() > innerRadius * 0.95 ){
+		escapePosition = catPos.multiply( - 1.1 );
+		state = HaulAss;
+	}
+	
+	return escapePosition.toIntString();
 }
 
-typedef Coin = {
-	final side1:Int;
-	final side2:Int;
+
+enum TState {
+	Navigate;
+	HaulAss;
 }
