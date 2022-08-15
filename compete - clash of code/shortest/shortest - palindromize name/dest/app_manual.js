@@ -1,0 +1,1 @@
+let t=readline(),r="",a=0,n=t.length;for(;a<n;){let e=a++;r+=t.charAt(e)+t.charAt(n-e-1)}print(r)
