@@ -10,7 +10,12 @@ import Math.round;
 	public function toString() return 'x: $x, y: $y';
 	
 	public inline function angle() return Math.atan2( x, y );
-	public inline function angleTo( v:Vec2 ) return Math.acos( this.dot( v ) / ( this.length() * v.length() ));
+	public inline function angleTo( v:Vec2 ) {
+		final tLength = this.length();
+		final vLength = v.length();
+		if( tLength == 0 || vLength == 0 ) return 0.0;
+		return Math.acos( this.dot( v ) / ( tLength * vLength ));
+	}
 
 	public inline function distance( v:Vec2 ) return Math.sqrt(distanceSq(v));
 	public inline function distanceSq( v:Vec2 ) {

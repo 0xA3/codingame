@@ -2,8 +2,6 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Math.PI;
-import Math.atan2;
-import Math.round;
 import Std.parseInt;
 
 using Lambda;
@@ -24,7 +22,6 @@ function main() {
 	catSpeed = parseInt( readline() );
 
 	innerRadius = MOUSE_SPEED / catSpeed * POOL_RADIUS;
-	// printErr( 'catSpeed $catSpeed  innerRadius $innerRadius' );
 
 	var turn = 0;
 	while( turn++ <= MAX_TURNS ) {
@@ -47,22 +44,20 @@ function process( mousePos:Vec2, catPos:Vec2 ) {
 }
 
 function navigate( mousePos:Vec2, catPos:Vec2 ) {
-	
 	final nCat = catPos.normalize();
 	final nMouse = nCat.multiply( -1 );
 	escapePosition = nMouse.multiply( innerRadius );
 	
-	final angleRad = mousePos.angleTo( catPos );
-	final angleDeg = angleRad * 180 / PI;
+	final angle = mousePos.angleTo( catPos ) * 180 / PI;
+	
 	// printErr( 'angle $angleDeg  mouse ${mousePos.length()}  innerRadius $innerRadius' );
-	if( angleDeg > 170 && mousePos.length() > innerRadius * 0.95 ){
-		escapePosition = catPos.multiply( - 1.1 );
+	if( angle > 170 && mousePos.length() > innerRadius * 0.95 ){
+		escapePosition = catPos.multiply( -1.1 );
 		state = HaulAss;
 	}
 	
 	return escapePosition.toIntString();
 }
-
 
 enum TState {
 	Navigate;
