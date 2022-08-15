@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "terser": "^5.10.0"
+    "terser": ">=5.14.2"
   }
 }
