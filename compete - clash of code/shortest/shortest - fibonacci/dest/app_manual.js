@@ -1,0 +1,1 @@
+let t=+readline(),r=+readline(),a=+readline(),f=(t)=>print(t);f(r),f(a);let n=0,l=t-2;for(;n<l;){++n;let t=a+r;f(t),r=a,a=t}
