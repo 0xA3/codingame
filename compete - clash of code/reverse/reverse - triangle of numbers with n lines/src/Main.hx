@@ -3,17 +3,16 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
-import Std.string;
 
 using Lambda;
 using StringTools;
+using xa3.NumberConvert;
+using xa3.StringUtils;
 
 function main() {
 
-	final inputs = readline().split(' ');
-	final a = parseInt( inputs[0] );
-	final b = parseInt( inputs[1] );
+	final n = parseInt( readline());
 	
-	print( '${a * b}${a + b}${a - b}' );
+	var v = 1;
+	for( i in 0...n ) print( [for( _ in 0...i + 1 ) v++].join(" "));
 }
-

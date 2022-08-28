@@ -1,0 +1,1 @@
+let t=+(readline().split(" ")[1]),r=[],a=0;for(;a<t;)++a,r.push(readline());let n,l,s=0,i=r.length;for(;s<i;){let t=s++,e=r[t],a=e.indexOf("A"),i=e.indexOf("B");-1!=a&&(n=[a,t]),-1!=i&&(l=[i,t])}let o=l[0]-n[0],d=l[1]-n[1];print(Math.round(Math.sqrt(o*o+d*d)))
