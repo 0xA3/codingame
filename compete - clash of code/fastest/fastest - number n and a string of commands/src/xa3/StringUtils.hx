@@ -15,19 +15,4 @@ class StringUtils {
 		final regEx = ~/[A-Za-z]/;
 		return regEx.match( s );
 	}
-	
-	public static function isNumber( s:String ) {
-		final regEx = ~/[0-9]/;
-		return regEx.match( s );
-	}
-	
-	public static function isUppercase( s:String ) {
-		final regEx = ~/[A-Z]/;
-		return regEx.match( s );
-	}
-	
-	public static function isLowercase( s:String ) {
-		final regEx = ~/[a-z]/;
-		return regEx.match( s );
-	}
 }

@@ -1,0 +1,1 @@
+let t=+readline(),r=0;for(;r<t;){++r;let t=readline().split(" "),a=+t[0];if(1==t.length){let t=a/4;print(t*t)}else{let r=+t[1];print(r*((a-2*r)/2))}}

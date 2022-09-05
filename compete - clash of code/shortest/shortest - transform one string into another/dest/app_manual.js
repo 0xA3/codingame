@@ -1,0 +1,1 @@
+let x=readline,p=print,r=x(),t=x(),n=0,s=r.length;for(;n<s;){let s=n++;r.charAt(s)!=t.charAt(s)&&p(t.substr(0,s)+r.substr(s))}p(t)
