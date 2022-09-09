@@ -30,8 +30,4 @@ class StringUtils {
 		final regEx = ~/[a-z]/;
 		return regEx.match( s );
 	}
-
-	public static function repeat( s:String, n:Int ) {
-		return [for( _ in 0...n ) s].join( "" );
-	}
 }

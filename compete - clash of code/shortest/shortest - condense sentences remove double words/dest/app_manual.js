@@ -1,0 +1,1 @@
+let x=(e,r)=>{let t=e.indexOf(r);return-1!=t&&(e.splice(t,1),!0)},r=readline().split("and"),t=r[0].split(" "),n=r[1].split(" "),i=0;for(;i<t.length;){let e=t[i];++i,n.includes(e)&&x(n,e)}print(t.join(" ")+"and "+n.join(" "))

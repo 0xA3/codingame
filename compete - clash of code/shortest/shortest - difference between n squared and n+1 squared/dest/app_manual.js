@@ -1,0 +1,1 @@
+print(2*parseInt(readline())+1)
