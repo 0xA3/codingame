@@ -1,0 +1,7 @@
+-lib hxnodejs
+-lib buddy
+-cp ../../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main test.Tests
+--js bin/test.js
