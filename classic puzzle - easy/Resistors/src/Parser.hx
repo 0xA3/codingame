@@ -14,9 +14,7 @@ class Parser {
 	var input:haxe.io.Input;
 	var char = -1;
 
-	public function new() {
-
-	}
+	public function new() { }
 
 	public function parse( circuit:String ) {
 		

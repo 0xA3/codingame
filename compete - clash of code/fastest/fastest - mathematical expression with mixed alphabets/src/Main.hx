@@ -1,8 +1,6 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Std.int;
-import Std.parseInt;
 
 using xa3.StringUtils;
 
@@ -23,7 +21,7 @@ So the answer is 32.(The decimal point in the final answer is truncated.)
 
 In the case of 3/2,
 It may look like uehuw3fjeoi/nohGIY2fehudIYGdwj.
-So the answe is 1.(not 1.5.)
+So the answer is 1.(not 1.5.)
 
 Constraints
 5 <= S.length <= 100
@@ -45,5 +43,8 @@ function main() {
 function process( s:String ) {
 	final expression = s.split( "" ).filter( char -> !char.isLetter()).join( "" );
 
-	return js.Lib.eval( expression );
+	final p = new ExpressionParser();
+	final result = p.parse( expression );
+	
+	return result;
 }
