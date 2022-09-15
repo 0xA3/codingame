@@ -33,37 +33,36 @@ class Main {
 	static function process( n:Int, k:Int, areas:Array<Int> ) {
 		#end
 		
-		var smallestIndex = -1;
-		var smallest = 100000;
-		for( i in 0...areas.length ) {
-			if( areas[i] < smallest ) {
-				smallest = areas[i];
-				smallestIndex = i;
+		var maxDifference = 0;
+		var linasArea = 0;
+		var maksArea = 0;
+		
+		var currentLinasArea = 0;
+		for( l in 0...areas.length ) {
+			currentLinasArea = areas[l];
+
+			final maksAreasStart = l + 1;
+			final maksAreasEnd = l + k + 1;
+			// trace( 'l $l  linasArea $currentLinasArea  maksAreasStart $maksAreasStart  maksAreasEnd $maksAreasEnd' );
+
+			for( i in maksAreasStart...maksAreasEnd ) {
+				var currentMaksArea = 0;
+				for( m in 0...k ) currentMaksArea += areas[(i + m) % areas.length];
+				final difference = currentMaksArea - currentLinasArea;
+				// trace( 'currenMaksArea $currentMaksArea  difference $difference' );
+				if( difference > maxDifference ) {
+					linasArea = currentLinasArea;
+					maksArea = currentMaksArea;
+					maxDifference = difference;
+					// trace( '----  set linasArea $currentLinasArea  set maksArea $currentMaksArea ----' );
+				}
 			}
 		}
-
-		final sums = [];
-		// trace( '$n  k $k  areas $areas' );
-		// trace('for i in 0...${areas.length - k}' );
-		for( i in 0...areas.length ) {
-			// trace( 'i $i' );
-			var sum = 0;
-			// trace('for o in 0...${k + 1}' );
-			for( o in 0...k ) {
-				final io = ( i + o ) % areas.length;
-				if( io == smallestIndex ) break;
-				if( io >= areas.length ) break;
-				sum += areas[io];
-				// trace( 'o $o  area ${areas[o]} sum $sum' );
-			}
-			sums.push( sum );
-		}
-		sums.sort(( a, b ) -> b - a );
-
+		
 		#if test
-		return '${smallest} ${sums[0]}';
+		return '${linasArea} ${maksArea}';
 		#else
-		print( '${smallest} ${sums[0]}' );
+		print( '${linasArea} ${maksArea}' );
 		#end
 	}
 }
