@@ -15,7 +15,7 @@ class MathUtils {
 		return true;
 	}
 
-	public static function greatestCommonDenominator( a:Int, b:Int ) {
+	public static function greatestCommonDivisor( a:Int, b:Int ) {
 		var r = 0;
 		while(( a % b ) > 0 ) {
 			r = a % b;

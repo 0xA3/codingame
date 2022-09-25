@@ -1,0 +1,1 @@
+let t=readline(),m=["0","6","9"],r=0,a=0,n=t.length;for(;a<n;){let e=a++;m.includes(t[e])&&++r,"8"==t[e]&&(r+=2)}print(r)
