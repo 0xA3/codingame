@@ -1,0 +1,1 @@
+let t=readline().split(" "),r=+t[0],a=+t[1],s=readline().split(" ");print(""+(Math.abs(+s[0]-r)+Math.abs(+s[1]-a)))

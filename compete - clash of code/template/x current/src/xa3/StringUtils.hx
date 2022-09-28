@@ -35,6 +35,10 @@ class StringUtils {
 		return [for( _ in 0...n ) s].join( "" );
 	}
 
+	public static function reverse( s:String ) {
+		return [for( i in 0...s.length ) s.charAt( s.length - 1 - i )].join( "" );
+	}
+
 	public static function strip( s:String, char:String ) {
 		var left = 0;
 		var right = s.length - 1;
