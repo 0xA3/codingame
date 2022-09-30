@@ -37,7 +37,6 @@ function process( bankCards:Array<String>, playerCards:Array<String> ) {
 	if( playerScore == 21 && bankCards.length > playerCards.length ) return "Blackjack!";
 	if( playerScore == 21 ) return "Draw";
 	return "Draw";
-
 }
 
 function getScore( cards:Array<String> ) {
