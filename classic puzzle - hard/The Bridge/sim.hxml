@@ -6,3 +6,6 @@
 --interp
 
 # --hl bin/app.hl
+
+# -lib hxnodejs
+# --js bin/app.js

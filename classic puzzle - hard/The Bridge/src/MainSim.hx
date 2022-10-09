@@ -15,11 +15,11 @@ class MainSim {
 		trace( '-- START --' );
 		// final testCase = parse( TestCases.straight );
 		// final testCase = parse( TestCases.moveDown );
-		// final testCase = parse( TestCases.oneLonelyHole );
+		final testCase = parse( TestCases.oneLonelyHole );
 		// final testCase = parse( TestCases.chainedJumpsOfIncreasingLength );
 		// final testCase = parse( TestCases.chainedJumpsOfDecreasingLength );
 		// final testCase = parse( TestCases.chainedJumpsOfEqualLength );
-		final testCase = parse( TestCases.diagonalColumnsOfHolesPlus3HoleRow );
+		// final testCase = parse( TestCases.diagonalColumnsOfHolesPlus3HoleRow );
 		// final testCase = parse( TestCases.scatteredPits );
 		// final testCase = parse( TestCases.bigJumpChainedWithHoleColumns );
 		// final testCase = parse( TestCases.diagonalColumnsOfHolesPlus4HoleRowWithMandatorySacrifice );

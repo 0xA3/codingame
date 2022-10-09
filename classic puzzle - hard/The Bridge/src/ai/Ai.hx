@@ -3,6 +3,7 @@ package ai;
 import CodinGame.printErr;
 import ai.Node.NO_NODE;
 import data.State;
+import haxe.Timer;
 import sim.Simulator;
 
 class Ai {
@@ -12,11 +13,14 @@ class Ai {
 	final simulator:Simulator;
 	final solutions:Array<Node> = [];
 	
+	var start:Float;
+
 	public function new( simulator:Simulator ) {
 		this.simulator = simulator;
 	}
 
 	public function process( state:State ) {
+		start = Timer.stamp();
 		final root = new Node( 0, 0, state );
 		final actionIds = search( root );
 		final actions = actionIds.map( actionId -> actions[actionId] );
@@ -39,8 +43,8 @@ class Ai {
 				// trace( 'finished ${simulator.finished( state.x )}' );
 				if( simulator.finished( state.x )) {
 					solutions.push( current );
-					printErr( 'solution with ${current.state.alive} alive: ${backtrack( current ).map( actionId -> actions[actionId]).join(" ")} ' );
-					break;
+					// printErr( 'solution with ${current.state.alive} alive: ${backtrack( current ).map( actionId -> actions[actionId]).join(" ")} ' );
+					if( Timer.stamp() - start > 0.13 ) break;
 					// if( state.alive == simulator.bikes ) break;
 				} else {
 					for( id in 0...actions.length ) {
@@ -55,7 +59,7 @@ class Ai {
 			}
 		}
 		if( solutions.length == 0 ) throw 'Error: no solution found';
-		
+		printErr( 'solutions ${solutions.length}' );
 		solutions.sort(( a, b ) -> b.state.alive - a.state.alive );
 		return backtrack( solutions[0] );
 	}
