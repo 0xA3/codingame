@@ -5,15 +5,17 @@ import data.State;
 
 class Simulator {
 	
+	public final bikes:Int;
 	public final minSurvivingBikes:Int;
 	public final xFinish:Int;
 	
 	final lanes:Array<Array<Bool>>;
 	
-	public function new( inputLanes:Array<Array<Bool>>, minSurvivingBikes:Int ) {
+	public function new( inputLanes:Array<Array<Bool>>, bikes:Int, minSurvivingBikes:Int ) {
 		final addon = [for( _ in 0...30 ) true];
 		lanes = inputLanes.map( a -> a.concat( addon.copy() ));
 		
+		this.bikes = bikes;
 		this.minSurvivingBikes = minSurvivingBikes;
 		this.xFinish = inputLanes[0].length;
 		// trace( 'xFinish $xFinish' );
@@ -25,7 +27,7 @@ class Simulator {
 		switch actionId {
 			case 0: return move( state, state.speed ); // WAIT
 			case 1: return move( state, state.speed + 1 ); // SPEED
-			case 2: return move( state, state.speed - 1 ); // SPEED// SLOW
+			case 2: return move( state, state.speed - 1 ); // SLOW
 			case 3: return jump( state ); // JUMP
 			case 4: return moveUp( state ); // UP
 			case 5: return moveDown( state ); // DOWN
@@ -35,6 +37,8 @@ class Simulator {
 
 	function move( inputState:State, inputSpeed:Int, dy = 0 ):State {
 		final speed = inputSpeed < 0 ? 0 : inputSpeed;
+		if( speed == 0 ) return State.NO_STATE;
+		
 		var x = inputState.x;
 		var alive = inputState.alive;
 		final motorbikes = inputState.motorbikes;
@@ -50,10 +54,14 @@ class Simulator {
 				if( x < movedMotorbike.x ) x = movedMotorbike.x;
 			}
 		}
+		if( alive == 0 ) return State.NO_STATE;
+		
 		return { speed: speed, x: x, alive: alive, motorbikes: movedMotorbikes }
 	}
 
 	function jump( inputState:State ):State {
+		if( inputState.speed == 0 ) return State.NO_STATE;
+		
 		var x = inputState.x;
 		var alive = inputState.alive;
 		final motorbikes = inputState.motorbikes;
@@ -66,9 +74,11 @@ class Simulator {
 				final movedMotorbike = jumpMotorbike( motorbike.x, motorbike.y, inputState.speed );
 				movedMotorbikes.push( movedMotorbike );
 				if( !movedMotorbike.a ) alive--;
-				if( x < motorbike.x ) x = motorbike.x;
+				if( x < movedMotorbike.x ) x = movedMotorbike.x;
 			}
 		}
+		if( alive == 0 ) return State.NO_STATE;
+		
 		return { speed: inputState.speed, x: x, alive: alive, motorbikes: movedMotorbikes }
 	}
 
@@ -79,6 +89,8 @@ class Simulator {
 		}
 
 		final dy = minY >= 1 ? -1 : 0;
+		if( dy == 0 ) return State.NO_STATE;
+
 		return move( state, state.speed, dy );
 	}
 
@@ -89,6 +101,8 @@ class Simulator {
 		}
 
 		final dy = maxY < lanes.length - 1 ? 1 : 0;
+		if( dy == 0 ) return State.NO_STATE;
+		
 		return move( state, state.speed, dy );
 	}
 

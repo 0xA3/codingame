@@ -1,8 +1,11 @@
 package data;
 
-typedef State = {
-	final speed:Int;
-	final x:Int;
-	final alive:Int;
-	final motorbikes:Array<Motorbike>;
+@:structInit class State {
+	
+	public static final NO_STATE:State = { speed: 0, x: 0, alive: 0, motorbikes: []}
+
+	public final speed:Int;
+	public final x:Int;
+	public final alive:Int;
+	public final motorbikes:Array<Motorbike>;
 }

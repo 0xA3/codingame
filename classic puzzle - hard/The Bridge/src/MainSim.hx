@@ -15,11 +15,11 @@ class MainSim {
 		trace( '-- START --' );
 		// final testCase = parse( TestCases.straight );
 		// final testCase = parse( TestCases.moveDown );
-		final testCase = parse( TestCases.oneLonelyHole );
+		// final testCase = parse( TestCases.oneLonelyHole );
 		// final testCase = parse( TestCases.chainedJumpsOfIncreasingLength );
 		// final testCase = parse( TestCases.chainedJumpsOfDecreasingLength );
 		// final testCase = parse( TestCases.chainedJumpsOfEqualLength );
-		// final testCase = parse( TestCases.diagonalColumnsOfHolesPlus3HoleRow );
+		final testCase = parse( TestCases.diagonalColumnsOfHolesPlus3HoleRow );
 		// final testCase = parse( TestCases.scatteredPits );
 		// final testCase = parse( TestCases.bigJumpChainedWithHoleColumns );
 		// final testCase = parse( TestCases.diagonalColumnsOfHolesPlus4HoleRowWithMandatorySacrifice );
@@ -30,25 +30,31 @@ class MainSim {
 		
 		printState( testCase, testCase.initialState );
 		
-		final ai = new Ai( new Simulator( testCase.lanes, testCase.v ));
+		final ai = new Ai( new Simulator( testCase.lanes, testCase.m, testCase.v ));
 		
-		final simulator = new Simulator( testCase.lanes, testCase.v );
+		final simulator = new Simulator( testCase.lanes, testCase.m, testCase.v );
 
 		var state = testCase.initialState;
 		final destination = testCase.lanes[0].length;
 		
 		var x = getBikeX( testCase.initialState.motorbikes );
 		var turn = 0;
-		while( turn++ < 50 && state.alive > 0 && state.x < destination ) {
-			final startTime = Timer.stamp();
-			final action = ai.process( state );
-			// if( Timer.stamp() - startTime > 0.15 )
-			trace( 'turn $turn  $action  ${Timer.stamp() - startTime}ms' );
+		var actions = [];
+		while( turn < 50 && state.alive > 0 && state.x < destination ) {
+			if( turn == 0 ) {
+				final startTime = Timer.stamp();
+				actions = ai.process( state );
+				// if( Timer.stamp() - startTime > 0.15 )
+				printErr( '${Timer.stamp() - startTime}ms' );
+				printErr( 'Output: ${actions.join(" ")}' );
+			}
 			
-			final actionId = parseAction( action );
+			final actionId = parseAction( actions[turn] );
 			state = simulator.execute( state, actionId );
 			// trace( state );
 			printState( testCase, state );
+
+			turn++;
 		}
 	}
 	

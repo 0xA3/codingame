@@ -5,7 +5,7 @@ import Std.parseInt;
 import ai.Ai;
 import data.Motorbike;
 import data.State;
-import haxe.xml.Printer;
+import haxe.Timer;
 import sim.Simulator;
 
 using Lambda;
@@ -25,8 +25,9 @@ class Main {
 		// for( lane in lanes ) printErr( lane );
 		final input1 = '$m\n$v\n${lanes.join("\n")}';
 
-		final ai = new Ai( new Simulator( lanes, v ));
+		final ai = new Ai( new Simulator( lanes, m, v ));
 		var turn = 0;
+		var actions = [];
 		// game loop
 		while( true ) {
 			final s = parseInt( readline()); // the motorbikes' speed
@@ -49,8 +50,15 @@ class Main {
 			}
 			
 			final state:State = { speed: s, x: maxX, alive: alive, motorbikes: motorbikes }
-			// if( turn == 0 ) printErr( state );
-			print( ai.process( state ));
+
+			if( turn == 0 ) {
+				final startTime = Timer.stamp();
+				actions = ai.process( state );
+				// if( Timer.stamp() - startTime > 0.15 )
+				printErr( '${Timer.stamp() - startTime}ms' );
+			}
+
+			print( actions[turn] );
 			
 			turn++;
 		}
