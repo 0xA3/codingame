@@ -2,6 +2,8 @@ package xa3;
 
 import Math.sqrt;
 import Std.int;
+import Std.parseFloat;
+import Std.string;
 
 inline function abs( v:Int ) return v < 0 ? -v : v;
 inline function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
@@ -12,7 +14,7 @@ inline function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
 inline function deg2Rad( v:Float ) return v / 180 * Math.PI;
 inline function rad2deg( v:Float ) return v / Math.PI * 180;
 
-static function greatestCommonDenominator( a:Int, b:Int ) {
+function greatestCommonDenominator( a:Int, b:Int ) {
 	var r = 0;
 	while(( a % b ) > 0 ) {
 		r = a % b;
@@ -22,7 +24,7 @@ static function greatestCommonDenominator( a:Int, b:Int ) {
 	return b;
 }
 
-static function isPrime( n:Int ) {
+function isPrime( n:Int ) {
 	if( n <= 1 ) return false;
 	for( d in 2...int( sqrt( n )) + 1 ) {
 		if( n % d == 0 ) return false;
@@ -30,9 +32,9 @@ static function isPrime( n:Int ) {
 	return true;
 }
 
-static function log( x:Float, base:Float ) return int( Math.log( x ) / Math.log( base ));
+function log( x:Float, base:Float ) return int( Math.log( x ) / Math.log( base ));
 
-static function round( v:Float, decimals = 0 ):Float {
+function round( v:Float, decimals = 0 ):Float {
 
 	if( decimals == 0 ) return Math.round( v );
 

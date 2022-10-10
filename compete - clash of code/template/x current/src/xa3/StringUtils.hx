@@ -11,6 +11,18 @@ class StringUtils {
 		return s1.indexOf( s2 ) != -1;
 	}
 	
+	public static function count( s1:String, s2:String ) {
+		var startIndex = -1;
+		var n = 0;
+		
+		while( true ) {
+			startIndex = s1.indexOf( s2, startIndex + 1 );
+			if( startIndex == -1 ) break;
+			n++;
+		};
+		return n;
+	}
+
 	public static function isLetter( s:String ) {
 		final regEx = ~/[A-Za-z]/;
 		return regEx.match( s );
