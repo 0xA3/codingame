@@ -23,23 +23,39 @@ class StringUtils {
 		return n;
 	}
 
+	public static function isConsonant( s:String ) {
+		if( s.length != 1 ) throw 'Error: $s must be one char';
+		final regEx = ~/[bcdfghjklmnpqrstvwxyz]/i;
+		return regEx.match( s );
+	}
+	
 	public static function isLetter( s:String ) {
+		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final regEx = ~/[A-Za-z]/;
 		return regEx.match( s );
 	}
 	
 	public static function isNumber( s:String ) {
+		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final regEx = ~/[0-9]/;
 		return regEx.match( s );
 	}
 	
 	public static function isUppercase( s:String ) {
+		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final regEx = ~/[A-Z]/;
 		return regEx.match( s );
 	}
 	
 	public static function isLowercase( s:String ) {
+		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final regEx = ~/[a-z]/;
+		return regEx.match( s );
+	}
+
+	public static function isVovel( s:String ) {
+		if( s.length != 1 ) throw 'Error: $s must be one char';
+		final regEx = ~/[aeiou]/i;
 		return regEx.match( s );
 	}
 

@@ -31,7 +31,7 @@ class NumberConvert {
 		var dec = 0;
 		for( i in 0...s.length ) {
 			dec *= sourceBase;
-			final char = s.charAt( i );
+			final char = s.charAt( i ).toUpperCase();
 			if( !n2DecMap.exists( char )) throw 'Error: illegal char ${s.charAt( i )} in input value $s';
 			dec += n2DecMap[char];
 		}

@@ -10,14 +10,10 @@ using xa3.NumberConvert;
 using xa3.RegexUtils;
 using xa3.StringUtils;
 
-/*
-
-
-*/
-
 function main() {
 
-	final n = parseInt( readline());
+	final s = readline().split( "" );
+	final output = s.map( v -> v.isVovel() ? "" : v ).join( "" );
 	
-	print( "" );
+	print( output );
 }

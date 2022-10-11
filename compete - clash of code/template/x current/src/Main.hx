@@ -6,8 +6,8 @@ import Std.parseInt;
 
 using Lambda;
 using StringTools;
-using xa3.ERegUtils;
 using xa3.NumberConvert;
+using xa3.RegexUtils;
 using xa3.StringUtils;
 
 /*
