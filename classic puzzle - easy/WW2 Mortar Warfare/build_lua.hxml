@@ -1,0 +1,7 @@
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D lua-vanilla
+--dce full
+-main Main
+--lua dest/app.lua

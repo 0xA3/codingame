@@ -1,0 +1,1 @@
+let t=readline(),e="",r=0,a=t.length;for(;r<a;){let a=+t[r++]-1;a>-1&&(e+=a)}print(e)

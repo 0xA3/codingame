@@ -1,7 +1,7 @@
 package xa3;
 
 class RegexUtils {
-	
+	#if !lua
 	public static function getMatches( s:String, eReg:EReg, index = 1 ) {
 		final matched = [];
 		var input = s;
@@ -19,4 +19,5 @@ class RegexUtils {
 	public static function regSplit( s1:String, ereg:EReg ) {
 		return ereg.split( s1 );
 	}
+	#end
 }

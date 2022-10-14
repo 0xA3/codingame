@@ -1,0 +1,1 @@
+t=+readline();print(t<3?"ERROR":180*(t-2))

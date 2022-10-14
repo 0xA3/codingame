@@ -22,43 +22,7 @@ class StringUtils {
 		};
 		return n;
 	}
-	#if lua
-	static final consonants = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"];
-	public static function isConsonant( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		return consonants.contains( s.charAt( 0 ));
-	}
-	
-	public static function isLetter( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final charCode = s.toLowerCase().charCodeAt( 0 );
-		return charCode >= "a".code && charCode <= "z".code;
-	}
-	
-	public static function isNumber( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final charCode = s.charCodeAt( 0 );
-		return charCode >= "0".code && charCode <= "9".code;
-	}
-	
-	public static function isUppercase( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final charCode = s.charCodeAt( 0 );
-		return charCode >= "A".code && charCode <= "Z".code;
-	}
-	
-	public static function isLowercase( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final charCode = s.charCodeAt( 0 );
-		return charCode >= "a".code && charCode <= "z".code;
-	}
 
-	static final vovels = ["a","e","i","o","u"];
-	public static function isVovel( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		return vovels.contains( s.charAt( 0 ));
-	}
-	#else
 	public static function isConsonant( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final regEx = ~/[bcdfghjklmnpqrstvwxyz]/i;
@@ -94,7 +58,7 @@ class StringUtils {
 		final regEx = ~/[aeiou]/i;
 		return regEx.match( s );
 	}
-	#end
+
 	public static function repeat( s:String, n:Int ) {
 		return [for( _ in 0...n ) s].join( "" );
 	}

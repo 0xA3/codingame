@@ -1,0 +1,1 @@
+let t=+readline(),e=0,r=0;for(;r<t;)++r,e+=+readline();print(e*e)

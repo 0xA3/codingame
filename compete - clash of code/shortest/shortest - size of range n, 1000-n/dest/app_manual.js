@@ -1,0 +1,1 @@
+t=+readline();print(1e3-t-t)
