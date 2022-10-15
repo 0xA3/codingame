@@ -18,6 +18,13 @@ class NumberFormat {
 	public static final fr:Separation = { decimal: ",", thousands: " " }
 
 	/**
+	 * Returns number formated to double digits
+	 */
+	 public static function double( v:Int ) {
+		return v < 10 ? '0$v' : '$v';
+	}
+
+	/**
 	 * Returns an empty string if the number is 0. If it's not empty it formats the number with the 'number method
 	 */
 	public static function numberEmptyIfZero( v:Float, decimals = 0, ?separation:Separation ):String {
