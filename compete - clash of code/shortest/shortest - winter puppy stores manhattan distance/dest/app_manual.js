@@ -1,0 +1,1 @@
+let t=readline().split(" "),r=+t[0],a=+t[1],n=+readline(),s=[],l=0;for(;l<n;){++l;let t=readline().split(" ");s.push(Math.abs(+t[0]-r)+Math.abs(+t[1]-a))}let i=1,d=s[0],h=1,o=s.length;for(;h<o;){let t=h++;s[t]<d&&(i=t+1,d=s[t])}print(i+" "+d)

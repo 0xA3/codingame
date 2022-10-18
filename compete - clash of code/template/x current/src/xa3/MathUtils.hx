@@ -5,14 +5,19 @@ import Std.int;
 import Std.parseFloat;
 import Std.string;
 
-inline function abs( v:Int ) return v < 0 ? -v : v;
-inline function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
-inline function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
-inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
-inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
-inline function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
-inline function deg2Rad( v:Float ) return v / 180 * Math.PI;
-inline function rad2deg( v:Float ) return v / Math.PI * 180;
+using Lambda;
+
+extern inline function abs( v:Int ) return v < 0 ? -v : v;
+extern inline function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
+extern inline function divisors( v:Int ) return [for( i in 1...int( v / 2 ) + 1 ) if( v % i == 0 ) i];
+extern inline function divisorSum( v:Int ) return divisors( v ).fold(( d, sum ) -> sum + d, 0 );
+extern inline function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
+extern inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
+extern inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
+extern inline function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
+extern inline function deg2Rad( v:Float ) return v / 180 * Math.PI;
+extern inline function rad2deg( v:Float ) return v / Math.PI * 180;
+
 
 function greatestCommonDenominator( a:Int, b:Int ) {
 	var r = 0;

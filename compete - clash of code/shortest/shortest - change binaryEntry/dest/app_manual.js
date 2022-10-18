@@ -1,0 +1,1 @@
+let x=()=>readline(),f=(t)=>print(t),t=x().split(""),r=+x(),n=+x(),a=0,l=0,s=0,i=t.length;for(;a<n&&(++a,!(r<0||r>=t.length));)"0"==t[r]?(t[r]="1",++r):(t[r]="0",--r);for(;s<i;)"1"==t[s++]&&++l;f(t.join("")),f(l)

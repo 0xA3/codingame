@@ -1,0 +1,1 @@
+let t=readline().split(" "),r=[],a=+t[0],n=+t[1]+1;for(;a<n;){let t=a++;t%3==0||-1!=(""+t).indexOf("3")?r.push("Dope"):r.push(""+t)}print(r.join("-"))

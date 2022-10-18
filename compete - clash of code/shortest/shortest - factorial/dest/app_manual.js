@@ -1,0 +1,1 @@
+let t=parseInt(readline()),r=t,a=t;for(;a>1;)--a,r*=a;print(r)

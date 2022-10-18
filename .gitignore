@@ -2,6 +2,7 @@
 *.js
 *.map
 !*manual*.js
+!*manual*.py
 *.hl
 *.lua
 *.pdf
