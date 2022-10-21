@@ -55,7 +55,7 @@ class NumberConvert {
 	}
 
 	public static function fFromBin( s:String ) return fFromBaseN( s, 2 );
-	public static function fFromHex( s:String ) return fFromBaseN( s, 16 );
+	public static function fFromHex( s:String ) return fFromBaseN( s.toLowerCase(), 16 );
 	public static function fFromOct( s:String ) return fFromBaseN( s, 8 );
 
 	public static function fFromBaseN( s:String, sourceBase:Int ) {
