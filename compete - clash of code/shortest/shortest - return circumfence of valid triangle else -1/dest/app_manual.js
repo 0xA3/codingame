@@ -1,0 +1,1 @@
+let x=()=>+readline(),t=x(),r=x(),a=x();print(t+r>a&&t+a>r&&r+a>t?t+r+a:-1)

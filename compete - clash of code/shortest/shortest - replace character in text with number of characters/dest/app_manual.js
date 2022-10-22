@@ -1,0 +1,1 @@
+let x=()=>readline(),t=x(),r=x(),a=0,n="";for(;a<r.length;){let e=r[a];if(e==t){let e=0;for(;r[a]==t;)++e,++a;n+=""+e,n+=r.charAt(a)}else n+=e;++a}print(n)

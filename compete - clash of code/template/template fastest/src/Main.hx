@@ -3,6 +3,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
+import xa3.MathUtils;
 
 using Lambda;
 using StringTools;
