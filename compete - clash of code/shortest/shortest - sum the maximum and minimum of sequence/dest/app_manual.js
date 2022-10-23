@@ -1,0 +1,1 @@
+let x=()=>readline();x();let t=x().split(" "),r=new Array(t.length),n=0,a=t.length;for(;n<a;){let e=n++;r[e]=+t[e]}r.sort((t,e)=>t-e),print(r[0]+r[r.length-1])

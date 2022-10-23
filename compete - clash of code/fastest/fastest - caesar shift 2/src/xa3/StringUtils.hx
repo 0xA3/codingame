@@ -22,7 +22,7 @@ class StringUtils {
 		};
 		return n;
 	}
-	#if lua
+
 	static final consonants = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"];
 	public static function isConsonant( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
@@ -58,49 +58,25 @@ class StringUtils {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		return vovels.contains( s.charAt( 0 ));
 	}
-	#else
-	public static function isConsonant( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final regEx = ~/[bcdfghjklmnpqrstvwxyz]/i;
-		return regEx.match( s );
-	}
-	
-	public static function isLetter( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final regEx = ~/[A-Za-z]/;
-		return regEx.match( s );
-	}
-	
-	public static function isNumber( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final regEx = ~/[0-9]/;
-		return regEx.match( s );
-	}
-	
-	public static function isUppercase( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final regEx = ~/[A-Z]/;
-		return regEx.match( s );
-	}
-	
-	public static function isLowercase( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final regEx = ~/[a-z]/;
-		return regEx.match( s );
-	}
 
-	public static function isVovel( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final regEx = ~/[aeiou]/i;
-		return regEx.match( s );
-	}
-	#end
 	public static function repeat( s:String, n:Int ) {
 		return [for( _ in 0...n ) s].join( "" );
 	}
 
 	public static function reverse( s:String ) {
 		return [for( i in 0...s.length ) s.charAt( s.length - 1 - i )].join( "" );
+	}
+
+	public static function caesarShift( s:String, v:Int ) {
+		var s2 = "";
+		for( i in 0...s.length ) {
+			final char = s.charAt( i );
+			final code = char.charCodeAt( 0 );
+			if( isLowercase( char )) s2 += String.fromCharCode( ( code - "a".code + v + 26 ) % 26 + "a".code );
+			else if( isUppercase( char )) s2 += String.fromCharCode( ( code - "A".code + v + 26 ) % 26 + "A".code );
+			else s2 += s;
+		}
+		return s2;
 	}
 
 	public static function strip( s:String, char:String ) {

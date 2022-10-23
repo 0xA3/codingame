@@ -1,0 +1,1 @@
+class HxOverrides{static substr(e,r,t){if(null==t)t=e.length;else if(t<0){if(0!=r)return"";t=e.length+t}return e.substr(r,t)}}class l{static main(){let r=+readline(),t=+readline(),n=""+(r-t)+r*t+(r+t),a=0;if(n.length>1)for(;"0"==n.charAt(a)&&a<n.length-1;)++a;print(HxOverrides.substr(n,a,null))}}l.main();
