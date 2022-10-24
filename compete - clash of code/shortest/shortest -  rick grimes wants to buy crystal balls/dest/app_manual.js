@@ -1,0 +1,1 @@
+let t=readline().split(" "),r=+t[0],a=+t[1],n=+t[2],s=+t[3],l=+t[4],i=[r*n+a*s,r*n+a*(n+l),r*(s+l)+a*s];i.sort(((t,r)=>t-r)),print(i[0])
