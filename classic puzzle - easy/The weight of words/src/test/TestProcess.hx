@@ -11,7 +11,7 @@ class TestProcess extends buddy.BuddySuite{
 	public function new() {
 
 		describe( "Test process", {
-			@include it( "Test1", {
+			it( "Test1", {
 				final ip = test1;
 				Main.process( ip.steps, ip.w, ip.h, ip.grid ).should.be( test1Result ); });
 			it( "Test2", {
@@ -32,7 +32,7 @@ class TestProcess extends buddy.BuddySuite{
 		final steps = parseInt( lines[0] );
 		final h = parseInt( lines[1] );
 		final w = parseInt( lines[2] );
-		final grid = [for( i in 0...h ) lines[i + 3].split( "" )];
+		var grid = [for( i in 0...h ) lines[i + 3].split( "" )];
 	
 		return { steps: steps, w: w, h: h, grid: grid };
 	}
