@@ -5,6 +5,4 @@
 -D js-es=6
 --dce full
 -main Main
-# --js dest/app.js
-
---interp
+--js dest/app.js

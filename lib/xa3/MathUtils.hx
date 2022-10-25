@@ -27,6 +27,12 @@ class MathUtils {
 		return digits.fold(( v, sum ) -> sum + v, 0 );
 	}
 
+	extern public static inline function factorial( v:Int ) {
+		var f = 1;
+		for( i in 1...v + 1 ) f *= i;
+		return f;
+	}
+
 	extern public static inline function greatestCommonDenominator( a:Int, b:Int ) {
 		var r = 0;
 		while(( a % b ) > 0 ) {
