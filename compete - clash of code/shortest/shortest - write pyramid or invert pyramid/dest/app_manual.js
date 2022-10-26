@@ -1,0 +1,1 @@
+let x=readline,t=+x(),r=x(),a=x(),n=t%2==0?t+1:t,s=0,l=[];for(;n>0;){let e=[],t=0,i=s;for(;t<i;)++t,e.push(a);let o=e.join(""),u=[],f=0,h=n;for(;f<h;)++f,u.push(r);l.push(o+u.join("")+o),++s,n-=2}t%2==1&&l.reverse(),print(l.join("\n"))
