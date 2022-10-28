@@ -1,0 +1,1 @@
+let t=readline(),r=+t,a=t.split("");for(;;){++r;let t=(null==r?"null":""+r).split(""),e=!1,l=0;for(;l<t.length;)if(a.includes(t[l++])){e=!0;break}if(!e)break}print(r)
