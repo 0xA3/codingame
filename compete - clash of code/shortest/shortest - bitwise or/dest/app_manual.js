@@ -1,0 +1,1 @@
+x=readline,t=x(),r=x(),a="",n=0,i=t.length;for(;n<i;){e=n++;a+="1"==t[e]||"1"==r[e]?"1":"0"}print(a)

@@ -1,0 +1,1 @@
+let t=readline().split(" "),r=0,a=+t[0],n=+t[1]+1;for(;a<n;)r+=a++;print(r)

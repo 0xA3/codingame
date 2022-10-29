@@ -11,6 +11,7 @@ using Lambda;
 class MathUtils {
 
 	extern public static inline function abs( v:Int ) return v < 0 ? -v : v;
+	extern public static inline function avg( a:Float, b:Float ) return ( a + b ) / 2;
 	extern public static inline function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
 	extern public static inline function divisors( v:Int ) return [for( i in 1...int( v / 2 ) + 1 ) if( v % i == 0 ) i];
 	extern public static inline function divisorSum( v:Int ) return divisors( v ).fold(( d, sum ) -> sum + d, 0 );
