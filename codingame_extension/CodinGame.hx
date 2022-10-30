@@ -19,9 +19,9 @@ class CodinGame
 	static public function printErr(output:Dynamic):Void { Sys.println(output); }
 	static public inline function readline():String { return Sys.stdin().readLine(); }
 	#elseif js
-	static public function print(output:Dynamic):Void { js.Syntax.code('print(output)'); }
-	static public function printErr(output:Dynamic):Void { js.Syntax.code('printErr(output)'); }
-	static public inline function readline():String { return js.Syntax.code('readline()'); }
+	extern static public inline function print(output:Dynamic):Void { js.Syntax.code("print({0})", output ); }
+	extern static public inline function printErr(output:Dynamic):Void { js.Syntax.code("printErr({0})", output ); }
+	extern static public inline function readline():String { return js.Syntax.code('readline()'); }
 	#elseif php
 	static public function print(output:Dynamic):Void { untyped __php__('echo "$output\n"'); }
 	static public function printErr(output:Dynamic):Void { untyped __php__('error_log(var_export($output, true)'); }

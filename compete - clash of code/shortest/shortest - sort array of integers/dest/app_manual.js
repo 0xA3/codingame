@@ -1,0 +1,1 @@
+x=readline,x(),t=x().split(" "),r=[];for(n=0;n<t.length;n++){r[n]=+t[n]}r.sort(((t,e)=>t-e)),print(r.join(" "))

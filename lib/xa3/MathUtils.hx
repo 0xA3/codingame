@@ -40,6 +40,13 @@ class MathUtils {
 		return sequence;
 	}
 
+	public static function primes( n:Int ) {
+		final sieve = algorithms.SieveOfAtkin.create( n );
+		final primes = [for( i in 0...sieve.length ) if( sieve[i] ) i];
+		return primes;
+	}
+	
+
 	extern public static inline function greatestCommonDenominator( a:Int, b:Int ) {
 		var r = 0;
 		while(( a % b ) > 0 ) {
@@ -56,6 +63,26 @@ class MathUtils {
 			if( n % d == 0 ) return false;
 		}
 		return true;
+	}
+
+	public static function primeFactors( n:Int ) {
+		final primes = primes( int( n / 2 ));
+	
+		final factors = [];
+		var n2 = n;
+		while( n2 > 1 ) {
+			var found = false;
+			for( prime in primes ) {
+				if( n2 % prime == 0 ) {
+					factors.push( prime );
+					n2 = int( n2 / prime );
+					found = true;
+					break;
+				}
+			}
+			if( !found ) break;
+		}
+		return factors;
 	}
 
 	public static function round( v:Float, decimals = 0 ):Float {

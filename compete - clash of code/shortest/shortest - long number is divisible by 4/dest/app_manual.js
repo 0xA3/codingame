@@ -1,0 +1,1 @@
+t=readline();print(+(t.substr(-2))%4==0?"AAAAAAAAAA!!!":"Ok")

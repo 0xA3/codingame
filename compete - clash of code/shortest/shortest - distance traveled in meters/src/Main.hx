@@ -14,7 +14,10 @@ using xa3.RegexUtils;
 using xa3.StringUtils;
 
 /*
+Output distance traveled in meters
 
+with input speed in centimeters / s
+and time in minutes
 
 */
 
@@ -23,7 +26,9 @@ class Main {
 	static function main() {
 		
 		final n = parseInt( readline());
-	
-		print( "" );
+		for( _ in 0...n ) {
+			final inputs = readline().split(" ");
+			print( parseInt( inputs[0] ) / 100 * parseInt( inputs[1] ) * 60 );
+		}
 	}
 }

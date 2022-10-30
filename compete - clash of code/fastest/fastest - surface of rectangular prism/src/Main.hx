@@ -14,12 +14,25 @@ using xa3.RegexUtils;
 using xa3.StringUtils;
 
 /*
+Goal
+You must output the surface area of the given dimensions of a rectangular prism, cuboid, or box
 
+Input
+3
+4
+5
+
+Output
+94
 
 */
 
 function main() {
 
-	final n = parseInt( readline());
+	final length = parseInt( readline());
+	final width = parseInt( readline());
+	final height = parseInt( readline());
 
+	print( 2 * ( width * length + length * height + height * width ));
+	
 }
