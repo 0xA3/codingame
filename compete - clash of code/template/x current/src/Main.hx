@@ -21,5 +21,5 @@ using xa3.StringUtils;
 function main() {
 
 	final n = parseInt( readline());
-
+	
 }

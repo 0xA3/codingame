@@ -1,0 +1,7 @@
+-lib buddy
+-cp ../../../codingame_extension/
+-cp ../../../lib/
+-cp src
+-D analyzer-optimize
+-main test.Tests
+--interp

@@ -1,5 +1,7 @@
 package xa3;
 
+using StringTools;
+
 class StringUtils {
 	
 	public static function charCode( s:String ) {
@@ -23,12 +25,14 @@ class StringUtils {
 		return n;
 	}
 
-	static final consonants = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"];
+	static final consonants = ["bcdfghjklmnpqrstvwxyz"];
 	public static function isConsonant( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		return consonants.contains( s.charAt( 0 ));
 	}
 	
+	public static function isDigit( s:String ) return isNumber( s );
+
 	public static function isLetter( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final charCode = s.toLowerCase().charCodeAt( 0 );
@@ -53,7 +57,14 @@ class StringUtils {
 		return charCode >= "a".code && charCode <= "z".code;
 	}
 
-	static final vovels = ["a","e","i","o","u"];
+	static final punctuations = [".:,;!?'’"];
+	public static function isPunctuation( s:String ) {
+		if( s.length != 1 ) throw 'Error: $s must be one char';
+		return punctuations.contains( s.charAt( 0 ));
+
+	}
+	
+	static final vovels = ["aeiou"];
 	public static function isVovel( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		return vovels.contains( s.charAt( 0 ));

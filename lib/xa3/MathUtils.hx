@@ -17,6 +17,7 @@ class MathUtils {
 	extern public static inline function divisorSum( v:Int ) return divisors( v ).fold(( d, sum ) -> sum + d, 0 );
 	extern public static inline function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
 	extern public static inline function log( x:Float, base:Float ) return int( Math.log( x ) / Math.log( base ));
+	extern public static inline function manhattanDist( v1:Int, v2:Int ) return abs( v2 - v1 );
 	extern public static inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 	extern public static inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
 	extern public static inline function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
