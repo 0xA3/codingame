@@ -4,16 +4,26 @@ using StringTools;
 
 class StringUtils {
 	
-	public static function charCode( s:String ) {
+	extern public static inline function charCode( s:String ) {
 		if( s.length != 1 ) throw 'Error: s must be 1 character';
 		return s.charCodeAt( 0 );
 	}
 
-	public static function contains( s1:String, s2:String ) {
+	extern public static inline function firstChar( s:String ) {
+		if( s == "" ) return "";
+		return s.charAt( 0 );
+	}
+	
+	extern public static inline function lastChar( s:String ) {
+		if( s == "" ) return "";
+		return s.charAt( s.length - 1 );
+	}
+		
+	extern public static inline function contains( s1:String, s2:String ) {
 		return s1.indexOf( s2 ) != -1;
 	}
 	
-	public static function count( s1:String, s2:String ) {
+	extern public static inline function count( s1:String, s2:String ) {
 		var startIndex = -1;
 		var n = 0;
 		
@@ -25,56 +35,56 @@ class StringUtils {
 		return n;
 	}
 
-	static final consonants = ["bcdfghjklmnpqrstvwxyz"];
-	public static function isConsonant( s:String ) {
+	extern public static inline function isConsonant( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
-		return consonants.contains( s.charAt( 0 ));
+		return ["bcdfghjklmnpqrstvwxyz"].contains( s.charAt( 0 ));
 	}
 	
-	public static function isDigit( s:String ) return isNumber( s );
+	extern public static inline function isDigit( s:String ) {
+		if( s.length != 1 ) throw 'Error: $s must be one char';
+		final charCode = s.charCodeAt( 0 );
+		return charCode >= "0".code && charCode <= "9".code;
+	}
 
-	public static function isLetter( s:String ) {
+	extern public static inline function isLetter( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final charCode = s.toLowerCase().charCodeAt( 0 );
 		return charCode >= "a".code && charCode <= "z".code;
 	}
 	
-	public static function isNumber( s:String ) {
-		if( s.length != 1 ) throw 'Error: $s must be one char';
-		final charCode = s.charCodeAt( 0 );
-		return charCode >= "0".code && charCode <= "9".code;
+	extern public static inline function isNumber( s:String ) {
+		return Std.parseFloat( s ) != Math.NaN;
 	}
 	
-	public static function isUppercase( s:String ) {
+	extern public static inline function isUppercase( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final charCode = s.charCodeAt( 0 );
 		return charCode >= "A".code && charCode <= "Z".code;
 	}
 	
-	public static function isLowercase( s:String ) {
+	extern public static inline function isLowercase( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final charCode = s.charCodeAt( 0 );
 		return charCode >= "a".code && charCode <= "z".code;
 	}
 
-	static final punctuations = [".:,;!?'’"];
-	public static function isPunctuation( s:String ) {
+	extern public static inline function isPunctuation( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
-		return punctuations.contains( s.charAt( 0 ));
+		return [".:,;!?'’"].contains( s.charAt( 0 ));
 
 	}
 	
-	static final vovels = ["aeiou"];
-	public static function isVovel( s:String ) {
+	extern public static inline function isVovel( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
-		return vovels.contains( s.charAt( 0 ));
+		return ["aeiou"].contains( s.charAt( 0 ));
 	}
 
-	public static function repeat( s:String, n:Int ) {
+	extern public static inline function repeat( s:String, n:Int ) {
+		if( n == 0 ) return "";
 		return [for( _ in 0...n ) s].join( "" );
 	}
 
-	public static function reverse( s:String ) {
+	extern public static inline function reverse( s:String ) {
 		return [for( i in 0...s.length ) s.charAt( s.length - 1 - i )].join( "" );
 	}
 
@@ -90,6 +100,27 @@ class StringUtils {
 		return s2;
 	}
 
+	public static function splitUpSameChars( s:String ) {
+		final parts = [];
+		
+		var count = 1;
+		var lastChar = s.charAt( 0 );
+	
+		for( i in 1...s.length ) {
+			final char = s.charAt( i );
+			if( char == lastChar ) {
+				count++;
+			} else {
+				parts.push( repeat( lastChar, count  ));
+				count = 1;
+				lastChar = char;
+			}
+		}
+		parts.push( repeat( lastChar, count  ));
+		
+		return parts;
+	}
+
 	public static function strip( s:String, char:String ) {
 		var left = 0;
 		var right = s.length - 1;
@@ -99,13 +130,13 @@ class StringUtils {
 		return s.substring( left, right + 1 );
 	}
 
-	public static function lstrip( s:String, char:String ) {
+	extern public static inline function lstrip( s:String, char:String ) {
 		var left = 0;
 		while( s.charAt( left ) == char ) left++;
 		return s.substr( left );
 	}
 
-	public static function rstrip( s:String, char:String ) {
+	extern public static inline function rstrip( s:String, char:String ) {
 		var right = s.length - 1;
 		while( s.charAt( right ) == char ) right--;
 		return s.substr( 0, right + 1 );

@@ -40,6 +40,11 @@ class ArrayUtils {
 		return m;
 	}
 
+	extern public static inline function last<T>( a:Array<T> ) {
+		if( a == null || a.length == 0 ) return null;
+		return a[a.length - 1];
+	}
+
 	extern public static inline function maxLength( a:Array<String> ) {
 		var m = 0;
 		for( s in a ) m = MathUtils.max( m, s.length );
