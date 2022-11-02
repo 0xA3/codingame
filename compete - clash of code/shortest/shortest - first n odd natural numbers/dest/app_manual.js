@@ -1,0 +1,1 @@
+r=0,e=1;for(;e<2*+readline();)r+=e,e+=2;print(r)

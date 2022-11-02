@@ -74,4 +74,20 @@ class ArrayUtils {
 		for( v in a ) sum += v;
 		return sum;
 	}
+	
+	extern public static inline function fsort( a:Array<Float> ) {
+		a.sort(( a, b ) -> {
+			if( a < b ) return -1;
+			if( a > b ) return 1;
+			return 0;
+		});
+	}
+	
+	extern public static inline function fsortInverse( a:Array<Float> ) {
+		a.sort(( a, b ) -> {
+			if( a < b ) return 1;
+			if( a > b ) return -1;
+			return 0;
+		});
+	}
 }
