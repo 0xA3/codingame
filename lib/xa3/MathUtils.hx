@@ -15,6 +15,7 @@ class MathUtils {
 	extern public static inline function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
 	extern public static inline function divisors( v:Int ) return [for( i in 1...int( v / 2 ) + 1 ) if( v % i == 0 ) i];
 	extern public static inline function divisorSum( v:Int ) return divisors( v ).fold(( d, sum ) -> sum + d, 0 );
+	#if js extern public static inline function eval( s:String ) return js.Syntax.code( "eval({0})", s ); #end
 	extern public static inline function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
 	extern public static inline function log( x:Float, base:Float ) return int( Math.log( x ) / Math.log( base ));
 	extern public static inline function manhattanDist( v1:Int, v2:Int ) return abs( v2 - v1 );
