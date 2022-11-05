@@ -54,7 +54,7 @@ class StringUtils {
 	}
 
 	static final vovels = ["a","e","i","o","u"];
-	public static function isVovel( s:String ) {
+	public static function isVowel( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		return vovels.contains( s.charAt( 0 ));
 	}

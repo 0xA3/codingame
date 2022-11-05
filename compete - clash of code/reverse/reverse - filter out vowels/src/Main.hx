@@ -13,7 +13,7 @@ using xa3.StringUtils;
 function main() {
 
 	final s = readline().split( "" );
-	final output = s.map( v -> v.isVovel() ? "" : v ).join( "" );
+	final output = s.map( v -> v.isVowel() ? "" : v ).join( "" );
 	
 	print( output );
 }

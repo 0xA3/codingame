@@ -53,7 +53,7 @@ class StringUtils {
 		return regEx.match( s );
 	}
 
-	public static function isVovel( s:String ) {
+	public static function isVowel( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final regEx = ~/[aeiou]/i;
 		return regEx.match( s );

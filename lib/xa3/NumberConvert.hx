@@ -24,7 +24,7 @@ class NumberConvert {
 	}
 
 	public static function fromBin( s:String ) return fromBaseN( s, 2 );
-	public static function fromHex( s:String ) return fromBaseN( s, 16 );
+	public static function fromHex( s:String ) return fromBaseN( s.toLowerCase(), 16 );
 	public static function fromOct( s:String ) return fromBaseN( s, 8 );
 
 	public static function fromBaseN( s:String, sourceBase:Int ) {

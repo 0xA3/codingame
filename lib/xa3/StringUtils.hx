@@ -37,7 +37,7 @@ class StringUtils {
 
 	extern public static inline function isConsonant( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
-		return ["bcdfghjklmnpqrstvwxyz"].contains( s.charAt( 0 ));
+		return "bcdfghjklmnpqrstvwxyz".contains( s.toLowerCase() );
 	}
 	
 	extern public static inline function isDigit( s:String ) {
@@ -70,13 +70,12 @@ class StringUtils {
 
 	extern public static inline function isPunctuation( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
-		return [".:,;!?'’"].contains( s.charAt( 0 ));
-
+		return ".:,;!?'’".contains( s );
 	}
 	
-	extern public static inline function isVovel( s:String ) {
+	extern public static inline function isVowel( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
-		return ["aeiou"].contains( s.charAt( 0 ));
+		return "aeiou".contains( s.toLowerCase() );
 	}
 
 	extern public static inline function repeat( s:String, n:Int ) {
