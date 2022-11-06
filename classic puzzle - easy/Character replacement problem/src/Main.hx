@@ -19,9 +19,28 @@ function main() {
 }
 
 function process( s:String, text:String ) {
+	final sParts = s.split(" ");
+	final rules:Map<String, String> = [];
+	for( part in sParts ) {
+		final from = part.charAt( 0 );
+		final to = part.charAt( 1 );
+		if( from != to ) {
+			if( rules.exists( from )) return ERROR;
+			rules.set( from, to );
+		}
+	}
+	
+	for( _ in 0...sParts.length ) for( from => to in rules ) text = text.replace( from, to );
+	
+	for( from in rules.keys()) if( text.contains( from )) return ERROR;
+
+	return text;
+}
+
+function processComplicated( s:String, text:String ) {
 	
 	final sParts = s.split(" ");
-	final nodes:Map<String,Node> = [];
+	final nodes:Map<String, Node> = [];
 	var nodesIsEmpty = true;
 	for( part in sParts ) {
 		final from = part.charAt( 0 );
