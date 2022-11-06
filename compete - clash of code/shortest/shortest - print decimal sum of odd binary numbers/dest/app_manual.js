@@ -1,0 +1,1 @@
+r=readline;n=r();q=0;i=n;while(i--){s=r();x=parseInt(s,2);x%2==1?q+=x:0}print(q)

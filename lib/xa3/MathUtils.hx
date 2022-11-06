@@ -49,6 +49,7 @@ class MathUtils {
 	}
 	
 	extern public static inline function greatestCommonFactor( a:Int, b:Int ) return greatestCommonDenominator( a, b );
+	extern public static inline function greatestCommonDivisor( a:Int, b:Int ) return greatestCommonDenominator( a, b );
 
 	extern public static inline function greatestCommonDenominator( a:Int, b:Int ) {
 		var r = 0;

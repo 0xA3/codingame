@@ -1,5 +1,7 @@
 package xa3;
 
+import Std.int;
+
 using StringTools;
 
 class StringUtils {
@@ -56,6 +58,16 @@ class StringUtils {
 		return Std.parseFloat( s ) != Math.NaN;
 	}
 	
+	public static function isPalindrome( s:String ) {
+		if( s.length == 1 ) return true;
+		for( i in 0...int( s.length / 2 )) {
+			if( s.charAt( i ) != s.charAt( s.length - i - 1 )) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	extern public static inline function isUppercase( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		final charCode = s.charCodeAt( 0 );
