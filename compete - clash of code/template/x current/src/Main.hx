@@ -5,7 +5,7 @@ import Std.int;
 import Std.parseInt;
 import Std.parseFloat;
 import xa3.MathUtils;
-#if js import xa3.MathUtils.eval; #end
+import xa3.MathUtils.eval;
 
 using Lambda;
 using StringTools;

@@ -1,0 +1,1 @@
+let fs=(t,r)=>{let e="",n="01".substr(0,r),a=t;for(;e=n[a%r]+e,a=a/r|0,a>0;);return e},t=fs(+readline(),2),r=0,e=0,n=t.length;for(;e<n;)r+="1"==t[e++]?1:0;print(r%2==1)

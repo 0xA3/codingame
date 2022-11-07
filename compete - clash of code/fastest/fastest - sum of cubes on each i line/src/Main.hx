@@ -16,13 +16,24 @@ using xa3.RegexUtils;
 using xa3.StringUtils;
 
 /*
+Given n print sum of cubes from 1 to i where 1<=i<=n on each i line.
 
+Input
+2
 
+Output
+1
+9
 */
 
 function main() {
 
 	final n = parseInt( readline());
 
-	print( "" );
+	var sum = 0;
+	for( i in 1...n + 1 ) {
+		sum += i * i * i;
+		print( sum );
+	}
+	
 }

@@ -1,0 +1,1 @@
+x=readline,t=x(),e=x(),r=1;for(;r<1e4;){let a=r++;if(a%70==t&&a%99==e)return void print(a)}
