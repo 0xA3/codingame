@@ -16,6 +16,21 @@ class ArrayUtils {
 		return a.map( s -> repeat(" ", center - int( s.length / 2 )) + s );
 	}
 
+	extern public static inline function compare<T>( a1:Array<T>, a2:Array<T> ) {
+		var minLength = MathUtils.min( a1.length, a2.length );
+		var sum = 0;
+		for( i in 0...minLength ) {
+			if( a1[i] == a2[i] ) sum += 1;
+		}
+		return sum;
+	}
+
+	extern public static inline function count<T>( a:Array<T>, e:T ) {
+		var sum = 0;
+		for( element in a ) if( element == e ) sum += 1;
+		return sum;
+	}
+
 	extern public static inline function fact( a:Array<Int> ) {
 		var fact = 1;
 		for( v in a ) fact *= v;
@@ -63,6 +78,10 @@ class ArrayUtils {
 		return m;
 	}
 
+	extern public static inline function repeatArray<T>( v:T, n:Int ) {
+		return [for( _ in 0...n ) v];
+	}
+	
 	extern public static inline function sum( a:Array<Int> ) {
 		var sum = 0;
 		for( v in a ) sum += v;

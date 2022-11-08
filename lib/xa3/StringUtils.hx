@@ -20,7 +20,9 @@ class StringUtils {
 		if( s == "" ) return "";
 		return s.charAt( s.length - 1 );
 	}
-		
+
+	extern public static inline function capitalize( s:String ) return s.charAt( 0 ).toUpperCase() + s.substr( 1 ).toLowerCase();
+
 	extern public static inline function contains( s1:String, s2:String ) {
 		return s1.indexOf( s2 ) != -1;
 	}
