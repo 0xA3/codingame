@@ -16,13 +16,16 @@ using xa3.RegexUtils;
 using xa3.StringUtils;
 
 /*
-
+Count the number of ones in the binary representation of each given integer.
 
 */
 
 function main() {
 
 	final n = parseInt( readline());
+	for( _ in 0...n ) {
+		final bin = parseInt( readline()).toBin();
+		print( bin.count("1"));
+	}
 
-	print( "" );
 }

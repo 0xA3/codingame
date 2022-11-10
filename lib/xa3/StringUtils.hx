@@ -39,6 +39,12 @@ class StringUtils {
 		return n;
 	}
 
+	#if js
+	extern public static inline function eval( s:String ) return js.Syntax.code( "eval({0})", s );
+	#else
+	extern public static inline function eval( s:String ) throw 'Error: works only for js';
+	#end
+	
 	extern public static inline function isConsonant( s:String ) {
 		if( s.length != 1 ) throw 'Error: $s must be one char';
 		return "bcdfghjklmnpqrstvwxyz".contains( s.toLowerCase() );
@@ -153,5 +159,27 @@ class StringUtils {
 		var right = s.length - 1;
 		while( s.charAt( right ) == char ) right--;
 		return s.substr( 0, right + 1 );
+	}
+	
+	extern public static inline function sort( s:String ) {
+		final a = s.split( "" );
+		a.sort(( a, b ) -> {
+			if( a < b ) return -1;
+			if( a > b ) return 1;
+			return 0;
+		});
+
+		return a.join( "" );
+	}
+	
+	extern public static inline function sortInverse( s:String ) {
+		final a = s.split( "" );
+		a.sort(( a, b ) -> {
+			if( a < b ) return 1;
+			if( a > b ) return -1;
+			return 0;
+		});
+
+		return a.join( "" );
 	}
 }

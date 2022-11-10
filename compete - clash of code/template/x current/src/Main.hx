@@ -5,11 +5,11 @@ import Std.int;
 import Std.parseInt;
 import Std.parseFloat;
 import xa3.MathUtils;
-import xa3.MathUtils.eval;
 
 using Lambda;
 using StringTools;
 using xa3.ArrayUtils;
+using xa3.MathUtils;
 using xa3.NumberConvert;
 using xa3.NumberFormat;
 using xa3.RegexUtils;

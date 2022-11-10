@@ -8,10 +8,10 @@ class NumberConvert {
 	static final n2DecMap = [for( i in 0...digits62.length ) digits62.charAt( i ) => i];
 
 	#if js
-	extern public static inline function toBin( v:Int ) return js.Syntax.code( "Number({0}).toString(2)", v );
-	extern public static inline function toHex( v:Int ) return js.Syntax.code( "Number({0}).toString(16)", v );
-	extern public static inline function toOct( v:Int ) return js.Syntax.code( "Number({0}).toString(8)", v );
-	extern public static inline function toBaseN( v:Int, targetBase:Int ) js.Syntax.code( "Number({0}).toString({1})", v, targetBase );
+	extern public static inline function toBin( v:Int ):String return js.Syntax.code( "Number({0}).toString(2)", v );
+	extern public static inline function toHex( v:Int ):String return js.Syntax.code( "Number({0}).toString(16)", v );
+	extern public static inline function toOct( v:Int ):String return js.Syntax.code( "Number({0}).toString(8)", v );
+	extern public static inline function toBaseN( v:Int, targetBase:Int ):String return js.Syntax.code( "Number({0}).toString({1})", v, targetBase );
 	#else
 	public static function toBin( v:Int ) return toBaseN( v, 2 );
 	public static function toHex( v:Int ) return toBaseN( v, 16 );
@@ -31,10 +31,10 @@ class NumberConvert {
 	#end
 	
 	#if js
-	extern public static inline function fromBin( s:String ) return js.Syntax.code( "parseInt({0}, 2)", s );
-	extern public static inline function fromHex( s:String ) return js.Syntax.code( "parseInt({0}, 16)", s );
-	extern public static inline function fromOct( s:String ) return js.Syntax.code( "parseInt({0}, 8)", s );
-	extern public static inline function fromBaseN( s:String, sourceBase:Int ) return js.Syntax.code( "parseInt({0}, {1})", s, sourceBase );
+	extern public static inline function fromBin( s:String ):Int return js.Syntax.code( "parseInt({0}, 2)", s );
+	extern public static inline function fromHex( s:String ):Int return js.Syntax.code( "parseInt({0}, 16)", s );
+	extern public static inline function fromOct( s:String ):Int return js.Syntax.code( "parseInt({0}, 8)", s );
+	extern public static inline function fromBaseN( s:String, sourceBase:Int ):Int return js.Syntax.code( "parseInt({0}, {1})", s, sourceBase );
 	#else
 	public static function fromBin( s:String ) return fromBaseN( s, 2 );
 	public static function fromHex( s:String ) return fromBaseN( s.toLowerCase(), 16 );

@@ -94,6 +94,21 @@ class ArrayUtils {
 		return sum;
 	}
 	
+	extern public static inline function sort( a:Array<Float> ) {
+		a.sort(( a, b ) -> {
+			if( a < b ) return -1;
+			if( a > b ) return 1;
+			return 0;
+		});
+	}
+	
+	extern public static inline function sortInverse( a:Array<Float> ) {
+		a.sort(( a, b ) -> {
+			if( a < b ) return 1;
+			if( a > b ) return -1;
+			return 0;
+		});
+	}
 	extern public static inline function fsort( a:Array<Float> ) {
 		a.sort(( a, b ) -> {
 			if( a < b ) return -1;
@@ -109,4 +124,21 @@ class ArrayUtils {
 			return 0;
 		});
 	}
+
+	extern public static inline function sortString( a:Array<String> ) {
+		a.sort(( a, b ) -> {
+			if( a < b ) return -1;
+			if( a > b ) return 1;
+			return 0;
+		});
+	}
+	
+	extern public static inline function sortStringInverse( a:Array<String> ) {
+		a.sort(( a, b ) -> {
+			if( a < b ) return 1;
+			if( a > b ) return -1;
+			return 0;
+		});
+	}
+
 }

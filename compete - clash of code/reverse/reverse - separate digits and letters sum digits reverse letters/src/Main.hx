@@ -15,14 +15,14 @@ using xa3.NumberFormat;
 using xa3.RegexUtils;
 using xa3.StringUtils;
 
-/*
-
-
-*/
-
 function main() {
 
-	final n = parseInt( readline());
+	final line = readline().split("");
 
-	print( "" );
+	final sum = line.filter( s -> s.isNumber() ).map( s -> parseInt( s )).sum();
+	final chars = line.filter( s -> s.isLetter());
+	
+	chars.reverse();
+
+	print( '$sum${chars.join("")}' );
 }

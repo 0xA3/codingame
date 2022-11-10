@@ -16,6 +16,8 @@ class MathUtils {
 	extern public static inline function divisors( v:Int ) return [for( i in 1...int( v / 2 ) + 1 ) if( v % i == 0 ) i];
 	extern public static inline function divisorSum( v:Int ) return divisors( v ).fold(( d, sum ) -> sum + d, 0 );
 	extern public static inline function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
+	extern public static inline function isEven( v:Int ) return v % 2 == 0;
+	extern public static inline function isOdd( v:Int ) return v % 2 == 1;
 	extern public static inline function log( x:Float, base:Float ) return int( Math.log( x ) / Math.log( base ));
 	extern public static inline function manhattanDist( v1:Int, v2:Int ) return abs( v2 - v1 );
 	extern public static inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
@@ -29,12 +31,6 @@ class MathUtils {
 		return digits.fold(( v, sum ) -> sum + v, 0 );
 	}
 
-	#if js
-	extern public static inline function eval( s:String ) return js.Syntax.code( "eval({0})", s );
-	#else
-	extern public static inline function eval( s:String ) throw 'Error: works only for js';
-	#end
-	
 	extern public static inline function factorial( v:Int ) {
 		var f = 1;
 		for( i in 1...v + 1 ) f *= i;
