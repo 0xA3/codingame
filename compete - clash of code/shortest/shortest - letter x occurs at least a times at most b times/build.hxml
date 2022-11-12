@@ -1,0 +1,10 @@
+-main Main
+-cp ../../../codingame_extension/
+-cp ../../../lib/
+-cp src
+--js dest/app.js
+
+-dce full
+-D analyzer-optimize
+-D js-es=6
+-D js-classic

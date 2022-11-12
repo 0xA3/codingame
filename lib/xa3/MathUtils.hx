@@ -37,8 +37,21 @@ class MathUtils {
 		return f;
 	}
 	
-	extern public static inline function fibonacci( a:Int, b:Int, n:Int ) {
-		final sequence = [a, b];
+	extern public static inline function fibonacci( n:Int ) {
+		if( n == 0 ) return 0;
+		if( n == 1 ) return 1;
+		var a = 0;
+		var b = 1;
+		for( _ in 0...n - 1 ) {
+			final next = a + b;
+			a = b;
+			b = next;
+		}
+		return b;
+	}
+
+	extern public static inline function fibonacciSequence( a:Int, b:Int, n:Int ) {
+			final sequence = [a, b];
 		for( _ in 0...n ) sequence.push( sequence[sequence.length - 1] + sequence[sequence.length - 2] );
 		return sequence;
 	}

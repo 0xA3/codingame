@@ -1,0 +1,1 @@
+x=readline,t=+x(),e=0,r=0;for(;r<t;){++r;let t=x().split(" "),a=t[0].split("-"),n=+a[0],l=+a[1],s=t[1][0],i=t[2],d=-1,o=0;for(;d=i.indexOf(s,d+1),-1!=d;)++o;let f=o;f>=n&&f<=l&&++e}print(e)

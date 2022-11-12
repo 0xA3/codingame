@@ -1,0 +1,1 @@
+x=readline,t=x(),r=x(),e=0;for(;e<r;)++e,t*=1.1;print(0|t)
