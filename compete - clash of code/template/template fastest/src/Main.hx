@@ -23,6 +23,20 @@ using xa3.StringUtils;
 function main() {
 
 	final n = parseInt( readline());
+	
+	// final inputs = readline().split(" ");
+	
+	// final inputs = readline().split(" ").map( s -> parseInt( s ));
+	
+	// final inputs = [for( _ in 0...n ) readline()];
+	
+	// final inputs = [for( _ in 0...n ) parseInt( readline())];
+	
+	// final inputs = [for( _ in 0...n ) readline().split(" ")];
+	
+	// final inputs = [for( _ in 0...n ) readline().split(" ").map( s -> parseInt( s ))];
+
+
 
 	print( "" );
 }
