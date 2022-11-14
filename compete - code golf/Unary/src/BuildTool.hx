@@ -31,22 +31,15 @@ class BuildTool {
 			// manually minify output even more
 			outContent = outContent
 				.replace('var $$global="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this;', "")
-				.replace('class haxe_iterators_ArrayIterator{constructor(e){this.current=0,this.array=e}hasNext(){return this.current<this.array.length}next(){return this.array[this.current++]}}', "")
 				.replace('"undefined"!=typeof performance&&"function"==typeof performance.now&&(HxOverrides.now=performance.now.bind(performance)),', "")
+				.replace('class haxe_iterators_ArrayIterator{constructor(t){this.current=0,this.array=t}hasNext(){return this.current<this.array.length}next(){return this.array[this.current++]}}', "")
+				// .replace('class haxe_Exception extends Error{constructor(t,e,r){super(t),this.message=t,this.__previousException=e,this.__nativeException=null!=r?r:this}get_native(){return this.__nativeException}static thrown(t){if(t instanceof haxe_Exception)return t.get_native();if(t instanceof Error)return t;return new fl(t)}}', "")
+				// .replace('e.f', "print")
+				// .replace("class _${static main(){", "")
+				// .replace("}}_$.main();", "")
 				.replace('.charAt(0)', "[0]")
-				.replace( "Main_main()", "m()");
-				// .replace(".prototype", "[$$0]")
-				// .replace("Object.assign", "$$2")
-				// .replace("Math.random", "$$1")
-				// .replace("_hx_skip_constructor", "$$3")
-				// .replace("_hx_constructor", "$$4")
-				// .replace("_hx_index", "$$5")
-				// .replace("__enum__", "$$6")
-				// .replace("hx__closures__", "$$7")
-				// .replace("__class__", "$$8")
-				// .replace('e=function(){return js_Boot.__string_rec(this,"")},', "e=_=>{},")
-
-			// outContent = "$$0='prototype';$$1=Math.random;$$2=Object.assign;" + outContent;
+				.replace( "Std.parseInt", "parseInt")
+				.replace( "class Std{static parseInt(t){if(null!=t){let e=0,r=t.length;for(;e<r;){let r=e++,a=t.charCodeAt(r);if(a<=8||a>=14&&32!=a&&45!=a){let e=t.charCodeAt(r+1),a=parseInt(t,120==e||88==e?16:10);return isNaN(a)?null:a}}}return null}}", "");
 
 			// overwrite output
 			sys.io.File.saveContent(outPath, outContent);

@@ -1,0 +1,1 @@
+a=s="",i=readline().split("").map(c=>(256+c.charCodeAt()).toString(2).substr(-7)).join("");for(l=0;l<i.length;){let r=i[l++];r==s?a+=0:(s=r,a+="1"==r?" 0 0":" 00 0")}print(a.substr(1))

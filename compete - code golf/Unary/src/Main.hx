@@ -1,6 +1,10 @@
-using xa3.StringUtils;
-using xa3.RegexTools;
+import CodinGame.print;
+import CodinGame.printErr;
+
 using Lambda;
+using xa3.NumberConvert;
+using xa3.RegexUtils;
+using xa3.StringUtils;
 
 class Main {
 	
@@ -9,13 +13,23 @@ class Main {
 		CodinGame.print( process( CodinGame.readline()));
 	}
 
-	static function process( input:String ) {
-		final s1 = input.split( "" ).map( c -> "000000" + c.charCodeAt( 0 ).toString( 2 ));
-		final s2 = s1.map( s -> s.substr( -7 )).join( "" );
-		final s3 = s2.match( ~/(1+|0+)/g );
-		final s4 = s3.map( s -> ( s.charAt( 0 ) == "1" ? "0 " : "00 " )  + "0".repeat( s.length )).join( " " );
+	extern public static inline function process( input:String ) {
+		final bin = input.split( "" ).map( c -> ( 256 + c.charCodeAt( 0 )).toBin().substr( -7 )).join( "" );
+		printErr( "bin: " + bin );
 		
-		return s4;
+		var output = "";
+		var lastDigit = "";
+		for( i in 0...bin.length ) {
+			final digit = bin.charAt( i );
+			if( digit == lastDigit ) {
+				output += 0;
+			} else {
+				lastDigit = digit;
+				output += digit == "1" ? " 0 0" : " 00 0";
+			}
+		}
+		
+		return output.substr( 1 );
 	}
 }
 
