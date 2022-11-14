@@ -14,19 +14,19 @@ class Main {
 	}
 
 	extern public static inline function process( input:String ) {
-		final bin = input.split( "" ).map( c -> ( 256 + c.charCodeAt( 0 )).toBin().substr( -7 )).join( "" );
+		var bin = "";
+		for( i in 0...input.length ) bin += ( 256 + input.charCodeAt( i )).toBin().substr( -7 );
 		printErr( "bin: " + bin );
 		
 		var output = "";
 		var lastDigit = "";
 		for( i in 0...bin.length ) {
 			final digit = bin.charAt( i );
-			if( digit == lastDigit ) {
-				output += 0;
-			} else {
+			if( digit != lastDigit ) {
 				lastDigit = digit;
-				output += digit == "1" ? " 0 0" : " 00 0";
+				output += digit == "1" ? " 0 " : " 00 ";
 			}
+			output += 0;
 		}
 		
 		return output.substr( 1 );

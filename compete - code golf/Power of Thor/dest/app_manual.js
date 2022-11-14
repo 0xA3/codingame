@@ -1,0 +1,1 @@
+x=readline,t=x().split(" "),e=t[0],r=+t[1],a=+t[2],n=+t[3];for(;;){x();l="";n<r?(l="S",++n):n>r&&(l="N",--n);a<e?(l+="E",++a):a>e&&(l+="W",--a),print(l)}
