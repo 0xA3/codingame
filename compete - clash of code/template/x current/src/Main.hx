@@ -36,7 +36,5 @@ function main() {
 	
 	// final inputs = [for( _ in 0...n ) readline().split(" ").map( s -> parseInt( s ))];
 
-
-
 	print( "" );
 }

@@ -1,5 +1,6 @@
 package xa3;
 
+import haxe.ds.Vector;
 import Std.int;
 import xa3.MathUtils;
 import xa3.StringUtils.repeat;
@@ -29,6 +30,42 @@ class ArrayUtils {
 		var sum = 0;
 		for( element in a ) if( element == e ) sum += 1;
 		return sum;
+	}
+
+	public static function combinations<T>( items:Array<T> ) {
+		final result:Array<Array<T>> = [];
+		recursiveCombine( [], items, result );
+		return result;
+	}
+
+	static function recursiveCombine<T>( prefix:Array<T>, items:Array<T>, result:Array<Array<T>> ) {
+		for( i in 0...items.length ) {
+			result.push( prefix.concat( [items[i]] ));
+			recursiveCombine( prefix.concat( [items[i]] ), items.slice( i + 1 ), result );
+		}
+	}
+
+	extern public static inline function combinationsNum<T>( a:Array<T>, numSubItems:Int ) {
+		final result = [];
+		final indexes = new Vector<Int>( numSubItems );
+		for( i in 0...numSubItems ) indexes[i] = i;
+
+		while( indexes[0] < a.length - numSubItems + 1 ) {
+			final v = [];
+			for( i in 0...numSubItems ) v.push( a[indexes[i]] );
+			result.push( v );
+			indexes[numSubItems - 1]++;
+			var l = numSubItems - 1; // reference always is the last position at beginning
+			while (( indexes[numSubItems - 1] >= a.length )&&( indexes[0] < a.length - numSubItems + 1 )) {
+				l--; // the last position is reached
+				indexes[l]++;
+				for( i in l + 1...numSubItems ) {
+					indexes[i] = indexes[l] + ( i - l );
+				}
+			}
+		}
+
+		return result;
 	}
 
 	extern public static inline function fact( a:Array<Int> ) {
@@ -94,51 +131,39 @@ class ArrayUtils {
 		return sum;
 	}
 	
-	extern public static inline function sort( a:Array<Float> ) {
-		a.sort(( a, b ) -> {
-			if( a < b ) return -1;
-			if( a > b ) return 1;
-			return 0;
-		});
+	public static function sort( a:Int, b:Int ) {
+		if( a < b ) return -1;
+		if( a > b ) return 1;
+		return 0;
 	}
 	
-	extern public static inline function sortInverse( a:Array<Float> ) {
-		a.sort(( a, b ) -> {
-			if( a < b ) return 1;
-			if( a > b ) return -1;
-			return 0;
-		});
-	}
-	extern public static inline function fsort( a:Array<Float> ) {
-		a.sort(( a, b ) -> {
-			if( a < b ) return -1;
-			if( a > b ) return 1;
-			return 0;
-		});
+	public static function sortInverse( a:Int, b:Int ) {
+		if( a < b ) return 1;
+		if( a > b ) return -1;
+		return 0;
 	}
 	
-	extern public static inline function fsortInverse( a:Array<Float> ) {
-		a.sort(( a, b ) -> {
-			if( a < b ) return 1;
-			if( a > b ) return -1;
-			return 0;
-		});
-	}
-
-	extern public static inline function sortString( a:Array<String> ) {
-		a.sort(( a, b ) -> {
-			if( a < b ) return -1;
-			if( a > b ) return 1;
-			return 0;
-		});
+	public static inline function sortStrings( a:String, b:String ) {
+		if( a < b ) return -1;
+		if( a > b ) return 1;
+		return 0;
 	}
 	
-	extern public static inline function sortStringInverse( a:Array<String> ) {
-		a.sort(( a, b ) -> {
-			if( a < b ) return 1;
-			if( a > b ) return -1;
-			return 0;
-		});
+	public static function sortStringsInverse( a:String, b:String ) {
+		if( a < b ) return 1;
+		if( a > b ) return -1;
+		return 0;
 	}
-
+	
+	public static function fsort( a:Float, b:Float ) {
+		if( a < b ) return -1;
+		if( a > b ) return 1;
+		return 0;
+	}
+	
+	public static function fsortInverse( a:Float, b:Float ) {
+		if( a < b ) return 1;
+		if( a > b ) return -1;
+		return 0;
+	}
 }

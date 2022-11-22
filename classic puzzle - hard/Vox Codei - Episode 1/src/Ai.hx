@@ -8,7 +8,6 @@ class Ai {
 		this.board = board;
 	}
 
-
 	public function process( rounds:Int, bombs:Int ) {
 		if( bombs == 0 ) return "WAIT";
 		return placeBomb();
@@ -17,6 +16,5 @@ class Ai {
 	function placeBomb() {
 
 		return "3 0";
-
 	}
 }

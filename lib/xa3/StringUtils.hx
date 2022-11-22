@@ -23,6 +23,20 @@ class StringUtils {
 
 	extern public static inline function capitalize( s:String ) return s.charAt( 0 ).toUpperCase() + s.substr( 1 ).toLowerCase();
 
+	public static function combinations( s:String ) {
+		final result = [];
+		final a = s.split( "" );
+		recursiveCombine( "", a, result );
+		return result;
+	}
+	
+	static function recursiveCombine( prefix:String, items:Array<String>, result:Array<String> ) {
+		for( i in 0...items.length ) {
+			result.push( prefix + items[i] );
+			recursiveCombine( prefix + items[i], items.slice( i + 1 ), result );
+		}
+	}
+
 	extern public static inline function contains( s1:String, s2:String ) {
 		return s1.indexOf( s2 ) != -1;
 	}
@@ -101,6 +115,12 @@ class StringUtils {
 	extern public static inline function repeat( s:String, n:Int ) {
 		if( n == 0 ) return "";
 		return [for( _ in 0...n ) s].join( "" );
+	}
+
+	extern public static inline function remove( s:String, from:Int, to:Int ) {
+		final start = from <= to ? from : to;
+		final end = from > to ? from : to;
+		return s.substr( 0, start ) + s.substr( end );
 	}
 
 	extern public static inline function reverse( s:String ) {
