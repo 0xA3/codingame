@@ -119,7 +119,8 @@ class TestProcess extends buddy.BuddySuite{
 		
 		final streamOfConsciousness = lines[0];
 		final bustThreshold = parseInt( lines[1] );
-			return { s: streamOfConsciousness, t: bustThreshold }
+		
+		return { s: streamOfConsciousness, t: bustThreshold }
 	}
 	
 	static function parseResult( input:String ) {
