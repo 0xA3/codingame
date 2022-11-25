@@ -18,7 +18,6 @@ function main() {
 }
 
 function process( pattern:String, rows:Array<String> ) {
-	
 	final rowLength = rows[0].length;
 	final repeats = int( rowLength / pattern.length ) + 2;
 	final patternRow = [for( _ in 0...repeats ) pattern].join( "" );
@@ -28,6 +27,7 @@ function process( pattern:String, rows:Array<String> ) {
 		final minDifference = getMinDifference( rows[i], patternVariations );
 		if( minDifference.minDifference == 1 ) return '(${minDifference.pos},${i})';
 	}
+	
 	return '';
 }
 
@@ -44,6 +44,7 @@ function getMinDifference( row:String, patternVariations:Array<String> ) {
 			variationId = i;
 		}
 	}
+	
 	return { minDifference: minDifference, pos: pos };
 }
 
