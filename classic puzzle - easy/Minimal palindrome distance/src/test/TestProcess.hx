@@ -11,13 +11,13 @@ class TestProcess extends buddy.BuddySuite{
 	public function new() {
 
 		describe( "Test process", {
-			it( "Test 00", {	Main.process( test00 ).should.be( 0 ); });
-			it( "Test 01", {	Main.process( test01 ).should.be( 0 ); });
-			it( "Test 02", {	Main.process( test02 ).should.be( 0 ); });
-			it( "Test 03", {	Main.process( test03 ).should.be( 0 ); });
-			it( "Test 04", {	Main.process( test04 ).should.be( 0 ); });
-			it( "Test 05", {	Main.process( test05 ).should.be( 0 ); });
-			it( "Test 06", {	Main.process( test06 ).should.be( 1 ); });
+			it( "Test 00", { Main.process( test00 ).should.be( 0 ); });
+			it( "Test 01", { Main.process( test01 ).should.be( 0 ); });
+			it( "Test 02", { Main.process( test02 ).should.be( 0 ); });
+			it( "Test 03", { Main.process( test03 ).should.be( 0 ); });
+			it( "Test 04", { Main.process( test04 ).should.be( 0 ); });
+			it( "Test 05", { Main.process( test05 ).should.be( 0 ); });
+			it( "Test 06", { Main.process( test06 ).should.be( 1 ); });
 			it( "Test 1", {	Main.process( test1 ).should.be( 1 ); });
 			it( "Test 2", {	Main.process( test2 ).should.be( 17 ); });
 			it( "Test 3", {	Main.process( test3 ).should.be( 60 ); });
