@@ -30,7 +30,7 @@ function process( inputSwaps:Array<String>, encodedMessage:String ) {
 	final encoded = encodedMessage.replace( "+", "" ).split( "" );
 
 	final stack = [];
-	var decoded = [];
+	final decoded = [];
 	var isDeleteMode = false;
 	for( char in encoded ) {
 		
