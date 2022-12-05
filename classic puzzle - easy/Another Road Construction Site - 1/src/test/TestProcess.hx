@@ -20,7 +20,7 @@ class TestProcess extends buddy.BuddySuite{
 				final ip = likeStoppingForACoffee;
 				Main.process( ip.roadLength, ip.routes ).should.be( 6 );
 			});
-			it( " Cote d'Azur", {
+			it( "Cote d'Azur", {
 				final ip = coteDAzur;
 				Main.process( ip.roadLength, ip.routes ).should.be( 37 );
 			});

@@ -839,5 +839,4 @@ class TestProcess extends buddy.BuddySuite{
 	9 11 enemy slime
 	26 -31 enemy goblin
 	23 -13 enemy slime" );
-
 }
