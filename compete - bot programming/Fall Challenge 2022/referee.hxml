@@ -1,0 +1,7 @@
+-lib xa3.format
+-lib tink_core
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main game.MainReferee
+--hl bin/referee.hl

@@ -1,0 +1,11 @@
+# -D source-header=Build 2020-12-11
+# -lib polygonal-ds
+-lib xa3.format
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D js-es=6
+-D js-classic;
+--dce full
+-main agent.MainAgent
+--js dest/app.js

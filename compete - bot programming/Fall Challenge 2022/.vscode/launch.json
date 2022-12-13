@@ -1,0 +1,24 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug Game",
+			"request": "launch",
+			"type": "hl",
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Build Game"
+		},
+		{
+			"name": "Debug Referee",
+			"request": "launch",
+			"type": "hl",
+			"program": "${workspaceFolder}/bin/referee.hl",
+			"preLaunchTask": "Build Referee"
+		},
+		{
+			"name": "Haxe Interpreter",
+			"type": "haxe-eval",
+			"request": "launch"
+		}
+	]
+}
