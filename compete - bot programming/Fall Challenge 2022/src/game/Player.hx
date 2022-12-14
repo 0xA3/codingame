@@ -1,12 +1,12 @@
 package game;
 
+import game.Coord;
 import game.action.Action;
 import game.action.BuildAction;
 import game.action.MoveAction;
 import game.action.SpawnAction;
 import game.action.WarpAction;
 import gameengine.core.AbstractMultiplayerPlayer;
-import view.Coord;
 
 using StringTools;
 using xa3.MapUtils;
@@ -19,8 +19,8 @@ class Player extends AbstractMultiplayerPlayer {
 	
 	public var money:Int;
 	public var warpCooldown:Int;
-	@:isVar public var units(get, never):Map<Coord, Unit> = [];
-	@:isVar public var message(get, set):String;
+	@:isVar public var units( get, never ):Map<Coord, Unit> = [];
+	@:isVar public var message( get, set ):String;
 	public var builds:Array<BuildAction> = [];
 	public var spawns:Array<SpawnAction> = [];
 	public var moves:Array<MoveAction> = [];
@@ -71,12 +71,12 @@ class Player extends AbstractMultiplayerPlayer {
 
 	public function addAction( action:Action ) {
 		switch action {
-			case Build( pos ): builds.push({ pos: pos });
+			case Build( pos ): builds.push( { pos: pos } );
 			case Message( text ): message = text;
-			case Move( amount, from, to ): moves.push({ amount: amount, from: from, to: to });
-			case Spawn( amount, pos ): spawns.push({ amount: amount, pos: pos });
+			case Move( amount, from, to ): moves.push( { amount: amount, from: from, to: to } );
+			case Spawn( amount, pos ): spawns.push( { amount: amount, pos: pos } );
 			case Wait: // no-op
-			case Warp( amount, from, to ): warps.push({ amount: amount, from: from, to: to });
+			case Warp( amount, from, to ): warps.push( { amount: amount, from: from, to: to } );
 		}
 	}
 
@@ -101,7 +101,7 @@ class Player extends AbstractMultiplayerPlayer {
 			final unit = getUnitAt( coord );
 			if( unit.availableCount -n <= 0 ) return null;
 			return v.remove( n );
-		});
+		} );
 	}
 
 	public function toString() {

@@ -22,7 +22,7 @@ class MainReferee {
 		final playerMe = new Player( 0, agentMe.agentId, int( corners[0].x ), int( corners[0].y ));
 		final playerOpp = new Player( 1, agentOpp.agentId, int( corners[1].x ), int( corners[1].y ));
 		
-		final gameManager = new GameManager([ playerMe, playerOpp ]);
+		final gameManager = new GameManager( [ playerMe, playerOpp ] );
 		
 		final referee = new Referee( gameManager, corners, agentMe, agentOpp );
 

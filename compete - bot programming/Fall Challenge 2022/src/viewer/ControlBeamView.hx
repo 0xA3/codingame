@@ -11,12 +11,12 @@ class ControlBeamView {
 	public final heroId:Int;
 	final start:Int;
 
-	public function new(
+	public function new( 
 		object:Object,
 		anim:Anim,
 		heroId:Int,
 		start:Int
-	) {
+	 ) {
 		this.object = object;
 		this.anim = anim;
 		this.heroId = heroId;

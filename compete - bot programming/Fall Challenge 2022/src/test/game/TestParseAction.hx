@@ -1,8 +1,8 @@
 package test.game;
 
+import game.Coord;
 import game.action.Action;
 import game.action.ParseAction;
-import view.Coord;
 
 using buddy.Should;
 
@@ -64,7 +64,7 @@ class TestParseAction extends buddy.BuddySuite {
 			});
 			
 			it( "Message", {
-				ParseAction.parse( "MESSAGE Hello World!" ).should.equal( Message("Hello World!") );
+				ParseAction.parse( "MESSAGE Hello World!" ).should.equal( Message( "Hello World!" ) );
 			});
 			
 			it( "Wait", {

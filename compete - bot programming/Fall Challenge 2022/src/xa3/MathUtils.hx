@@ -32,10 +32,10 @@ class MathUtils {
 	}
 	
 	public static inline function quadEaseInOut( k:Float ) {
-		if ((k *= 2) < 1) {
+		if(( k *= 2 ) < 1 ) {
 			return 1 / 2 * k * k;
 		}
-		return -1 / 2 * ((k - 1) * (k - 3) - 1);
+		return -1 / 2 * (( k - 1 ) * ( k - 3 ) - 1 );
 	}
 
 }

@@ -18,7 +18,6 @@ class Agent implements IAgent {
 	var width:Int;
 	var height:Int;
 
-	var field:Field;
 	var me:Player;
 	var opp:Player;
 	public var players:Array<Player>;
@@ -33,11 +32,11 @@ class Agent implements IAgent {
 	
 	public function init( inputLines:Array<String> ) {
 		// trace( 'init agent $agentId\n' + inputLines.join( "\n" ) );
-		final inputs = inputLines[0].split(' ');
+		final inputs = inputLines[0].split( ' ' );
 		width = parseInt( inputs[0] );
 		height = parseInt( inputs[1] );
 		
-		field = new Field( width, height );
+		// field = new Field( width, height );
 		me = new Player( 0, "me" );
 		opp = new Player( 1, "opponent" );
 		players = [me, opp];
@@ -48,13 +47,13 @@ class Agent implements IAgent {
 	public function setInputs( inputLines:Array<String> ) {
 		// trace( 'setInputs agent $agentId\n' + inputLines.join( "\n" ));
 		
-		final inputs = inputLines[0].split(' ');
+		final inputs = inputLines[0].split( ' ' );
 		final myMatter = parseInt( inputs[0] );
 		final oppMatter = parseInt( inputs[1] );
 
 		for( y in 0...height ) {
 			for( x in 0...width ) {
-				final inputs = readline().split(" ");
+				final inputs = readline().split( " " );
 				final cell:Cell = {
 					scrapAmount: parseInt( inputs[0] ),
 					owner: parseInt( inputs[1] ),

@@ -91,7 +91,7 @@ class GameManager {
 			currentGameSummary.push( summary );
 			totalGameSummaryBytes += total;
 		} else if( !summaryWarning ) {
-			trace("Warning: the game summary is full. Please try to send less data.");
+			trace( "Warning: the game summary is full. Please try to send less data." );
 			summaryWarning = true;
 		}
 	}

@@ -42,8 +42,8 @@ class AssetConstants {
 	
 	public static function init() {
 		for( key => names in HERO_FRAME_NAMES ) {
-			HERO_FRAMES[key].push( names.map( name -> name.replace( "$", 'B')) );
-			HERO_FRAMES[key].push( names.map( name -> name.replace( "$", 'R')) );
+			HERO_FRAMES[key].push( names.map( name -> name.replace( "$", 'B' )) );
+			HERO_FRAMES[key].push( names.map( name -> name.replace( "$", 'R' )) );
 		}
 	}
 	

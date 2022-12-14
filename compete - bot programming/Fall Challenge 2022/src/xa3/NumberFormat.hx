@@ -23,7 +23,7 @@ class NumberFormat {
 		final left = fillLeft( wholeNumbers, minWholeNumbers );
 		final right = decimals > 0 ? decimalSeparator + filledDecimal : "";
 
-		var formattedLeft = left.substr( Std.int( Math.max( 0, left.length - 3 )));
+		var formattedLeft = left.substr( Std.int( Math.max( 0, left.length - 3 )) );
 		final separators = Std.int(( left.length - 1 ) / 3 );
 		for( i in 0...separators ) {
 			formattedLeft = left.substring( left.length - ( i + 2 ) * 3, left.length -( i + 1 ) * 3 ) + thousandsSeparator + formattedLeft;

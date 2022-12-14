@@ -15,7 +15,7 @@ class SliderView {
 	function get_maxValue() return slider.maxValue;
 	function set_maxValue( v:Float ) return slider.maxValue = v;
 
-	public function new( slider:Slider, setFrame:Float -> Void) {
+	public function new( slider:Slider, setFrame:Float -> Void ) {
 		this.slider = slider;
 		this.setFrame = setFrame;
 	}

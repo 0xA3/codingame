@@ -25,7 +25,7 @@ class MobView extends CharacterView {
 	var deathEndFrame:Float;
 	var fadeEndFrame:Float;
 
-	public function new(
+	public function new( 
 		container:Object,
 		infoContainer:Object,
 		object:Object,
@@ -35,7 +35,7 @@ class MobView extends CharacterView {
 		healthBar:Object,
 		fullHealth:Int,
 		startFrame:Int
-	) {
+	 ) {
 		super( container, infoContainer, object, direction );
 		this.anim = anim;
 		this.deathAnim = deathAnim;

@@ -1,7 +1,7 @@
 package game;
 
 import Std.int;
-import view.Coord;
+import game.Coord;
 
 class Vector {
 	
@@ -74,7 +74,7 @@ class Vector {
 
     public function normalize() {
         final length = length();
-        if ( length == 0 )
+        if( length == 0 )
             return new Vector( 0, 0 );
         return new Vector( x / length, y / length );
     }

@@ -25,8 +25,8 @@ abstract class AbstractPlayer {
 	 public function sendInputLine( line:String ) {
 		if( hasBeenExecuted ) throw "Impossible to send new inputs after calling execute";
 		
-		// if (this.gameManagerProvider.get().getOutputsRead()) {
-		//     throw new RuntimeException("Sending input data to a player after reading any output is forbidden.");
+		// if( this.gameManagerProvider.get().getOutputsRead()) {
+		//     throw new RuntimeException( "Sending input data to a player after reading any output is forbidden." );
 		// }
 		// trace( '$index sendInputLine $line' );
 		inputs.push( line );
@@ -36,7 +36,7 @@ abstract class AbstractPlayer {
 	 * Executes the player for a maximum of turnMaxTime milliseconds and store the output.
 	 */
 	public function execute() {
-		//gameManagerProvider.get().execute(this);
+		//gameManagerProvider.get().execute( this );
 		this.hasBeenExecuted = true;
 		this.hasNeverBeenExecuted = false;
 	}

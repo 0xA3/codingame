@@ -3,7 +3,12 @@ package xa3;
 import haxe.ds.Vector;
 
 class ArrayUtils {
-	
+
+	/**
+	 * Removes all elements from this Array.
+	 */
+	public static function clear<T>( a:Array<T> ) a.splice( 0, a.length );
+
 	/**
 	 * Return the first Element of `this` Array
 	 */
@@ -139,6 +144,16 @@ class ArrayUtils {
 			}
 		}
 		return minIndex;
+	}
+
+	public static function shuffle<T>( a:Array<T>, ?random:MTRandom ) {
+		final rand = random == null ? Std.random : random.nextInt;
+		for( i in -a.length + 1...0 ) {
+			final j = rand( -i );
+			final temp = a[j];
+			a[j] = a[-i];
+			a[-i] = temp;
+		}
 	}
 	
 }

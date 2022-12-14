@@ -22,7 +22,7 @@ class HeroView extends CharacterView {
 
 	var state:THeroState;
 
-	public function new(
+	public function new( 
 		container:Object,
 		infoContainer:Object,
 		object:Object,
@@ -32,7 +32,7 @@ class HeroView extends CharacterView {
 		castAnim:Anim,
 		direction:TDirection,
 		textField:Text
-	) {
+	 ) {
 		super( container, infoContainer, object, direction );
 		this.runAnim = runAnim;
 		this.combatAnim = combatAnim;

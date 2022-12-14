@@ -1,13 +1,13 @@
 package viewer;
 
 import game.Config;
+import game.Coord;
 import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Graphics;
 import h2d.Object;
 import h2d.Text;
 import h2d.Tile;
-import view.Coord;
 import view.SpellUse;
 import viewer.AssetConstants;
 
@@ -128,7 +128,7 @@ class EntityCreator {
 		final textField = new Text( timesFont, infoContainer );
 		textField.textAlign = Center;
 
-		final hero = new HeroView(
+		final hero = new HeroView( 
 			heroContainer,
 			infoContainer,
 			heroObject,
@@ -138,7 +138,7 @@ class EntityCreator {
 			castAnim,
 			Down,
 			textField
-		);
+		 );
 		return hero;
 	}
 	
@@ -181,7 +181,7 @@ class EntityCreator {
 		
 		infoContainer.visible = false;
 
-		final mob = new MobView(
+		final mob = new MobView( 
 			mobContainer,
 			infoContainer,
 			mobObject,
@@ -191,7 +191,7 @@ class EntityCreator {
 			healthBar,
 			fullHealth,
 			startFrame
-		);
+		 );
 		return mob;
 	}
 

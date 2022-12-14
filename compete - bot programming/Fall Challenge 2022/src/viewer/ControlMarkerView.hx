@@ -1,7 +1,7 @@
 package viewer;
 
+import game.Coord;
 import h2d.Object;
-import view.Coord;
 import viewer.GameView.sX;
 import viewer.GameView.sY;
 
@@ -49,7 +49,7 @@ class ControlMarkerView {
 	function place( currentPos:Coord, nextPos:Coord, subFrame:Float ) {
 		final easedSubFrame = MathUtils.quadEaseInOut( subFrame );
 		
-		final x = MathUtils.interpolate( currentPos.x, nextPos.x, easedSubFrame);
+		final x = MathUtils.interpolate( currentPos.x, nextPos.x, easedSubFrame );
 		final y = MathUtils.interpolate( currentPos.y, nextPos.y, easedSubFrame );
 		
 		object.x = sX( x );

@@ -1,8 +1,8 @@
 package game.action;
 
 import Std.parseInt as p;
+import game.Coord;
 import game.action.Action;
-import view.Coord;
 
 class ParseAction {
 	

@@ -7,25 +7,25 @@ import game.Vector;
 
 using buddy.Should;
 
-@:access(agent.Agent)
+@:access( agent.Agent )
 class TestAgent extends buddy.BuddySuite {
 
 	public function new() {
 		
 		describe( "Test getNearPosition", {
 			var agent:agent.Agent;
-			beforeEach({
+			beforeEach( {
 				agent = new agent.Agent();
-			});
+			} );
 			
 			it( "getNearPosition1", {
 				agent.getNearPosition( new Vector( 0, 0 ), new Vector( 100, 0 ), 20 ).x.should.be( 80 );
-			});
+			} );
 			
 			it( "getNearPosition2", {
 				agent.getNearPosition( new Vector( 100, 0 ), new Vector( 200, 0 ), 20 ).x.should.be( 180 );
-			});
-		});
+			} );
+		} );
 		
 		describe( "Test pairHerosWithClosestMobs", {
 			final player = new Player( 0, "", 0, 0 );
@@ -33,9 +33,9 @@ class TestAgent extends buddy.BuddySuite {
 			var heros:Array<Hero>;
 			var mobs:Array<Mob>;
 			
-			beforeEach({
+			beforeEach( {
 				agent = new agent.Agent();
-			});
+			} );
 			
 			it( "getNearPosition1", {
 				heros = [
@@ -49,7 +49,7 @@ class TestAgent extends buddy.BuddySuite {
 				];
 
 				final pairs = agent.pairHerosWithClosestMobs( heros, mobs );
-			});
-		});
+			} );
+		} );
 	}
 }

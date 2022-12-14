@@ -1,6 +1,6 @@
 package game.action;
 
-import view.Coord;
+import game.Coord;
 
 enum Action {
 	Build( pos:Coord );

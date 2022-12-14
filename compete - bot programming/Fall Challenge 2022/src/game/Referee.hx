@@ -3,6 +3,7 @@ package game;
 import Std.int;
 import Std.parseInt;
 import agent.IAgent;
+import game.Coord;
 import game.action.Action;
 import game.action.ActionException;
 import game.action.ActionType;
@@ -12,7 +13,6 @@ import haxe.Timer;
 import tink.core.Signal;
 import view.Attack;
 import view.BaseAttack;
-import view.Coord;
 import view.EntityData;
 import view.FrameViewData;
 import view.SpellUse;
@@ -75,7 +75,7 @@ class Referee {
 		
 		allEntities = () -> {
 			final all:Array<GameEntity> = [];
-			for( hero in allHeros) all.push( hero );
+			for( hero in allHeros ) all.push( hero );
 			for( mob in allMobs ) all.push( mob );
 			return all;
 		}
@@ -98,11 +98,11 @@ class Referee {
 
 		MTRandom.initializeRandGenerator( seed );
 
-		mobSpawner = new MobSpawner(
+		mobSpawner = new MobSpawner( 
 			Config.MOB_SPAWN_LOCATIONS,
 			Config.MOB_SPAWN_MAX_DIRECTION_DELTA,
 			Config.MOB_SPAWN_RATE
-		);
+		 );
 
 		try {
 			playerCount = gameManager.getPlayerCount();
@@ -221,10 +221,10 @@ class Referee {
 		var snapX = v.x;
 		var snapY = v.y;
 
-		if ( snapX < 0 ) snapX = 0;
-		if ( snapX >= Config.MAP_WIDTH ) snapX = Config.MAP_WIDTH - 1;
-		if ( snapY < 0) snapY = 0;
-		if ( snapY >= Config.MAP_HEIGHT ) snapY = Config.MAP_HEIGHT - 1;
+		if( snapX < 0 ) snapX = 0;
+		if( snapX >= Config.MAP_WIDTH ) snapX = Config.MAP_WIDTH - 1;
+		if( snapY < 0 ) snapY = 0;
+		if( snapY >= Config.MAP_HEIGHT ) snapY = Config.MAP_HEIGHT - 1;
 		
 		return new Vector( snapX, snapY );
 	};
@@ -251,23 +251,23 @@ class Referee {
 	 * @return Vector where the segments intersect, or null if they don't
 	 */
 	function intersectionCoord( x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, x4:Float, y4:Float ) {
-		final d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+		final d = ( x1 - x2 ) * ( y3 - y4 ) - ( y1 - y2 ) * ( x3 - x4 );
 		if( d == 0 ) return null;
 
-		final xi = ((x3 - x4) * (x1 * y2 - y1 * x2) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d;
-		final yi = ((y3 - y4) * (x1 * y2 - y1 * x2) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d;
+		final xi = (( x3 - x4 ) * ( x1 * y2 - y1 * x2 ) - ( x1 - x2 ) * ( x3 * y4 - y3 * x4 )) / d;
+		final yi = (( y3 - y4 ) * ( x1 * y2 - y1 * x2 ) - ( y1 - y2 ) * ( x3 * y4 - y3 * x4 )) / d;
 
 		final p = new Vector( xi, yi );
-		if (xi < Math.min(x1, x2) || xi > Math.max(x1, x2)) return null;
-		if (xi < Math.min(x3, x4) || xi > Math.max(x3, x4)) return null;
+		if( xi < Math.min( x1, x2 ) || xi > Math.max( x1, x2 )) return null;
+		if( xi < Math.min( x3, x4 ) || xi > Math.max( x3, x4 )) return null;
 		return p;
 	}
 
 	function intersectionVec( a:Vector, b:Vector, a2:Vector, b2:Vector ) {
-		return intersectionCoord(
+		return intersectionCoord( 
 			a.x, a.y, b.x, b.y,
 			a2.x, a2.y, b2.x, b2.y
-		);
+		 );
 	}
 
 	function gameTurn( turn:Int ) {
@@ -279,7 +279,7 @@ class Referee {
 		// final p0Mana = gameManager.players[0].mana;
 		// final p1Mana = gameManager.players[1].mana;
 		// if( p0Health != p1Health || p0Mana != p1Mana ) {
-		// 	trace( 'turn $turn  p0: ($p0Health $p0Mana)  p1 ($p1Health $p1Mana)' );
+		// 	trace( 'turn $turn  p0: ( $p0Health $p0Mana )  p1 ( $p1Health $p1Mana )' );
 		// 	abort();
 		// }
 
@@ -414,11 +414,11 @@ class Referee {
 		final baseRadius = Config.BASE_ATTRACTION_RADIUS;
 		var intersection:Vector = null;
 		if( to.y >= h ) intersection = intersectionCoord( from.x, from.y, to.x, to.y, w - baseRadius, h, w, h );
-		else if( to.y < 0 ) intersection = intersectionCoord(from.x, from.y, to.x, to.y, 0, 0, baseRadius, 0);
+		else if( to.y < 0 ) intersection = intersectionCoord( from.x, from.y, to.x, to.y, 0, 0, baseRadius, 0 );
 
 		if( intersection == null ) {
-			if( to.x >= w ) intersection = intersectionCoord(from.x, from.y, to.x, to.y, w, h - baseRadius, w, h);
-			else if( to.x < 0 ) intersection = intersectionCoord(from.x, from.y, to.x, to.y, 0, 0, 0, baseRadius);
+			if( to.x >= w ) intersection = intersectionCoord( from.x, from.y, to.x, to.y, w, h - baseRadius, w, h );
+			else if( to.x < 0 ) intersection = intersectionCoord( from.x, from.y, to.x, to.y, 0, 0, 0, baseRadius );
 		}
 		return intersection != null ? intersection.symmetricTruncate( symmetryOrigin ) : null;
 	}
@@ -438,7 +438,7 @@ class Referee {
 				}
 				final targeted = allEntities().filter( other -> other.id == control.target )[0];
 
-				if( targeted == null ) throw new ActionException("Could not find entity " + control.target );
+				if( targeted == null ) throw new ActionException( "Could not find entity " + control.target );
 				final entity = targeted;
 				
 				if( heroCanSee( hero, entity )) {
@@ -447,7 +447,7 @@ class Referee {
 					recordSpellUse( hero );
 					
 					if( !entity.hasActiveShield() ) entity.applyShield();
-					else throw new ActionException("Entity " + entity.id + " already has a shield up");
+					else throw new ActionException( "Entity " + entity.id + " already has a shield up" );
 					
 				} else {
 					if( playerCanSee( hero.owner, entity )) throw new ActionException( "Entity " + entity.id + " is not within range of Hero " + hero.id );
@@ -469,7 +469,7 @@ class Referee {
 				
 				final targeted = allEntities().filter( other -> other.id == control.target )[0];
 				
-				if( targeted == null ) throw new ActionException("Could not find entity " + control.target );
+				if( targeted == null ) throw new ActionException( "Could not find entity " + control.target );
 				final victim = targeted;
 
 				if( heroCanSee( hero, victim )) {
@@ -478,7 +478,7 @@ class Referee {
 					recordSpellUse( hero );
 
 					if( !victim.hasActiveShield() ) victim.applyControl( control.destination );
-					else throw new ActionException("Entity " + victim.id + " already has a shield up");
+					else throw new ActionException( "Entity " + victim.id + " already has a shield up" );
 				} else {
 					if( playerCanSee( hero.owner, victim )) throw new ActionException( "Entity " + victim.id + " is not within range of Hero " + hero.id );
 					else throw new ActionException( "Hero " + hero.id + " doesn't know where entity " + victim.id + " is" );
@@ -497,7 +497,7 @@ class Referee {
 	function playerCanSee( player:Player, entity:GameEntity ) {
 		if( !insideVisibleMap( entity.position )) return false;
 		if( entity.getOwner() == player ) return true;
-		if( entity.position.inRange( basePositions[player.index], Config.BASE_VIEW_RADIUS)) return true;
+		if( entity.position.inRange( basePositions[player.index], Config.BASE_VIEW_RADIUS )) return true;
 		for( hero in player.heros ) if( heroCanSee( hero, entity )) return true;
 
 		return false;
@@ -553,7 +553,7 @@ class Referee {
 					mob.velocity = base.sub( mob.position ).normalize().mult( distanceToStep ).truncate();
 					gameManager.players[idx].spottet.set( mob.id, true );
 				
-				} else if( mob.position.inRange(base, Config.BASE_ATTRACTION_RADIUS )) {
+				} else if( mob.position.inRange( base, Config.BASE_ATTRACTION_RADIUS )) {
 					var objective = new Vector( 1, 1 );
 					if( mob.position.x < 0 || mob.position.y < 0 ) objective = objective.mult( -1 );
 					mob.velocity = objective.normalize().mult( Config.MOB_MOVE_SPEED ).truncate();
@@ -587,7 +587,7 @@ class Referee {
 						v[1] += isOutsideBaseRadius ? Config.HERO_ATTACK_DAMAGE : 0;
 					}
 					return v;
-				});
+				} );
 
 				if( !mob.isAlive() ) killedMobs.set( mob, true );
 				mobsHit.add( mob.id );
@@ -659,11 +659,11 @@ class Referee {
 		return getAllAround( hero, range, allEntities().filter( e -> e.getOwner() != hero.owner ));
 	}
 
-	function getAllAround( entity:GameEntity, range:Int, entities:Array<GameEntity >) {
+	function getAllAround( entity:GameEntity, range:Int, entities:Array<GameEntity > ) {
 		return entities.filter( other -> other.position.inRange( entity.position, range ));
 	}
 
-	function getMobsAround( entity:GameEntity, range:Int, mobs:Array<Mob>) {
+	function getMobsAround( entity:GameEntity, range:Int, mobs:Array<Mob> ) {
 		return mobs.filter( other -> other.position.inRange( entity.position, range ));
 	}
 
@@ -671,37 +671,37 @@ class Referee {
 		return insideVisibleMap( mob.position ) && mob.position.inRange( base, Config.BASE_ATTRACTION_RADIUS );
 	}
 
-	static final PLAYER_WAIT_PATTERN = new EReg(
+	static final PLAYER_WAIT_PATTERN = new EReg( 
 		"^WAIT"
-		+ "\\s*(.+)?"
+		+ "\\s*( .+ )?"
 		+ "\\s*$", ""
-	);
+	 );
 	
-	static final PLAYER_MOVE_PATTERN = new EReg(
-		"^MOVE\\s+(\\d+)\\s+(\\d+)"
-		+ "\\s*(.+)?"
+	static final PLAYER_MOVE_PATTERN = new EReg( 
+		"^MOVE\\s+( \\d+ )\\s+( \\d+ )"
+		+ "\\s*( .+ )?"
 		+ "\\s*$", ""
-	);
+	 );
 
-	static final PLAYER_WIND_PATTERN = new EReg(
+	static final PLAYER_WIND_PATTERN = new EReg( 
 		"^SPELL\\s+"
-		+ "WIND\\s+(\\d+)\\s+(\\d+)"
-		+ "\\s*(.+)?"
+		+ "WIND\\s+( \\d+ )\\s+( \\d+ )"
+		+ "\\s*( .+ )?"
 		+ "\\s*$", ""
-	);
+	 );
 	
-	static final PLAYER_SHIELD_PATTERN = new EReg(
+	static final PLAYER_SHIELD_PATTERN = new EReg( 
 		"^SPELL\\s+"
-		+ "SHIELD\\s+(\\d+)"
-		+ "\\s*(.+)?"
+		+ "SHIELD\\s+( \\d+ )"
+		+ "\\s*( .+ )?"
 		+ "\\s*$", ""
-	);
-	static final PLAYER_CONTROL_PATTERN = new EReg(
+	 );
+	static final PLAYER_CONTROL_PATTERN = new EReg( 
 		"^SPELL\\s+"
-		+ "CONTROL\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
-		+ "\\s*(.+)?"
+		+ "CONTROL\\s+( \\d+ )\\s+( \\d+ )\\s+( \\d+ )"
+		+ "\\s*( .+ )?"
 		+ "\\s*$", ""
-	);
+	 );
 
 	static final EXPECTED = Config.ENABLE_WIND || Config.ENABLE_CONTROL || Config.ENABLE_WIND
 		? "MOVE <x> <y> | SPELL <spell_command> | WAIT"
@@ -813,7 +813,7 @@ class Referee {
 
 	function matchMessage( hero:Hero, message:String ) {
 		// String characterFilter = "[^\\p{L}\\p{M}\\p{N}\\p{P}\\p{Z}\\p{Cf}\\p{Cs}\\s]";
-		// String messageWithoutEmojis = message.replaceAll(characterFilter, "");
+		// String messageWithoutEmojis = message.replaceAll( characterFilter, "" );
 		hero.message = message;
 	}
 
@@ -829,7 +829,7 @@ class Referee {
 			if( value == null ) value = new Array<Hero>();
 			value.push( hero );
 			return value;
-		});
+		} );
 	}
 
 	function sendGameStateFor( player:Player ) {
@@ -900,10 +900,10 @@ class Referee {
 	}
 
 	function insideMap( p:Vector ) {
-		return p.withinBounds(
+		return p.withinBounds( 
 			-Config.MAP_LIMIT, -Config.MAP_LIMIT,
 			Config.MAP_WIDTH + Config.MAP_LIMIT, Config.MAP_HEIGHT + Config.MAP_LIMIT
-		);
+		 );
 	}
 
 	function insideVisibleMap( p:Vector ) {

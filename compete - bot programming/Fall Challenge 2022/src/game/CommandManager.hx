@@ -1,37 +1,39 @@
 package game;
 
 import Std.parseInt;
+import game.action.ParseAction;
+import gameengine.core.GameManager;
 
 class CommandManager {
 	
+	public var gameManager:GameManager;
+
 	public function new() {}
 
-	public function parseCommands( player:Player, outputs:Array<String>, game:Game, completes:Array<String> ) {
-		if( outputs == null || outputs.length == 0 ) throw "Error: no outputs available";
-		if( outputs.length > 1 ) throw "Error: outputs must be length 1";
-		final output = outputs[0];
+	public function parseCommands( player:Player, lines:Array<String> ) {
+		if( lines == null || lines.length == 0 ) throw "Error: no outputs available";
+		if( lines.length > 1 ) throw 'Error: command has ${lines.length} lines but must be only 1';
+		final line = lines[0];
 
-		if( output == "WAIT" ) {
-			player.action = new WaitAction();
-		} else {
-			final parts = output.split(" ");
-			final command = parts[0];
-			switch command {
-			case "GROW":
-				final targetId = parseInt( parts[1] );
-				// player.action = new GrowAction( targetId );
-			case "COMPLETE":
-				final targetId = parseInt( parts[1] );
-				// player.action = new CompleteAction( targetId );
-				completes[game.round] = "x";
-			case "SEED":
-				final sourceId = parseInt( parts[1] );
-				final targetId = parseInt( parts[2] );
-				// player.action = new SeedAction( sourceId, targetId );
-			default: throw 'Error unknown command $output';
+		try {
+			final commands = line.split( ";" );
+			for( command in commands ) {
+				try {
+					final action = ParseAction.parse( command );
+					player.addAction( action );
+				} catch ( e ) {
+					throw new InvalidInputException( player.name, command, e.toString() );
+				}
 			}
-
+		} catch ( e:InvalidInputException ) {
+			deactivatePlayer( player, e.message );
+			gameManager.addToGameSummary( e.message );
+			gameManager.addToGameSummary( GameManager.formatErrorMessage( '${player.name}: disqualified!' ));
 		}
-		// trace( 'player ${player.index} ${player.action}' );
+	}
+
+	public function deactivatePlayer( player:Player, message:String ) {
+		player.deactivate( message );
+		player.score = -1;
 	}
 }

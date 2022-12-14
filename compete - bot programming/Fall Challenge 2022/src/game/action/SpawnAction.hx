@@ -1,6 +1,6 @@
 package game.action;
 
-import view.Coord;
+import game.Coord;
 
 @:structInit class SpawnAction {
 	final amount:Int;

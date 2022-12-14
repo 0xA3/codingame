@@ -3,8 +3,8 @@ package viewer;
 import Math.max;
 import Math.min;
 import Std.int;
+import game.Coord;
 import h2d.Object;
-import view.Coord;
 import viewer.GameView.sX;
 import viewer.GameView.sY;
 import xa3.MathUtils;
@@ -71,7 +71,7 @@ class CharacterView {
 		final angle = MathUtils.interpolate( angle1, angle2, easedRotation );// + ( isAttacking ? subFrame * TAU : 0 );
 		if( dx2 != 0 || dy2 != 0 ) rotate( angle );
 
-		final x = MathUtils.interpolate( currentPos.x, nextPos.x, easedSubFrame);
+		final x = MathUtils.interpolate( currentPos.x, nextPos.x, easedSubFrame );
 		final y = MathUtils.interpolate( currentPos.y, nextPos.y, easedSubFrame );
 		
 		container.x = this.x = sX( x );
