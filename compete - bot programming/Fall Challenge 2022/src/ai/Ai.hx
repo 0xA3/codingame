@@ -1,4 +1,4 @@
-package agent;
+package ai;
 
 import CodinGame.printErr;
 import CodinGame.readline;
@@ -13,10 +13,10 @@ import haxe.ds.GenericStack.GenericCell;
 using Lambda;
 using xa3.MathUtils;
 
-class Agent implements IAgent {
+class Ai implements IAi {
 	
-	var width:Int;
-	var height:Int;
+	public var width:Int;
+	public var height:Int;
 
 	var me:Player;
 	var opp:Player;
@@ -31,7 +31,7 @@ class Agent implements IAgent {
 	public function new() { }
 	
 	public function init( inputLines:Array<String> ) {
-		// trace( 'init agent $agentId\n' + inputLines.join( "\n" ) );
+		// trace( 'init ai $agentId\n' + inputLines.join( "\n" ) );
 		final inputs = inputLines[0].split( ' ' );
 		width = parseInt( inputs[0] );
 		height = parseInt( inputs[1] );
@@ -45,7 +45,7 @@ class Agent implements IAgent {
 	}
 	
 	public function setInputs( inputLines:Array<String> ) {
-		// trace( 'setInputs agent $agentId\n' + inputLines.join( "\n" ));
+		// trace( 'setInputs ai $agentId\n' + inputLines.join( "\n" ));
 		
 		final inputs = inputLines[0].split( ' ' );
 		final myMatter = parseInt( inputs[0] );

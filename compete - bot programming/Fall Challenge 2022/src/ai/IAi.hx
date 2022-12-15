@@ -1,6 +1,6 @@
-package agent;
+package ai;
 
-interface IAgent {
+interface IAi {
 	var width:Int;
 	var height:Int;
 	

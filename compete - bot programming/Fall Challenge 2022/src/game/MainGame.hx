@@ -2,7 +2,7 @@ package game;
 
 import Std.int;
 import Std.parseInt;
-import agent.CurrentAgents;
+import ai.CurrentAgents;
 import gameengine.core.GameManager;
 import viewer.AssetConstants;
 

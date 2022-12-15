@@ -2,7 +2,7 @@ package game;
 
 import Std.int;
 import Std.parseInt;
-import agent.IAgent;
+import ai.IAgent;
 import game.Coord;
 import game.action.Action;
 import game.action.ActionException;
@@ -286,13 +286,13 @@ class Referee {
 		// Give input to players
 		for( i in 0...gameManager.players.length ) {
 			final player = gameManager.players[i];
-			final agent = agents[i];
+			final ai = agents[i];
 			sendGameStateFor( player );
 			
 			final inputs = player.getInputs();
 			// if( turn == 0 ) trace( 'inputs\n' + inputs.join( "\n" ));
-			agent.setInputs( inputs );
-			player.setOutputs( agent.process().split( "\n" ));
+			ai.setInputs( inputs );
+			player.setOutputs( ai.process().split( "\n" ));
 		}
 		// Get output from players
 		handlePlayerCommands();

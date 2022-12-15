@@ -1,40 +1,38 @@
-package test.agent;
+package test.ai;
 
-import game.Hero;
-import game.Mob;
 import game.Player;
 import game.Vector;
 
 using buddy.Should;
 
-@:access( agent.Agent )
-class TestAgent extends buddy.BuddySuite {
+@:access( ai.Ai )
+class TestAi extends buddy.BuddySuite {
 
 	public function new() {
 		
 		describe( "Test getNearPosition", {
-			var agent:agent.Agent;
+			var ai:ai.Ai;
 			beforeEach( {
-				agent = new agent.Agent();
+				ai = new ai.Ai();
 			} );
 			
 			it( "getNearPosition1", {
-				agent.getNearPosition( new Vector( 0, 0 ), new Vector( 100, 0 ), 20 ).x.should.be( 80 );
+				ai.getNearPosition( new Vector( 0, 0 ), new Vector( 100, 0 ), 20 ).x.should.be( 80 );
 			} );
 			
 			it( "getNearPosition2", {
-				agent.getNearPosition( new Vector( 100, 0 ), new Vector( 200, 0 ), 20 ).x.should.be( 180 );
+				ai.getNearPosition( new Vector( 100, 0 ), new Vector( 200, 0 ), 20 ).x.should.be( 180 );
 			} );
 		} );
 		
 		describe( "Test pairHerosWithClosestMobs", {
 			final player = new Player( 0, "", 0, 0 );
-			var agent:agent.Agent;
+			var ai:ai.Ai;
 			var heros:Array<Hero>;
 			var mobs:Array<Mob>;
 			
 			beforeEach( {
-				agent = new agent.Agent();
+				ai = new ai.Ai();
 			} );
 			
 			it( "getNearPosition1", {
@@ -48,7 +46,7 @@ class TestAgent extends buddy.BuddySuite {
 					new Mob( 22, new Vector( 5951, 625 ), 12 ),
 				];
 
-				final pairs = agent.pairHerosWithClosestMobs( heros, mobs );
+				final pairs = ai.pairHerosWithClosestMobs( heros, mobs );
 			} );
 		} );
 	}

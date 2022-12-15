@@ -1,15 +1,16 @@
-package agent;
+package ais;
 
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
+import ai.IAi;
 import game.Tile;
 
 using Lambda;
 using xa3.ArrayUtils;
 using xa3.MathUtils;
 
-class Starter implements IAgent {
+class Starter implements IAi {
 	
 	static final ME = 1;
 	static final OPP = 0;
@@ -34,7 +35,7 @@ class Starter implements IAgent {
 	public function new() { }
 	
 	public function init( inputLine:String ) {
-		// trace( 'init agent $agentId\n' + inputLines.join( "\n" ) );
+		// trace( 'init ai $agentId\n' + inputLines.join( "\n" ) );
 		final inputs = inputLine.split( ' ' );
 		width = parseInt( inputs[0] );
 		height = parseInt( inputs[1] );
