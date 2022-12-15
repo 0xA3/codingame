@@ -1,159 +1,188 @@
 package xa3;
 
+import Std.int;
 import haxe.ds.Vector;
+import xa3.MathUtils;
+import xa3.StringUtils.repeat;
 
 class ArrayUtils {
+
+	extern public static inline function alignRight( a:Array<String> ) {
+		final m = maxLength( a );
+		return a.map( s -> repeat(" ", m - s.length ) + s );
+	}
+	
+	extern public static inline function alignCenter( a:Array<String> ) {
+		final center = int( maxLength( a ) / 2 );
+		return a.map( s -> repeat(" ", center - int( s.length / 2 )) + s );
+	}
 
 	/**
 	 * Removes all elements from this Array.
 	 */
-	public static function clear<T>( a:Array<T> ) a.splice( 0, a.length );
+	extern public static inline function clear<T>( a:Array<T> ) a.splice( 0, a.length );
 
 	/**
 	 * Return the first Element of `this` Array
 	 */
-	public static function first<T>( a:Array<T> ):T {
+	 extern public static inline function first<T>( a:Array<T> ):T {
 		return a[0];
 	}
 	
 	/**
 	 * Returns `True` if Array.length is 0
 	 */
-	public static function isEmpty<T>( a:Array<T> ):Bool {
+	 extern public static inline function isEmpty<T>( a:Array<T> ):Bool {
 		return a.length == 0;
 	}
 
+	extern public static inline function compare<T>( a1:Array<T>, a2:Array<T> ) {
+		var minLength = MathUtils.min( a1.length, a2.length );
+		var sum = 0;
+		for( i in 0...minLength ) {
+			if( a1[i] == a2[i] ) sum += 1;
+		}
+		return sum;
+	}
 
-	/**
-	 * Return the first Element of `this` Array
-	 */
-	public static function last<T>( a:Array<T> ):T {
+	extern public static inline function count<T>( a:Array<T>, e:T ) {
+		var sum = 0;
+		for( element in a ) if( element == e ) sum += 1;
+		return sum;
+	}
+
+	public static function combinations<T>( items:Array<T> ) {
+		final result:Array<Array<T>> = [];
+		recursiveCombine( [], items, result );
+		return result;
+	}
+
+	static function recursiveCombine<T>( prefix:Array<T>, items:Array<T>, result:Array<Array<T>> ) {
+		for( i in 0...items.length ) {
+			result.push( prefix.concat( [items[i]] ));
+			recursiveCombine( prefix.concat( [items[i]] ), items.slice( i + 1 ), result );
+		}
+	}
+
+	extern public static inline function combinationsNum<T>( a:Array<T>, numSubItems:Int ) {
+		final result = [];
+		final indexes = new Vector<Int>( numSubItems );
+		for( i in 0...numSubItems ) indexes[i] = i;
+
+		while( indexes[0] < a.length - numSubItems + 1 ) {
+			final v = [];
+			for( i in 0...numSubItems ) v.push( a[indexes[i]] );
+			result.push( v );
+			indexes[numSubItems - 1]++;
+			var l = numSubItems - 1; // reference always is the last position at beginning
+			while (( indexes[numSubItems - 1] >= a.length )&&( indexes[0] < a.length - numSubItems + 1 )) {
+				l--; // the last position is reached
+				indexes[l]++;
+				for( i in l + 1...numSubItems ) {
+					indexes[i] = indexes[l] + ( i - l );
+				}
+			}
+		}
+
+		return result;
+	}
+
+	extern public static inline function fact( a:Array<Int> ) {
+		var fact = 1;
+		for( v in a ) fact *= v;
+		return fact;
+	}
+	
+	extern public static inline function ffact( a:Array<Float> ) {
+		var fact = 1.0;
+		for( v in a ) fact *= v;
+		return fact;
+	}
+	
+	extern public static inline function max( a:Array<Int> ) {
+		var m = 0;
+		for( v in a ) m = MathUtils.max( m, v );
+		return m;
+	}
+	
+	extern public static inline function fmax( a:Array<Float> ) {
+		var m = 0.0;
+		for( v in a ) m = Math.max( m, v );
+		return m;
+	}
+
+	extern public static inline function last<T>( a:Array<T> ) {
+		if( a == null || a.length == 0 ) return null;
 		return a[a.length - 1];
 	}
 
-	/**
-	 * Returns a copy of `this` Array with double Elements removed
-	 *
-	 * The Array must be sorted
-	 */
-	public static function uniquify<T>( sortedArray:Array<T> ):Array<T> {
-       
-		if( sortedArray.length == 0 ) return [];
-
-        // Create a vector with unique elements.
-        var vec = new Vector( sortedArray.length );
-        vec[0] = sortedArray[0];
-        var len = 0;
-       
-		// Can have trailing elements.
-        for( item in sortedArray ) {
-        	
-			if( item != vec[len] ) {
-            	len++;
-            	vec[len] = item;
-        	} // else {
-				// if( len > 0 ) trace( 'duplicateTimestamp for $pair ${item.timestamp} at ${Date.fromTime( item.timestamp )}' );
-			// }
-        }
-    	// Remove trailing elements.
-    	var out = new Vector( len + 1 );
-    	while( len > -1 ) {
-            out[len] = vec[len];
-            len--;
-        }
-        // Convert to array and return.
-        return out.toArray();
+	extern public static inline function maxLength( a:Array<String> ) {
+		var m = 0;
+		for( s in a ) m = MathUtils.max( m, s.length );
+		return m;		
 	}
 
-	/**
-	 * Return copy of Array with double Elements removed according to the comparison function `f`
-	 * Returns a copy of `this` Array with double Elements removed
-	 *
-	 * The Array must be sorted
-	 */
-	public static function uniquifyBy<T>( sortedArray:Array<T>, f:( T, T )->Int ):Array<T> {
-       
-		if( sortedArray.length == 0 ) return [];
-
-        // Create a vector with unique elements.
-        var vec = new Vector( sortedArray.length );
-        vec[0] = sortedArray[0];
-        var len = 0;
-       
-		// Can have trailing elements.
-        for( item in sortedArray ) {
-        	
-			if( f( item, vec[len] ) != 0 ) {
-            	len++;
-            	vec[len] = item;
-        	}
-        }
-    	// Remove trailing elements.
-    	var out = new Vector( len + 1 );
-    	while( len > -1 ) {
-            out[len] = vec[len];
-            len--;
-        }
-        // Convert to array and return.
-        return out.toArray();
-	}
-
-	/**
-	 * Merges two Int arrays.
-	 * Sorts the new array
-	 * Returns a new array with double elements removed
-	 */
-	public static function intMergeAndUniquify( a:Array<Int>, b:Array<Int> ) {
-		final c = a.concat( b );
-		c.sort(( a, b ) -> a - b );
-		return uniquify( c );
-	}
-
-	/**
-	 * Merges two arrays.
-	 * Sorts the new array according to the comparison function `f`
-	 * Returns a new array with double elements removed the comparison function `f`
-	 */
-	public static function mergeAndUniquify<T>( a:Array<T>, b:Array<T>, f:( T, T )->Int ):Array<T> {
-		final c = a.concat( b );
-		c.sort( f );
-		return uniquifyBy( c, f );
-	}
-
-	public static function maxIndex( a:Array<Float> ) {
-		var max = 0.0;
-		var maxIndex = -1;
-		for( i in 0...a.length ) {
-			final v = a[i];
-			if( v > max ) {
-				max = v;
-				maxIndex = i;
-			}
-		}
-		return maxIndex;
+	extern public static inline function min( a:Array<Int> ) {
+		var m = 0;
+		for( v in a ) m = MathUtils.min( m, v );
+		return m;
 	}
 	
-	public static function minIndex( a:Array<Float> ) {
-		var min = Math.POSITIVE_INFINITY;
-		var minIndex = -1;
-		for( i in 0...a.length ) {
-			final v = a[i];
-			if( v < min ) {
-				min = v;
-				minIndex = i;
-			}
-		}
-		return minIndex;
+	extern public static inline function fmin( a:Array<Int> ) {
+		var m = 0.0;
+		for( v in a ) m = Math.min( m, v );
+		return m;
 	}
 
-	public static function shuffle<T>( a:Array<T>, ?random:MTRandom ) {
-		final rand = random == null ? Std.random : random.nextInt;
-		for( i in -a.length + 1...0 ) {
-			final j = rand( -i );
-			final temp = a[j];
-			a[j] = a[-i];
-			a[-i] = temp;
-		}
+	extern public static inline function repeatArray<T>( v:T, n:Int ) {
+		return [for( _ in 0...n ) v];
 	}
 	
+	extern public static inline function sum( a:Array<Int> ) {
+		var sum = 0;
+		for( v in a ) sum += v;
+		return sum;
+	}
+	
+	extern public static inline function fsum( a:Array<Float> ) {
+		var sum = 0.0;
+		for( v in a ) sum += v;
+		return sum;
+	}
+	
+	public static function sort( a:Int, b:Int ) {
+		if( a < b ) return -1;
+		if( a > b ) return 1;
+		return 0;
+	}
+	
+	public static function sortInverse( a:Int, b:Int ) {
+		if( a < b ) return 1;
+		if( a > b ) return -1;
+		return 0;
+	}
+	
+	public static inline function sortStrings( a:String, b:String ) {
+		if( a < b ) return -1;
+		if( a > b ) return 1;
+		return 0;
+	}
+	
+	public static function sortStringsInverse( a:String, b:String ) {
+		if( a < b ) return 1;
+		if( a > b ) return -1;
+		return 0;
+	}
+	
+	public static function fsort( a:Float, b:Float ) {
+		if( a < b ) return -1;
+		if( a > b ) return 1;
+		return 0;
+	}
+	
+	public static function fsortInverse( a:Float, b:Float ) {
+		if( a < b ) return 1;
+		if( a > b ) return -1;
+		return 0;
+	}
 }

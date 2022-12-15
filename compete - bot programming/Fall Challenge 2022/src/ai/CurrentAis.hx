@@ -1,6 +1,6 @@
 package ai;
 
 class CurrentAis {
-	public static final aiMe = new ais.Starter();
-	public static final aiOpp = new ais.Starter();	
+	public static final aiMe = new ai.versions.Thibpat01();
+	public static final aiOpp = new ai.versions.Random();	
 }

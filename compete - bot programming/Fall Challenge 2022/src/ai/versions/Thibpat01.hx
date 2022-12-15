@@ -1,16 +1,22 @@
-package ais;
+package ai.versions;
 
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.IAi;
 import game.Tile;
+import xa3.MathUtils.abs;
+import xa3.MathUtils.max;
 
 using Lambda;
 using xa3.ArrayUtils;
 using xa3.MathUtils;
 
-class Starter implements IAi {
+/*
+
+*/
+
+class Thibpat01 implements IAi {
 	
 	static final ME = 1;
 	static final OPP = 0;
@@ -92,30 +98,47 @@ class Starter implements IAi {
 	
 	public function process() {
 		actions.clear();
-		
-		for( tile in myTiles ) {
-			if( tile.canSpawn ) {
-				final amount = 0;
-				if( amount > 0 ) {
-					actions.push( 'SPAWN $amount ${tile.x} ${tile.y}' );
-				}
-			}
-			if( tile.canBuild ) {
-				final shouldBuild = false;
-				if( shouldBuild ) {
-					actions.push( 'BUILD ${tile.x} ${tile.y}' );
-				}
-			}
+
+		final targetTiles = oppTiles.concat( neutralTiles.filter( t -> t.scrapAmount > 0 ));
+
+		final spawnTiles = myTiles.filter( tile -> tile.canSpawn );
+		if( spawnTiles.length > 0 && myMatter >= 10 ) {
+			final tilesWithScore:Array<TileSpawnScore> = spawnTiles.map( tile -> {
+				final distances = targetTiles.map ( target -> distance( tile, target ));
+				final spawnScore = distances.sum() / distances.length;
+				return { tile:tile, spawnScore: spawnScore }
+			});
+			tilesWithScore.sort(( a, b ) -> {
+				if( a.spawnScore < b.spawnScore ) return -1;
+				if( a.spawnScore > b.spawnScore ) return 1;
+				return 0;
+			});
+			
+			final spawnTile = tilesWithScore.first().tile;
+			final amount = 1;
+			actions.push( 'SPAWN $amount ${spawnTile.x} ${spawnTile.y}' );
+			myMatter -= 10;
 		}
 
+
 		for( tile in myUnits ) {
-			final target = tiles[Std.random( tiles.length )];
-			if( target != null ) {
-				final amount = 1;
+			if( targetTiles.length > 0 ) {
+				targetTiles.sort(( a, b ) -> distance( tile, a ) - distance( tile, b ));
+				final target = targetTiles.first();
+				final amount = max( tile.units - 1, 1 );
 				actions.push( 'MOVE $amount ${tile.x} ${tile.y} ${target.x} ${target.y}' );
 			}
 		}
 
 		return actions.length == 0 ? "WAIT" : actions.join( ";" );
 	}
+
+	function distance( a:Tile, b:Tile ) {
+		return abs( a.x - b.x ) + ( a.y - b.y );
+	}
+}
+
+typedef TileSpawnScore = {
+	final tile:Tile;
+	final spawnScore:Float;
 }
