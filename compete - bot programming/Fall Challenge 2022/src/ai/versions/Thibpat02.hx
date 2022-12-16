@@ -12,7 +12,7 @@ using Lambda;
 using xa3.ArrayUtils;
 using xa3.MathUtils;
 
-class Thibpat01 implements IAi {
+class Thibpat02 implements IAi {
 	
 	static final ME = 1;
 	static final OPP = 0;
@@ -96,12 +96,13 @@ class Thibpat01 implements IAi {
 	public function process() {
 		actions.clear();
 
-		final targetTiles = oppTiles.concat( neutralTiles.filter( t -> t.scrapAmount > 0 ));
+		final targetTiles = oppTiles.filter( tile -> !tile.recycler )
+		.concat( neutralTiles.filter( t -> t.scrapAmount > 0 ));
 
 		final spawnTiles = myTiles.filter( tile -> tile.canSpawn );
 		if( spawnTiles.length > 0 && myMatter >= 10 ) {
 			final tilesWithScore:Array<TileSpawnScore> = spawnTiles.map( tile -> {
-				final distances = targetTiles.map ( target -> distance( tile, target ));
+				final distances = targetTiles.map( target -> distance( tile, target ));
 				final spawnScore = distances.sum() / distances.length;
 				return { tile:tile, spawnScore: spawnScore }
 			});
@@ -121,7 +122,7 @@ class Thibpat01 implements IAi {
 		for( tile in myUnits ) {
 			if( targetTiles.length > 0 ) {
 				targetTiles.sort(( a, b ) -> distance( tile, a ) - distance( tile, b ));
-				final target = targetTiles.first();
+				final target = targetTiles.shift();
 				final amount = max( tile.units - 1, 1 );
 				actions.push( 'MOVE $amount ${tile.x} ${tile.y} ${target.x} ${target.y}' );
 			}

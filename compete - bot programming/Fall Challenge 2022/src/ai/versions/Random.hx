@@ -16,6 +16,7 @@ class Random implements IAi {
 	static final OPP = 0;
 	static final NONE = -1;
 
+	public var aiId = "";
 	public var width:Int;
 	public var height:Int;
 
@@ -35,7 +36,7 @@ class Random implements IAi {
 	public function new() { }
 	
 	public function init( inputLine:String ) {
-		// trace( 'init ai $agentId\n' + inputLines.join( "\n" ) );
+		// trace( 'init ai $aiId\n' + inputLines.join( "\n" ) );
 		final inputs = inputLine.split( ' ' );
 		width = parseInt( inputs[0] );
 		height = parseInt( inputs[1] );
