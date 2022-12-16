@@ -2,12 +2,14 @@ package game;
 
 import Std.int;
 import Std.parseInt;
-import ai.CurrentAgents;
+import ai.CurrentAis;
+import event.Animation;
+import game.pathfinding.PathFinder;
 import gameengine.core.GameManager;
+import view.ViewModule;
+import xa3.MTRandom;
 
 class MainReferee {
-	
-	static final corners = [new Vector( 0, 0 ), new Vector( Config.MAP_WIDTH, Config.MAP_HEIGHT )];
 	
 	static final scoreTotals = [0, 0];
 	static var ties = 0;
@@ -16,18 +18,27 @@ class MainReferee {
 		final args = Sys.args();
 		final repeats = args[0] == null ? 1 : parseInt( args[0] );
 		
-		final agentMe = CurrentAgents.agentMe;
-		final agentOpp = CurrentAgents.agentOpp;
+		final random = new MTRandom( 0 );
 
-		final playerMe = new Player( 0, agentMe.agentId, int( corners[0].x ), int( corners[0].y ));
-		final playerOpp = new Player( 1, agentOpp.agentId, int( corners[1].x ), int( corners[1].y ));
+		final aiMe = CurrentAis.aiMe;
+		final aiOpp = CurrentAis.aiOpp;
+
+		final playerMe = new Player( 0, aiMe.aiId );
+		final playerOpp = new Player( 1, aiOpp.aiId );
 		
-		final gameManager = new GameManager( [ playerMe, playerOpp ] );
-		
-		final referee = new Referee( gameManager, corners, agentMe, agentOpp );
+		final gameManager = new GameManager( [ playerMe, playerOpp ], random );
+		final endScreenModule = new EndScreenModule();
+		final commandManager = new CommandManager();
+		final pathFinder = new PathFinder();
+		final animation = new Animation();
+		final gameSummaryManager = new GameSummaryManager();
+		final viewModule = new ViewModule();
+		final game = new Game( gameManager, endScreenModule, pathFinder, animation, gameSummaryManager );
+
+		final referee = new Referee( gameManager, commandManager, game, viewModule );
 
 		for( i in 0...repeats ) {
-			referee.init( i );
+			referee.init();
 			final scores = referee.run();
 			var winner = "";
 			

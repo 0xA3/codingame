@@ -71,7 +71,7 @@ class Player extends AbstractMultiplayerPlayer {
 
 	public function addAction( action:Action ) {
 		switch action {
-			case Build( pos ): builds.push( { pos: pos } );
+			case Build( pos ): builds.push( { coord: pos } );
 			case Message( text ): message = text;
 			case Move( amount, from, to ): moves.push( { amount: amount, from: from, to: to } );
 			case Spawn( amount, pos ): spawns.push( { amount: amount, pos: pos } );

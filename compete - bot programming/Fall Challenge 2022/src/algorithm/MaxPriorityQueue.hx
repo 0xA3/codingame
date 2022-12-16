@@ -1,4 +1,4 @@
-package algorithms;
+package algorithm;
 
 import haxe.ds.Vector;
 

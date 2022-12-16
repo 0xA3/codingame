@@ -2,16 +2,19 @@ package game;
 
 import Std.int;
 import Std.parseInt;
-import ai.CurrentAgents;
+import ai.CurrentAis;
+import event.Animation;
+import game.pathfinding.PathFinder;
 import gameengine.core.GameManager;
+import view.ViewModule;
 import viewer.AssetConstants;
+import xa3.MTRandom;
 
 class MainGame {
 	
 	static var seed:Int;
 	static var app:viewer.App;
 
-	static final corners = [new Vector( 0, 0 ), new Vector( Config.MAP_WIDTH, Config.MAP_HEIGHT )];
 	static var gameManager:GameManager;
 	
 	static function main() {
@@ -21,17 +24,24 @@ class MainGame {
 		hxd.Res.initEmbed();
 		AssetConstants.init();
 
-		final player0 = new Player( 0, CurrentAgents.agentMe.agentId, int( corners[0].x ), int( corners[0].y ));
-		final player1 = new Player( 1, CurrentAgents.agentOpp.agentId, int( corners[1].x ), int( corners[1].y ));
-		gameManager = new GameManager( [ player0, player1 ] );
+		final player0 = new Player( 0, CurrentAis.aiMe.aiId );
+		final player1 = new Player( 1, CurrentAis.aiOpp.aiId );
+		gameManager = new GameManager( [ player0, player1 ], new MTRandom( 0 ));
 
 		app = new viewer.App( gameManager, startGame );
 	}
 
 	static function startGame() {
-		final referee = new game.Referee( gameManager, corners, CurrentAgents.agentMe, CurrentAgents.agentOpp );
-		referee.sendFrameDataset = app.addFrameViewData;
-		referee.init( seed );
+		final endScreenModule = new EndScreenModule();
+		final commandManager = new CommandManager();
+		final pathFinder = new PathFinder();
+		final animation = new Animation();
+		final gameSummaryManager = new GameSummaryManager();
+		final viewModule = new ViewModule();
+		final game = new Game( gameManager, endScreenModule, pathFinder, animation, gameSummaryManager );
+
+		final referee = new Referee( gameManager, commandManager, game, viewModule );
+		referee.init();
 		
 		referee.run();
 		app.updateFirstFrame();

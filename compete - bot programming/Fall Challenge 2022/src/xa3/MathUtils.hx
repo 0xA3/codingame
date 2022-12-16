@@ -57,7 +57,7 @@ class MathUtils {
 	}
 
 	public static function primes( n:Int ) {
-		final sieve = algorithms.SieveOfAtkin.create( n );
+		final sieve = algorithm.SieveOfAtkin.create( n );
 		final primes = [for( i in 0...sieve.length ) if( sieve[i] ) i];
 		return primes;
 	}

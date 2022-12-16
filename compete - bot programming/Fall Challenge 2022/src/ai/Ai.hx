@@ -5,7 +5,6 @@ import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
 import game.Config;
-import game.GameEntity;
 import game.Player;
 import game.Vector;
 import haxe.ds.GenericStack.GenericCell;
@@ -25,13 +24,13 @@ class Ai implements IAi {
 	final actions = [];
 	
 	var turn = 0;
-	public var agentId = "";
+	public var aiId = "";
 	var spentMana = 0;
 
 	public function new() { }
 	
 	public function init( inputLines:Array<String> ) {
-		// trace( 'init ai $agentId\n' + inputLines.join( "\n" ) );
+		// trace( 'init ai $aiId\n' + inputLines.join( "\n" ) );
 		final inputs = inputLines[0].split( ' ' );
 		width = parseInt( inputs[0] );
 		height = parseInt( inputs[1] );
@@ -45,7 +44,7 @@ class Ai implements IAi {
 	}
 	
 	public function setInputs( inputLines:Array<String> ) {
-		// trace( 'setInputs ai $agentId\n' + inputLines.join( "\n" ));
+		// trace( 'setInputs ai $aiId\n' + inputLines.join( "\n" ));
 		
 		final inputs = inputLines[0].split( ' ' );
 		final myMatter = parseInt( inputs[0] );

@@ -1,6 +1,7 @@
 package gameengine.core;
 
 import game.Player;
+import xa3.MTRandom;
 
 class GameManager {
 	
@@ -13,18 +14,21 @@ class GameManager {
 	static final MAX_TURN_TIME = GAME_DURATION_SOFT_QUOTA;
 	static final MIN_TURN_TIME = 50;
 
-    public final players:Array<Player>;
-    public var maxTurns = 200;
-    var turnMaxTime = 50;
-    var firstTurnMaxTime = 1000;
-    var turn:Null<Int> = null;
-    var frame = 0;
-    public var gameEnd = false;
-    
-    var newTurn:Bool;
+	public final players:Array<Player>;
+	public final random:MTRandom;
 	
+	public var maxTurns = 200;
+	public var turnMaxTime = 50;
+	var firstTurnMaxTime = 1000;
+	var turn:Null<Int> = null;
+	var frame = 0;
+	public var gameEnd = false;
+	var newTurn:Bool;
 	final currentTooltips:Array<Tooltip> = [];
+	final prevTooltips:Array<Tooltip> = [];
+
 	final currentGameSummary:Array<String> = [];
+	final prevGameSummary:Array<String> = [];
 
 	public var frameDuration = 1000;
 
@@ -37,8 +41,9 @@ class GameManager {
 	var viewWarning:Bool;
 	var summaryWarning:Bool;
 	
-	public function new( players:Array<Player> ) {
+	public function new( players:Array<Player>, random:MTRandom ) {
 		this.players = players;
+		this.random = random;
 	}
 
 	public function init() {

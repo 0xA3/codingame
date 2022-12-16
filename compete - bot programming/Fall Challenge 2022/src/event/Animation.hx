@@ -14,6 +14,8 @@ class Animation {
 	public var frameTime = 0;
 	public var endTime( default, null ) = 0;
 
+	public function new() {	}
+
 	public function reset() {
 		frameTime = 0;
 		endTime = 0;

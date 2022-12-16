@@ -9,7 +9,7 @@ class TestGrid extends buddy.BuddySuite {
 	
 	public function new() {
 		describe( "Test Grid", {
-			new Grid( new MTRandom( 0 ), [] );
+			// new Grid( new MTRandom( 0 ), [] );
 		});
 	}
 }

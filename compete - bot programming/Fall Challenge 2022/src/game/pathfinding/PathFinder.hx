@@ -25,7 +25,7 @@ class PathFinder {
 	var start:Coord;
 	var end:Coord;
 	var weightFunction:(Coord) -> Int;
-	var restricted:haxe.ds.List<Coord>;
+	var restricted:Array<Coord>;
 
 	public function new() { }
 
@@ -33,7 +33,7 @@ class PathFinder {
 	public function from( coord:Coord ) { this.start = coord; return this; }
 	public function to( coord:Coord ) { this.end = coord; return this; }
 	public function withWeightFunction( weightFunction:(Coord) -> Int ) { this.weightFunction = weightFunction; return this; }
-	public function restrict( restricted:List|Coord> ) { this.restricted = restricted; return this; }
+	public function restrict( restricted:Array<Coord> ) { this.restricted = restricted; return this; }
 
 	public function findPath() {
 		if( from == null || to == null ) return PathFinderResult.NO_PATH;

@@ -16,9 +16,10 @@ class Grid {
 	public var width:Int;
 	public var height:Int;
 	public var cells = new HashMap<Coord, Cell>();
+	public var cellsNum = 0;
 	final random:MTRandom;
 	final ySymmetry:Bool;
-	final spawns:Array<Array<Coord>> = [];
+	public final spawns:Array<Array<Coord>> = [];
 	final snaky:Bool;	
 
 	public function new( random:MTRandom, players:Array<Player> ) {
@@ -34,6 +35,7 @@ class Grid {
 
 		final center = new Coord( int( width / 2 ), int( height / 2 ));
 		cells.clear();
+		cellsNum = 0;
 		for( y in 0...height ) {
 			for( x in 0...width ) {
 				final coord = new Coord( x, y );
@@ -43,12 +45,14 @@ class Grid {
 				final durability = randomDurability( x, y, center );
 				final cell = new Cell( durability );
 				cells.set( coord, cell );
+				cellsNum++;
 
 				if( durability == 0 ) emptyCells.push( coord );
 
 				final opposite = opposite( coord );
 				if( !opposite.equals( coord )) {
 					cells.set( opposite, Cell.fromCell( cell ));
+					cellsNum++;
 					if(
 						durability == Config.CELL_MAX_DURABILITY && x > 1 && y > 1 && x < width - 1 && y < height - 1
 							&& coord.manhattanToCoord( opposite ) >= Config.MIN_SPAWN_DISTANCE
@@ -186,7 +190,6 @@ class Grid {
 				break;
 			}
 		}
-
 	}
 
 	function getIslandFrom( islands:Array<HashMap<Coord, Bool>>, coord:Coord ) {
@@ -242,7 +245,7 @@ class Grid {
 		return getCoord( new Coord( x, y ));
 	}
 
-	function isOwner( coord:Coord, player:Player ) {
+	public function isOwner( coord:Coord, player:Player ) {
 		return getCoord( coord ).isOwnedBy( player );
 	}
 
@@ -261,5 +264,4 @@ class Grid {
 		}
 		return closest;
 	}
-
 }

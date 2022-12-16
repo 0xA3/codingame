@@ -87,6 +87,16 @@ class ArrayUtils {
 		return result;
 	}
 
+	extern public static inline function shuffle<T>( a:Array<T>, ?mtRandom:MTRandom ) {
+		final rnd = mtRandom == null ? Std.random : mtRandom.nextInt;
+		for( i in -a.length + 1...0 ) {
+			final j = rnd( -i + 1 );
+			final temp = a[-i];
+			a[-i] = a[j];
+			a[j] = temp;
+		}
+	}
+
 	extern public static inline function fact( a:Array<Int> ) {
 		var fact = 1;
 		for( v in a ) fact *= v;
@@ -116,6 +126,32 @@ class ArrayUtils {
 		return a[a.length - 1];
 	}
 
+	public static function maxIndex( a:Array<Float> ) {
+		var max = 0.0;
+		var maxIndex = -1;
+		for( i in 0...a.length ) {
+			final v = a[i];
+			if( v > max ) {
+				max = v;
+				maxIndex = i;
+			}
+		}
+		return maxIndex;
+	}
+	
+	public static function minIndex( a:Array<Float> ) {
+		var min = Math.POSITIVE_INFINITY;
+		var minIndex = -1;
+		for( i in 0...a.length ) {
+			final v = a[i];
+			if( v < min ) {
+				min = v;
+				minIndex = i;
+			}
+		}
+		return minIndex;
+	}
+	
 	extern public static inline function maxLength( a:Array<String> ) {
 		var m = 0;
 		for( s in a ) m = MathUtils.max( m, s.length );

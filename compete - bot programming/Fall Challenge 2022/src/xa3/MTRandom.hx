@@ -31,7 +31,10 @@ class MTRandom {
 	//then Flash’s Math.random()
 
 	public function new( seed:Int ) {
-		
+		init( seed );
+	}
+	
+	public function init( seed:Int ) {
 		maxRange = Math.pow( 2, 32 );
 		//the seed can be any positive integer
 		indexMT = 624;

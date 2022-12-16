@@ -1,7 +1,5 @@
 package game;
 
-import haxe.io.UInt16Array;
-
 class Unit {
 	
 	public static final NO_UNIT = new Unit( 0, 0 );
