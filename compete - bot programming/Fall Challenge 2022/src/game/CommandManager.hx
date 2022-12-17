@@ -1,6 +1,5 @@
 package game;
 
-import Std.parseInt;
 import game.action.ParseAction;
 import gameengine.core.GameManager;
 

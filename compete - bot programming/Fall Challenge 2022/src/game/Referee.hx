@@ -11,7 +11,6 @@ import gameengine.core.TimeoutException;
 import haxe.Exception;
 import haxe.Timer;
 import view.EntityData;
-import view.FrameViewData;
 import view.ViewModule;
 import xa3.MTRandom;
 

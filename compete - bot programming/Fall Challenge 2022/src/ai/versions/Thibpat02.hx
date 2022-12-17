@@ -18,7 +18,7 @@ class Thibpat02 implements IAi {
 	static final OPP = 0;
 	static final NONE = -1;
 
-	public var aiId = "";
+	public var aiId = "Thibpat02";
 	public var width:Int;
 	public var height:Int;
 

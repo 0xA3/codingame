@@ -8,6 +8,7 @@ import game.exception.GameException;
 import game.pathfinding.PathFinder;
 import gameengine.core.GameManager;
 import haxe.ds.HashMap;
+import view.FrameViewDataset;
 import xa3.MTRandom;
 import xa3.MathUtils;
 
@@ -22,6 +23,7 @@ class Game {
 	final pathfinder:PathFinder;
 	final animation:Animation;
 	final gameSummaryManager:GameSummaryManager;
+	final sendFrameDataset:( Int, FrameViewDataset )-> Void;
 
 	var random:MTRandom;
 	var grid:Grid;
@@ -31,7 +33,7 @@ class Game {
 	var fightLocations:HashMap<Coord, Bool>;
 	var viewerEvents( default, null ):Array<EventData>;
 
-	var gameTurn:Int;
+	public var gameTurn:Int;
 	var earlyFinishCounter = Config.EARLY_FINISH_TURNS;
 	var unitStartTime:Int;
 
@@ -40,12 +42,14 @@ class Game {
 		endScreenModule:EndScreenModule,
 		pathfinder:PathFinder,
 		animation:Animation,
-		gameSummaryManager:GameSummaryManager ) {
+		gameSummaryManager:GameSummaryManager,
+		sendFrameDataset:( Int, FrameViewDataset ) -> Void ) {
 		this.gameManager = gameManager;
 		this.endScreenModule = endScreenModule;
 		this.pathfinder = pathfinder;
 		this.animation = animation;
 		this.gameSummaryManager = gameSummaryManager;
+		this.sendFrameDataset = sendFrameDataset;
 	}
 
 	public function init() {
@@ -137,6 +141,10 @@ class Game {
 		gameTurn++;
 		earlyFinishCounter--;
 		doPassiveIncome();
+		
+		final frameViewDataset = getCurrentFrameData();
+		sendFrameDataset( gameTurn, frameViewDataset );
+		
 		if (checkGameOver()) {
 			gameManager.endGame();
 		}
@@ -145,6 +153,13 @@ class Game {
 		gameSummaryManager.clear();
 
 		computeEvents();
+	}
+
+	function getCurrentFrameData() {
+		return {
+			positions: [],
+			messages: []
+		};
 	}
 
 	function doPassiveIncome() {

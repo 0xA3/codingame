@@ -67,7 +67,7 @@ class Gameplayer {
 		try { library.verify(); }
 		catch( e ) {
 			trace( e );
-			Sys.exit( 0 );
+			#if sys Sys.exit( 0 ); #end
 		}
 	
 		this.framesPerSecond = framesPerSecond;

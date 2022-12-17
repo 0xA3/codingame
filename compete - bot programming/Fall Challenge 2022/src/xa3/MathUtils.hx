@@ -11,8 +11,10 @@ using Lambda;
 class MathUtils {
 
 	extern public static inline function abs( v:Int ) return v < 0 ? -v : v;
+	extern public static inline function angle( x:Int, y:Int ) return -Math.atan2( x, y );
 	extern public static inline function avg( a:Float, b:Float ) return ( a + b ) / 2;
 	extern public static inline function clamp( v:Int, min:Int, max:Int ) return MathUtils.max( min, MathUtils.min( max, v ));
+	extern public static inline function deg2Rad( v:Float ) return v / 180 * Math.PI;
 	extern public static inline function divisors( v:Int ) return [for( i in 1...int( v / 2 ) + 1 ) if( v % i == 0 ) i];
 	extern public static inline function divisorSum( v:Int ) return divisors( v ).fold(( d, sum ) -> sum + d, 0 );
 	extern public static inline function fclamp( v:Float, min:Float, max:Float ) return Math.max( min, Math.min( max, v ));
@@ -22,9 +24,8 @@ class MathUtils {
 	extern public static inline function manhattanDist( v1:Int, v2:Int ) return abs( v2 - v1 );
 	extern public static inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 	extern public static inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
-	extern public static inline function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
-	extern public static inline function deg2Rad( v:Float ) return v / 180 * Math.PI;
 	extern public static inline function rad2deg( v:Float ) return v / Math.PI * 180;
+	extern public static inline function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
 
 	extern public static inline function digitSum( v:Int ) {
 		final digits = string( v ).split( "" ).map( s -> parseInt( s ));
@@ -138,5 +139,16 @@ class MathUtils {
 			final intUp = int < 0 ? int -1 : int + 1;
 			return intUp;
 		}
+	}
+
+	public static inline function interpolate( v1:Float, v2:Float, f:Float ) {
+		return v1 + ( v2 - v1 ) * f;
+	}
+	
+	public static inline function quadEaseInOut( k:Float ) {
+		if ((k *= 2) < 1) {
+			return 1 / 2 * k * k;
+		}
+		return -1 / 2 * ((k - 1) * (k - 3) - 1);
 	}
 }

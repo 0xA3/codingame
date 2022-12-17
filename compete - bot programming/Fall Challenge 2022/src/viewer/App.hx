@@ -4,7 +4,7 @@ import gameengine.core.GameManager;
 import gameplayer.Gameplayer;
 import h2d.Object;
 import hxd.Window;
-import view.FrameViewData;
+import view.FrameViewDataset;
 
 using Lambda;
 
@@ -26,7 +26,7 @@ class App extends hxd.App {
 	
 	var window:Window;
 	var currentFrame:Int;
-	final frameDatasets:Array<FrameViewData> = [];
+	final frameDatasets:Array<FrameViewDataset> = [];
 
 	var gameView:viewer.GameView;
 	var gameplayer:gameplayer.Gameplayer;
@@ -67,10 +67,11 @@ class App extends hxd.App {
 		final scaleY = window.height / CANVAS_HEIGHT;
 
 		final minScale = Math.min( scaleX, scaleY );
+		trace( 'onResize $minScale' );
 		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 	}
 
-	public function addFrameViewData( frame:Int, currentFrameData:FrameViewData ) {
+	public function addFrameViewData( frame:Int, currentFrameData:FrameViewDataset ) {
 		frameDatasets.push( currentFrameData );
 		gameView.addFrameViewData( frame, currentFrameData );
 
@@ -93,9 +94,8 @@ class App extends hxd.App {
 
 	override function update( dt:Float ) {
 		gameplayer.update( dt );
-		gameView.updateControlMarkerRotation( dt );
 		if( s2d.mouseY < window.height - Gameplayer.HEIGHT ) {
-			gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
+			if( frameDatasets.length > 0 ) gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
 		} else gameView.mouseOut();
 	}
 }

@@ -1,5 +1,5 @@
 -lib heaps
--lib hldx
+# -lib hldx
 -lib tink_core
 -lib xa3.format
 -cp ../../codingame_extension/
@@ -7,7 +7,8 @@
 -cp src
 -D analyzer-optimize
 -D game
+-D debug
 -D windowSize=960x587
 # -D windowSize=1920x1127
 -main game.MainGame
---hl bin/app.hl
+--js bin/app.js

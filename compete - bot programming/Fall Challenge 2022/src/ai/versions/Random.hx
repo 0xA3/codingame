@@ -16,7 +16,7 @@ class Random implements IAi {
 	static final OPP = 0;
 	static final NONE = -1;
 
-	public var aiId = "";
+	public var aiId = "Random";
 	public var width:Int;
 	public var height:Int;
 
