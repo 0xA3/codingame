@@ -35,27 +35,13 @@ class Thibpat02 implements IAi {
 
 	final actions:Array<String> = [];
 
+	var needsGlobalInputs = true;
+
 	public function new() { }
 	
-	public function init( inputLine:String ) {
-		// trace( 'init ai $aiId\n' + inputLines.join( "\n" ) );
-		final inputs = inputLine.split( ' ' );
-		width = parseInt( inputs[0] );
-		height = parseInt( inputs[1] );
-	}
-	
-	function resetTiles() {
-		tiles.clear();
-		myUnits.clear();
-		oppUnits.clear();
-		myRecyclers.clear();
-		oppRecyclers.clear();
-		oppTiles.clear();
-		myTiles.clear();
-		neutralTiles.clear();
-	}
-
 	public function setInputs( inputLines:Array<String> ) {
+		if( needsGlobalInputs ) setGlobalInputs( inputLines.shift());
+		
 		final inputs = inputLines[0].split(" ");
 		myMatter = parseInt( inputs[0] );
 		oppMatter = parseInt( inputs[1] );
@@ -93,6 +79,24 @@ class Thibpat02 implements IAi {
 		}
 	}
 	
+	function setGlobalInputs( inputLine:String ) {
+		final inputs = inputLine.split( ' ' );
+		width = parseInt( inputs[0] );
+		height = parseInt( inputs[1] );
+		needsGlobalInputs = false;
+	}
+	
+	function resetTiles() {
+		tiles.clear();
+		myUnits.clear();
+		oppUnits.clear();
+		myRecyclers.clear();
+		oppRecyclers.clear();
+		oppTiles.clear();
+		myTiles.clear();
+		neutralTiles.clear();
+	}
+	
 	public function process() {
 		actions.clear();
 
@@ -117,7 +121,6 @@ class Thibpat02 implements IAi {
 			actions.push( 'SPAWN $amount ${spawnTile.x} ${spawnTile.y}' );
 			myMatter -= 10;
 		}
-
 
 		for( tile in myUnits ) {
 			if( targetTiles.length > 0 ) {

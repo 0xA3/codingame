@@ -1,9 +1,26 @@
 package view;
 
-import game.Coord;
+import event.EventData;
+import view.PlayerDto;
 
-typedef FrameViewDataset = {
-	// States
-    var positions:Array<Coord>;
-    var messages:Array<String>;
+using xa3.ArrayUtils;
+
+class FrameViewDataset {
+	
+	public static final NO_FRAME_VIEW_DATASET = new FrameViewDataset( [], [] );
+
+	public final players:Array<PlayerDto>;
+    public final events:Array<EventData>;
+	public var duration = 0;
+
+	public function new( players:Array<PlayerDto>, events:Array<EventData> ) {
+		this.players = players;
+		this.events = events;
+	}
+
+	public function clear() {
+		players.clear();
+		events.clear();
+		duration = 0;
+	}
 }

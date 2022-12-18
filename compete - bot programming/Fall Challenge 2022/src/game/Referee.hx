@@ -1,18 +1,11 @@
 package game;
 
-import Std.int;
-import Std.parseInt;
 import ai.IAi;
-import game.Coord;
-import game.action.Action;
-import game.action.ActionException;
 import gameengine.core.GameManager;
 import gameengine.core.TimeoutException;
 import haxe.Exception;
 import haxe.Timer;
-import view.EntityData;
 import view.ViewModule;
-import xa3.MTRandom;
 
 using Lambda;
 using StringTools;
@@ -38,9 +31,7 @@ class Referee {
 	public function init() {
 		try {
 			final leagueLevel = gameManager.getLeagueLevel();
-			if( leagueLevel == 1 ) {
-				Config.MAP_MAX_WIDTH = 15;
-			}
+			if( leagueLevel == 1 ) Config.MAP_MAX_WIDTH = 15;
 
 			game.init();
 			sendGlobalInfo();
@@ -51,40 +42,17 @@ class Referee {
 		
 		} catch( e:Exception ) {
 			trace( e );
+			trace( "Referee failed to initialize" );
 			abort();
 		}
 	}
 
 	function abort() gameManager.endGame();
 
-	public function run() {
-		turn = 0;
-		// while( turn < 1 && !gameManager.gameEnd ) {
-		while( !gameManager.gameEnd ) {
-			gameTurn( turn++ );
-		}
-		onEnd();
-		return gameManager.players.map( player -> player.score );
-	}
-
-	public function runWithTimer() {
-		turn = 0;
-		timer = new Timer( 5 );
-		timer.run = nextTurn;
-	}
-
-	function nextTurn() {
-		if( gameManager.gameEnd ) {
-			timer.stop();
-			onEnd();
-			return;
-		}
-		gameTurn( turn++ );
-	}
-
 	function sendGlobalInfo() {
+		trace( 'sendGlobalInfo' );
 		for( player in gameManager.getActivePlayers() ) {
-			for( line in game.getCurrentFrameInfoFor( player )) player.sendInputLine( line );
+			for( line in game.getGlobalInfoFor( player )) player.sendInputLine( line );
 		}
 	}
 
@@ -111,14 +79,13 @@ class Referee {
 	function handlePlayerCommands() {
 		for( player in gameManager.getActivePlayers() ) {
 			try {
-				commandManager.parseCommands( player, player.getOutputs());
+				commandManager.parseCommands( player, player.outputs );
 			} catch( e:TimeoutException ) {
 				player.deactivate( "Timeout!" );
 				gameManager.addToGameSummary( '${player.name} has not provided ${player.getExpectedOutputLines()} lines in time' );
 			}
 		}
 	}
-
 
 	public static function join( args:Array<Dynamic> ) return args.join(" ");
 

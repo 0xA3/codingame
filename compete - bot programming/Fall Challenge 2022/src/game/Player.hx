@@ -59,7 +59,7 @@ class Player extends AbstractMultiplayerPlayer {
 		warps.splice( 0, warps.length );
 	}
 
-	public function get_units() return units;
+	function get_units() return units;
 
 	public function getUnitAt( coord:Coord ) {
 		return units.getOrDefault( coord, Unit.NO_UNIT );

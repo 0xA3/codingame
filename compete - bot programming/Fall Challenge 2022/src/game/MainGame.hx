@@ -3,9 +3,12 @@ package game;
 import Std.int;
 import Std.parseInt;
 import ai.CurrentAis;
+import ai.IAi;
 import event.Animation;
 import game.pathfinding.PathFinder;
+import gameengine.core.AbstractPlayer;
 import gameengine.core.GameManager;
+import view.GameDataProvider;
 import view.ViewModule;
 import xa3.MTRandom;
 
@@ -25,14 +28,6 @@ class MainGame {
 		#end
 		hxd.Res.initEmbed();
 
-		final player0 = new Player( 0, CurrentAis.aiMe.aiId );
-		final player1 = new Player( 1, CurrentAis.aiOpp.aiId );
-		gameManager = new GameManager( [ player0, player1 ], new MTRandom( seed ));
-
-		app = new viewer.App( gameManager, startGame );
-	}
-
-	static function startGame() {
 		#if js
 		final canvas = cast( js.Browser.document.getElementById( "webgl" ), js.html.CanvasElement );
 		js.Browser.window.addEventListener( "resize", e -> {
@@ -43,20 +38,30 @@ class MainGame {
 		});
 		#end
 
+		final player0 = new Player( 0, CurrentAis.aiMe.aiId );
+		final player1 = new Player( 1, CurrentAis.aiOpp.aiId );
+		final ais:Map<AbstractPlayer, IAi> = [player0 => CurrentAis.aiMe, player1 => CurrentAis.aiOpp];
+		
+		gameManager = new GameManager( [player0, player1], ais, new MTRandom( seed ));
+
+		app = new viewer.App( gameManager, startGame );
+	}
+
+	static function startGame() {
 		final endScreenModule = new EndScreenModule();
 		final commandManager = new CommandManager();
 		final pathFinder = new PathFinder();
 		final animation = new Animation();
 		final gameSummaryManager = new GameSummaryManager();
-		final viewModule = new ViewModule();
-		final game = new Game( gameManager, endScreenModule, pathFinder, animation, gameSummaryManager, app.addFrameViewData );
+		final game = new Game( gameManager, endScreenModule, pathFinder, animation, gameSummaryManager );
 
+		final gameDataProvider = new GameDataProvider( game, gameManager );
+		final viewModule = new ViewModule( gameManager, gameDataProvider );
 		final referee = new Referee( gameManager, commandManager, game, viewModule );
-		referee.init();
 		
-		// referee.run();
-		app.updateFirstFrame();
-		
-		// referee.runWithTimer();
+		gameManager.sendViewGlobalData = app.receiveViewGlobalData;
+		gameManager.sendFrameViewData = app.receiveFrameViewData;
+
+		gameManager.start( referee );
 	}
 }

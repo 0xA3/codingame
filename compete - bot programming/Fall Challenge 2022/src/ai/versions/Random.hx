@@ -33,27 +33,14 @@ class Random implements IAi {
 
 	final actions:Array<String> = [];
 
+	var needsGlobalInputs = true;
+
 	public function new() { }
 	
-	public function init( inputLine:String ) {
-		// trace( 'init ai $aiId\n' + inputLines.join( "\n" ) );
-		final inputs = inputLine.split( ' ' );
-		width = parseInt( inputs[0] );
-		height = parseInt( inputs[1] );
-	}
-	
-	function resetTiles() {
-		tiles.clear();
-		myUnits.clear();
-		oppUnits.clear();
-		myRecyclers.clear();
-		oppRecyclers.clear();
-		oppTiles.clear();
-		myTiles.clear();
-		neutralTiles.clear();
-	}
-
 	public function setInputs( inputLines:Array<String> ) {
+		if( needsGlobalInputs ) setGlobalInputs( inputLines.shift());
+		
+		// trace( 'setInputs ai $aiId\n${inputLines.join("\n")}' );
 		final inputs = inputLines[0].split(" ");
 		myMatter = parseInt( inputs[0] );
 		oppMatter = parseInt( inputs[1] );
@@ -91,7 +78,26 @@ class Random implements IAi {
 		}
 	}
 	
+	function setGlobalInputs( inputLine:String ) {
+		final inputs = inputLine.split( ' ' );
+		width = parseInt( inputs[0] );
+		height = parseInt( inputs[1] );
+		needsGlobalInputs = false;
+	}
+	
+	function resetTiles() {
+		tiles.clear();
+		myUnits.clear();
+		oppUnits.clear();
+		myRecyclers.clear();
+		oppRecyclers.clear();
+		oppTiles.clear();
+		myTiles.clear();
+		neutralTiles.clear();
+	}
+	
 	public function process() {
+		trace( 'process ai $aiId' );
 		actions.clear();
 		
 		for( tile in myTiles ) {

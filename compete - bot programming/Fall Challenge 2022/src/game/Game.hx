@@ -8,7 +8,6 @@ import game.exception.GameException;
 import game.pathfinding.PathFinder;
 import gameengine.core.GameManager;
 import haxe.ds.HashMap;
-import view.FrameViewDataset;
 import xa3.MTRandom;
 import xa3.MathUtils;
 
@@ -23,15 +22,14 @@ class Game {
 	final pathfinder:PathFinder;
 	final animation:Animation;
 	final gameSummaryManager:GameSummaryManager;
-	final sendFrameDataset:( Int, FrameViewDataset )-> Void;
 
 	var random:MTRandom;
-	var grid:Grid;
+	public var grid:Grid;
 	var recyclers:Array<Recycler>;
 	var players:Array<Player>;
 
 	var fightLocations:HashMap<Coord, Bool>;
-	var viewerEvents( default, null ):Array<EventData>;
+	public var viewerEvents( default, null ):Array<EventData>;
 
 	public var gameTurn:Int;
 	var earlyFinishCounter = Config.EARLY_FINISH_TURNS;
@@ -42,14 +40,12 @@ class Game {
 		endScreenModule:EndScreenModule,
 		pathfinder:PathFinder,
 		animation:Animation,
-		gameSummaryManager:GameSummaryManager,
-		sendFrameDataset:( Int, FrameViewDataset ) -> Void ) {
+		gameSummaryManager:GameSummaryManager ) {
 		this.gameManager = gameManager;
 		this.endScreenModule = endScreenModule;
 		this.pathfinder = pathfinder;
 		this.animation = animation;
 		this.gameSummaryManager = gameSummaryManager;
-		this.sendFrameDataset = sendFrameDataset;
 	}
 
 	public function init() {
@@ -142,14 +138,9 @@ class Game {
 		earlyFinishCounter--;
 		doPassiveIncome();
 		
-		final frameViewDataset = getCurrentFrameData();
-		sendFrameDataset( gameTurn, frameViewDataset );
+		if (checkGameOver()) gameManager.endGame();
 		
-		if (checkGameOver()) {
-			gameManager.endGame();
-		}
-
-		gameManager.addToGameSummary(gameSummaryManager.toString());
+		gameManager.addToGameSummary( gameSummaryManager.toString() );
 		gameSummaryManager.clear();
 
 		computeEvents();

@@ -1,19 +1,29 @@
 package gameengine.core;
 
+import gameengine.exception.RuntimeException;
+
+using xa3.ArrayUtils;
+
 abstract class AbstractPlayer {
 	
+	var gameManager:GameManager;
+
 	public var index:Int;
 	public var score:Int;
 
-	var inputs:Array<String> = [];
-	var outputs:Array<String> = [];
-	var timeout:Bool;
-	var hasBeenExecuted:Bool;
-	var hasNeverBeenExecuted = true;
+	public final inputs:Array<String> = [];
+	public var outputs(default, set):Array<String> = [];
+	public var timeout:Bool;
+	public var hasBeenExecuted:Bool;
+	public var hasNeverBeenExecuted = true;
+
+	public function setGameManager( gameManager:GameManager ) {
+		this.gameManager = gameManager;
+	}
 
 	public function init() {
-		inputs = [];
-		outputs = [];
+		resetInputs();
+		resetOutputs();
 	}
 
 	/**
@@ -25,33 +35,36 @@ abstract class AbstractPlayer {
 	 public function sendInputLine( line:String ) {
 		if( hasBeenExecuted ) throw "Impossible to send new inputs after calling execute";
 		
-		// if( this.gameManagerProvider.get().getOutputsRead()) {
-		//     throw new RuntimeException( "Sending input data to a player after reading any output is forbidden." );
-		// }
-		// trace( '$index sendInputLine $line' );
+		if( gameManager.outputsRead ) {
+		    throw new RuntimeException( "Sending input data to a player after reading any output is forbidden." );
+		}
 		inputs.push( line );
+		// if( index == 0 ) trace( '$index sendInputLine $line\n$inputs' );
 	}
 	
 	/**
 	 * Executes the player for a maximum of turnMaxTime milliseconds and store the output.
 	 */
 	public function execute() {
-		//gameManagerProvider.get().execute( this );
+		gameManager.execute( this );
 		this.hasBeenExecuted = true;
 		this.hasNeverBeenExecuted = false;
 	}
 
 	public function getInputs() {
+		// if( index == 0 ) trace( 'getInputs and clear' );
 		final copy = inputs.copy();
-		inputs.splice( 0, inputs.length );
+		inputs.clear();
 		return copy;
 	}
 
-	public function getOutputs() return outputs;
-	
-	public function setOutputs( outputs:Array<String> ) this.outputs = outputs;
+	function set_outputs( o:Array<String> ) {
+		outputs.clear();
+		for( i in 0...o.length ) outputs[i] = o[i];
+		return this.outputs;
+	}
 
-	public function resetInputs() inputs = [];
-	public function resetOutputs() outputs = [];
+	public function resetInputs() inputs.clear();
+	public function resetOutputs() outputs.clear();
 
 }

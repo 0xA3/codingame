@@ -1,0 +1,5 @@
+package viewer;
+
+class TooltipManager {
+	
+}

@@ -117,6 +117,7 @@ class GameView {
 		final mapX = ( screenX / App.scaleFactor - X0 ) / scale;
 		final mapY = ( screenY / App.scaleFactor - Y0 ) / scale;
 		
+		/*
 		final overIds = [];
 		for( id => pos in currentFrameData.positions ) {
 			if( isOver( mapX, mapY, pos )) {
@@ -134,6 +135,7 @@ class GameView {
 			overlayText.text = overTexts.join( "\n" );
 		}
 		adjustBox( screenX, screenY );
+		*/
 	}
 
 	public function mouseOut() {

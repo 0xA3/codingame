@@ -5,6 +5,7 @@ import gameplayer.Gameplayer;
 import h2d.Object;
 import hxd.Window;
 import view.FrameViewDataset;
+import view.GlobalViewDataset;
 
 using Lambda;
 
@@ -56,12 +57,6 @@ class App extends hxd.App {
 		onInitComplete();
 	}
 
-	public function setDimensions( width:Int, height:Int ) {
-		// trace( 'setDimensions $width $height' );
-		this.width = width;
-		this.height = height;
-	}
-
 	override public function onResize() {
 		final scaleX = window.width / CANVAS_WIDTH;
 		final scaleY = window.height / CANVAS_HEIGHT;
@@ -71,19 +66,21 @@ class App extends hxd.App {
 		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 	}
 
-	public function addFrameViewData( frame:Int, currentFrameData:FrameViewDataset ) {
-		frameDatasets.push( currentFrameData );
-		gameView.addFrameViewData( frame, currentFrameData );
+	public function receiveViewGlobalData( dataset:GlobalViewDataset ) {
+		trace( 'receiveViewGlobalData\n$dataset' );
+		width = dataset.width;
+		height = dataset.height;
+	}
+
+	public function receiveFrameViewData( frame:Int, dataset:FrameViewDataset ) {
+		trace( 'receiveFrameViewData $frame\n$dataset' );
+		frameDatasets.push( dataset );
+		gameView.addFrameViewData( frame, dataset );
 
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
 			gameplayer.maxFrame = nextFrame;
 		}
-	}
-
-	public function updateFirstFrame() {
-		if( frameDatasets.length < 2 ) return;
-		gameView.update( 0, 0, 0, frameDatasets );
 	}
 
 	function goToFrame( frame:Float ) {

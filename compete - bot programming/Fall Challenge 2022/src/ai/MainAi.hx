@@ -7,6 +7,8 @@ import ai.CurrentAis;
 
 class MainAi {
 
+	static final inputLines:Array<String> = [];
+
 	static function main() {
 		
 		final ai = CurrentAis.aiMe;
@@ -14,7 +16,7 @@ class MainAi {
 
 		// game loop
 		while( true ) {
-			final inputLines = [for( _ in 0...1 + ai.width * ai.height ) readline()];
+			for( i in 0...1 + ai.width * ai.height ) inputLines[i] = readline();
 			ai.setInputs( inputLines );
 			
 			final outputs = ai.process();
