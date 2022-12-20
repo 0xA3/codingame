@@ -5,15 +5,13 @@ import CodinGame.readline;
 import Std.parseInt;
 import ai.IAi;
 import game.Tile;
-import xa3.MathUtils.abs;
-import xa3.MathUtils.max;
 
 using Lambda;
 using xa3.ArrayUtils;
 using xa3.MathUtils;
 
-class Thibpat01 implements IAi {
-	public var aiId = "Thibpat01";
+class Wait implements IAi {
+	public var aiId = "Wait";
 	
 	static final ME = 1;
 	static final OPP = 0;
@@ -41,7 +39,8 @@ class Thibpat01 implements IAi {
 	
 	public function setInputs( inputLines:Array<String> ) {
 		if( needsGlobalInputs ) setGlobalInputs( inputLines.shift());
-
+		
+		// trace( 'setInputs ai $aiId\n${inputLines.join("\n")}' );
 		final inputs = inputLines[0].split(" ");
 		myMatter = parseInt( inputs[0] );
 		oppMatter = parseInt( inputs[1] );
@@ -97,43 +96,5 @@ class Thibpat01 implements IAi {
 		neutralTiles.clear();
 	}
 	
-	public function process() {
-		actions.clear();
-
-		final targetTiles = oppTiles.concat( neutralTiles.filter( t -> t.scrapAmount > 0 ));
-
-		final spawnTiles = myTiles.filter( tile -> tile.canSpawn );
-		if( spawnTiles.length > 0 && myMatter >= 10 ) {
-			final tilesWithScore:Array<TileSpawnScore> = spawnTiles.map( tile -> {
-				final distances = targetTiles.map ( target -> distance( tile, target ));
-				final spawnScore = distances.sum() / distances.length;
-				return { tile:tile, spawnScore: spawnScore }
-			});
-			tilesWithScore.sort(( a, b ) -> {
-				if( a.spawnScore < b.spawnScore ) return -1;
-				if( a.spawnScore > b.spawnScore ) return 1;
-				return 0;
-			});
-			
-			final spawnTile = tilesWithScore.first().tile;
-			final amount = 1;
-			actions.push( 'SPAWN $amount ${spawnTile.x} ${spawnTile.y}' );
-			myMatter -= 10;
-		}
-
-		for( tile in myUnits ) {
-			if( targetTiles.length > 0 ) {
-				targetTiles.sort(( a, b ) -> distance( tile, a ) - distance( tile, b ));
-				final target = targetTiles.first();
-				final amount = max( tile.units - 1, 1 );
-				actions.push( 'MOVE $amount ${tile.x} ${tile.y} ${target.x} ${target.y}' );
-			}
-		}
-
-		return actions.length == 0 ? "WAIT" : actions.join( ";" );
-	}
-
-	function distance( a:Tile, b:Tile ) {
-		return abs( a.x - b.x ) + ( a.y - b.y );
-	}
+	public function process() return "WAIT";
 }

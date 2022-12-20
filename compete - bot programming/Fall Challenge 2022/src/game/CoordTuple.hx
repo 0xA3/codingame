@@ -1,5 +1,7 @@
 package game;
 
+import haxe.ds.HashMap;
+
 class CoordTuple {
 	
 	public final a:Coord;
@@ -18,7 +20,16 @@ class CoordTuple {
 		return result;
 	}
 	
-	public function equals( other:CoordTuple ) {
-		return hashCode() == other.hashCode();
+	public function equals( other:CoordTuple ) return hashCode() == other.hashCode();
+
+	public static function compute<V>( map:HashMap<CoordTuple, V>, key:CoordTuple, remappingFunction:( k:CoordTuple, v:V )->Null<V> ) {
+		final result = try {
+			remappingFunction( key, map[key] );
+		} catch( e:Dynamic ) {
+			throw e;
+		}
+		if( result == null ) map.remove( key );
+		else map.set( key, result );
 	}
+
 }

@@ -10,4 +10,8 @@ package game;
 	public final canBuild:Bool;
 	public final canSpawn:Bool;
 	public final inRangeOfRecycler:Bool;
+
+	public function toString() {
+		return 'x: $x, y: $y, scrapAmount: $scrapAmount, owner: $owner, units: $units, recycler: $recycler, canBuild: $canBuild, canSpawn: $canSpawn, inRangeOfRecycler: $inRangeOfRecycler';
+	}
 }

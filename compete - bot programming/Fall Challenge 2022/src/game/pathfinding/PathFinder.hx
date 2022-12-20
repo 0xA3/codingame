@@ -24,7 +24,7 @@ class PathFinder {
 	var grid:Grid;
 	var start:Coord;
 	var end:Coord;
-	var weightFunction:(Coord) -> Int;
+	var weightFunction = ( coord:Coord ) -> 1;
 	var restricted:Array<Coord>;
 
 	public function new() { }
@@ -32,7 +32,7 @@ class PathFinder {
 	public function setGrid( grid:Grid ) { this.grid = grid; return this; }
 	public function from( coord:Coord ) { this.start = coord; return this; }
 	public function to( coord:Coord ) { this.end = coord; return this; }
-	public function withWeightFunction( weightFunction:(Coord) -> Int ) { this.weightFunction = weightFunction; return this; }
+	public function withWeightFunction( weightFunction:( Coord ) -> Int ) { this.weightFunction = weightFunction; return this; }
 	public function restrict( restricted:Array<Coord> ) { this.restricted = restricted; return this; }
 
 	public function findPath() {

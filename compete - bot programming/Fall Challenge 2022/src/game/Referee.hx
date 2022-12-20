@@ -49,7 +49,7 @@ class Referee {
 	function abort() gameManager.endGame();
 
 	function sendGlobalInfo() {
-		trace( 'sendGlobalInfo' );
+		// trace( 'sendGlobalInfo' );
 		for( player in gameManager.getActivePlayers() ) {
 			for( line in game.getGlobalInfoFor( player )) player.sendInputLine( line );
 		}

@@ -64,7 +64,7 @@ class App extends hxd.App {
 		final scaleY = window.height / CANVAS_HEIGHT;
 
 		final minScale = Math.min( scaleX, scaleY );
-		trace( 'onResize $minScale' );
+		// trace( 'onResize $minScale' );
 		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 	}
 

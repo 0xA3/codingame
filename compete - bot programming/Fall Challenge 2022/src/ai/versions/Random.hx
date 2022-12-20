@@ -11,12 +11,12 @@ using xa3.ArrayUtils;
 using xa3.MathUtils;
 
 class Random implements IAi {
+	public var aiId = "Random";
 	
 	static final ME = 1;
 	static final OPP = 0;
 	static final NONE = -1;
 
-	public var aiId = "Random";
 	public var width:Int;
 	public var height:Int;
 
@@ -39,7 +39,6 @@ class Random implements IAi {
 	
 	public function setInputs( inputLines:Array<String> ) {
 		if( needsGlobalInputs ) setGlobalInputs( inputLines.shift());
-		
 		// trace( 'setInputs ai $aiId\n${inputLines.join("\n")}' );
 		final inputs = inputLines[0].split(" ");
 		myMatter = parseInt( inputs[0] );
@@ -62,7 +61,6 @@ class Random implements IAi {
 					inRangeOfRecycler: parseInt( inputs[6] ) == 1
 				}
 				tiles.push( tile );
-
 				if( tile.owner == ME ) {
 					myTiles.push( tile );
 					if( tile.units > 0 ) myUnits.push( tile );
@@ -97,7 +95,6 @@ class Random implements IAi {
 	}
 	
 	public function process() {
-		trace( 'process ai $aiId' );
 		actions.clear();
 		
 		for( tile in myTiles ) {

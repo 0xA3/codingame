@@ -64,10 +64,12 @@ class Game {
 	}
 
 	function initPlayers() {
+		// trace( 'initPlayers ${gameManager.getActivePlayers()}' );
 		for( player in gameManager.getActivePlayers()) {
 			player.money = Config.PLAYER_STARTING_MONEY;
 			if( grid.spawns.length > player.index ) {
 				grid.spawns[player.index].iter( coord -> player.placeStartUnit( coord ));
+				// trace( 'player ${player.index} placeStartUnit ${player.units}' );
 			}
 		}
 	}
@@ -98,15 +100,14 @@ class Game {
 		for( y in 0...grid.height ) {
 			for( x in 0...grid.width ) {
 				final coord = new Coord( x, y );
-				final c = grid.getCoord( coord );
-				final durability = c.durability;
-				final ownerIdx = c.owner == player ? 1 : 0;
+				final cell = grid.getCoord( coord );
+				final durability = cell.durability;
+				final ownerIdx = cell.owner == player ? 1 : cell.owner == other ? 0 : -1;
 				final myUnit = player.getUnitAtXY( x, y );
 				final oppUnit = other.getUnitAtXY( x, y );
 				final excavator = getExcavatorAt( x, y );
 
 				final unitStrength = ownerIdx == 1 ? myUnit.getStrength() : oppUnit.getStrength();
-
 				final canBuildHere = ownerIdx == 1 && excavator != Recycler.NO_RECYCLER && unitStrength == 0;
 				final canSpawnHere = ownerIdx == 1 && excavator != Recycler.NO_RECYCLER;
 				final willGetDamaged = coordsInRangeOfRecyclers.exists( coord );
@@ -238,6 +239,7 @@ class Game {
 					}
 				
 				} catch( e:GameException ) {
+					trace( e );
 					gameSummaryManager.addError( player, e.message );
 				}
 			}
@@ -362,7 +364,7 @@ class Game {
 				final origin = move.from;
 				final target = move.to;
 				final originUnit = player.getUnitAt( origin );
-
+				
 				try {
 					if( originUnit.availableCount < move.amount ) {
 						throw new GameException( 'tried to move ${move.amount} units from (${origin.x}, ${origin.y}) where only ${originUnit.availableCount} were available' );
@@ -380,12 +382,13 @@ class Game {
 							player.placeUnits( step, move.amount );
 
 							final key = new CoordTuple( origin, step );
-							computeActualMoves( actualMoves, key, ( k, v:Null<Int> ) -> ( v == null ? 0 : v ) + move.amount );
+							CoordTuple.compute( actualMoves, key, ( k, v:Null<Int> ) -> ( v == null ? 0 : v ) + move.amount );
 							// actualMoves.compute( key, ( k, v ) -> ( v == null ? 0 : v ) + move.amount );
 						}
 						
 					}
 				} catch( e:GameException ) {
+					trace( e );
 					gameSummaryManager.addError( player, e.message );
 				}
 			}
@@ -395,16 +398,6 @@ class Game {
 				fightLocations.set( path.b, true );
 			}
 		}
-	}
-
-	function computeActualMoves( map:HashMap<CoordTuple, Int>, key:CoordTuple, remappingFunction:( k:CoordTuple, v:Int )->Null<Int> ) {
-		final result = try {
-			remappingFunction( key, map[key] );
-		} catch( e:Dynamic ) {
-			throw e;
-		}
-		if( result == null ) map.remove( key );
-		else map.set( key, result );
 	}
 
 	function launchBuildEvent( build:BuildAction, player:Player ) {
@@ -545,7 +538,7 @@ class Game {
 					} else {
 						player.placeUnits( target, spawn.amount );
 						player.money -= spawnCost;
-						computeSpawns( actualSpawns, target, ( k, v:Null<Int> ) -> ( v == null ? 0 : v ) + spawn.amount );
+						Coord.compute( actualSpawns, target, ( k, v:Null<Int> ) -> ( v == null ? 0 : v ) + spawn.amount );
 					}
 				} catch( e:GameException ) {
 					gameSummaryManager.addError( player, e.message );
@@ -559,16 +552,6 @@ class Game {
 		}
 	}
 	
-	function computeSpawns( map:HashMap<Coord, Int>, key:Coord, remappingFunction:( k:Coord, v:Int )->Null<Int> ) {
-		final result = try {
-			remappingFunction( key, map[key] );
-		} catch( e:Dynamic ) {
-			throw e;
-		}
-		if( result == null ) map.remove( key );
-		else map.set( key, result );
-	}
-
 	public function onEnd() {
 		for( player in players ) {
 			if( player.isActive ) player.score = getOwnedCells( player );

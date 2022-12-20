@@ -2,10 +2,13 @@ package game.pathfinding;
 
 import algorithm.MaxPriorityQueue;
 import game.Coord;
+import haxe.ds.HashMap;
+
+using xa3.ArrayUtils;
 
 class AStar {
 	
-	var closedList:Map<Coord, PathItem> = [];
+	var closedList = new HashMap<Coord, PathItem>();
 	var openList:MaxPriorityQueue<PathItem> = new MaxPriorityQueue(( a:PathItem, b:PathItem ) -> a.totalPrevisionalLength > b.totalPrevisionalLength );
 	var path:Array<PathItem> = [];
 
@@ -32,9 +35,10 @@ class AStar {
 	}
 
 	public function find() {
+		path.clear();
+		
 		final item = getPathItemLinkedList();
-		path.slice( 0, path.length );
-		if( item != null ) calculatePath( item );
+		if( item != PathItem.NO_PATH_ITEM ) calculatePath( item );
 
 		return path;
 	}
@@ -88,7 +92,7 @@ class AStar {
 			}
 		}
 
-		return null; // not found!
+		return PathItem.NO_PATH_ITEM; // not found!
 	}
 
 	function addToOpenList( visiting:PathItem, fromCoord:Coord, toCoord:Coord ) {

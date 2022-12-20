@@ -12,4 +12,6 @@ class PathItem {
 	public var coord = Coord.NO_COORD;
 
 	public function new() { }
+
+	public function toString() return 'coord: $coord';
 }

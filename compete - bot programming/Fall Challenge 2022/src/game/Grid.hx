@@ -214,13 +214,9 @@ class Grid {
 		return Config.CELL_MAX_DURABILITY;
 	}
 
-	function getCoordsAround( c:Coord ) {
-		return Adjacency.FOUR.map( delta -> c.addCoord( delta ));
-	}
+	function getCoordsAround( c:Coord ) return Adjacency.FOUR.map( delta -> c.addCoord( delta ));
 
-	function opposite( c:Coord ) {
-		return new Coord( width - c.x - 1, ySymmetry ? ( height - c.y - 1 ) : c.y );
-	}
+	function opposite( c:Coord ) return new Coord( width - c.x - 1, ySymmetry ? ( height - c.y - 1 ) : c.y );
 
 	function randInt( from:Int, to:Int ) return random.nextInt( to - from ) + from;
 
@@ -237,17 +233,11 @@ class Grid {
 		return neighs;
 	}
 
-	public function getCoord( n:Coord ) {
-		return cells.exists( n ) ? cells[n] : Cell.NO_CELL;
-	}
+	public function getCoord( n:Coord ) return cells.exists( n ) ? cells[n] : Cell.NO_CELL;
 
-	public function get( x:Int, y:Int ) {
-		return getCoord( new Coord( x, y ));
-	}
+	public function get( x:Int, y:Int ) return getCoord( new Coord( x, y ));
 
-	public function isOwner( coord:Coord, player:Player ) {
-		return getCoord( coord ).isOwnedBy( player );
-	}
+	public function isOwner( coord:Coord, player:Player ) return getCoord( coord ).isOwnedBy( player );
 
 	public function getClosestTarget( from:Coord, targets:List<Coord> ) {
 		final closest = new List<Coord>();

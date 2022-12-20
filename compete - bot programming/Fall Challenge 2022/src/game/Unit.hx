@@ -26,4 +26,6 @@ class Unit {
 	}
 
 	public function remove( n:Int ) return add( -n, 0 );
+
+	public function toString() return 'availableCount: $availableCount, unavailableCount: $unavailableCount';
 }

@@ -1,5 +1,6 @@
 package game;
 
+import haxe.ds.HashMap;
 import xa3.MathUtils.abs;
 import xa3.MathUtils.max;
 
@@ -44,7 +45,7 @@ class Coord {
 		return true;
 	}
 
-	public function toString() return "( " + x + ", " + y + " )";
+	public function toString() return "(" + x + "," + y + ")";
 
 	public function manhattanToCoord( other:Coord ) return manhattanTo( other.x, other.y );
 
@@ -54,5 +55,15 @@ class Coord {
 
 	public function manhattanTo( x:Int, y:Int ) {
 		return abs( x - this.x ) + abs( y - this.y );
-	}	
+	}
+
+	public static function compute<V>( map:HashMap<Coord, V>, key:Coord, remappingFunction:( k:Coord, v:V )->Null<V> ) {
+		final result = try {
+			remappingFunction( key, map[key] );
+		} catch( e:Dynamic ) {
+			throw e;
+		}
+		if( result == null ) map.remove( key );
+		else map.set( key, result );
+	}
 }

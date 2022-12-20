@@ -31,4 +31,6 @@ class Cell {
 	}
 
 	public function isOwnedBy( p:Player ) return owner == p;
+
+	public function toString() return 'durability: $durability, isValid: $isValid, owner: ${owner.index}';
 }

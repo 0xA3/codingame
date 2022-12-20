@@ -7,19 +7,20 @@ import game.action.MoveAction;
 import game.action.SpawnAction;
 import game.action.WarpAction;
 import gameengine.core.AbstractMultiplayerPlayer;
+import haxe.ds.HashMap;
 
 using StringTools;
 using xa3.MapUtils;
 
 class Player extends AbstractMultiplayerPlayer {
 
-	public static final NO_PLAYER = new Player( -1, "" );
+	public static final NO_PLAYER = new Player( -1, "NO_PLAYER" );
 
 	public final name:String;
 	
 	public var money:Int;
 	public var warpCooldown:Int;
-	@:isVar public var units( get, never ):Map<Coord, Unit> = [];
+	@:isVar public var units( default, never ) = new HashMap<Coord, Unit>();
 	@:isVar public var message( get, set ):String;
 	public var builds:Array<BuildAction> = [];
 	public var spawns:Array<SpawnAction> = [];
@@ -59,15 +60,9 @@ class Player extends AbstractMultiplayerPlayer {
 		warps.splice( 0, warps.length );
 	}
 
-	function get_units() return units;
+	public function getUnitAt( coord:Coord ) return units.exists( coord ) ? units[coord] : Unit.NO_UNIT;
 
-	public function getUnitAt( coord:Coord ) {
-		return units.getOrDefault( coord, Unit.NO_UNIT );
-	}
-
-	public function getUnitAtXY( x:Int, y:Int ) {
-		return getUnitAt( new Coord( x, y ));
-	}
+	public function getUnitAtXY( x:Int, y:Int ) return getUnitAt( new Coord( x, y ));
 
 	public function addAction( action:Action ) {
 		switch action {
@@ -80,13 +75,9 @@ class Player extends AbstractMultiplayerPlayer {
 		}
 	}
 
-	public function placeStartUnit( coord:Coord ) {
-		units.set( coord, new Unit( 1, 0 ));
-	}
+	public function placeStartUnit( coord:Coord ) units.set( coord, new Unit( 1, 0 ));
 
-	public function placeUnits( target:Coord, amount:Int ) {
-		units.set( target, getUnitAt( target ).add( 0, amount ));
-	}
+	public function placeUnits( target:Coord, amount:Int ) units.set( target, getUnitAt( target ).add( 0, amount ));
 
 	public function resetUnits() {
 		for( coord => unit in units ) {
@@ -97,14 +88,12 @@ class Player extends AbstractMultiplayerPlayer {
 
 	public function removeUnits( coord:Coord, n:Int ) {
 		if( n == 0 ) return;
-		units.compute( coord, ( k, v ) -> {
+		Coord.compute( units, coord, ( k, v ) -> {
 			final unit = getUnitAt( coord );
 			if( unit.availableCount -n <= 0 ) return null;
 			return v.remove( n );
 		} );
 	}
 
-	public function toString() {
-		return '$name index $index';
-	}
+	public function toString() return '$name index $index';
 }

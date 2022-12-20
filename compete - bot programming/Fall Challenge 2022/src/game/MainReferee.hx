@@ -3,11 +3,16 @@ package game;
 import Std.int;
 import Std.parseInt;
 import ai.CurrentAis;
+import ai.IAi;
 import event.Animation;
 import game.pathfinding.PathFinder;
+import gameengine.core.AbstractPlayer;
 import gameengine.core.GameManager;
+import view.GameDataProvider;
 import view.ViewModule;
 import xa3.MTRandom;
+
+using Lambda;
 
 class MainReferee {
 	
@@ -25,21 +30,26 @@ class MainReferee {
 
 		final playerMe = new Player( 0, aiMe.aiId );
 		final playerOpp = new Player( 1, aiOpp.aiId );
+		final players = [playerMe, playerOpp];
+		final playerAis:Map<AbstractPlayer, IAi> = [playerMe => aiMe, playerOpp => aiOpp];
+
+		final gameManager = new GameManager( players, playerAis, random );
+		players.iter( p -> p.setGameManager( gameManager ));
 		
-		final gameManager = new GameManager( [ playerMe, playerOpp ], random );
 		final endScreenModule = new EndScreenModule();
 		final commandManager = new CommandManager();
 		final pathFinder = new PathFinder();
 		final animation = new Animation();
 		final gameSummaryManager = new GameSummaryManager();
-		final viewModule = new ViewModule();
 		final game = new Game( gameManager, endScreenModule, pathFinder, animation, gameSummaryManager );
 
+		final gameDataProvider = new GameDataProvider( game, gameManager );
+
+		final viewModule = new ViewModule( gameManager, gameDataProvider );
 		final referee = new Referee( gameManager, commandManager, game, viewModule );
 
 		for( i in 0...repeats ) {
-			referee.init();
-			final scores = referee.run();
+			final scores = gameManager.start( referee );
 			var winner = "";
 			
 			if( scores[0] > scores[1] ) {
@@ -52,7 +62,7 @@ class MainReferee {
 			
 			} else {
 				ties++;
-				winner = "Tie!  ";
+				winner = "Tie!";
 			}
 			
 			Sys.println( 'Game $i  Winner: $winner   ${scoreTotals[0]}:${scoreTotals[1]}:$ties   ${Math.round( scoreTotals[0] / ( i + 1 ) * 100 )}% : ${Math.round( scoreTotals[1] / ( i + 1 ) * 100 )}% : ${Math.round( ties / ( i + 1 ) * 100 )}%' );
@@ -61,5 +71,7 @@ class MainReferee {
 		Sys.println( '${playerMe.name} wins: ${scoreTotals[0]}  ${scoreTotals[0] / repeats * 100}%' );
 		Sys.println( '${playerOpp.name} wins: ${scoreTotals[1]} ${scoreTotals[1] / repeats * 100}%' );
 		Sys.println( 'Ties $ties ${ties / repeats * 100}%' );
+
+		Sys.exit( 0 );
 	}
 }

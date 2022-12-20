@@ -33,6 +33,7 @@ abstract class AbstractPlayer {
 	 * The input to send.
 	 */
 	 public function sendInputLine( line:String ) {
+		if( gameManager == null ) throw "GameManager is not set. Call setGameManager for all players";
 		if( hasBeenExecuted ) throw "Impossible to send new inputs after calling execute";
 		
 		if( gameManager.outputsRead ) {

@@ -56,7 +56,7 @@ class GameManager {
 	final metadata:Map<String, String> = [];
 
 	var initDone = false;
-	public var outputsRead = false;
+	public var outputsRead(default, null) = false;
 	var totalViewDataBytesSent = 0;
 	var totalGameSummaryBytes = 0;
 	var totalTurnTime = 0;
@@ -66,7 +66,7 @@ class GameManager {
 
 	var timer = new Timer( 1 );
 	
-	public function new( players:Array<Player>,ais:Map<AbstractPlayer, IAi>, random:MTRandom ) {
+	public function new( players:Array<Player>, ais:Map<AbstractPlayer, IAi>, random:MTRandom ) {
 		this.players = players;
 		this.ais = ais;
 		this.random = random;
@@ -79,7 +79,7 @@ class GameManager {
 		}
 		this.referee = referee;
 		
-		try {
+		// try {
 			// Init ---------------------------------------------------------------
 			referee.init();
 			registeredModules.iter( module -> module.onGameInit() );
@@ -95,18 +95,21 @@ class GameManager {
 			initDone = true;
 			
 			turn = 1;
-			if( withTimer ) loopWithTimer();
-			else {
+			if( withTimer ) {
+				loopWithTimer();
+				return [];
+			} else {
 				// Game Loop ----------------------------------------------------------
-				while( turn < 3 && !isGameEnd ) {
-				// while( turn <= maxTurns && !isGameEnd && getActivePlayers().length != 0 ) {
+				// while( turn < 10 && !isGameEnd ) {
+				while( turn <= maxTurns && !isGameEnd && getActivePlayers().length != 0 ) {
 					processTurn();
 				}
 				end();
+				return players.map( player -> player.score );
 			}
-		} catch( e ) {
-			throw e;
-		}
+		// } catch( e ) {
+		// 	throw e;
+		// }
 	}
 
 	function loopWithTimer() {
@@ -121,6 +124,7 @@ class GameManager {
 	}
 	
 	function processTurn() {
+		trace( 'turn $turn' );
 		swapInfoAndViewData();
 		isNewTurn = true;
 		outputsRead = false;
@@ -128,9 +132,7 @@ class GameManager {
 		registeredModules.iter( module -> module.onAfterGameTurn());
 
 		// Create a frame if no player has been executed
-		if( players.length > 0 && players.filter( p -> p.hasBeenExecuted ).length == 0 ) {
-			execute( players[0] );
-		}
+		if( players.length > 0 && players.filter( p -> p.hasBeenExecuted ).length == 0 ) execute( players[0] );
 		
 		// reset players' outputs
 		for( player in players ) {
@@ -167,7 +169,7 @@ class GameManager {
 			final ai = ais[player];
 			ai.setInputs( player.getInputs() );
 			final command = ai.process();
-			trace( 'command $command' );
+			trace( 'player ${player.index} command $command' );
 			if( command != "" ) nbrOutputLines = 1;
 			
 			dumpView();
@@ -289,7 +291,7 @@ class GameManager {
 	public function addToGameSummary( summary:String ) {
 		
 		#if sys
-		Sys.println( summary );
+		if( summary != "" ) Sys.println( '$summary' );
 		#else
 		trace( summary );
 		#end
