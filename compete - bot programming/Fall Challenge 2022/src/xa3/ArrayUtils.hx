@@ -25,8 +25,32 @@ class ArrayUtils {
 	/**
 	 * Return the first Element of `this` Array
 	 */
-	 extern public static inline function first<T>( a:Array<T> ):T {
+	extern public static inline function first<T>( a:Array<T> ):T {
 		return a[0];
+	}
+	
+	/**
+	 * returns the first element in an array that satisfies the provided testing function
+	 */
+	 extern public static inline function find<T>( it:Array<T>, f:(item:T) -> Bool ) {
+		var index = -1;
+		for( x in 0...it.length ) if( f( it[x] )) {
+			index = x;
+			break;
+		}
+		return it[index];
+	}
+	
+	/**
+	 * returns the index of the first element in an array that satisfies the provided testing function
+	 */
+	 extern public static inline function findIndex<T>( it:Array<T>, f:(item:T) -> Bool ) {
+		var index = -1;
+		for( x in 0...it.length ) if( f( it[x] )) {
+			index = x;
+			break;
+		}
+		return index;
 	}
 	
 	/**

@@ -1,7 +1,6 @@
 package view;
 
 import game.Player;
-import haxe.macro.Compiler.IncludePosition;
 
 class PlayerDto {
 	

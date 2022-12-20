@@ -41,9 +41,11 @@ class App extends hxd.App {
 	override function init() {
 		window = Window.getInstance();
 		final scene = new Object( s2d );
-		
+
 		final entityCreator = new viewer.EntityCreator();
 		entityCreator.initTiles();
+		final tooltipManager = new TooltipManager( scene, entityCreator.timesFont );
+		final viewModule = new ViewModule( tooltipManager, entityCreator );
 		
 		gameView = new viewer.GameView( s2d, scene, entityCreator );
 		gameView.init( gameManager.players[0].name, gameManager.players[1].name );

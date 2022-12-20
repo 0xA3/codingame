@@ -145,10 +145,26 @@ class MathUtils {
 		return v1 + ( v2 - v1 ) * f;
 	}
 	
+	public static inline function unlerp( min:Float, max:Float, value:Float ) {
+		return ( value - min ) / ( max - min );
+	}
+
 	public static inline function quadEaseInOut( k:Float ) {
 		if ((k *= 2) < 1) {
 			return 1 / 2 * k * k;
 		}
 		return -1 / 2 * ((k - 1) * (k - 3) - 1);
 	}
+
+	public static function randomChoice( rand:Int, coeffs:Array<Float> ) {
+		final total = coeffs.fold(( a, b ) -> a + b, 0 );
+		final b = 1 / total;
+		final weights = coeffs.map( v -> v * b );
+		var cur = 0.0;
+		for( i in 0...weights.length ) {
+			cur += weights[i];
+			if( cur >= rand ) return i;
+		}
+		return 0;
+	  }
 }

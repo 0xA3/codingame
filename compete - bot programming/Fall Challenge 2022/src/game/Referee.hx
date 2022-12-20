@@ -1,6 +1,5 @@
 package game;
 
-import ai.IAi;
 import gameengine.core.GameManager;
 import gameengine.core.TimeoutException;
 import haxe.Exception;
