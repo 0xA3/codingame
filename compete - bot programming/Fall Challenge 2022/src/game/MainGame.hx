@@ -24,7 +24,8 @@ class MainGame {
 		final args = Sys.args();
 		seed = args[0] == null ? 0 : parseInt( args[0] );
 		#else
-		seed = 0;
+		// seed = 1;
+		seed = Std.random( 10000 );
 		#end
 		hxd.Res.initEmbed();
 
@@ -62,6 +63,6 @@ class MainGame {
 		gameManager.sendViewGlobalData = app.receiveViewGlobalData;
 		gameManager.sendFrameViewData = app.receiveFrameViewData;
 
-		gameManager.start( referee );
+		gameManager.start( referee, true );
 	}
 }

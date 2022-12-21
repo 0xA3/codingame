@@ -17,11 +17,9 @@ class Random implements IAi {
 	static final OPP = 0;
 	static final NONE = -1;
 
-	public var width:Int;
-	public var height:Int;
+	public var width(default, null):Int;
+	public var height(default, null):Int;
 
-	var myMatter = 0;
-	var oppMatter = 0;
 	final tiles:Array<Tile> = [];
     final myUnits:Array<Tile> = [];
     final oppUnits:Array<Tile> = [];
@@ -32,13 +30,17 @@ class Random implements IAi {
     final neutralTiles:Array<Tile> = [];
 
 	final actions:Array<String> = [];
-
+	
 	var needsGlobalInputs = true;
+	var myMatter = 0;
+	var oppMatter = 0;
 
 	public function new() { }
 	
 	public function setInputs( inputLines:Array<String> ) {
+		#if localGame
 		if( needsGlobalInputs ) setGlobalInputs( inputLines.shift());
+		#end
 		// trace( 'setInputs ai $aiId\n${inputLines.join("\n")}' );
 		final inputs = inputLines[0].split(" ");
 		myMatter = parseInt( inputs[0] );

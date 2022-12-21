@@ -114,8 +114,8 @@ class Game {
 				final excavator = getExcavatorAt( x, y );
 				
 				final unitStrength = ownerIdx == 1 ? myUnit.getStrength() : oppUnit.getStrength();
-				final canBuildHere = ownerIdx == 1 && excavator != Recycler.NO_RECYCLER && unitStrength == 0;
-				final canSpawnHere = ownerIdx == 1 && excavator != Recycler.NO_RECYCLER;
+				final canBuildHere = ownerIdx == 1 && excavator == Recycler.NO_RECYCLER && unitStrength == 0;
+				final canSpawnHere = ownerIdx == 1 && excavator == Recycler.NO_RECYCLER;
 				final willGetDamaged = coordsInRangeOfRecyclers.exists( coord );
 
 				final row = Referee.join([

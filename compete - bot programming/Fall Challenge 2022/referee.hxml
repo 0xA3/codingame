@@ -2,6 +2,7 @@
 -lib tink_core
 -cp ../../codingame_extension/
 -cp src
+-D localGame
 -D analyzer-optimize
 -main game.MainReferee
 --hl bin/referee.hl

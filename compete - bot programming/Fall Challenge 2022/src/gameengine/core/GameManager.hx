@@ -100,7 +100,7 @@ class GameManager {
 				return [];
 			} else {
 				// Game Loop ----------------------------------------------------------
-				// while( turn < 3 && !isGameEnd ) {
+				// while( turn < 2 && !isGameEnd ) {
 				while( turn <= maxTurns && !isGameEnd && getActivePlayers().length != 0 ) {
 					processTurn();
 				}
@@ -116,7 +116,7 @@ class GameManager {
 		timer.stop();
 		if( turn <= maxTurns && !isGameEnd && getActivePlayers().length != 0 ) {
 			processTurn();
-			timer = new Timer( 5 );
+			timer = new Timer( 10 );
 			timer.run = loopWithTimer;
 		} else {
 			end();
@@ -149,6 +149,8 @@ class GameManager {
 		// Send last frame ----------------------------------------------------
 		swapInfoAndViewData();
 		isNewTurn = true;
+		final result = players.map( player -> '${player.index} - ${player.name}: ${player.score}' );
+		trace( "\n" + result.join( "\n" ));
 	}
 
 	/**
@@ -169,7 +171,7 @@ class GameManager {
 			final ai = ais[player];
 			ai.setInputs( player.getInputs() );
 			final command = ai.process();
-			// if( player.index == 0 ) trace( '$turn player ${player.index} command $command' );
+			if( player.index == 0 ) trace( '$turn player ${player.index} command $command' );
 			if( command != "" ) nbrOutputLines = 1;
 			
 			dumpView();

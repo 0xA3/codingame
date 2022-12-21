@@ -12,18 +12,16 @@ using Lambda;
 using xa3.ArrayUtils;
 using xa3.MathUtils;
 
-class Thibpat01 implements IAi {
-	public var aiId = "Thibpat01";
+class Thibpat1 implements IAi {
+	public var aiId = "Thibpat_1";
 	
 	static final ME = 1;
 	static final OPP = 0;
 	static final NONE = -1;
 
-	public var width:Int;
-	public var height:Int;
+	public var width(default, null):Int;
+	public var height(default, null):Int;
 
-	var myMatter = 0;
-	var oppMatter = 0;
 	final tiles:Array<Tile> = [];
     final myUnits:Array<Tile> = [];
     final oppUnits:Array<Tile> = [];
@@ -34,13 +32,17 @@ class Thibpat01 implements IAi {
     final neutralTiles:Array<Tile> = [];
 
 	final actions:Array<String> = [];
-
+	
 	var needsGlobalInputs = true;
+	var myMatter = 0;
+	var oppMatter = 0;
 
 	public function new() { }
 	
 	public function setInputs( inputLines:Array<String> ) {
+		#if localGame
 		if( needsGlobalInputs ) setGlobalInputs( inputLines.shift());
+		#end
 
 		final inputs = inputLines[0].split(" ");
 		myMatter = parseInt( inputs[0] );
@@ -104,7 +106,7 @@ class Thibpat01 implements IAi {
 
 		final spawnTiles = myTiles.filter( tile -> tile.canSpawn );
 		if( spawnTiles.length > 0 && myMatter >= 10 ) {
-			final tilesWithScore:Array<TileSpawnScore> = spawnTiles.map( tile -> {
+			final tilesWithScore = spawnTiles.map( tile -> {
 				final distances = targetTiles.map ( target -> distance( tile, target ));
 				final spawnScore = distances.sum() / distances.length;
 				return { tile:tile, spawnScore: spawnScore }

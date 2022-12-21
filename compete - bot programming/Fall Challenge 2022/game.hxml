@@ -6,7 +6,7 @@
 -cp ../../tools/gameplayer/src
 -cp src
 -D analyzer-optimize
--D game
+-D localGame
 -D debug
 -D windowSize=960x587
 # -D windowSize=1920x1127
