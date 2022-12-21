@@ -2,7 +2,6 @@ package game;
 
 import Std.int;
 import game.Coord;
-import haxe.ds.GenericStack;
 import haxe.ds.HashMap;
 import xa3.MTRandom;
 
@@ -22,11 +21,11 @@ class Grid {
 	public final spawns:Array<Array<Coord>> = [];
 	final snaky:Bool;	
 
-	public function new( random:MTRandom, players:Array<Player> ) {
+	public function new( random:MTRandom, players:Array<Player>, width:Int, height:Int ) {
+		this.width = width;
+		this.height = height;
 		this.random = random;
 		snaky = random.nextFloat() < 0.1;
-		width = randInt( Config.MAP_MIN_WIDTH, Config.MAP_MAX_WIDTH + 1 );
-		height = int( width * Config.MAP_ASPECT_RATIO );
 
 		ySymmetry = random.nextBool();
 
@@ -42,7 +41,8 @@ class Grid {
 
 				if( cells.exists( coord )) continue;
 
-				final durability = randomDurability( x, y, center );
+				// final durability = randomDurability( x, y, center );
+				final durability = 1;
 				final cell = new Cell( durability );
 				cells.set( coord, cell );
 				cellsNum++;

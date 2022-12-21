@@ -100,7 +100,7 @@ class GameManager {
 				return [];
 			} else {
 				// Game Loop ----------------------------------------------------------
-				// while( turn < 2 && !isGameEnd ) {
+				// while( turn < 3 && !isGameEnd ) {
 				while( turn <= maxTurns && !isGameEnd && getActivePlayers().length != 0 ) {
 					processTurn();
 				}
@@ -169,7 +169,7 @@ class GameManager {
 			final ai = ais[player];
 			ai.setInputs( player.getInputs() );
 			final command = ai.process();
-			// trace( 'player ${player.index} command $command' );
+			if( player.index == 0 ) trace( '$turn player ${player.index} command $command' );
 			if( command != "" ) nbrOutputLines = 1;
 			
 			dumpView();

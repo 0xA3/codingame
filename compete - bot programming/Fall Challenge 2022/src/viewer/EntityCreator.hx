@@ -61,6 +61,8 @@ class EntityCreator {
 		robot.x = -tile.width / 2;
 		robot.y = -tile.height / 2;
 		final text = new Text( lato_bold_44, container );
+		text.x = -40;
+		text.y = 10;
 
 		final robotView:RobotView = {
 			container: container,
@@ -70,6 +72,23 @@ class EntityCreator {
 
 		return robotView;
 	}
+
+	public function createRecycler( playerId:Int ) {
+		final container = new Object();
+		final recyclerTileId = playerId == 0 ? "Recyclage_Bleu0030" : "Recyclage_Rouge0030";
+		final tile = tileLibrary[recyclerTileId];
+		final recycler = new Bitmap( tile, container );
+		recycler.x = -tile.width / 2;
+		recycler.y = -tile.height / 2;
+		
+		final recyclerView:RecyclerView = {
+			container: container,
+			recycler: recycler
+		}
+
+		return recyclerView;
+	}
+
 
 	function centerAnim( anim:Anim ) {
 		if( anim.frames.length == 0 ) throw 'Error: anim has no frames';

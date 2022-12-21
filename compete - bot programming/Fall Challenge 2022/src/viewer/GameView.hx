@@ -171,8 +171,17 @@ class GameView {
 		for( i in 0...currentFrameData.cellDatasets.length ) {
 			updateTile( currentFrameData.cellDatasets[i], tileViews[i] );
 			final cell = currentFrameData.cellDatasets[i];
-			if( cell.unitStrength > 0 ) {
-				updateRobot( cell, playerRobotCounts );
+			if( cell.unitStrength > 0 ) updateRobot( cell, playerRobotCounts );
+			if( cell.excavator ) updateRecycler( cell, playerRecyclerCounts );
+			
+		}
+
+		for( playerId in 0...currentFrameData.players.length ) {
+			for( robotId in playerRobotCounts[playerId]...robotViews[playerId].length ) {
+				robotViews[playerId][robotId].container.visible = false;
+			}
+			for( recyclerId in playerRecyclerCounts[playerId]...recyclerViews[playerId].length ) {
+				recyclerViews[playerId][recyclerId].container.visible = false;
 			}
 		}
 	}
@@ -196,10 +205,28 @@ class GameView {
 		}
 		
 		final robotView = robotArray[robotId];
+		robotView.container.visible = true;
 		robotView.container.x = cell.x * TILE_SIZE + HALF_TILE;
 		robotView.container.y = cell.y * TILE_SIZE + HALF_TILE;
-		robotView.text.text = '${cell.x}:${cell.y}';
+		robotView.text.text = '${cell.unitStrength}  ${cell.x}:${cell.y}';
 		playerRobotCounts[playerId]++;
+	}
+
+	function updateRecycler( cell:CellDataset, playerRecyclerCounts:Array<Int> ) {
+		final playerId = cell.ownerIdx;
+		final recyclerId = playerRecyclerCounts[playerId];
+		final recyclerArray = recyclerViews[playerId];
+		if( recyclerId >= recyclerArray.length ) {
+			final recyclerView = entityCreator.createRecycler( playerId );
+			recyclerLayer.addChild( recyclerView.container );
+			recyclerArray.push( recyclerView );
+		}
+		
+		final recyclerView = recyclerArray[recyclerId];
+		recyclerView.container.visible = true;
+		recyclerView.container.x = cell.x * TILE_SIZE + HALF_TILE;
+		recyclerView.container.y = cell.y * TILE_SIZE + HALF_TILE;
+		playerRecyclerCounts[playerId]++;
 	}
 
 	function getTileIdx( cell:CellDataset ) return xa3.MathUtils.randomChoice( 4, TILE_RATIOS );

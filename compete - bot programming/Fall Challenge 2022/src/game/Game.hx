@@ -20,7 +20,7 @@ class Game {
 
 	final gameManager:GameManager;
 	final endScreenModule:EndScreenModule;
-	final pathfinder:PathFinder;
+	final pathFinder:PathFinder;
 	final animation:Animation;
 	final gameSummaryManager:GameSummaryManager;
 
@@ -39,12 +39,12 @@ class Game {
 	public function new(
 		gameManager:GameManager,
 		endScreenModule:EndScreenModule,
-		pathfinder:PathFinder,
+		pathFinder:PathFinder,
 		animation:Animation,
 		gameSummaryManager:GameSummaryManager ) {
 		this.gameManager = gameManager;
 		this.endScreenModule = endScreenModule;
-		this.pathfinder = pathfinder;
+		this.pathFinder = pathFinder;
 		this.animation = animation;
 		this.gameSummaryManager = gameSummaryManager;
 	}
@@ -52,14 +52,19 @@ class Game {
 	public function init() {
 		players = gameManager.players;
 		random = gameManager.random;
-		grid = new Grid( random, players );
+		final width = randInt( Config.MAP_MIN_WIDTH, Config.MAP_MAX_WIDTH + 1 );
+		final height = int( width * Config.MAP_ASPECT_RATIO );
+
+		grid = new Grid( random, players, width, height );
 		recyclers = [];
 		fightLocations = new HashMap<Coord, Bool>();
 		viewerEvents = [];
 		gameTurn = 0;
 		initPlayers();
 	}
-
+	
+	function randInt( from:Int, to:Int ) return random.nextInt( to - from ) + from;
+	
 	function resetEarlyTurnCounter() {
 		earlyFinishCounter = Config.EARLY_FINISH_TURNS;
 	}
@@ -107,7 +112,7 @@ class Game {
 				final myUnit = player.getUnitAtXY( x, y );
 				final oppUnit = other.getUnitAtXY( x, y );
 				final excavator = getExcavatorAt( x, y );
-
+				
 				final unitStrength = ownerIdx == 1 ? myUnit.getStrength() : oppUnit.getStrength();
 				final canBuildHere = ownerIdx == 1 && excavator != Recycler.NO_RECYCLER && unitStrength == 0;
 				final canSpawnHere = ownerIdx == 1 && excavator != Recycler.NO_RECYCLER;
@@ -406,17 +411,15 @@ class Game {
 					} else if( move.amount <= 0 ) {
 						throw new GameException( 'tried to move a 0 amount of units from (${origin.x}, ${origin.y}) to the same tile' );
 					} else {
-						final pfr = pathfinder.setGrid( grid ).restrict( restricted ).from( origin ).to( target ).findPath();
+						final pfr = pathFinder.setGrid( grid ).restrict( restricted ).from( origin ).to( target ).findPath();
 						final wholePath = pfr.path;
 						if( wholePath.length > 1 ) {
 							final step = wholePath[1];
-
 							originUnit.availableCount -= move.amount;
 							player.placeUnits( step, move.amount );
 
 							final key = new CoordTuple( origin, step );
 							CoordTuple.compute( actualMoves, key, ( k, v:Null<Int> ) -> ( v == null ? 0 : v ) + move.amount );
-							// actualMoves.compute( key, ( k, v ) -> ( v == null ? 0 : v ) + move.amount );
 						}
 						
 					}

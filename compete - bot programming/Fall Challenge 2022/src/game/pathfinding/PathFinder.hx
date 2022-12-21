@@ -22,8 +22,8 @@ package game.pathfinding;
 class PathFinder {
 
 	var grid:Grid;
-	var start:Coord;
-	var end:Coord;
+	var start = Coord.NO_COORD;
+	var end = Coord.NO_COORD;
 	var weightFunction = ( coord:Coord ) -> 1;
 	var restricted:Array<Coord>;
 
@@ -36,7 +36,7 @@ class PathFinder {
 	public function restrict( restricted:Array<Coord> ) { this.restricted = restricted; return this; }
 
 	public function findPath() {
-		if( from == null || to == null ) return PathFinderResult.NO_PATH;
+		if( start == Coord.NO_COORD || end == Coord.NO_COORD ) return PathFinderResult.NO_PATH;
 
 		final a = new AStar( grid, start, end, weightFunction, restricted );
 		var pathItems = a.find();
@@ -44,7 +44,7 @@ class PathFinder {
 
 		if( pathItems.length == 0 ) {
 			pfr.isNearest = true;
-			pathItems = new AStar( grid, start, a.getNearest(), weightFunction, restricted ).find();
+			pathItems = new AStar( grid, start, a.nearest, weightFunction, restricted ).find();
 		}
 
 		pfr.path = pathItems.map( item -> item.coord );

@@ -1,6 +1,6 @@
 package game.pathfinding;
 
-import algorithm.MaxPriorityQueue;
+import algorithm.MinPriorityQueue;
 import game.Coord;
 import haxe.ds.HashMap;
 
@@ -9,13 +9,13 @@ using xa3.ArrayUtils;
 class AStar {
 	
 	var closedList = new HashMap<Coord, PathItem>();
-	var openList:MaxPriorityQueue<PathItem> = new MaxPriorityQueue(( a:PathItem, b:PathItem ) -> a.totalPrevisionalLength > b.totalPrevisionalLength );
+	var openList = new MinPriorityQueue(( a:PathItem, b:PathItem ) -> a.totalPrevisionalLength > b.totalPrevisionalLength );
 	var path:Array<PathItem> = [];
 
 	var grid:Grid;
 	var from:Coord;
 	var target:Coord;
-	var nearest:Coord;
+	public var nearest(default, null):Coord;
 
 	var dirOffset:Int;
 	final weightFunction:( Coord )->Int;
@@ -57,9 +57,9 @@ class AStar {
 		openList.insert( root );
 
 		while( openList.size() > 0 ) {
-			final visiting = openList.delMax();
+			final visiting = openList.delMin();
 			final visitingCoord = visiting.coord;
-
+			
 			if( visitingCoord.equals( target )) return visiting;
 			if( closedList.exists( visitingCoord )) continue;
 
@@ -76,7 +76,9 @@ class AStar {
 			});
 
 			for( neighbor in neighbors ) {
-				if( !grid.getCoord( neighbor ).isHole() && !restricted.contains( neighbor )) {
+				// trace( 'neighbor $neighbor isHole ${grid.getCoord( neighbor ).isHole()}  restricted.contains ${restricted.contains( neighbor )}' );	
+				// if( !grid.getCoord( neighbor ).isHole() && !restricted.contains( neighbor )) {
+				if( !restricted.contains( neighbor )) {
 					addToOpenList( visiting, visitingCoord, neighbor );
 				}
 			}
@@ -106,6 +108,4 @@ class AStar {
 		pi.precedent = visiting;
 		openList.insert( pi );
 	}
-
-	public function getNearest() return nearest;
 }
