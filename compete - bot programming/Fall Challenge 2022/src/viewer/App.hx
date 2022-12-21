@@ -6,6 +6,7 @@ import h2d.Object;
 import hxd.Window;
 import view.FrameViewDataset;
 import view.GlobalViewDataset;
+import xa3.MathUtils.max;
 
 using Lambda;
 
@@ -18,8 +19,8 @@ class App extends hxd.App {
 	public static final CANVAS_HEIGHT = 1080;
 	
 	final gameManager:GameManager;
-	final onInitComplete:()->Void;
 	
+	final onInitComplete:()->Void;
 	var width = CANVAS_WIDTH;
 	var height = CANVAS_HEIGHT;
 	
@@ -44,8 +45,8 @@ class App extends hxd.App {
 
 		final entityCreator = new viewer.EntityCreator();
 		entityCreator.initTiles();
-		final tooltipManager = new TooltipManager( scene, entityCreator.timesFont );
-		final viewModule = new ViewModule( tooltipManager, entityCreator );
+		// final tooltipManager = new TooltipManager( scene, entityCreator.timesFont );
+		// final viewModule = new ViewModule( tooltipManager, entityCreator );
 		
 		gameView = new viewer.GameView( s2d, scene, entityCreator );
 		gameView.init( gameManager.players[0].name, gameManager.players[1].name );
@@ -69,16 +70,14 @@ class App extends hxd.App {
 	}
 
 	public function receiveViewGlobalData( dataset:GlobalViewDataset ) {
-		trace( 'receiveViewGlobalData\n$dataset' );
-		width = dataset.width;
-		height = dataset.height;
+		// trace( 'receiveViewGlobalData\n$dataset' );
+		gameView.initGrid( dataset.width, dataset.height );
 	}
 
 	public function receiveFrameViewData( frame:Int, dataset:FrameViewDataset ) {
-		trace( 'receiveFrameViewData $frame\n$dataset' );
-		frameDatasets.push( dataset );
-		gameView.addFrameViewData( frame, dataset );
-
+		frameDatasets[frame] = dataset;
+		gameView.updateFrame( frame, dataset );
+		
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
 			gameplayer.maxFrame = nextFrame;
@@ -86,7 +85,8 @@ class App extends hxd.App {
 	}
 
 	function goToFrame( frame:Float ) {
-		currentFrame = Math.floor( frame );
+		currentFrame = max( 0, Math.floor( frame ));
+		
 		final subFrame = frame - currentFrame;
 		gameView.update( frame, currentFrame, subFrame, frameDatasets );
 	}

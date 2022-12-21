@@ -8,6 +8,7 @@ import game.exception.GameException;
 import game.pathfinding.PathFinder;
 import gameengine.core.GameManager;
 import haxe.ds.HashMap;
+import viewer.CellDataset;
 import xa3.MTRandom;
 import xa3.MathUtils;
 
@@ -116,7 +117,7 @@ class Game {
 					durability,
 					ownerIdx,
 					unitStrength,
-					excavator != Recycler.NO_RECYCLER ? 1 : 0,
+					excavator == Recycler.NO_RECYCLER ? 0 : 1,
 					canBuildHere ? 1 : 0,
 					canSpawnHere ? 1 : 0,
 					willGetDamaged ? 1 : 0
@@ -127,6 +128,38 @@ class Game {
 		}
 
 		return lines;
+	}
+
+	public function getCurrentCellDatasets() {
+		final cellDatasets:Array<CellDataset> = [];
+		var playerCellsSums = [for( _ in players ) 0];
+		for( y in 0...grid.height ) {
+			for( x in 0...grid.width ) {
+				final coord = new Coord( x, y );
+				final cell = grid.getCoord( coord );
+				final durability = cell.durability;
+				final ownerIdx = cell.owner.index;
+				final myUnit = players[0].getUnitAtXY( x, y );
+				final oppUnit = players[1].getUnitAtXY( x, y );
+				final excavator = getExcavatorAt( x, y );
+
+				final unitStrength = ownerIdx == 0 ? myUnit.getStrength() : oppUnit.getStrength();
+				
+				final cellDataset:CellDataset = {
+					x: x,
+					y: y,
+					durability: durability,
+					ownerIdx: ownerIdx,
+					unitStrength: unitStrength,
+					excavator: excavator != Recycler.NO_RECYCLER
+				}
+				if( ownerIdx != -1 ) playerCellsSums[ownerIdx] += 1;
+
+				cellDatasets.push( cellDataset );
+				// if( gameTurn == 0 ) trace( '$x:$y $cellDataset' );
+			}
+		}
+		return { playerCellsSums: playerCellsSums, cellDatasets: cellDatasets }
 	}
 
 	public function performGameUpdate( frameIdx:Int ) {
@@ -296,7 +329,7 @@ class Game {
 		for( player in players ) {
 			if( getOwnedCells( player ) == 0 ) {
 				final winner = getPlayerWithMostOwnedCells();
-				gameManager.addTooltip( winner, '${player.name} has no more cells and is disqualified' );
+				gameManager.addTooltip( winner, '${player.name} has no more cellDatasets and is disqualified' );
 				return true;
 			}
 		}
@@ -388,7 +421,7 @@ class Game {
 						
 					}
 				} catch( e:GameException ) {
-					trace( e );
+					trace( 'turn $gameTurn ' + e );
 					gameSummaryManager.addError( player, e.message );
 				}
 			}

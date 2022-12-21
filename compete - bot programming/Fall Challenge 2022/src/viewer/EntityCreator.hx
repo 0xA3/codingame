@@ -53,6 +53,24 @@ class EntityCreator {
 		new Bitmap( tileLibrary["HUD"], hudLayer );
 	}
 
+	public function createRobot( playerId:Int ) {
+		final container = new Object();
+		final robotTileId = playerId == 0 ? "blue_robot" : "red_robot";
+		final tile = tileLibrary[robotTileId];
+		final robot = new Bitmap( tile, container );
+		robot.x = -tile.width / 2;
+		robot.y = -tile.height / 2;
+		final text = new Text( lato_bold_44, container );
+
+		final robotView:RobotView = {
+			container: container,
+			robot: robot,
+			text: text
+		}
+
+		return robotView;
+	}
+
 	function centerAnim( anim:Anim ) {
 		if( anim.frames.length == 0 ) throw 'Error: anim has no frames';
 		anim.x = -anim.frames[0].width / 2;

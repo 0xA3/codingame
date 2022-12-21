@@ -30,8 +30,12 @@ class GameDataProvider {
 	}
 
 	public function getCurrentFrameDataset() {
-		final players = gameManager.players.map( player -> new PlayerDto( player ));
-		final dataset = new FrameViewDataset( players, game.viewerEvents );
+		final cellDatasets = game.getCurrentCellDatasets();
+		var players = [];
+		for( i in 0...gameManager.players.length ) {
+			players[i] = new PlayerDto( gameManager.players[i], cellDatasets.playerCellsSums[i]);
+		}
+		final dataset = new FrameViewDataset( players, game.viewerEvents, cellDatasets.cellDatasets );
 
 		return dataset;
 	}

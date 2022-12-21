@@ -4,7 +4,6 @@ import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Object;
 import h2d.Text;
-import hxd.impl.TypedArray.Int16Array;
 import types.AnimData;
 import types.CellDto;
 import types.CoordDto;
@@ -15,6 +14,7 @@ import types.FrameData;
 import types.FrameInfo;
 import types.GlobalData;
 import types.Mutations;
+import types.PlayerInfo;
 import types.RecyclerDto;
 import types.SpeechBubble;
 import types.Tile;
@@ -378,9 +378,9 @@ class ViewModule {
 	function drawTile( tile:Tile, cell:CellDto ) {
 		tile.recycleFx.visible = false;
 		tile.overlay.visible = false;
-		tile.border.visible = (cell.durability > 0);
+		tile.border.visible = ( cell.durability > 0 );
 		tile.border.alpha = 1;
-		tile.sprite = new Bitmap( getTileTextureByOwnerIdx(cell.ownerIdx, getTileIdx( cell )));
+		tile.sprite = new Bitmap( getTileTextureByOwnerIdx( cell.ownerIdx, getTileIdx( cell )));
 		tile.sprite.alpha = 1;
 		tile.sprite.visible = cell.durability > 0;
 		// tile.sprite.pivot.set(0);

@@ -100,7 +100,7 @@ class GameManager {
 				return [];
 			} else {
 				// Game Loop ----------------------------------------------------------
-				// while( turn < 10 && !isGameEnd ) {
+				// while( turn < 2 && !isGameEnd ) {
 				while( turn <= maxTurns && !isGameEnd && getActivePlayers().length != 0 ) {
 					processTurn();
 				}
@@ -124,7 +124,7 @@ class GameManager {
 	}
 	
 	function processTurn() {
-		trace( 'turn $turn' );
+		// trace( 'turn $turn' );
 		swapInfoAndViewData();
 		isNewTurn = true;
 		outputsRead = false;
@@ -169,7 +169,7 @@ class GameManager {
 			final ai = ais[player];
 			ai.setInputs( player.getInputs() );
 			final command = ai.process();
-			trace( 'player ${player.index} command $command' );
+			// trace( 'player ${player.index} command $command' );
 			if( command != "" ) nbrOutputLines = 1;
 			
 			dumpView();
@@ -197,7 +197,7 @@ class GameManager {
 	 */
 	function swapInfoAndViewData() {
 		prevViewDataset = currentViewDataset;
-		currentViewDataset.clear();
+		currentViewDataset = FrameViewDataset.NO_FRAME_VIEW_DATASET;
 
 		prevGameSummary = currentGameSummary;
 		currentGameSummary.clear();
@@ -293,7 +293,7 @@ class GameManager {
 		#if sys
 		if( summary != "" ) Sys.println( '$summary' );
 		#else
-		trace( summary );
+		if( summary != "" ) trace( summary );
 		#end
 		
 		final total = currentGameSummary.length + summary.length;

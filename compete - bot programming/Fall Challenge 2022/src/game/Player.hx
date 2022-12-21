@@ -21,7 +21,7 @@ class Player extends AbstractMultiplayerPlayer {
 	public var money:Int;
 	public var warpCooldown:Int;
 	@:isVar public var units( default, never ) = new HashMap<Coord, Unit>();
-	@:isVar public var message( get, set ):String;
+	@:isVar public var message( get, set ) = "";
 	public var builds:Array<BuildAction> = [];
 	public var spawns:Array<SpawnAction> = [];
 	public var moves:Array<MoveAction> = [];
@@ -44,12 +44,12 @@ class Player extends AbstractMultiplayerPlayer {
 	function get_message() return message;
 
 	function set_message( message:String ) {
-		if( message != "" ) {
-			var trimmed = message.trim();
-			if( trimmed.length > 48 ) trimmed = trimmed.substr( 0, 46 ) + "...";
-			if( trimmed.length > 0 ) return this.message = trimmed;
-		}
-		return "";
+		if( message == "" ) return "";
+
+		var trimmed = message.trim();
+		if( trimmed.length > 48 ) trimmed = trimmed.substr( 0, 46 ) + "...";
+		if( trimmed.length > 0 ) this.message = trimmed;
+		return this.message;
 	}
 
 	public function reset() {
