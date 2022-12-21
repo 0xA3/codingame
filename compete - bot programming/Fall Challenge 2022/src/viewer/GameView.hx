@@ -115,8 +115,12 @@ class GameView {
 		this.gridWidth = gridWidth;
 		this.gridHeight = gridHeight;
 		
-		mapLayer.x = 200;
-		mapLayer.y = 200;
+		mapLayer.x = 180;
+		mapLayer.y = 220;
+		final tilesPerWidth = 1560 / TILE_SIZE;
+		
+		mapLayer.scaleX = mapLayer.scaleY = tilesPerWidth / gridWidth;
+		trace( tilesPerWidth, mapLayer.scaleX );
 		for( y in 0...gridHeight ) {
 			for( x in 0...gridWidth ) {
 				final tileContainer = new Object( tileLayer );

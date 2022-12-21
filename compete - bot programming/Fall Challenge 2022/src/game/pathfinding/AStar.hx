@@ -77,8 +77,8 @@ class AStar {
 
 			for( neighbor in neighbors ) {
 				// trace( 'neighbor $neighbor isHole ${grid.getCoord( neighbor ).isHole()}  restricted.contains ${restricted.contains( neighbor )}' );	
-				// if( !grid.getCoord( neighbor ).isHole() && !restricted.contains( neighbor )) {
-				if( !restricted.contains( neighbor )) {
+				if( !grid.getCoord( neighbor ).isHole() && !restricted.contains( neighbor )) {
+				// if( !restricted.contains( neighbor )) {
 					addToOpenList( visiting, visitingCoord, neighbor );
 				}
 			}

@@ -169,7 +169,7 @@ class GameManager {
 			final ai = ais[player];
 			ai.setInputs( player.getInputs() );
 			final command = ai.process();
-			if( player.index == 0 ) trace( '$turn player ${player.index} command $command' );
+			// if( player.index == 0 ) trace( '$turn player ${player.index} command $command' );
 			if( command != "" ) nbrOutputLines = 1;
 			
 			dumpView();

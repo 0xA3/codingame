@@ -41,8 +41,8 @@ class Grid {
 
 				if( cells.exists( coord )) continue;
 
-				// final durability = randomDurability( x, y, center );
-				final durability = 1;
+				final durability = randomDurability( x, y, center );
+				// final durability = 1;
 				final cell = new Cell( durability );
 				cells.set( coord, cell );
 				cellsNum++;

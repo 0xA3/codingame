@@ -81,6 +81,7 @@ class App extends hxd.App {
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
 			gameplayer.maxFrame = nextFrame;
+			gameplayer.next();
 		}
 	}
 
