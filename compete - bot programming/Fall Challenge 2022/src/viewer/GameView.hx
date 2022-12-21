@@ -2,6 +2,7 @@ package viewer;
 
 import Std.int;
 import game.Coord;
+import h2d.Anim;
 import h2d.Bitmap;
 import h2d.Graphics;
 import h2d.Object;
@@ -12,6 +13,7 @@ import viewer.App;
 import viewer.AssetConstants;
 import viewer.EntityCreator;
 
+using Lambda;
 using xa3.MathUtils;
 
 class GameView {
@@ -127,6 +129,7 @@ class GameView {
 				tileContainer.x = TILE_SIZE * x;
 				tileContainer.y = TILE_SIZE * y;
 
+				final spriteContainer = new Object( tileContainer );
 				final tileId = Std.random( AssetConstants.NEUTRAL_TILES.length );
 				final tileSprite = new Bitmap( tileLibrary[NEUTRAL_TILES[tileId]] );
 				tileSprite.width = TILE_SIZE;
@@ -136,20 +139,29 @@ class GameView {
 				overlay.width = TILE_SIZE;
 				overlay.height = TILE_SIZE;
 
-				tileContainer.addChild( tileSprite );
-				// tileContainer.addChild( overlay );
 				
 				final border = new Bitmap( tileLibrary[AssetConstants.BORDER] );
 				border.width = TILE_SIZE;
 				border.height = TILE_SIZE;
+
+				final crackTiles = viewer.AssetConstants.CRACKS.map( tileName -> tileLibrary[tileName] );
+				crackTiles.iter( tile -> tile.scaleToSize( TILE_SIZE, TILE_SIZE ));
+				final crackBitmaps = crackTiles.map( crackTile -> new Bitmap( crackTile ));
+				// crackBitmaps.iter( crackBitmap -> crackBitmap.visible = false );
+
+				spriteContainer.addChild( tileSprite );
+				// tileContainer.addChild( overlay );
 				// tileContainer.addChild( border );
+				crackBitmaps.iter( crackBitmap -> tileContainer.addChild( crackBitmap ));
 
 				tileViews.push({
 					container: tileContainer,
+					spriteContainer: spriteContainer,
 					tileId: tileId,
 					sprite: tileSprite,
 					overlay: overlay,
-					border: border
+					border: border,
+					cracks: crackBitmaps
 				});
 			}
 		}
@@ -192,10 +204,13 @@ class GameView {
 
 	function updateTile( cell:CellDataset, tile:TileView ) {
 		tile.border.visible = ( cell.durability > 0) ;
-		tile.container.removeChild( tile.sprite );
+		tile.spriteContainer.removeChild( tile.sprite );
 		tile.sprite = new Bitmap( getTileTextureByOwnerIdx( cell.ownerIdx, tile.tileId ));
 		tile.sprite.visible = cell.durability > 0;
-		tile.container.addChild( tile.sprite );
+		tile.spriteContainer.addChild( tile.sprite );
+		tile.cracks[0].visible = cell.durability >= 5 && cell.durability <= 6;
+		tile.cracks[1].visible = cell.durability >= 2 && cell.durability <= 4;
+		tile.cracks[2].visible = cell.durability == 1;
 	}
 
 	function updateRobot( cell:CellDataset, playerRobotCounts:Array<Int> ) {
