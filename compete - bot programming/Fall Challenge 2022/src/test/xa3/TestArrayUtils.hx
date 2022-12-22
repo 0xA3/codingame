@@ -25,6 +25,17 @@ class TestArrayUtils extends buddy.BuddySuite {
 				a.join(" ").should.be( "2 3 1 0" );
 			});
 			
+			it( "Test removeIf > 0", {
+				final a = [0, 1, 2, 3];
+				a.removeIf( v -> v > 0 );
+				a.join(",").should.be( "0" );
+			});
+
+			it( "Test removeIf % 2 == 0", {
+				final a = [0, 1, 2, 3];
+				a.removeIf( v -> v % 2 == 0 );
+				a.join(",").should.be( "1,3" );
+			});
 		} );
 	}
 }

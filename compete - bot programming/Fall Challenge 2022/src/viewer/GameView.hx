@@ -188,8 +188,8 @@ class GameView {
 			updateTile( currentFrameData.cellDatasets[i], tileViews[i] );
 			final cell = currentFrameData.cellDatasets[i];
 			if( cell.unitStrength > 0 ) updateRobot( cell, playerRobotCounts );
+			if( cell.ownerIdx == -1 && cell.excavator ) trace( '$frame cell ${cell.x}:${cell.y}\n$cell' );
 			if( cell.excavator ) updateRecycler( cell, playerRecyclerCounts );
-			
 		}
 
 		for( playerId in 0...currentFrameData.players.length ) {
@@ -227,7 +227,8 @@ class GameView {
 		robotView.container.visible = true;
 		robotView.container.x = cell.x * TILE_SIZE + HALF_TILE;
 		robotView.container.y = cell.y * TILE_SIZE + HALF_TILE;
-		robotView.text.text = '${cell.unitStrength}  ${cell.x}:${cell.y}';
+		// robotView.text.text = '${cell.unitStrength}  ${cell.x}:${cell.y}';
+		robotView.text.text = '${cell.unitStrength}';
 		playerRobotCounts[playerId]++;
 	}
 

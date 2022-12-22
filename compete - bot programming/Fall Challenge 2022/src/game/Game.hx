@@ -135,7 +135,7 @@ class Game {
 		return lines;
 	}
 
-	public function getCurrentCellDatasets() {
+	public function getCurrentCellData() {
 		final cellDatasets:Array<CellDataset> = [];
 		var playerCellsSums = [for( _ in players ) 0];
 		for( y in 0...grid.height ) {
@@ -223,10 +223,50 @@ class Game {
 					excavatedByPlayer[e.getOwnerIdx()].set( coord, true );
 				}
 			});
+			
 			if( nbExcavatedByRecycler > 0 ) {
 				launchMatterCollectEvent( e.coord, nbExcavatedByRecycler * Config.RECYCLER_INCOME, e.getOwnerIdx() );
 			}
 		}
+
+		players.iter( player -> {
+			final coords = excavatedByPlayer[player.index];
+			final income = [for( coord in coords.keys()) 1].sum() * Config.RECYCLER_INCOME;
+			player.money += income;
+		});
+
+		final destroyedCells = new HashMap<Coord, Bool>();
+		players.iter( p -> {
+			final coords = excavatedByPlayer[p.index];
+			for( coord in coords.keys() ) {
+				final cell = grid.getCoord( coord );
+				final broken = cell.damage();
+				launchCellDamageEvent( cell, coord );
+				if( broken ) destroyedCells.set( coord, true );
+
+				resetEarlyTurnCounter();
+			}
+		});
+
+		animation.wait( Animation.THIRD );
+		animation.catchUp();
+
+		recyclers.filter( e -> destroyedCells.exists( e.coord ))
+		.iter( r -> launchRecyclerFallEvent( r ));
+
+		recyclers.removeIf( e -> destroyedCells.exists( e.coord ) );
+
+		players.iter( p -> {
+			for( coord in destroyedCells.keys()) {
+				final u = p.getUnitAt( coord );
+				if( u.availableCount > 0 ) {
+					p.units.remove( coord );
+					launchUnitFallEvent( coord, u, p );
+				}
+			};
+		});
+
+		// no return value needed
 	}
 
 	function launchUnitFallEvent( coord:Coord, u:Unit, player:Player ) {
@@ -262,7 +302,7 @@ class Game {
 				try {
 					if( !grid.isOwner( buildTarget, player )) {
 						throw new GameException( 'tried to build a recycler at (${buildTarget.x}, ${buildTarget.y}), which is not owned by the player' );
-					} else if( getRecyclerAt( buildTarget ) == Recycler.NO_RECYCLER ) {
+					} else if( getRecyclerAt( buildTarget ) != Recycler.NO_RECYCLER ) {
 						throw new GameException( 'tried to build a recycler at (${buildTarget.x}, ${buildTarget.y}), into another recycler' );
 					} else if( unitExistsAt( buildTarget )) {
 						throw new GameException( 'tried to build a recycler at (${buildTarget.x}, ${buildTarget.y}), where units are already present' );

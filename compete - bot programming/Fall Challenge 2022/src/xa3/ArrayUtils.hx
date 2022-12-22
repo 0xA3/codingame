@@ -32,21 +32,21 @@ class ArrayUtils {
 	/**
 	 * returns the first element in an array that satisfies the provided testing function
 	 */
-	 extern public static inline function find<T>( it:Array<T>, f:(item:T) -> Bool ) {
+	 extern public static inline function find<T>( a:Array<T>, f:(item:T) -> Bool ) {
 		var index = -1;
-		for( x in 0...it.length ) if( f( it[x] )) {
+		for( x in 0...a.length ) if( f( a[x] )) {
 			index = x;
 			break;
 		}
-		return it[index];
+		return a[index];
 	}
 	
 	/**
 	 * returns the index of the first element in an array that satisfies the provided testing function
 	 */
-	 extern public static inline function findIndex<T>( it:Array<T>, f:(item:T) -> Bool ) {
+	 extern public static inline function findIndex<T>( a:Array<T>, f:(item:T) -> Bool ) {
 		var index = -1;
-		for( x in 0...it.length ) if( f( it[x] )) {
+		for( x in 0...a.length ) if( f( a[x] )) {
 			index = x;
 			break;
 		}
@@ -192,6 +192,12 @@ class ArrayUtils {
 		var m = 0.0;
 		for( v in a ) m = Math.min( m, v );
 		return m;
+	}
+
+	extern public static inline function removeIf<T>( a:Array<T>, f:(item:T) -> Bool ) {
+		for( i in -a.length + 1...1 ) {
+			if( f( a[-i] )) a.remove( a[-i] );
+		}
 	}
 
 	extern public static inline function repeatArray<T>( v:T, n:Int ) {

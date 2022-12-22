@@ -24,8 +24,8 @@ class MainGame {
 		final args = Sys.args();
 		seed = args[0] == null ? 0 : parseInt( args[0] );
 		#else
-		// seed = 1;
-		seed = Std.random( 10000 );
+		seed = 0;
+		// seed = Std.random( 10000 );
 		#end
 		hxd.Res.initEmbed();
 

@@ -30,12 +30,12 @@ class GameDataProvider {
 	}
 
 	public function getCurrentFrameDataset() {
-		final cellDatasets = game.getCurrentCellDatasets();
+		final cellSumsAndCellDatasets = game.getCurrentCellData();
 		var players = [];
 		for( i in 0...gameManager.players.length ) {
-			players[i] = new PlayerDto( gameManager.players[i], cellDatasets.playerCellsSums[i]);
+			players[i] = new PlayerDto( gameManager.players[i], cellSumsAndCellDatasets.playerCellsSums[i]);
 		}
-		final dataset = new FrameViewDataset( players, game.viewerEvents, cellDatasets.cellDatasets );
+		final dataset = new FrameViewDataset( players, game.viewerEvents, cellSumsAndCellDatasets.cellDatasets );
 
 		return dataset;
 	}

@@ -23,14 +23,6 @@ class TestPathFinder extends buddy.BuddySuite {
 				path[1].x.should.be( 1 );
 				path[1].y.should.be( 0 );
 			 });
-
-			@include it( "path 0,0 to 2,0", {
-				final grid = new Grid( new MTRandom( 0 ), [], 8, 2 );
-				final origin = new Coord( 7, 0 );
-				final target = new Coord( 0, 1 );
-				final pfr = pathFinder.setGrid( grid ).restrict( [] ).from( origin ).to( target ).findPath();
-				final path = pfr.path;
-			 });
 		});
 	}
 }
