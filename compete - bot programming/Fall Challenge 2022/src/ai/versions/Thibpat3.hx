@@ -125,7 +125,7 @@ class Thibpat3 implements IAi {
 						if( leftTile.recycler ) totalScrap -= 100;
 					}
 					if( tile.y < height - 1 ) {
-						var lowerTile = tiles[pos2Index( tile.x, tile.y - 1 )];
+						var lowerTile = tiles[pos2Index( tile.x, tile.y + 1 )];
 						totalScrap += MathUtils.min( lowerTile.scrapAmount, maxRecycler );
 						if( lowerTile.recycler ) totalScrap -= 100;
 					}
