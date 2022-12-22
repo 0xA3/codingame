@@ -40,6 +40,7 @@ class Thibpat3 implements IAi {
 	var oppMatter = 0;
 
 	var turn = 0;
+	final endOfEarlyGame = 6;
 
 	public function new() { }
 	
@@ -52,12 +53,9 @@ class Thibpat3 implements IAi {
 		myMatter = parseInt( inputs[0] );
 		oppMatter = parseInt( inputs[1] );
 
-		final map = [];
-
 		resetTiles();
 		var i = 1;
 		for( y in 0...height ) {
-			map[y] = [];
 			for( x in 0...width ) {
 				final inputs = inputLines[i++].split(" ");
 				final tile:Tile = {
@@ -72,7 +70,6 @@ class Thibpat3 implements IAi {
 					inRangeOfRecycler: parseInt( inputs[6] ) == 1
 				}
 				tiles.push( tile );
-				map[y].push( tile );
 
 				if( tile.owner == ME ) {
 					myTiles.push( tile );
@@ -110,14 +107,36 @@ class Thibpat3 implements IAi {
 	public function process() {
 		actions.clear();
 
-		if( turn < 10 && myMatter >= 10 ) {
+		if( turn < endOfEarlyGame && myMatter >= 10 ) {
 			final recyclerTiles = myTiles.map( tile -> {
 				var recyclerScore = 0;
 				if( tile.canBuild ) {
-					recyclerScore = 1;
+					var totalScrap = 0;
 					final maxRecycler = tile.scrapAmount;
-					
+					totalScrap += maxRecycler;
+					if( tile.y > 0 ) {
+						var upperTile = tiles[pos2Index( tile.x, tile.y - 1 )];
+						totalScrap += MathUtils.min( upperTile.scrapAmount, maxRecycler );
+						if( upperTile.recycler ) totalScrap -= 100;
+					}
+					if( tile.x > 0 ) {
+						var leftTile = tiles[pos2Index( tile.x - 1, tile.y )];
+						totalScrap += MathUtils.min( leftTile.scrapAmount, maxRecycler );
+						if( leftTile.recycler ) totalScrap -= 100;
+					}
+					if( tile.y < height - 1 ) {
+						var lowerTile = tiles[pos2Index( tile.x, tile.y - 1 )];
+						totalScrap += MathUtils.min( lowerTile.scrapAmount, maxRecycler );
+						if( lowerTile.recycler ) totalScrap -= 100;
+					}
+					if( tile.x < width - 1 ) {
+						var rightTile = tiles[pos2Index( tile.x + 1, tile.y )];
+						totalScrap += MathUtils.min( rightTile.scrapAmount, maxRecycler );
+						if( rightTile.recycler ) totalScrap -= 100;
+					}
+					recyclerScore = totalScrap;
 				}
+				// printErr( '$turn tile ${tile.x}:${tile.y}  recyclerScore $recyclerScore' );
 				return { tile: tile, recyclerScore: recyclerScore }
 			});
 			
@@ -144,10 +163,11 @@ class Thibpat3 implements IAi {
 				return 0;
 			});
 
-			final spawnTile = tilesWithScore.first().tile;
-			final amount = 1;
-			actions.push( 'SPAWN $amount ${spawnTile.x} ${spawnTile.y}' );
-			myMatter -= 10;
+			while( turn >= endOfEarlyGame && spawnTiles.length > 0 && myMatter >= 10 ) {
+				final spawnTile = tilesWithScore.shift().tile;
+				actions.push( 'SPAWN 1 ${spawnTile.x} ${spawnTile.y}' );
+				myMatter -= 10;
+			}
 		}
 
 		for( tile in myUnits ) {
@@ -163,7 +183,6 @@ class Thibpat3 implements IAi {
 		return actions.length == 0 ? "WAIT" : actions.join( ";" );
 	}
 
-	function distance( a:Tile, b:Tile ) {
-		return abs( a.x - b.x ) + ( a.y - b.y );
-	}
+	function distance( a:Tile, b:Tile ) return abs( a.x - b.x ) + abs( a.y - b.y );
+	function pos2Index( x:Int, y:Int ) return y * width + x;
 }

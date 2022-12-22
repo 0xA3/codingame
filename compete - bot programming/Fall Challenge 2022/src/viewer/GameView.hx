@@ -227,8 +227,8 @@ class GameView {
 		robotView.container.visible = true;
 		robotView.container.x = cell.x * TILE_SIZE + HALF_TILE;
 		robotView.container.y = cell.y * TILE_SIZE + HALF_TILE;
-		// robotView.text.text = '${cell.unitStrength}  ${cell.x}:${cell.y}';
-		robotView.text.text = '${cell.unitStrength}';
+		robotView.text.text = '${cell.unitStrength}  ${cell.x}:${cell.y}';
+		// robotView.text.text = '${cell.unitStrength}';
 		playerRobotCounts[playerId]++;
 	}
 

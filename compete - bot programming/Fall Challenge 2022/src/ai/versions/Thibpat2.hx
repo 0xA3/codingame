@@ -81,7 +81,7 @@ class Thibpat2 implements IAi {
 		}
 	}
 	
-	function setGlobalInputs( inputLine:String ) {
+	public function setGlobalInputs( inputLine:String ) {
 		final inputs = inputLine.split( ' ' );
 		width = parseInt( inputs[0] );
 		height = parseInt( inputs[1] );
@@ -137,6 +137,6 @@ class Thibpat2 implements IAi {
 	}
 
 	function distance( a:Tile, b:Tile ) {
-		return abs( a.x - b.x ) + ( a.y - b.y );
+		return abs( a.x - b.x ) + abs( a.y - b.y );
 	}
 }

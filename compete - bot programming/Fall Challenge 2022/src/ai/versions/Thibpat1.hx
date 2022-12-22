@@ -81,7 +81,7 @@ class Thibpat1 implements IAi {
 		}
 	}
 	
-	function setGlobalInputs( inputLine:String ) {
+	public function setGlobalInputs( inputLine:String ) {
 		final inputs = inputLine.split( ' ' );
 		width = parseInt( inputs[0] );
 		height = parseInt( inputs[1] );
@@ -119,7 +119,7 @@ class Thibpat1 implements IAi {
 			
 			final spawnTile = tilesWithScore.first().tile;
 			final amount = 1;
-			actions.push( 'SPAWN $amount ${spawnTile.x} ${spawnTile.y}' );
+			// actions.push( 'SPAWN $amount ${spawnTile.x} ${spawnTile.y}' );
 			myMatter -= 10;
 		}
 
@@ -136,6 +136,6 @@ class Thibpat1 implements IAi {
 	}
 
 	function distance( a:Tile, b:Tile ) {
-		return abs( a.x - b.x ) + ( a.y - b.y );
+		return abs( a.x - b.x ) + abs( a.y - b.y );
 	}
 }

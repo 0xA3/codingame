@@ -126,7 +126,7 @@ class Gameplayer {
 				bEnd.activate();
 			}
 		} else if( frame > currentFrame ) {
-			if( currentFrame == 0 ) {
+			if( currentFrame < 1 ) {
 				bRewind.activate();
 				bPrev.activate();
 			}
