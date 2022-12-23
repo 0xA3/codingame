@@ -64,7 +64,7 @@ class App extends hxd.App {
 
 	function onEvent( e:Event ) {
 		switch( e.kind ) {
-			case EKeyDown: trace('keyCode: ${e.keyCode}');
+			case EKeyDown: //trace('keyCode: ${e.keyCode}');
 				switch e.keyCode {
 					case 32: gameplayer.playPause();
 					case 37: gameplayer.prev();

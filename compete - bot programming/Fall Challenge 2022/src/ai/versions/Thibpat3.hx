@@ -4,8 +4,6 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.IAi;
-import game.Adjacency;
-import game.Coord;
 import game.Tile;
 import xa3.MathUtils.abs;
 import xa3.MathUtils.max;
@@ -174,6 +172,7 @@ class Thibpat3 implements IAi {
 			if( targetTiles.length > 0 ) {
 				targetTiles.sort(( a, b ) -> distance( tile, a ) - distance( tile, b ));
 				final target = targetTiles.shift();
+				// printErr( 'units on ${tile.x}:${tile.y} target $target' );
 				final amount = max( tile.units - 1, 1 );
 				actions.push( 'MOVE $amount ${tile.x} ${tile.y} ${target.x} ${target.y}' );
 			}
