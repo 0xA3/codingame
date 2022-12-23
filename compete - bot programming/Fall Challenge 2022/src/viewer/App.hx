@@ -3,6 +3,7 @@ package viewer;
 import gameengine.core.GameManager;
 import gameplayer.Gameplayer;
 import h2d.Object;
+import hxd.Event;
 import hxd.Window;
 import view.FrameViewDataset;
 import view.GlobalViewDataset;
@@ -56,8 +57,25 @@ class App extends hxd.App {
 		gameplayer.onChange = goToFrame;
 
 		window.addResizeEvent( onResize );
+		window.addEventTarget( onEvent );
 		onResize();
 		onInitComplete();
+	}
+
+	function onEvent( e:Event ) {
+		switch( e.kind ) {
+			case EKeyDown: trace('keyCode: ${e.keyCode}');
+				switch e.keyCode {
+					case 32: gameplayer.playPause();
+					case 37: gameplayer.prev();
+					case 38: gameplayer.rewind();
+					case 39: gameplayer.next();
+					case 40: gameplayer.end();
+					default: // no-op
+				}
+			// case EKeyUp: trace('UP keyCode: ${e.keyCode}');
+			default: // no-op
+		}
 	}
 
 	override public function onResize() {
