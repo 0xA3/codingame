@@ -368,11 +368,13 @@ class Game {
 		if( earlyFinishCounter <= 0 ) {
 			final winner = getPlayerWithMostOwnedCells();
 			gameManager.addTooltip( winner, 'Field stable for ${Config.EARLY_FINISH_TURNS} turns. ${winner.name} wins!');
+			trace( 'checkGameOver earlyFinishCounter ${earlyFinishCounter}' );
 			return true;
 		}
 
 		for( player in players ) {
 			if( getOwnedCells( player ) == 0 ) {
+				trace( 'checkGameOver getOwnedCells of player ${player.name} == 0' );
 				final winner = getPlayerWithMostOwnedCells();
 				gameManager.addTooltip( winner, '${player.name} has no more cellDatasets and is disqualified' );
 				return true;

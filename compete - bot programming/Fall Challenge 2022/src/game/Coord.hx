@@ -57,6 +57,16 @@ class Coord {
 		return abs( x - this.x ) + abs( y - this.y );
 	}
 
+	public function distTo( x:Int, y:Int ) {
+		return Math.sqrt( dist2To( x, y ));
+	}
+	
+	public function dist2To( x:Int, y:Int ) {
+		final dx = this.x - x;
+		final dy = this.y - y;
+		return ( dx * dx ) + ( dy * dy );
+	}
+
 	public static function compute<V>( map:HashMap<Coord, V>, key:Coord, remappingFunction:( k:Coord, v:V )->Null<V> ) {
 		final result = try {
 			remappingFunction( key, map[key] );

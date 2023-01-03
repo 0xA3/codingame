@@ -80,7 +80,7 @@ class Wait implements IAi {
 		}
 	}
 	
-	function setGlobalInputs( inputLine:String ) {
+	public function setGlobalInputs( inputLine:String ) {
 		final inputs = inputLine.split( ' ' );
 		width = parseInt( inputs[0] );
 		height = parseInt( inputs[1] );

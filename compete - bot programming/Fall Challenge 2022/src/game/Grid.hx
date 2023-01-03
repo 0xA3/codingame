@@ -91,6 +91,7 @@ class Grid {
 			} );
 
 			spawns.push( unitSpawns );
+			// spawns.push( [spawnPoints[playerIdx]] ); // test with only one robot
 		}
 
 		final allSpawns = spawns.flatten();
