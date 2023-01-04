@@ -97,8 +97,10 @@ class Game {
 		final coordsInRangeOfRecyclersArray = recyclers
 		.flatMap( recycler -> getWithinRange( recycler.coord ))
 		.filter( coord -> !grid.getCoord( coord ).isHole() );
-
-		final coordsInRangeOfRecyclers = [for( coord in coordsInRangeOfRecyclersArray ) coord => true];
+		
+		final coordsInRangeOfRecyclers = new HashMap<Coord, Bool>();
+		for( coord in coordsInRangeOfRecyclersArray ) coordsInRangeOfRecyclers.set( coord, true );
+		
 		final lines:Array<String> = [];
 		final other = players.filter( p -> p != player ).first();
 		lines.push( Referee.join( [player.money, other.money] ));
@@ -465,7 +467,7 @@ class Game {
 						
 					}
 				} catch( e:GameException ) {
-					trace( 'turn $gameTurn ' + e );
+					trace( 'turn $gameTurn ${player.name} $e' );
 					gameSummaryManager.addError( player, e.message );
 				}
 			}

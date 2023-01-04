@@ -1,5 +1,4 @@
 -lib heaps
-# -lib hldx
 -lib tink_core
 -lib xa3.format
 -cp ../../codingame_extension/
@@ -11,4 +10,10 @@
 -D windowSize=960x587
 # -D windowSize=1920x1127
 -main game.MainGame
+
+# js
 --js bin/app.js
+
+# hl
+# -lib hldx
+# --hl bin/app.hl

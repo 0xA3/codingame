@@ -1,6 +1,6 @@
 package ai.versions;
 
-#if localGame
+#if ( localGame && js )
 import game.LocalCodinGame.printErr;
 import game.LocalCodinGame.readline;
 #else
@@ -220,25 +220,6 @@ class Ai1 implements IAi {
 				}
 			}
 			// if( !foundBuildTile ) trace( 'no build tile found ' );
-
-			var minDistance = width + height;
-			var closestCoord = NO_COORD;
-			for( coord => tile in myTiles ) {
-				if( tile.canSpawn ) {
-					for( oppUnit in oppUnits ) {
-						final distance = coord.manhattanToCoord( oppUnit );
-						if( distance < minDistance ) {
-							minDistance = distance;
-							closestCoord = coord;
-							if( minDistance == 1 ) break;
-						}
-					}
-				}
-			}
-			while( myMatter >= 10 ) {
-				actions.push( 'SPAWN 1 ${closestCoord.x} ${closestCoord.y}' );
-				myMatter -= 10;
-			}
 		}
 		
 
@@ -288,7 +269,7 @@ class Ai1 implements IAi {
 		final targetedCoords:Map<Coord, Bool> = [];
 		for( pair in unitTargetPairs ) {
 			if( freeUnits.exists( pair.unit ) && !targetedCoords.exists( pair.targetCoord )) {
-				actions.push( 'MOVE 1 ${pair.unit.x} ${pair.unit.y} ${pair.targetCoord.x} ${pair.targetCoord.y}' );	
+				actions.push( 'MOVE 1 ${pair.unit.x} ${pair.unit.y} ${pair.targetCoord.x} ${pair.targetCoord.y}' );
 				freeUnits.remove( pair.unit );
 				targetedCoords.set( pair.targetCoord, true );
 			}
