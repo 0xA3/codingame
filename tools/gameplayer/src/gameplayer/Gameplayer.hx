@@ -149,7 +149,7 @@ class Gameplayer {
 
 	public function prev( ?e:hxd.Event ) {
 		pause();
-		final frame = currentFrame % 1 < 0.1 ? Math.floor( currentFrame - 1 ) : Math.floor( currentFrame );
+		final frame = currentFrame % 1 < 0.1 ? Math.max( Math.floor( currentFrame - 1 ), 0 ) : Math.floor( currentFrame );
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;

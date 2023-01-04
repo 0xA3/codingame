@@ -139,7 +139,6 @@ class GameView {
 				overlay.width = TILE_SIZE;
 				overlay.height = TILE_SIZE;
 
-				
 				final border = new Bitmap( tileLibrary[AssetConstants.BORDER] );
 				border.width = TILE_SIZE;
 				border.height = TILE_SIZE;
@@ -153,6 +152,9 @@ class GameView {
 				// tileContainer.addChild( overlay );
 				// tileContainer.addChild( border );
 				crackBitmaps.iter( crackBitmap -> tileContainer.addChild( crackBitmap ));
+
+				final tileText = new Text( entityCreator.lato_bold_24, tileContainer );
+				tileText.text = '$x:$y';
 
 				tileViews.push({
 					container: tileContainer,

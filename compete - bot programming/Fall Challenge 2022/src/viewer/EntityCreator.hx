@@ -17,6 +17,7 @@ class EntityCreator {
 	public final tileLibrary:Map<String, Tile> = [];
 
 	static inline var TEXT_HEIGHT = 54;
+	public final lato_bold_24 = hxd.Res.lato_bold_24.toFont();
 	public final lato_bold_44 = hxd.Res.lato_bold_44.toFont();
 	public final lato_bold_54 = hxd.Res.lato_bold_54.toFont();
 	public final lato_bold_64 = hxd.Res.lato_bold_64.toFont();

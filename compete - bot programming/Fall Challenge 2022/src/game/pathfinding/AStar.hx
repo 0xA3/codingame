@@ -76,8 +76,9 @@ class AStar {
 			});
 
 			for( neighbor in neighbors ) {
-				// trace( 'neighbor $neighbor isHole ${grid.getCoord( neighbor ).isHole()}  restricted.contains ${restricted.contains( neighbor )}' );	
-				if( !grid.getCoord( neighbor ).isHole() && !restricted.contains( neighbor )) {
+				final restrictedContainsNeighbor = containsCoord( restricted, neighbor );
+				// if( from.x == 5 && from.y == 3 ) trace( 'neighbor $neighbor isHole ${grid.getCoord( neighbor ).isHole()}  restricted.contains ${restrictedContainsNeighbor}' );	
+				if( !grid.getCoord( neighbor ).isHole() && !restrictedContainsNeighbor ) {
 				// if( !restricted.contains( neighbor )) {
 					addToOpenList( visiting, visitingCoord, neighbor );
 				}
@@ -95,6 +96,11 @@ class AStar {
 		}
 
 		return PathItem.NO_PATH_ITEM; // not found!
+	}
+
+	function containsCoord( a:Array<Coord>, coord:Coord ) {
+		for( c in a ) if( c.equals( coord )) return true;
+		return false;
 	}
 
 	function addToOpenList( visiting:PathItem, fromCoord:Coord, toCoord:Coord ) {

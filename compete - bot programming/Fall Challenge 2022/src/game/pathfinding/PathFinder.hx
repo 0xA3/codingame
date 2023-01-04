@@ -37,7 +37,6 @@ class PathFinder {
 
 	public function findPath() {
 		if( start == Coord.NO_COORD || end == Coord.NO_COORD ) return PathFinderResult.NO_PATH;
-
 		final a = new AStar( grid, start, end, weightFunction, restricted );
 		var pathItems = a.find();
 		final pfr = new PathFinderResult();

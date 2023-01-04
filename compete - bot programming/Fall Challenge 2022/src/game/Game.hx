@@ -434,8 +434,8 @@ class Game {
 
 	function doMove() {
 		final restricted:Array<Coord> = [for( coord in grid.cells.keys() ) if( getRecyclerAt( coord ) != Recycler.NO_RECYCLER ) coord];
-		
 		final moveStartTime = animation.frameTime;
+		
 		for( player in gameManager.getActivePlayers()) {
 			animation.frameTime = moveStartTime;
 			final actualMoves = new HashMap<CoordTuple, Int>();
@@ -459,7 +459,6 @@ class Game {
 							final step = wholePath[1];
 							originUnit.availableCount -= move.amount;
 							player.placeUnits( step, move.amount );
-
 							final key = new CoordTuple( origin, step );
 							CoordTuple.compute( actualMoves, key, ( k, v:Null<Int> ) -> ( v == null ? 0 : v ) + move.amount );
 						}
