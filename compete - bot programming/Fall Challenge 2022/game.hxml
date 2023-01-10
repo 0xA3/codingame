@@ -11,9 +11,9 @@
 # -D windowSize=1920x1127
 -main game.MainGame
 
-# js
---js bin/app.js
-
 # hl
-# -lib hldx
-# --hl bin/app.hl
+-lib hldx
+--hl bin/app.hl
+
+# js
+# --js bin/app.js
