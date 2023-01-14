@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../incoming/FallChallenge2022-KeepOffTheGrass"
+		},
+		{
+			"path": "../../incoming/codingame-game-engine"
+		}
+	],
+	"settings": {
+		"liveServer.settings.root": "/bin/",
+		"liveServer.settings.AdvanceCustomBrowserCmdLine": "C:/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe",
+		"liveServer.settings.multiRootWorkspaceName": "Fall Challenge 2022"
+	}
+}
