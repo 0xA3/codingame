@@ -1,13 +1,13 @@
 class Trie {
 	
-	public static final ROOT = new TrieNode( -1 );
+	public final root = new TrieNode( -1 );
 
 	public var count = 0;
 	public function new() { }
 
 	// inserts a number into the trie.
 	public function insert( digits:Array<Int> ) {
-		var node = ROOT; // we start at the ROOT
+		var node = root; // we start at the root
 
 		// for every digit in the number
 		for( i in 0...digits.length ) {
@@ -30,7 +30,7 @@ class Trie {
 
 	// check if it contains a whole number
 	public function contains( digits:Array<Int> ) {
-		var node = ROOT;
+		var node = root;
 
 		// for every digit in the number
 		for( i in 0...digits.length ) {
@@ -51,7 +51,7 @@ class Trie {
 
 	// returns every number with given prefix
 	public function find( prefix:Array<Int> ) {
-		var node = ROOT;
+		var node = root;
 		
 		final output = [];
 		// for every digit in the prefix
@@ -82,7 +82,7 @@ class Trie {
 	public function remove( digits:Array<Int> ) {
 		if( digits.length == 0 ) return;
 		// call remove word on root node
-		removeNumber( ROOT, digits );
+		removeNumber( root, digits );
 	}
 
 	// recursively finds and removes a word

@@ -1,7 +1,5 @@
 package test;
 
-import Std.parseInt;
-
 using StringTools;
 using buddy.Should;
 
@@ -11,8 +9,8 @@ class TestProcess extends buddy.BuddySuite{
 	public function new() {
 
 		describe( "Test process", {
-			@include it( "A telephone number", { Main.process( aTelephoneNumber ).should.be( 10 ); });
-			@include it( "Numbers with a different base", { Main.process( numbersWithADifferentBase ).should.be( 20 ); });
+			it( "A telephone number", { Main.process( aTelephoneNumber ).should.be( 10 ); });
+			it( "Numbers with a different base", { Main.process( numbersWithADifferentBase ).should.be( 20 ); });
 			it( "Number included in another", { Main.process( numberIncludedInAnother ).should.be( 10 ); });
 			it( "Numbers with a common part", { Main.process( numbersWithACommonPart ).should.be( 28 ); });
 			it( "Long list of numbers", { Main.process( LongListOfNumbers ).should.be( 45512 );	});
