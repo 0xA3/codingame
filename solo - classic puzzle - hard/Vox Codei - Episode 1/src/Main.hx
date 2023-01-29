@@ -1,8 +1,8 @@
-import contexts.CreateBoard;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
+import contexts.CreateBoard;
 
 using Lambda;
 using StringTools;

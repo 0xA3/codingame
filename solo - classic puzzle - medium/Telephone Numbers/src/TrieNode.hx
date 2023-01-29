@@ -19,7 +19,7 @@ class TrieNode {
 		final output = [];
 		
 		var node = this;
-		while( node.key != -1 ) {
+		while( node.key != Trie.ROOT_KEY ) {
 			output.unshift( node.key );
 			node = node.parent;
 		}

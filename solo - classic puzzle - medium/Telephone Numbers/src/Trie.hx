@@ -1,6 +1,8 @@
 class Trie {
 	
-	public final root = new TrieNode( -1 );
+	public static final ROOT_KEY = -1;
+
+	public final root = new TrieNode( ROOT_KEY );
 
 	public var count = 0;
 	public function new() { }
