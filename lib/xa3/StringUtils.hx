@@ -114,7 +114,10 @@ class StringUtils {
 
 	extern public static inline function repeat( s:String, n:Int ) {
 		if( n == 0 ) return "";
-		return [for( _ in 0...n ) s].join( "" );
+		
+		final buf = new StringBuf();
+    	for ( _ in 0...n ) buf.add( s );
+    	return buf.toString();
 	}
 
 	extern public static inline function remove( s:String, from:Int, to:Int ) {
@@ -124,23 +127,25 @@ class StringUtils {
 	}
 
 	extern public static inline function reverse( s:String ) {
-		return [for( i in 0...s.length ) s.charAt( s.length - 1 - i )].join( "" );
+		final buf = new StringBuf();
+		for( i in 0...s.length ) buf.add( s.charAt( s.length - 1 - i ));
+		return buf.toString();
 	}
 
 	public static function caesarShift( s:String, v:Int ) {
-		var s2 = "";
+		final buf = new StringBuf();
 		for( i in 0...s.length ) {
 			final char = s.charAt( i );
 			final code = char.charCodeAt( 0 );
-			if( isLowercase( char )) s2 += String.fromCharCode( ( code - "a".code + v + 26 ) % 26 + "a".code );
-			else if( isUppercase( char )) s2 += String.fromCharCode( ( code - "A".code + v + 26 ) % 26 + "A".code );
-			else s2 += s;
+			if( isLowercase( char )) buf.add( String.fromCharCode( ( code - "a".code + v + 26 ) % 26 + "a".code ));
+			else if( isUppercase( char )) buf.add( String.fromCharCode( ( code - "A".code + v + 26 ) % 26 + "A".code ));
+			else buf.add( s );
 		}
-		return s2;
+		return buf.toString();
 	}
 
 	public static function splitUpSameChars( s:String ) {
-		final parts = [];
+		final buf = new StringBuf();
 		
 		var count = 1;
 		var lastChar = s.charAt( 0 );
@@ -150,14 +155,14 @@ class StringUtils {
 			if( char == lastChar ) {
 				count++;
 			} else {
-				parts.push( repeat( lastChar, count  ));
+				buf.add( repeat( lastChar, count  ));
 				count = 1;
 				lastChar = char;
 			}
 		}
-		parts.push( repeat( lastChar, count  ));
+		buf.add( repeat( lastChar, count  ));
 		
-		return parts;
+		return buf.toString();
 	}
 
 	public static function strip( s:String, char:String ) {
