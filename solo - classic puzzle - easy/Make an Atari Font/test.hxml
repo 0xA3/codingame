@@ -1,0 +1,7 @@
+-lib buddy
+-lib littleBigInt
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main test.Tests
+--interp

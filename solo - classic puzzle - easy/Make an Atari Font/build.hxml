@@ -1,0 +1,8 @@
+-lib littleBigInt
+-cp ../../codingame_extension/
+-cp src
+--dce full
+-D analyzer-optimize
+-D js-es=6
+-main Main
+--js dest/app.js
