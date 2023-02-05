@@ -1,4 +1,3 @@
--lib littleBigInt
 -cp ../../codingame_extension/
 -cp src
 --dce full
@@ -6,3 +5,22 @@
 -D js-es=6
 -main Main
 --js dest/app.js
+
+--next
+
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+--dce full
+-main Main
+--python dest/app.py
+
+--next
+
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D lua-vanilla
+--dce full
+-main Main
+--lua dest/app.lua

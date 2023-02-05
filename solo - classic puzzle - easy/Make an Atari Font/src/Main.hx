@@ -3,6 +3,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 
 using StringTools;
+using xa3.NumberConvert;
 using xa3.StringUtils;
 
 final letters = [
@@ -45,9 +46,8 @@ function main() {
 function process( aWord:String ) {
 
 	final chars = aWord.split( "" );
-	final bins = [for( char in chars ) BigInt.fromHexString( letters[char].toLowerCase() ).toBinaryString()];
-	final bins64 = bins.map( bin -> "0".repeat( 64 - bin.length ) + bin );
-	final xs64 = bins64.map( bin -> bin.replace( "0", " " ).replace( "1", "X" ));
+	final bin64s = chars.map( char -> toBin64( letters[char] ));
+	final xs64 = bin64s.map( bin -> bin.replace( "0", " " ).replace( "1", "X" ));
 	final linedChars = xs64.map( bin -> divide( bin, 8 ));
 
 	final lines = [];
@@ -58,6 +58,18 @@ function process( aWord:String ) {
 	return lines.join( "\n" );
 }
 
+function toBin64( s:String ) {
+	final digits = s.split( "" );
+	final bin = digits.map( digit -> {
+		final bin = digit.fromHex().toBin();
+		final bin4 = fillToLength( bin, 4 ) ;
+		return bin4;
+	}).join( "" );
+	
+	final bin64 = fillToLength( bin, 64 );
+	return bin64;
+}
+
 function divide( s:String, length:Int ) {
 	final charLines = [];
 	var start = 0;
@@ -65,5 +77,10 @@ function divide( s:String, length:Int ) {
 		charLines.push( s.substr( start, length ));
 		start += length;
 	}
+	
 	return charLines;
+}
+
+function fillToLength( s:String, length:Int ) {
+	return "0".repeat( length - s.length ) + s;
 }
