@@ -19,41 +19,36 @@ function main() {
 
 function process( height:Int, width:Int, numberOfShelves:Int) {
 	
+	final centerPiece = width % 2 == 0 ? "" : "^";
+	final halfWidth = int( width / 2 );
+	final top = "/".repeat( halfWidth ) + centerPiece + "\\".repeat( halfWidth );
+	final space = "|" + " ".repeat( width - 2 ) + "|";
+	final shelf = "|" + "_".repeat( width - 2 ) + "|";
+	
 	final lines = [];
 
 	final distance = ( height - 1 ) / numberOfShelves;
 	
-	final heights = [];
+	final shelfHeights = [];
 	
-	var tempHeight = 0.0;
+	var tempHeight = distance;
 	var lastHeight = 0;
-	for( i in 0...numberOfShelves ) {
+	for( _ in 0...numberOfShelves - 1 ) {
 		final height = Math.ceil( tempHeight );
-		heights.push( height - lastHeight );
+		final shelfHeight = height - lastHeight;
+		shelfHeights.push( shelfHeight );
+		
 		lastHeight = height;
 		tempHeight += distance;
 	}
 
-	heights.sort(( a, b ) -> b - a );
-	heights.unshift( heights.pop());
+	shelfHeights.sort(( a, b ) -> b - a );
+	shelfHeights.unshift( 0 );
 
-	final heightSums = [0];
-	for( i in 1...heights.length ) {
-		heightSums.push( heights[i] + heightSums[i - 1] );
-	}
+	final heights = [0];
+	for( i in 1...shelfHeights.length ) heights.push( shelfHeights[i] + heights[i - 1] );
 
-	final centerPiece = width % 2 == 0 ? "" : "^";
-	final halfWidth = int( width / 2 );
-	final top = "/".repeat( halfWidth ) + centerPiece + "\\".repeat( halfWidth );
-
-	for( y in 0...height - 1 ) {
-		if( heightSums.contains( y )) {
-			lines.push( "|" + "_".repeat( width - 2 ) + "|" );
-		} else {
-			lines.push( "|" + " ".repeat( width - 2 ) + "|" );
-		}
-		
-	}
+	for( y in 0...height - 1 ) lines.push( heights.contains( y ) ? shelf : space );
 
 	lines.push( top );
 	lines.reverse();
