@@ -60,13 +60,12 @@ function process( aWord:String ) {
 
 function toBin64( s:String ) {
 	final digits = s.split( "" );
-	final bin = digits.map( digit -> {
+	final bin64 = digits.map( digit -> {
 		final bin = digit.fromHex().toBin();
 		final bin4 = fillToLength( bin, 4 ) ;
 		return bin4;
 	}).join( "" );
 	
-	final bin64 = fillToLength( bin, 64 );
 	return bin64;
 }
 
