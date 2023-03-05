@@ -41,6 +41,10 @@ class CodinGame
 	static public function print(output:Dynamic):Void { Sys.println(output); }
 	static public function printErr(output:Dynamic):Void { Sys.println(output); }
 	static public inline function readline():String { return ""; }
+	#elseif fcpp
+	extern static public inline function print(output:Dynamic):Void { untyped __fcpp__("cout << {} << endl", output); }
+	extern static public inline function printErr(output:Dynamic):Void {  untyped __fcpp__("cerr << {} << endl", output); }
+	extern static public inline function readline( varName:Dynamic ):Void { untyped __fcpp__("cin >> {}; cin.ignore();", varName); }
 	#elseif sys
 	static public function print(output:Dynamic):Void { Sys.println(output); }
 	static public function printErr(output:Dynamic):Void { Sys.println(output); }

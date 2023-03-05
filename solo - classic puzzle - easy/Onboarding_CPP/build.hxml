@@ -1,0 +1,7 @@
+-lib free-cpp
+-cp ../../codingame_extension/
+-cp src
+-D cpp-output=dest
+--no-opt
+
+Main
