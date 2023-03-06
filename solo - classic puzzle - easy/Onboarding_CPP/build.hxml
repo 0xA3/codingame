@@ -1,4 +1,4 @@
--lib free-cpp
+-lib unbound-cpp
 -cp ../../codingame_extension/
 -cp src
 -D cpp-output=dest
