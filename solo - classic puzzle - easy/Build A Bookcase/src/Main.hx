@@ -17,7 +17,7 @@ function main() {
 	print( result );
 }
 
-function process( height:Int, width:Int, numberOfShelves:Int) {
+function process( height:Int, width:Int, numberOfShelves:Int ) {
 	
 	final centerPiece = width % 2 == 0 ? "" : "^";
 	final halfWidth = int( width / 2 );
