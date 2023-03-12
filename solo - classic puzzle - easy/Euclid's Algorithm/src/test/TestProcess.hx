@@ -74,6 +74,4 @@ class TestProcess extends buddy.BuddySuite{
 		147=6*24+3
 		6=3*2+0
 		GCD(4857,147)=3" );
-
-
 }
