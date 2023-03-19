@@ -44,7 +44,11 @@ class CodinGame
 	#elseif ucpp
 	extern static public inline function print(output:Dynamic):Void { untyped __ucpp__("cout << {} << endl", output); }
 	extern static public inline function printErr(output:Dynamic):Void { untyped __ucpp__("cerr << {} << endl", output); }
-	extern static public inline function readline(variable:Dynamic):Void { untyped __ucpp__("cin >> {}; std::cin.ignore();", variable); }
+	extern static public inline function readline():String {
+		var input:String = "";
+		untyped __ucpp__("cin >> {}; std::cin.ignore();", input);
+		return input;
+	}
 	#elseif sys
 	static public function print(output:Dynamic):Void { Sys.println(output); }
 	static public function printErr(output:Dynamic):Void { Sys.println(output); }
