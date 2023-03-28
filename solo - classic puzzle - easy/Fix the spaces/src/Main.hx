@@ -40,26 +40,24 @@ function process( original:String, words:Array<String> ) {
 function solveRecursive( s:String, wordsMap:Map<String, Int>, depth = 0 ) {
 	if( wordsCount == 0 ) addSolution();
 	
-	var i = 0;
 	for( word => count in wordsMap ) {
 		if( solutions.length > 1 ) return;
+		
+		if( count > 0 ) {
+			// trace( 'test word $word' );
+			if( s.substr( 0, word.length ) == word ) {
+				// trace( 'depth $depth  i $i   $word   ${s.substr( word.length )}' );
+				stack.add( word );
+				wordsMap[word]--;
+				wordsCount--;
 
-		// trace( 'test word $word' );
-		if( s.substr( 0, word.length ) == word ) {
-			// trace( 'depth $depth  i $i   $word   ${s.substr( word.length )}' );
-			stack.add( word );
-			if( count > 1 ) wordsMap[word]--;
-			else wordsMap.remove( word );
-			wordsCount--;
-
-			solveRecursive( s.substr( word.length ), wordsMap, depth + 1 );
-			
-			if( !wordsMap.exists( word )) wordsMap.set( word, 1 );
-			else wordsMap[word]++;
-			stack.pop();
-			wordsCount++;
+				solveRecursive( s.substr( word.length ), wordsMap, depth + 1 );
+				
+				stack.pop();
+				wordsMap[word]++;
+				wordsCount++;
+			}
 		}
-		i++;
 	}
 }
 
