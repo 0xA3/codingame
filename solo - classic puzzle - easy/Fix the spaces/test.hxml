@@ -3,4 +3,6 @@
 -cp src
 -D analyzer-optimize
 -main test.Tests
---interp
+--hl bin/tests.hl
+
+-cmd hl bin/tests.hl

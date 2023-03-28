@@ -12,16 +12,6 @@ class TestProcess extends buddy.BuddySuite{
 
 		describe( "Test process", {
 			
-			var start = 0.0;
-
-			beforeEach({
-				start = Timer.stamp();
-			});
-			
-			afterEach({
-				trace( 'duration ${Timer.stamp() - start}' );
-			});
-
 			it( "1 Starters", {
 				final ip = starters;
 				Main.process( ip.original, ip.words ).should.be( startersResult );

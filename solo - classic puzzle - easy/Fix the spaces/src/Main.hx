@@ -7,6 +7,7 @@ using Lambda;
 
 var solutions:Array<String>;
 var stack:GenericStack<String>;
+var wordsCount:Int;
 
 function main() {
 
@@ -19,11 +20,15 @@ function main() {
 
 function process( original:String, words:Array<String> ) {
 	solutions = [];
+	final wordsMap:Map<String, Int> = [];
+	for( word in words ) {
+		if( !wordsMap.exists( word )) wordsMap.set( word, 1 );
+		else wordsMap[word]++;
+	}
+	wordsCount = words.length;
 	stack = new GenericStack<String>();
 	
-	words.sort(( a, b ) -> a.length - b.length );
-	trace( words );
-	solveRecursive( original, words );
+	solveRecursive( original, wordsMap );
 
 	if( solutions.length == 1 ) {
 		return solutions[0];
@@ -32,19 +37,27 @@ function process( original:String, words:Array<String> ) {
 	}
 }
 
-function solveRecursive( s:String, words:Array<String> ) {
-	if( words.length == 0 ) addSolution();
+function solveRecursive( s:String, wordsMap:Map<String, Int>, depth = 0 ) {
+	if( wordsCount == 0 ) addSolution();
 	
-	// trace( 'string: $s  words $words' );
 	var i = 0;
-	while( i < words.length && solutions.length < 2 ) {
-		final word = words[i];
-		final sub = s.substr( 0, word.length );
+	for( word => count in wordsMap ) {
+		if( solutions.length > 1 ) return;
+
 		// trace( 'test word $word' );
-		if( sub == word ) {
+		if( s.substr( 0, word.length ) == word ) {
+			// trace( 'depth $depth  i $i   $word   ${s.substr( word.length )}' );
 			stack.add( word );
-			solveRecursive( s.substr( word.length ), words.slice( 0, i ).concat( words.slice( i + 1 )));
+			if( count > 1 ) wordsMap[word]--;
+			else wordsMap.remove( word );
+			wordsCount--;
+
+			solveRecursive( s.substr( word.length ), wordsMap, depth + 1 );
+			
+			if( !wordsMap.exists( word )) wordsMap.set( word, 1 );
+			else wordsMap[word]++;
 			stack.pop();
+			wordsCount++;
 		}
 		i++;
 	}
@@ -54,5 +67,6 @@ function addSolution() {
 	final array = [for( word in stack ) word];
 	array.reverse();
 	final solution = array.join(" ");
+	// trace( 'found $solution' );
 	if( !solutions.contains( solution )) solutions.push( solution );
 }
