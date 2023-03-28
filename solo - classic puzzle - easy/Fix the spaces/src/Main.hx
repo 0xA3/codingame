@@ -5,8 +5,8 @@ import haxe.ds.GenericStack;
 
 using Lambda;
 
-var solutions:Int;
-var solution:GenericStack<String>;
+var solutions:Array<String>;
+var stack:GenericStack<String>;
 
 function main() {
 
@@ -18,37 +18,41 @@ function main() {
 }
 
 function process( original:String, words:Array<String> ) {
-	solutions = 0;
-	solution = new GenericStack<String>();
+	solutions = [];
+	stack = new GenericStack<String>();
 	
-	final hasSolution = solveRecursive( original, words );
-	
-	if( hasSolution ) {
-		final result = [for( word in solution ) word];
-		result.reverse();
-		return result.join(" ");
+	words.sort(( a, b ) -> a.length - b.length );
+	trace( words );
+	solveRecursive( original, words );
+
+	if( solutions.length == 1 ) {
+		return solutions[0];
 	} else {
 		return "Unsolvable";
 	}
 }
 
 function solveRecursive( s:String, words:Array<String> ) {
-	if( words.length == 0 ) return true;
-	// trace( '$s' );
-	for( i in 0...words.length ) {
-		final word = words[i];
-		// trace( 'test word $word' );
-		if( s.indexOf( word ) == 0 ) {
-			solution.add( word );
-			if( solveRecursive( s.substr( word.length ), words.slice( 0, i ).concat( words.slice( i + 1 ))) ) {
-				solutions++;
-				
-				return true;
-			} else {
-				solution.pop();
-			}
-		}
-	}
+	if( words.length == 0 ) addSolution();
 	
-	return false;
+	// trace( 'string: $s  words $words' );
+	var i = 0;
+	while( i < words.length && solutions.length < 2 ) {
+		final word = words[i];
+		final sub = s.substr( 0, word.length );
+		// trace( 'test word $word' );
+		if( sub == word ) {
+			stack.add( word );
+			solveRecursive( s.substr( word.length ), words.slice( 0, i ).concat( words.slice( i + 1 )));
+			stack.pop();
+		}
+		i++;
+	}
+}
+
+function addSolution() {
+	final array = [for( word in stack ) word];
+	array.reverse();
+	final solution = array.join(" ");
+	if( !solutions.contains( solution )) solutions.push( solution );
 }

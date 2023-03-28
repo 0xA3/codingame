@@ -1,5 +1,7 @@
 package test;
 
+import haxe.Timer;
+
 using StringTools;
 using buddy.Should;
 
@@ -9,6 +11,17 @@ class TestProcess extends buddy.BuddySuite{
 	public function new() {
 
 		describe( "Test process", {
+			
+			var start = 0.0;
+
+			beforeEach({
+				start = Timer.stamp();
+			});
+			
+			afterEach({
+				trace( 'duration ${Timer.stamp() - start}' );
+			});
+
 			it( "1 Starters", {
 				final ip = starters;
 				Main.process( ip.original, ip.words ).should.be( startersResult );
