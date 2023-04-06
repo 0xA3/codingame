@@ -1,7 +1,5 @@
 package test;
 
-import haxe.Timer;
-
 using StringTools;
 using buddy.Should;
 

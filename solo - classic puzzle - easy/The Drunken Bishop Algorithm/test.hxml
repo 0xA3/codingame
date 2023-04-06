@@ -2,6 +2,7 @@
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
+-D message-reporting=pretty
 -main test.Tests
 --hl bin/tests.hl
 
