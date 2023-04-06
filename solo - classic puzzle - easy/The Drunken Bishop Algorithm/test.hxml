@@ -1,0 +1,8 @@
+-lib buddy
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main test.Tests
+--hl bin/tests.hl
+
+-cmd hl bin/tests.hl
