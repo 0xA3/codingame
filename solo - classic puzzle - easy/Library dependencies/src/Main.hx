@@ -28,7 +28,6 @@ function process( importLines:Array<String>, dependencyLines:Array<String> ) {
 		if( !dependencies.exists( lib )) dependencies.set( lib, [] );
 		
 		final libs = [for( i in 2...parts.length ) parts[i]];
-		libs.sort(( a, b ) -> a < b ? -1 : 1 );
 		for( dLib in libs ) dependencies[lib].push( dLib );
 	}
 	
@@ -39,42 +38,42 @@ function process( importLines:Array<String>, dependencyLines:Array<String> ) {
 
 	if( importer.errorPosition != -1 ) {
 		outputLines.push( 'Import error: tried to import ${importer.errorLibrary} but ${importer.missingDependency} is required.' );
-	
-		var repeats = 0;
-		while( repeats < imports.length ) {
-			final imports2 = reorder( imports, importer.errorPosition, importer.missingDependency );
-
-			final importer = new Importer( imports2, dependencies );
-			importer.process();
-
-			if( importer.errorPosition == -1 ) {
-				outputLines.push( 'Suggest to change import order:' );
-				for( lib in imports2 ) outputLines.push( 'import $lib' );
+		
+		imports.sort(( a, b ) -> a < b ? -1 : 1 );
+		
+		final sortedLibs = [];
+		while( true ) {
+			final possibleLibs = imports.filter( lib -> {
+				if( dependencies.exists( lib )) {
+					final requires = dependencies[lib];
+					for( lib2 in requires ) {
+						if( !sortedLibs.contains( lib2 )) return false;
+					}
+					return true;
+				} else {
+					return true;
+				}
+			});
+			if( possibleLibs.length > 0 ) {
+				final firstPossibleLib = possibleLibs[0];
+				sortedLibs.push( firstPossibleLib );
+				imports.remove( firstPossibleLib );
+			}
+			
+			if( imports.length == 0 ) {
+				outputLines.push( "Suggest to change import order:" );
+				for( lib in sortedLibs ) outputLines.push( 'import $lib' );
 				break;
 			}
 			
-			repeats++;
+			if( possibleLibs.length == 0 && imports.length > 0 ) {
+				outputLines.push( "Fatal error: interdependencies." );
+				break;
+			}
 		}
-
-
-		if( repeats == imports.length ) outputLines.push( "Fatal error: interdependencies." );
-
 	}
 	
 	return outputLines.length == 0
 	? "Compiled successfully!"
 	: outputLines.join( "\n" );
-}
-
-function reorder( imports:Array<String>, position:Int, missingDependency:String ) {
-	final errorLibrary = imports[position];
-	final dependencyPosition = imports.indexOf( missingDependency );
-	final reordered = [
-		imports.slice( 0, position ),
-		imports.slice( position + 1, dependencyPosition + 1 ),
-		[errorLibrary],
-		imports.slice( dependencyPosition + 1 )
-	];
-	trace( 'reorder $imports  move pos $position $errorLibrary after $dependencyPosition $missingDependency  $reordered' );
-	return reordered.flatten();
 }

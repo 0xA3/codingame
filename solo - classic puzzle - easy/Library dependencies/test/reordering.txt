@@ -19,25 +19,36 @@ is B imported? No
 
 Error message "Import error: tried to import C but B is required"
 
-move C after B
+reorder
 
-import A
-import B
-import C
-import D
+possible libraries
+A
+B
 
-process imports
+select A
+A
 
-A requires? No
-B requires? No
-C requires? Yes A, B
-is A imported? Yes
-is B imported? No
-D requires? Yes B
-is B imported? Yes
+possible libraries
+B
 
-Message Suggest to change import order:
-import A
-import B
-import C
-import D
+select B
+A
+B
+
+possible libraries
+C
+D
+
+select C
+A
+B
+C
+
+possible libraries
+D
+
+select D
+A
+B
+C
+D

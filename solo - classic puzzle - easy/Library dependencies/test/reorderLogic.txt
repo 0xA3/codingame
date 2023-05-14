@@ -22,30 +22,55 @@ is E imported? No
 
 Error message "Import error: tried to import B but E is required"
 
-move B after E
+reorder
 
-import F
-import A
-import C
-import E
-import B
-import D
+libs A B C D E F
+possible libs A D E F
 
-process imports
+select A
+A
 
-F requires? No
-A requires? No
-C requires? Yes A
-is A imported? Yes
-E requires? No
-B reqires? Yes E
-is E imported? Yes
-D reqires? No
+libs B C D E F
+possible libs C D E F
 
-Message Suggest to change import Order:
-import F
-import A
-import C
-import E
-import B
-import D
+select C
+A
+C
+
+libs B D E F
+possible libs D E F
+
+select D
+A
+C
+D
+
+libs B E F
+possible libs E
+
+select E
+A
+C
+D
+E
+
+libs B F
+possible libs B F
+
+select B
+A
+C
+D
+E
+B
+
+libs F
+possible libs F
+
+select F
+A
+C
+D
+E
+B
+F

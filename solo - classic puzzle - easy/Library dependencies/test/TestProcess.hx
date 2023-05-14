@@ -23,7 +23,7 @@ class TestProcess extends buddy.BuddySuite{
 				final ip = reordering;
 				Main.process( ip.imports, ip.dependencies ).should.be( reorderingResult );
 			});
-			@include it( "4. Reordering logic", {
+			it( "4. Reordering logic", {
 				final ip = reorderingLogic;
 				Main.process( ip.imports, ip.dependencies ).should.be( reorderingLogicResult );
 			});
