@@ -1,0 +1,51 @@
+import F
+import A
+import B
+import C
+import E
+import D
+
+B requires E
+C requires A
+
+process imports
+
+F
+F requires? No
+
+A
+A requires? No
+
+B
+B requires? Yes E
+is E imported? No
+
+Error message "Import error: tried to import B but E is required"
+
+move B after E
+
+import F
+import A
+import C
+import E
+import B
+import D
+
+process imports
+
+F requires? No
+A requires? No
+C requires? Yes A
+is A imported? Yes
+E requires? No
+B reqires? Yes E
+is E imported? Yes
+D reqires? No
+
+Message Suggest to change import Order:
+import F
+import A
+import C
+import E
+import B
+import D
