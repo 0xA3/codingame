@@ -33,12 +33,27 @@ function process( importLines:Array<String>, dependencyLines:Array<String> ) {
 	
 	var outputLines = [];
 	
-	final importer = new Importer( imports, dependencies );
-	importer.process();
-
-	if( importer.errorPosition != -1 ) {
-		outputLines.push( 'Import error: tried to import ${importer.errorLibrary} but ${importer.missingDependency} is required.' );
+	final imported:Map<String, Bool> = [];
 		
+	var isImportError = false;
+	for( i in 0...imports.length ) {
+		final library1 = imports[i];
+		// trace( '$i import $library1' );
+		imported.set( library1, true );
+		if( dependencies.exists( library1 )) {
+			// trace( 'dependencies ${dependencies[library1]}' );
+			for( library2 in dependencies[library1] ) {
+				if( !imported.exists( library2 )) {
+					outputLines.push( 'Import error: tried to import $library1 but $library2 is required.' );
+					isImportError = true;
+					break;
+				}
+			}
+		}
+		if( isImportError ) break;
+	}
+
+	if( isImportError ) {
 		imports.sort(( a, b ) -> a < b ? -1 : 1 );
 		
 		final sortedLibs = [];
