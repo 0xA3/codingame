@@ -32,7 +32,8 @@ class MainAi {
 		while( true ) {
 			final frameCellDatasets = [for( i in 0...numberOfCells ) parseFrameCellDataset( readline())];
 			ai.setInputs( frameCellDatasets );
-			
+			ai.init();
+
 			final outputs = ai.process();
 			print( outputs );
 		}
@@ -42,24 +43,19 @@ class MainAi {
 		var inputs = line.split(' ');
 		final type = parseInt( inputs[0] ); // 0 for empty, 1 for eggs, 2 for crystal
 		final initialResources = parseInt( inputs[1] ); // the initial amount of eggs/crystals on this cell
-		final neigh0 = parseInt( inputs[2] ); // the index of the neighbouring cell for each direction
-		final neigh1 = parseInt( inputs[3] );
-		final neigh2 = parseInt( inputs[4] );
-		final neigh3 = parseInt( inputs[5] );
-		final neigh4 = parseInt( inputs[6] );
-		final neigh5 = parseInt( inputs[7] );
-	
+
+		// the index of the neighbouring cell for each direction
+		final neighbors = [for( i in 2...8 ) if( inputs[i] != "-1" ) parseInt( inputs[i] )];
+
 		final cellDataset:CellDataset = {
 			type: type,
-			initialResources: initialResources,
-			neigh0: neigh0,
-			neigh1: neigh1,
-			neigh2: neigh2,
-			neigh3: neigh3,
-			neigh4: neigh4,
-			neigh5: neigh5,
-		}
+			neighbors: neighbors,
 
+			resources: initialResources,
+			myAnts: 0,
+			oppAnts: 0,
+		}
+		
 		return cellDataset;
 	}
 
