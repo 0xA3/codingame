@@ -39,9 +39,6 @@ class Ai1 implements IAi {
 		}
 	}
 
-	public function init() {
-	}
-
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
 		

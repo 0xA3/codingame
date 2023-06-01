@@ -32,7 +32,6 @@ class MainAi {
 		while( true ) {
 			final frameCellDatasets = [for( i in 0...numberOfCells ) parseFrameCellDataset( readline())];
 			ai.setInputs( frameCellDatasets );
-			ai.init();
 
 			final outputs = ai.process();
 			print( outputs );
