@@ -7,4 +7,8 @@ class Node {
 
 	public function new() { }
 	
+	public function reset() {
+		previous = -1;
+		visited = false;
+	}
 }
