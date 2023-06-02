@@ -2,7 +2,6 @@ package ai.versions;
 
 import CodinGame.printErr;
 import ai.data.CellDataset;
-import ai.data.CellPriority;
 import ai.data.FrameCellDataset;
 import ai.data.Node;
 
@@ -69,14 +68,14 @@ class Ai2 implements IAi {
 		frontier.add( start );
 		nodes[start].visited = true;
 
-		final resourceCellPriorities:Array<CellPriority> = [];
+		final resourceCellPriorities:Array<CellPriority2> = [];
 		while( !frontier.isEmpty()) {
 			final current = frontier.pop();
 			final cell = cells[current];
 			if( cell.type != 0 && cell.resources > 0 ) {
 				final distance = getDistance( nodes, start, current );
 				final priority = cell.type == 1 ? 2 / distance : 1 / distance;
-				final cellPriority:CellPriority = { start: start, end: current, priority: priority }
+				final cellPriority:CellPriority2 = { start: start, end: current, priority: priority }
 				
 				resourceCellPriorities.push( cellPriority );
 			}
@@ -103,4 +102,12 @@ class Ai2 implements IAi {
 		}
 		return distance;
 	}
+}
+
+@:structInit class CellPriority2 {
+	public final start:Int;
+	public final end:Int;
+	public final priority:Float;
+
+	public function toString() return 'start: $start, end: $end, priority: $priority';
 }

@@ -2,7 +2,6 @@ package ai.versions;
 
 import CodinGame.printErr;
 import ai.data.CellDataset;
-import ai.data.CellDistance;
 import ai.data.FrameCellDataset;
 import ai.data.Node;
 
@@ -61,12 +60,12 @@ class Ai1 implements IAi {
 		frontier.add( start );
 		nodes[start].visited = true;
 
-		final resourceCellDistances:Array<CellDistance> = [];
+		final resourceCellDistances:Array<CellDistance1> = [];
 		while( !frontier.isEmpty()) {
 			final current = frontier.pop();
 			if( cells[current].resources > 0 ) {
 				final distance = getDistance( nodes, start, current );
-				final cellDistance:CellDistance = { start: start, end: current, distance: distance }
+				final cellDistance:CellDistance1 = { start: start, end: current, distance: distance }
 				resourceCellDistances.push( cellDistance );
 			}
 			// trace( 'current $current' );
@@ -92,4 +91,12 @@ class Ai1 implements IAi {
 		}
 		return distance;
 	}
+}
+
+@:structInit class CellDistance1 {
+	public final start:Int;
+	public final end:Int;
+	public final distance:Int;
+
+	public function toString() return 'start: $start, end: $end, distance: $distance';
 }
