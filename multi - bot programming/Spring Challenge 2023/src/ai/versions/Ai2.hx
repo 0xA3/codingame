@@ -2,17 +2,17 @@ package ai.versions;
 
 import CodinGame.printErr;
 import ai.data.CellDataset;
-import ai.data.CellDistance;
+import ai.data.CellPriority;
 import ai.data.FrameCellDataset;
 import ai.data.Node;
 
 using Lambda;
 
-// finds closest ressouces and harvests them
+// finds closest ressouces or eggs and harvests them
 
-class Ai1 implements IAi {
+class Ai2 implements IAi {
 	
-	public var aiId = "Ai1";
+	public var aiId = "Ai2";
 	
 	static final ME = 1;
 	static final OPP = 0;
@@ -21,6 +21,9 @@ class Ai1 implements IAi {
 	var cells:Array<CellDataset>;
 	var myBaseIndices:Array<Int>;
 	var oppBaseIndices:Array<Int>;
+
+	var myAntsTotal = 0;
+	var oppAntsTotal = 0;
 
 	public function new() { }
 	
@@ -31,43 +34,51 @@ class Ai1 implements IAi {
 	}
 	
 	public function setInputs( frameCellDatasets:Array<FrameCellDataset> ) {
+		myAntsTotal = 0;
+		oppAntsTotal = 0;
 		for( i in 0...frameCellDatasets.length ) {
-			cells[i].resources = frameCellDatasets[i].resources;
-			cells[i].myAnts = frameCellDatasets[i].myAnts;
-			cells[i].oppAnts = frameCellDatasets[i].oppAnts;
+			final frameCellDataset = frameCellDatasets[i];
+			cells[i].resources = frameCellDataset.resources;
+			cells[i].myAnts = frameCellDataset.myAnts;
+			cells[i].oppAnts = frameCellDataset.oppAnts;
+			myAntsTotal += frameCellDataset.myAnts;
+			oppAntsTotal += frameCellDataset.oppAnts;
 		}
 	}
 
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
 		
-		var output = "";
+		var outputs = [];
 		for( myBaseIndex in myBaseIndices ) {
-			final cellDistances = getCellDistances( cells, myBaseIndex );
-			cellDistances.sort(( a, b ) -> a.distance - b.distance );
+			final cellDistances = getCellPriorities( cells, myBaseIndex );
+			cellDistances.sort(( a, b ) -> a.priority < b.priority ? 1 : -1 );
 			final closestCell = cellDistances[0];
-			output += 'LINE ${closestCell.start} ${closestCell.end} 1';
+			outputs.push( 'LINE ${closestCell.start} ${closestCell.end} 1' );
 		}
 
 		// for( cellDistance in cellDistances ) printErr( 'start: ${cellDistance.start}, end: ${cellDistance.end}, distance: ${cellDistance.distance}' );
 		
-		return output;
+		return outputs.join( ";" );
 	}
 
-	function getCellDistances( cells:Array<CellDataset>, start:Int ) {
+	function getCellPriorities( cells:Array<CellDataset>, start:Int ) {
 		final nodes = [for( _ in cells ) new Node()];
 		final frontier = new List<Int>();
 		
 		frontier.add( start );
 		nodes[start].visited = true;
 
-		final resourceCellDistances:Array<CellDistance> = [];
+		final resourceCellPriorities:Array<CellPriority> = [];
 		while( !frontier.isEmpty()) {
 			final current = frontier.pop();
-			if( cells[current].resources > 0 ) {
+			final cell = cells[current];
+			if( cell.type != 0 && cell.resources > 0 ) {
 				final distance = getDistance( nodes, start, current );
-				final cellDistance:CellDistance = { start: start, end: current, distance: distance }
-				resourceCellDistances.push( cellDistance );
+				final priority = cell.type == 1 ? 2 / distance : 1 / distance;
+				final cellPriority:CellPriority = { start: start, end: current, priority: priority }
+				
+				resourceCellPriorities.push( cellPriority );
 			}
 			// trace( 'current $current' );
 			for( neighbor in cells[current].neighbors ) {
@@ -80,7 +91,7 @@ class Ai1 implements IAi {
 				}
 			}
 		}
-		return resourceCellDistances;
+		return resourceCellPriorities;
 	}
 
 	function getDistance( nodes:Array<Node>, start:Int, end:Int ) {
