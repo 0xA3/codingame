@@ -8,7 +8,7 @@ import ai.factory.Graph4Factory;
 
 using Lambda;
 
-// finds closest ressouces or eggs with nearest neighbor heuristic
+// finds closest ressouces or eggs with minimum spanning tree
 
 class Ai4 implements IAi {
 	
@@ -30,7 +30,7 @@ class Ai4 implements IAi {
 	var turn = 0;
 	
 	var resourceCellSet:Map<Int, Bool> = [];
-	var graph = new Graph4( [], [] );
+	var graph = new Graph4( [], [], 0, 0 );
 	
 	public function new() { }
 	
@@ -58,9 +58,39 @@ class Ai4 implements IAi {
 
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
-		graph.createMinimumSpanningTree();
-		final outputs = [];
+		if( turn == 0 ) graph.createMinimumSpanningTree();
 		
+		final startIndices = [for( myBaseIndex in myBaseIndices ) myBaseIndex => true];
+		final mstEdges = graph.mstEdges.copy();
+		
+		final lines = [];
+		var totalDistance = 0;
+		while( totalDistance < myAntsTotal && mstEdges.length > 0 ) {
+			final removeList = [];
+			for( edge in mstEdges ) {
+				if( startIndices.exists( edge.start )) {
+					lines.push( edge );
+					removeList.push( edge );
+					
+					startIndices.set( edge.end, true );
+					totalDistance += edge.distance;
+					break;
+				}
+				if( startIndices.exists( edge.end )) {
+					lines.push( edge );
+					removeList.push( edge );
+					
+					startIndices.set( edge.start, true );
+					totalDistance += edge.distance;
+		
+					break;
+				}
+			}
+			for( edge in removeList ) mstEdges.remove( edge );
+		}
+
+		final outputs = lines.map( line -> 'LINE ${line.start} ${line.end} 1' );
+
 		turn++;
 		
 		return outputs.join( ";" );

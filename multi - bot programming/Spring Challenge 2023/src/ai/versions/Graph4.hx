@@ -10,19 +10,33 @@ class Graph4 {
 	final edgesSet:Map<String, Edge>;
 	final edges:Array<Edge> = [];
 	
-	public function new( verticesSet:Map<Int, Bool>, edgesSet:Map<String, Edge> ) {
+	public var mstEdges:Array<Edge> = [];
+
+	var numVertices:Int;
+	var numCells:Int;
+
+	public function new( verticesSet:Map<Int, Bool>, edgesSet:Map<String, Edge>, numVertices:Int, numCells:Int ) {
 		this.verticesSet = verticesSet;
 		this.edgesSet = edgesSet;
+
+		this.numVertices = numVertices;
+		this.numCells = numCells;
+
 		initEdges();
 	}
 
 	public function createMinimumSpanningTree() {
 		edges.sort(( a, b ) -> a.distance - b.distance );
-		for( edge in edges ) printErr( '${edge.start}-${edge.end} distance: ${edge.distance}' );
+
+		mstEdges = KruskalsMST.create( numCells, numVertices, edges );
+		// for( edge in mstEdges ) printErr( '${edge.start}-${edge.end} distance: ${edge.distance}' );
 	}
 
 	public function removeVertex( vertex:Int ) {
+		if( !verticesSet.exists( vertex )) return;
+		
 		verticesSet.remove( vertex );
+		numVertices--;
 		
 		final removeList = new GenericStack<String>();
 		for( id => edge in edgesSet ) {

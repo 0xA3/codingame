@@ -33,7 +33,7 @@ class Graph4Factory {
 			}
 		}
 
-		return new Graph4( verticesSet, edgesSet );
+		return new Graph4( verticesSet, edgesSet, vertices.length, cells.length );
 	}
 
 	static function getEdges( cells:Array<CellDataset>, nodes:Array<Node>, targets:Map<Int, Bool>, start:Int ) {
