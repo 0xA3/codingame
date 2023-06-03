@@ -22,9 +22,6 @@ class Ai5 implements IAi {
 	var myBaseIndices:Array<Int>;
 	var oppBaseIndices:Array<Int>;
 	
-	var nodes:Array<Node> = [];
-	function resetNodes() for( node in nodes ) node.reset();
-
 	var myAntsTotal = 0;
 	var oppAntsTotal = 0;
 	var turn = 0;
@@ -38,8 +35,6 @@ class Ai5 implements IAi {
 		this.cells = cells;
 		this.myBaseIndices = myBaseIndices;
 		this.oppBaseIndices = oppBaseIndices;
-		
-		nodes = [for( _ in cells ) new Node()];
 	}
 	
 	public function setInputs( frameCellDatasets:Array<FrameCellDataset> ) {

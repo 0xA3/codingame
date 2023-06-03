@@ -1,6 +1,7 @@
 package ai.versions;
 
 import CodinGame.printErr;
+import ai.algorithm.KruskalsMST;
 import ai.data.Edge;
 import haxe.ds.GenericStack;
 
@@ -24,7 +25,6 @@ class Graph4 {
 	}
 
 	public function removeVertex( vertex:Int ) {
-		printErr( 'removeVertex $vertex' );
 		if( !verticesSet.exists( vertex )) return;
 		
 		verticesSet.remove( vertex );

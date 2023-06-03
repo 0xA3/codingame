@@ -1,4 +1,4 @@
-package ai;
+package ai.algorithm;
 
 import CodinGame.printErr;
 import ai.data.Edge;
