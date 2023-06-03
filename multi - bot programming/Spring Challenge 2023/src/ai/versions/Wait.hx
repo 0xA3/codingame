@@ -33,7 +33,7 @@ class Wait implements IAi {
 		}
 	}
 	
-	public function setInputs( frameCellDatasets:Array<FrameCellDataset> ) {
+	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {
 		for( i in 0...frameCellDatasets.length ) {
 			final frameCellDataset = frameCellDatasets[i];
 			final cell = cells[i];

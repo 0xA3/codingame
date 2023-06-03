@@ -11,7 +11,7 @@ using Lambda;
 
 // finds closest ressouces or eggs with minimum spanning tree
 
-class Ai6 implements IAi {
+class Ai7 implements IAi {
 	
 	public var aiId = "Ai7";
 	
@@ -52,7 +52,7 @@ class Ai6 implements IAi {
 		}
 	}
 
-	public function setInputs( frameCellDatasets:Array<FrameCellDataset> ) {
+	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {
 		myAntsTotal = 0;
 		oppAntsTotal = 0;
 		for( i in 0...frameCellDatasets.length ) {
@@ -83,19 +83,23 @@ class Ai6 implements IAi {
 			var skippedEdges = 0;
 			for( edge in mstEdges ) {
 				if( startIndices.exists( edge.start )) {
-					if( minDistances[edge.start] <= turn ) outputEdges.push( edge );
+					if( minDistances[edge.start] <= turn ) {
+						outputEdges.push( edge );
+						totalDistance += edge.distance;
+					}
 					removeList.push( edge );
 					
 					startIndices.set( edge.end, true );
-					totalDistance += edge.distance;
 					break;
 				}
 				if( startIndices.exists( edge.end )) {
-					if( minDistances[edge.end] <= turn ) outputEdges.push( edge );
+					if( minDistances[edge.end] <= turn ) {
+						outputEdges.push( edge );
+						totalDistance += edge.distance;
+					}
 					removeList.push( edge );
 					
 					startIndices.set( edge.start, true );
-					totalDistance += edge.distance;
 		
 					break;
 				}

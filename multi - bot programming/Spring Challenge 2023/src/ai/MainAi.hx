@@ -30,8 +30,9 @@ class MainAi {
 		
 		// game loop
 		while( true ) {
-			final frameCellDatasets = [for( i in 0...numberOfCells ) parseFrameCellDataset( readline())];
-			ai.setInputs( frameCellDatasets );
+			final scores = readline().split(' ').map( s -> parseInt( s ));
+			final frameCellDatasets = [for( _ in 0...numberOfCells ) parseFrameCellDataset( readline())];
+			ai.setInputs( scores[0], scores[1], frameCellDatasets );
 
 			final outputs = ai.process();
 			print( outputs );
