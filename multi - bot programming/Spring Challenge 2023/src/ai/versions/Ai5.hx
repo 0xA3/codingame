@@ -10,9 +10,9 @@ using Lambda;
 
 // finds closest ressouces or eggs with minimum spanning tree
 
-class Ai4 implements IAi {
+class Ai5 implements IAi {
 	
-	public var aiId = "Ai4";
+	public var aiId = "Ai5";
 	
 	static final ME = 1;
 	static final OPP = 0;
@@ -47,6 +47,9 @@ class Ai4 implements IAi {
 		oppAntsTotal = 0;
 		for( i in 0...frameCellDatasets.length ) {
 			final frameCellDataset = frameCellDatasets[i];
+			
+			if( cells[i].resources > 0 && frameCellDataset.resources == 0 ) graph.removeVertex( i );
+			
 			cells[i].resources = frameCellDataset.resources;
 			cells[i].myAnts = frameCellDataset.myAnts;
 			cells[i].oppAnts = frameCellDataset.oppAnts;
@@ -58,7 +61,7 @@ class Ai4 implements IAi {
 
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
-		if( turn == 0 ) graph.createMinimumSpanningTree();
+		if( graph.needsUpdate ) graph.createMinimumSpanningTree();
 		
 		final startIndices = [for( myBaseIndex in myBaseIndices ) myBaseIndex => true];
 		final mstEdges = graph.mstEdges.copy();

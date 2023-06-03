@@ -11,7 +11,7 @@ using Lambda;
 
 class Ai3 implements IAi {
 	
-	public var aiId = "Ai2";
+	public var aiId = "Ai3";
 	
 	static final ME = 1;
 	static final OPP = 0;
