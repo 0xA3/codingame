@@ -8,10 +8,18 @@ import ai.versions.Graph4;
 
 class Graph4Factory {
 	
-	public static function create( baseIndices:Array<Int>, cells:Array<CellDataset> ) {
+	public static function create( baseIndices:Array<Int>, cells:Array<CellDataset>, minDistances:Map<Int, Int> ) {
 		final nodes = [for( _ in cells ) new Node()];
 		final vertices = [for( i in 0...cells.length ) if( baseIndices.contains( i ) || cells[i].resources > 0 ) i];
 		final verticesSet = [for( vertex in vertices ) vertex => true];
+		
+		vertices.sort(( a, b ) -> { // sort vertices by minDistance from bases
+			if( minDistances[a] < minDistances[b] ) return -1;
+			if( minDistances[a] > minDistances[b] ) return 1;
+			return 0;
+		});
+		
+		// printErr( vertices );
 		
 		final edgesSet:Map<String, Edge> = [];
 		for( v1 in 0...vertices.length - 1 ) {

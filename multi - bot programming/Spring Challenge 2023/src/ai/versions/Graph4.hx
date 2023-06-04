@@ -3,6 +3,7 @@ package ai.versions;
 import CodinGame.printErr;
 import ai.algorithm.KruskalsMST;
 import ai.data.Edge;
+import haxe.ds.ArraySort;
 import haxe.ds.GenericStack;
 
 class Graph4 {
@@ -39,11 +40,18 @@ class Graph4 {
 		needsUpdate = true;
 	}
 
-	public function createMinimumSpanningTree() {
+	public function createMinimumSpanningTree( minDistances:Map<Int, Int> ) {
 		final edges = [for( edge in edgesSet ) edge ];
 		edges.sort(( a, b ) -> a.distance - b.distance );
 
 		mstEdges = KruskalsMST.create( numCells, numVertices, edges );
+		
+		haxe.ds.ArraySort.sort(mstEdges, ( a, b ) -> { // sort edges by minDistance from bases
+			if( minDistances[a.start] < minDistances[b.start] ) return -1;
+			if( minDistances[a.start] > minDistances[b.start] ) return 1;
+			return 0;
+		});
+		
 		// for( edge in mstEdges ) printErr( '${edge.start}-${edge.end} distance: ${edge.distance}' );
 		needsUpdate = false;
 	}

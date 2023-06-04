@@ -66,30 +66,31 @@ class Ai7 implements IAi {
 			myAntsTotal += frameCellDataset.myAnts;
 			oppAntsTotal += frameCellDataset.oppAnts;
 		}
-		if( turn == 0 ) graph = Graph4Factory.create( myBaseIndices, cells );
+		if( turn == 0 ) graph = Graph4Factory.create( myBaseIndices, cells, minDistances );
 	}
 
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
-		if( graph.needsUpdate ) graph.createMinimumSpanningTree();
+		if( graph.needsUpdate ) graph.createMinimumSpanningTree( minDistances );
 		
 		final startIndices = [for( myBaseIndex in myBaseIndices ) myBaseIndex => true];
 		final mstEdges = graph.mstEdges.copy();
-		
+		// if( turn == 0 ) for( mstEdge in mstEdges ) printErr( '$mstEdge' );
+
 		final outputEdges = [];
 		var totalDistance = 0;
 		while( totalDistance < myAntsTotal && mstEdges.length > 0 ) {
 			final removeList = [];
-			var skippedEdges = 0;
 			for( edge in mstEdges ) {
+				// printErr( '$turn  $edge  existsStart ${startIndices.exists( edge.start )} existsEnd ${startIndices.exists( edge.end )}' );
 				if( startIndices.exists( edge.start )) {
 					if( minDistances[edge.start] <= turn ) {
 						outputEdges.push( edge );
 						totalDistance += edge.distance;
 					}
 					removeList.push( edge );
-					
 					startIndices.set( edge.end, true );
+					
 					break;
 				}
 				if( startIndices.exists( edge.end )) {
@@ -98,17 +99,15 @@ class Ai7 implements IAi {
 						totalDistance += edge.distance;
 					}
 					removeList.push( edge );
-					
 					startIndices.set( edge.start, true );
 		
 					break;
 				}
 			}
 			for( edge in removeList ) mstEdges.remove( edge );
-			
-			if( outputEdges.length + skippedEdges >= mstEdges.length ) break;
+			if( removeList.length == 0 ) break;
 		}
-
+		
 		final outputs = outputEdges.map( edge -> 'LINE ${edge.start} ${edge.end} 1' );
 
 		turn++;
