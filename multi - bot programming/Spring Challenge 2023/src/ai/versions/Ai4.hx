@@ -1,10 +1,10 @@
 package ai.versions;
 
 import CodinGame.printErr;
+import ai.algorithm.Graph4Factory;
 import ai.data.CellDataset;
 import ai.data.FrameCellDataset;
 import ai.data.Node;
-import ai.factory.Graph4Factory;
 
 using Lambda;
 

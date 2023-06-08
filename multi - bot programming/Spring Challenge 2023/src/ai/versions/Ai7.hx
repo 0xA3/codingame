@@ -2,14 +2,15 @@ package ai.versions;
 
 import CodinGame.printErr;
 import ai.algorithm.BreadthFirstSearch;
+import ai.algorithm.Graph4Factory;
 import ai.data.CellDataset;
 import ai.data.FrameCellDataset;
 import ai.data.Node;
-import ai.factory.Graph4Factory;
 
 using Lambda;
 
 // finds closest ressouces or eggs with minimum spanning tree
+// final contest bot
 
 class Ai7 implements IAi {
 	

@@ -1,6 +1,6 @@
 using Lambda;
 
-class AStarSearch { // Dijkstra’s Algorithm
+class AStarSearch {
 	
 	public static function getPath( nodes:Array<PathNode>, start:Int, goal:Int ) {
 		

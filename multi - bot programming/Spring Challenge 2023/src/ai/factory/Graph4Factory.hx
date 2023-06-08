@@ -1,4 +1,4 @@
-package ai.factory;
+package ai.algorithm;
 
 import CodinGame.printErr;
 import ai.data.CellDataset;
