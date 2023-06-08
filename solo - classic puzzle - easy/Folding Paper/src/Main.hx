@@ -1,8 +1,6 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Std.int;
-import Std.parseInt;
 
 using Lambda;
 using StringTools;
@@ -18,12 +16,7 @@ function main() {
 
 function process( order:String, side:String ) {
 
-	var r = 1;
-	var l = 1;
-	var u = 1;
-	var d = 1;
-
-	var current = { r: r, l: l, u: u, d: d }
+	var current = { r: 1, l: 1, u: 1, d: 1 }
 	final folds = order.split( "" );
 	for( fold in folds ) {
 		current = switch fold {
