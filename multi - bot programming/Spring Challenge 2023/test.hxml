@@ -4,4 +4,8 @@
 -D analyzer-optimize
 -D message-reporting=pretty
 -main test.Tests
+# -main test.MainTest
 --interp
+
+# --hl bin/test.hl
+# --cmd hl bin/test.hl
