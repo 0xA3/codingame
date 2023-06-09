@@ -64,7 +64,7 @@ class Ai8 implements IAi {
 		if( turn == 0 ) {
 			final start = Timer.stamp();
 			paths = GetPaths.get( cells );
-			printErr( 'Time: ${Timer.stamp() - start}' );
+			printErr( 'Paths calculation time: ${Timer.stamp() - start}' );
 		}
 	}
 
@@ -73,7 +73,7 @@ class Ai8 implements IAi {
 		resourceCellSet.clear();
 		for( i in 0...cells.length ) if( cells[i].resources > 0 ) resourceCellSet.set( i, true );
 		
-		final outputs = [];
+		final beacons:Map<Int, Int> = [];
 		for( baseId in myBaseIndices ) {
 			var minDistance = 999;
 			var targetId = baseId;
@@ -89,10 +89,12 @@ class Ai8 implements IAi {
 			}
 
 			printErr( 'closest resource cell $targetId' );
-			for( cellId in path ) outputs.push( 'BEACON $cellId 1' );
+			for( cellId in path ) beacons.set( cellId, 1 );
 		}
 
 		turn++;
+		
+		final outputs = [for( cellId => amount in beacons ) 'BEACON $cellId $amount'];
 		
 		if( outputs.length == 0 ) return "WAIT";
 
