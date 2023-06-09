@@ -12,6 +12,7 @@ import haxe.Timer;
 using Lambda;
 
 // calculate distances between all cells
+// set beacons to closest target
 
 class Ai8 implements IAi {
 	
@@ -26,6 +27,8 @@ class Ai8 implements IAi {
 	var cells:Array<CellDataset>;
 	var myBaseIndices:Array<Int>;
 	var oppBaseIndices:Array<Int>;
+	
+	var pathMatrixWidth:Int;
 
 	var myAntsTotal = 0;
 	var oppAntsTotal = 0;
@@ -40,6 +43,8 @@ class Ai8 implements IAi {
 		this.cells = cells;
 		this.myBaseIndices = myBaseIndices;
 		this.oppBaseIndices = oppBaseIndices;
+		
+		pathMatrixWidth = cells.length;
 	}
 	
 	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {
@@ -65,8 +70,32 @@ class Ai8 implements IAi {
 
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
+		resourceCellSet.clear();
+		for( i in 0...cells.length ) if( cells[i].resources > 0 ) resourceCellSet.set( i, true );
 		
+		final outputs = [];
+		for( baseId in myBaseIndices ) {
+			var minDistance = 999;
+			var targetId = baseId;
+			var path:Array<Int> = [];
+			for( resourceCellId in resourceCellSet.keys()) {
+				final pathId = resourceCellId + baseId * pathMatrixWidth;
+				final distance = paths[pathId].length;
+				if( distance < minDistance ) {
+					minDistance = distance;
+					targetId = resourceCellId;
+					path = paths[pathId];
+				}
+			}
+
+			printErr( 'closest resource cell $targetId' );
+			for( cellId in path ) outputs.push( 'BEACON $cellId 1' );
+		}
+
 		turn++;
-		return "WAIT";
+		
+		if( outputs.length == 0 ) return "WAIT";
+
+		return outputs.join( ";" );
 	}
 }
