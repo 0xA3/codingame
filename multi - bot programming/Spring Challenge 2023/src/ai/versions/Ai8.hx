@@ -28,8 +28,6 @@ class Ai8 implements IAi {
 	var myBaseIndices:Array<Int>;
 	var oppBaseIndices:Array<Int>;
 	
-	var pathMatrixWidth:Int;
-
 	var myAntsTotal = 0;
 	var oppAntsTotal = 0;
 	var turn = 0;
@@ -43,8 +41,6 @@ class Ai8 implements IAi {
 		this.cells = cells;
 		this.myBaseIndices = myBaseIndices;
 		this.oppBaseIndices = oppBaseIndices;
-		
-		pathMatrixWidth = cells.length;
 	}
 	
 	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {
@@ -79,12 +75,12 @@ class Ai8 implements IAi {
 			var targetId = baseId;
 			var path:Array<Int> = [];
 			for( resourceCellId in resourceCellSet.keys()) {
-				final pathId = resourceCellId + baseId * pathMatrixWidth;
-				final distance = paths[pathId].length;
+				final pathIndex = GetPaths.getPathIndex( baseId, resourceCellId, cells.length );
+				final distance = paths[pathIndex].length;
 				if( distance < minDistance ) {
 					minDistance = distance;
 					targetId = resourceCellId;
-					path = paths[pathId];
+					path = paths[pathIndex];
 				}
 			}
 

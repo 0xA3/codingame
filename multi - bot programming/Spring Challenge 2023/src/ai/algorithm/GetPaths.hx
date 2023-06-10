@@ -9,12 +9,12 @@ class GetPaths {
 		final pathNodes = [for( i in 0...cells.length ) PathNode.getNew( i )];
 		
 		final paths = new Vector<Array<Int>>( cells.length * cells.length );
-		for( start in 0...cells.length ) dijkstra( cells, pathNodes, paths, start, cells.length );
+		for( start in 0...cells.length ) dijkstra( cells, pathNodes, paths, start );
 
 		return paths.toArray();
 	}
 	
-	static function dijkstra( cells:Array<CellDataset>, pathNodes:Array<PathNode>, paths:Vector<Array<Int>>, start:Int, width:Int ) {
+	static function dijkstra( cells:Array<CellDataset>, pathNodes:Array<PathNode>, paths:Vector<Array<Int>>, start:Int ) {
 		
 		for( node in pathNodes ) node.reset();
 		final frontier = new MaxPriorityQueue<PathNode>( PathNode.compare );
@@ -27,7 +27,7 @@ class GetPaths {
 		while( !frontier.isEmpty() ) {
 			final currentNode = frontier.pop();
 			final currentId = currentNode.id;
-			final index = currentId + start * width;
+			final index = getPathIndex( start, currentId, cells.length );
 			
 			final path = backtrack( pathNodes, start, currentId );
 			// trace( '${path[0]}-${path[path.length - 1]} length ${path.length - 1} $path' );
@@ -52,6 +52,8 @@ class GetPaths {
 			}
 		}
 	}
+
+	public static inline function getPathIndex( start:Int, end:Int, width:Int ) return start * width + end;
 
 	static function backtrack( pathNodes:Array<PathNode>, start:Int, end:Int ) {
 		final path = new List<Int>();
