@@ -1,12 +1,9 @@
 package ai.versions;
 
 import CodinGame.printErr;
-import ai.algorithm.BreadthFirstSearch;
-// import ai.algorithm.GetDistances;
 import ai.algorithm.GetPaths;
 import ai.data.CellDataset;
 import ai.data.FrameCellDataset;
-import ai.data.Node;
 import haxe.Timer;
 
 using Lambda;

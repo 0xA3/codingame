@@ -1,6 +1,7 @@
 package ai.algorithm;
 
 import ai.data.CellDataset;
+import ai.data.PathDataset;
 import haxe.ds.Vector;
 
 class GetPaths {
@@ -27,7 +28,7 @@ class GetPaths {
 		while( !frontier.isEmpty() ) {
 			final currentNode = frontier.pop();
 			final currentId = currentNode.id;
-			final index = getPathIndex( start, currentId, cells.length );
+			final index = PathDataset.getPathIndex( start, currentId, cells.length );
 			
 			final path = backtrack( pathNodes, start, currentId );
 			// trace( '${path[0]}-${path[path.length - 1]} length ${path.length - 1} $path' );
@@ -52,8 +53,6 @@ class GetPaths {
 			}
 		}
 	}
-
-	public static inline function getPathIndex( start:Int, end:Int, width:Int ) return start * width + end;
 
 	static function backtrack( pathNodes:Array<PathNode>, start:Int, end:Int ) {
 		final path = new List<Int>();
