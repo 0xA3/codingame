@@ -39,6 +39,7 @@ class Ai9 implements IAi {
 	var myAntsTotal = 0;
 	var oppAntsTotal = 0;
 	var myAntsPerBase = 0;
+	var remainingEggs = 0;
 	var turn = 0;
 	
 	var resourceCells:Map<Int, Bool> = [];
@@ -69,7 +70,10 @@ class Ai9 implements IAi {
 
 			if( cell.resources > 0 ) {
 				resourceCells.set( i, true );
-				if( cell.type == CellType.Egg ) eggCells.set( i, true );
+				if( cell.type == CellType.Egg ) {
+					eggCells.set( i, true );
+					remainingEggs += cell.resources;
+				}
 				if( cell.type == CellType.Crystal ) crystalCells.set( i, true );
 			}
 
@@ -91,11 +95,7 @@ class Ai9 implements IAi {
 		}
 
 		switch phase {
-			case Eggs:
-				if( myAntsTotal > antsTotal / 2 ) {
-					phase = ContestedCrystals;
-					printErr( 'switch to ContestedCrystals' );
-				}
+			case Eggs: if( myAntsTotal > antsTotal / 2 || remainingEggs == 0 ) phase = ContestedCrystals;
 			case ContestedCrystals: // no-op
 			case SaveCrystals: // no-op
 		}
@@ -105,6 +105,7 @@ class Ai9 implements IAi {
 	inline function resetTurn() {
 		myAntsTotal = 0;
 		oppAntsTotal = 0;
+		remainingEggs = 0;
 		resourceCells.clear();
 		eggCells.clear();
 		crystalCells.clear();
@@ -128,12 +129,12 @@ class Ai9 implements IAi {
 			}
 		}
 		turn++;
-		
+		printErr( 'beacons ' + [for( cellId => amount in beacons ) cellId].join( "," ));
 		final outputs = [for( cellId => amount in beacons ) 'BEACON $cellId $amount'];
 		
 		if( outputs.length == 0 ) return "WAIT";
 
-		return outputs.join( ";" );
+		return outputs.join( ";" ) + ';MESSAGE $phase';
 	}
 
 	function getEggTargets( baseId:Int ) {
@@ -166,18 +167,25 @@ class Ai9 implements IAi {
 		targets.sort(( a, b ) -> pathDataset.getDistance( baseId, a ) - pathDataset.getDistance( baseId, b ));
 		// for( eggTarget in targets ) printErr( '$eggTarget  distance: ${pathDataset.getDistance( baseId, eggTarget )}' );
 		
+		beacons.set( baseId, 1 );
 		var remainingAnts = myAntsPerBase;
 		for( target in targets ) {
-			if( remainingAnts <= 0 ) break;
 			final path = pathDataset.getPath( target, baseId );
-			for( cellId in path ) beacons.set( cellId, 1 );
-			remainingAnts -= path.length * 2;
+			final shortestPath = getShortestPath( path, beacons );
+			remainingAnts -= shortestPath.length * 2;
+			if( remainingAnts > 0 ) for( cellId in shortestPath ) beacons.set( cellId, 1 );
+			else break;
+			// printErr( 'path $path  shortestPath $shortestPath  difference ${path.length - shortestPath.length}' );
+			// printErr( 'remainingAnts $remainingAnts' );
 		}
 	}
 
 	function harvestContestedCrystals( baseId:Int, targets:Array<Int>, beacons:Map<Int, Int> ) {
 		targets.sort(( a, b ) -> pathDataset.getDistance( baseId, a ) - pathDataset.getDistance( baseId, b ));
 		
+		beacons.set( baseId, 1 );
+		final myTargets = [];
+		final oppTargets = [];
 		final contestedTargets = [];
 		for( target in targets ) {
 			if( crystalCells.exists( target )) {
@@ -187,19 +195,40 @@ class Ai9 implements IAi {
 					final oppDistance = pathDataset.getDistance( oppBaseId, target );
 					if( oppDistance < oppMinDistance ) oppMinDistance = oppDistance;
 				}
+				if( myDistance < oppMinDistance ) myTargets.push( target );
+				if( myDistance > oppMinDistance ) oppTargets.push( target );
 				if( oppMinDistance == myDistance ) contestedTargets.push( target );
 			}
 		}
 
-		final totalTargets = contestedTargets.copy();
-		for( target in targets ) if( !contestedTargets.contains( target )) totalTargets.push( target );
+		final totalTargets = myTargets.concat( contestedTargets );
 		
 		var remainingAnts = myAntsPerBase;
-		for( target in totalTargets ) {
-			if( remainingAnts <= 0 ) break;
+		for( target in contestedTargets ) {
 			final path = pathDataset.getPath( target, baseId );
-			for( cellId in path ) beacons.set( cellId, 1 );
-			remainingAnts -= path.length * 2;
+			final shortestPath = getShortestPath( path, beacons );
+			// printErr( 'path $path  shortestPath $shortestPath  difference ${path.length - shortestPath.length}' );
+			remainingAnts -= shortestPath.length * 2;
+			if( remainingAnts > 0 ) for( cellId in shortestPath ) beacons.set( cellId, 2 );
+			else break;
+		}
+		
+		for( target in myTargets ) {
+			final path = pathDataset.getPath( target, baseId );
+			final shortestPath = getShortestPath( path, beacons );
+			// printErr( 'path $path  shortestPath $shortestPath  difference ${path.length - shortestPath.length}' );
+			remainingAnts -= shortestPath.length * 2;
+			if( remainingAnts > 0 ) for( cellId in shortestPath ) beacons.set( cellId, 1 );
+			else break;
+		}
+		
+		for( target in oppTargets ) {
+			final path = pathDataset.getPath( target, baseId );
+			final shortestPath = getShortestPath( path, beacons );
+			// printErr( 'path $path  shortestPath $shortestPath  difference ${path.length - shortestPath.length}' );
+			remainingAnts -= shortestPath.length * 2;
+			if( remainingAnts > 0 ) for( cellId in shortestPath ) beacons.set( cellId, 1 );
+			else break;
 		}
 	}
 
@@ -207,5 +236,22 @@ class Ai9 implements IAi {
 		
 	}
 
+	function getShortestPath( path:Array<Int>, beacons:Map<Int, Int> ) {
+		var closestCell = path[path.length - 1];
+		var minDistance = path.length;
+		// printErr( 'path $path  beacons [' + [for( beaconCell in beacons.keys()) beaconCell].join(",") + "]" );
+		
+		for( beaconCell in beacons.keys()) {
+			final distance = pathDataset.getDistance( path[0], beaconCell );
+			if( distance < minDistance ) {
+				minDistance = distance;
+				closestCell = beaconCell;
+				// printErr( 'change closestCell to $closestCell  minDistance to $minDistance' );
+			}
+		}
+		final shortestPath = pathDataset.getPath( path[0], closestCell );
+
+		return shortestPath.slice( 0, shortestPath.length - 1 );
+	}
 
 }
