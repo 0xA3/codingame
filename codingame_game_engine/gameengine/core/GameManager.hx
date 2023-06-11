@@ -105,4 +105,72 @@ class GameManager {
 	public function getPlayerCount() return players.length;
 
 	public function getActivePlayers() return players.filter( p -> p.isActive );
+
+    /**
+     * Specifies the frameDuration in milliseconds. Default: 1000ms
+     *
+     * @param frameDuration
+     *            The frame duration in milliseconds.
+     * @throws IllegalArgumentException
+     *             if frameDuration &le; 0
+     */
+	public function setFrameDuration( frameDuration:Int ) {
+        if (frameDuration <= 0) {
+            throw "Invalid frame duration: only positive frame duration is supported";
+        } else if( this.frameDuration != frameDuration ) {
+            this.frameDuration = frameDuration;
+            // currentViewData.addProperty("duration", frameDuration);
+        }
+    }
+
+    /**
+     * Returns the duration in milliseconds for the frame currently being computed.
+     *
+     * @return the frame duration in milliseconds.
+     */
+	public function getFrameDuration() {
+        return frameDuration;
+    }
+
+   /**
+     * Set the maximum amount of turns. Default: 400.
+     *
+     * @param maxTurns
+     *            the number of turns for a game.
+     * @throws IllegalArgumentException
+     *             if maxTurns &le; 0
+     */
+	public function setMaxTurns( maxTurns :Int )  {
+        if (maxTurns <= 0) {
+            throw "Invalid maximum number of turns";
+        }
+        this.maxTurns = maxTurns;
+    }
+
+    /**
+     * Get the maximum amount of turns.
+     *
+     * @return the maximum number of turns.
+     */
+    public function getMaxTurns() {
+        return maxTurns;
+	}
+
+   /**
+     * Set the timeout delay for every player. This value can be updated during a game and will be used by execute(). Default is 50ms.
+     *
+     * @param turnMaxTime
+     *            Duration in milliseconds.
+     * @throws IllegalArgumentException
+     *             if turnMaxTime &lt; 50 or &gt; 25000
+     */
+	public function setTurnMaxTime( turnMaxTime:Int ) {
+        if( turnMaxTime < MIN_TURN_TIME ) {
+            throw "Invalid turn max time : stay above 50ms";
+        } else if( turnMaxTime > MAX_TURN_TIME ) {
+            throw "Invalid turn max time : stay under 25s";
+        }
+        this.turnMaxTime = turnMaxTime;
+    }
+
 }
