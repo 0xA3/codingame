@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../incoming/SpringChallenge2023/strategies"
+		}
+	],
+	"settings": {
+		"liveServer.settings.root": "/bin/",
+		"liveServer.settings.AdvanceCustomBrowserCmdLine": "C:/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe"
+	}
+}

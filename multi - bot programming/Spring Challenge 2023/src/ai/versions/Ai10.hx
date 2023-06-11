@@ -12,11 +12,8 @@ import haxe.Timer;
 
 using Lambda;
 
-// calculate distances between all cells
-// find closest targets for each base
-// phase1 eggs until i have more than half
-// phase2 crystals on border to opponent
-// phase3 crystals on my side
+// same as Ai9
+// add targets if production increases
 
 class Ai10 implements IAi {
 	
@@ -31,15 +28,23 @@ class Ai10 implements IAi {
 	var cells:Array<CellDataset>;
 	var myBaseIds:Array<Int>;
 	var oppBaseIds:Array<Int>;
-	
+	var startAnts = 0;
+
 	var eggsTotal = 0;
 	var crystalsTotal = 0;
 	var antsTotal = 0;
 
+	var myScore = 0;
+	var oppScore = 0;
 	var myAntsTotal = 0;
 	var oppAntsTotal = 0;
 	var myAntsPerBase = 0;
+	
 	var remainingEggs = 0;
+	var remainingCrystals = 0;
+
+	var ratioEggsGathered = 0.0;
+	var ratioCrystalsGathered = 0.0;
 	var turn = 0;
 	
 	var resourceCells:Map<Int, Bool> = [];
@@ -58,6 +63,9 @@ class Ai10 implements IAi {
 	
 	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {
 		resetTurn();
+
+		this.myScore = myScore;
+		this.oppScore = oppScore;
 		
 		for( i in 0...frameCellDatasets.length ) {
 			final cell = cells[i];
@@ -74,28 +82,25 @@ class Ai10 implements IAi {
 					eggCells.set( i, true );
 					remainingEggs += cell.resources;
 				}
-				if( cell.type == CellType.Crystal ) crystalCells.set( i, true );
-			}
-
-			if( turn == 0 ) {
-				if( cell.type == 1 ) eggsTotal += frameCellDataset.resources;
-				else if( cell.type == 2 ) crystalsTotal += frameCellDataset.resources;
+				if( cell.type == CellType.Crystal ) {
+					crystalCells.set( i, true );
+					remainingCrystals += cell.resources;
+				}
 			}
 		}
-		
-		myAntsPerBase = int( myAntsTotal / myBaseIds.length );
 		
 		if( turn == 0 ) {
 			pathDataset = { paths: GetPaths.get( cells ), width: cells.length };
+			startAnts = myAntsTotal;
+			eggsTotal = remainingEggs;
+			crystalsTotal = remainingCrystals;
 			antsTotal = myAntsTotal + oppAntsTotal + eggsTotal;
-			// final start = Timer.stamp();
-			// printErr( 'Paths calculation time: ${Timer.stamp() - start}' );
-			// printErr( 'eggsTotal $eggsTotal' );
-			// printErr( 'crystalsTotal $crystalsTotal' );
 		}
 
+		calcStats();
+		
 		switch phase {
-			case Eggs: if( myAntsTotal > antsTotal / 2 || remainingEggs == 0 ) phase = ContestedCrystals;
+			case Eggs: if( ratioEggsGathered >= 0.5 || remainingEggs == 0 ) phase = ContestedCrystals;
 			case ContestedCrystals: // no-op
 			case SaveCrystals: // no-op
 		}
@@ -106,9 +111,18 @@ class Ai10 implements IAi {
 		myAntsTotal = 0;
 		oppAntsTotal = 0;
 		remainingEggs = 0;
+		remainingCrystals = 0;
 		resourceCells.clear();
 		eggCells.clear();
 		crystalCells.clear();
+	}
+
+	inline function calcStats() {
+		myAntsPerBase = int( myAntsTotal / myBaseIds.length );
+		final eggsGathered = myAntsTotal - startAnts;
+		ratioEggsGathered = eggsGathered / eggsTotal;
+		ratioCrystalsGathered = myScore / crystalsTotal;
+		// printErr( 'ratioEggsGathered $ratioEggsGathered  ratioCrystalsGathered $ratioCrystalsGathered' );
 	}
 
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
@@ -129,7 +143,7 @@ class Ai10 implements IAi {
 			}
 		}
 		turn++;
-		printErr( 'beacons ' + [for( cellId => amount in beacons ) cellId].join( "," ));
+		printErr( 'beacons ' + [for( cellId => _ in beacons ) cellId].join( "," ));
 		final outputs = [for( cellId => amount in beacons ) 'BEACON $cellId $amount'];
 		
 		if( outputs.length == 0 ) return "WAIT";
@@ -168,15 +182,23 @@ class Ai10 implements IAi {
 		// for( eggTarget in targets ) printErr( '$eggTarget  distance: ${pathDataset.getDistance( baseId, eggTarget )}' );
 		
 		beacons.set( baseId, 1 );
-		var remainingAnts = myAntsPerBase;
+		var treeLength = 1;
+		var targetsNum = 0;
+		
 		for( target in targets ) {
 			final path = pathDataset.getPath( target, baseId );
 			final shortestPath = getShortestPath( path, beacons );
-			remainingAnts -= shortestPath.length * 2;
-			if( remainingAnts > 0 ) for( cellId in shortestPath ) beacons.set( cellId, 1 );
+			
+			final currentProduction = myAntsPerBase / treeLength * targetsNum;
+			final nextProduction = myAntsPerBase / ( treeLength + shortestPath.length ) * ( targetsNum + 1 );
+			if( nextProduction > currentProduction ) {
+				for( cellId in shortestPath ) beacons.set( cellId, 1 );
+				treeLength += shortestPath.length;
+				targetsNum++;
+			}
 			else break;
 			// printErr( 'path $path  shortestPath $shortestPath  difference ${path.length - shortestPath.length}' );
-			// printErr( 'remainingAnts $remainingAnts' );
+			// printErr( 'currentProduction $currentProduction  nextProduction $nextProduction' );
 		}
 	}
 
@@ -184,6 +206,9 @@ class Ai10 implements IAi {
 		targets.sort(( a, b ) -> pathDataset.getDistance( baseId, a ) - pathDataset.getDistance( baseId, b ));
 		
 		beacons.set( baseId, 1 );
+		var treeLength = 1;
+		var targetsNum = 0;
+
 		final myTargets = [];
 		final oppTargets = [];
 		final contestedTargets = [];
@@ -208,8 +233,13 @@ class Ai10 implements IAi {
 			final path = pathDataset.getPath( target, baseId );
 			final shortestPath = getShortestPath( path, beacons );
 			// printErr( 'path $path  shortestPath $shortestPath  difference ${path.length - shortestPath.length}' );
-			remainingAnts -= shortestPath.length * 2;
-			if( remainingAnts > 0 ) for( cellId in shortestPath ) beacons.set( cellId, 2 );
+			final currentProduction = myAntsPerBase / treeLength * targetsNum;
+			final nextProduction = myAntsPerBase / ( treeLength + shortestPath.length ) * ( targetsNum + 1 );
+			if( nextProduction > currentProduction ) {
+				for( cellId in shortestPath ) beacons.set( cellId, 1 );
+				treeLength += shortestPath.length;
+				targetsNum++;
+			}
 			else break;
 		}
 		
@@ -217,8 +247,13 @@ class Ai10 implements IAi {
 			final path = pathDataset.getPath( target, baseId );
 			final shortestPath = getShortestPath( path, beacons );
 			// printErr( 'path $path  shortestPath $shortestPath  difference ${path.length - shortestPath.length}' );
-			remainingAnts -= shortestPath.length * 2;
-			if( remainingAnts > 0 ) for( cellId in shortestPath ) beacons.set( cellId, 1 );
+			final currentProduction = myAntsPerBase / treeLength * targetsNum;
+			final nextProduction = myAntsPerBase / ( treeLength + shortestPath.length ) * ( targetsNum + 1 );
+			if( nextProduction > currentProduction ) {
+				for( cellId in shortestPath ) beacons.set( cellId, 1 );
+				treeLength += shortestPath.length;
+				targetsNum++;
+			}
 			else break;
 		}
 		
@@ -226,8 +261,13 @@ class Ai10 implements IAi {
 			final path = pathDataset.getPath( target, baseId );
 			final shortestPath = getShortestPath( path, beacons );
 			// printErr( 'path $path  shortestPath $shortestPath  difference ${path.length - shortestPath.length}' );
-			remainingAnts -= shortestPath.length * 2;
-			if( remainingAnts > 0 ) for( cellId in shortestPath ) beacons.set( cellId, 1 );
+			final currentProduction = myAntsPerBase / treeLength * targetsNum;
+			final nextProduction = myAntsPerBase / ( treeLength + shortestPath.length ) * ( targetsNum + 1 );
+			if( nextProduction > currentProduction ) {
+				for( cellId in shortestPath ) beacons.set( cellId, 1 );
+				treeLength += shortestPath.length;
+				targetsNum++;
+			}
 			else break;
 		}
 	}
@@ -254,4 +294,5 @@ class Ai10 implements IAi {
 		return shortestPath.slice( 0, shortestPath.length - 1 );
 	}
 
+	
 }
