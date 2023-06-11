@@ -127,12 +127,11 @@ class Ai10 implements IAi {
 
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
-		
 		final beacons:Map<Int, Int> = [];
 		for( baseId in myBaseIds ) {
 			final targets = switch phase {
-				case Eggs: getEggTargets( baseId );
-				default: getTargets( baseId );
+				case Eggs: getTargets( baseId, eggCells );
+				default: getTargets( baseId, resourceCells );
 			}
 			
 			// printErr( 'base $baseId  targets $targets' );
@@ -151,20 +150,7 @@ class Ai10 implements IAi {
 		return outputs.join( ";" ) + ';MESSAGE $phase';
 	}
 
-	function getEggTargets( baseId:Int ) {
-		final baseTargets = [];
-		for( cellId in eggCells.keys()) {
-			final baseDistance = pathDataset.getDistance( baseId, cellId );
-			var isCloser = false;
-			for( myBaseId in myBaseIds ) {
-				if( myBaseId != baseId && pathDataset.getDistance( myBaseId, cellId ) < baseDistance ) isCloser = true;
-			}
-			if( !isCloser ) baseTargets.push( cellId );
-		}
-		return baseTargets;
-	}
-
-	function getTargets( baseId:Int ) {
+	function getTargets( baseId:Int, cells:Map<Int, Bool> ) {
 		final baseTargets = [];
 		for( cellId in resourceCells.keys()) {
 			final baseDistance = pathDataset.getDistance( baseId, cellId );
