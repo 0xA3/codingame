@@ -4,8 +4,9 @@ import Std.int;
 import Std.parseInt;
 import ai.CurrentAis;
 import ai.IAi;
+import gameengine.core.AbstractMultiplayerPlayer;
 import gameengine.core.AbstractPlayer;
-import gameengine.core.GameManager;
+import gameengine.core.MultiplayerGameManager;
 import xa3.MTRandom;
 
 using Lambda;
@@ -24,14 +25,14 @@ class MainReferee {
 		final aiMe = CurrentAis.aiMe;
 		final aiOpp = CurrentAis.aiOpp;
 
-/*		final playerMe = new Player( 0, aiMe.aiId );
+		final playerMe = new Player( 0, aiMe.aiId );
 		final playerOpp = new Player( 1, aiOpp.aiId );
 		final players = [playerMe, playerOpp];
 		final playerAis:Map<AbstractPlayer, IAi> = [playerMe => aiMe, playerOpp => aiOpp];
 
-		final gameManager = new GameManager( players, playerAis, random );
+		final gameManager = new MultiplayerGameManager( 0, random );
 		players.iter( p -> p.setGameManager( gameManager ));
-		
+/*		
 		final endScreenModule = new EndScreenModule();
 		final commandManager = new CommandManager();
 		final pathFinder = new PathFinder();

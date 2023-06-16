@@ -1,12 +1,13 @@
 package game;
 
+import gameengine.core.AbstractMultiplayerPlayer;
 import gameengine.core.AbstractReferee;
-import gameengine.core.GameManager;
+import gameengine.core.MultiplayerGameManager;
 import view.ViewModule;
 
 @:structInit class Referee extends AbstractReferee {
 
-	final gameManager:GameManager;
+	final gameManager:MultiplayerGameManager;
 	final commandManager:CommandManager;
 	final game:Game;
 	final viewModule:ViewModule;
@@ -57,4 +58,23 @@ import view.ViewModule;
 			}
 		}
 	}
+
+	override function gameTurn( turn:Int ) {
+		try {
+			game.resetGameTurnData();
+			for( player in gameManager.getActivePlayers()) {
+				for( line in game.getCurrentFrameInfoFor( player )) {
+					player.sendInputLine( line );
+				}
+				player.execute();
+			}
+			// Get output from players
+			handlePlayerCommands();
+		}
+	}
+
+	function handlePlayerCommands() {
+		
+	}
+
 }

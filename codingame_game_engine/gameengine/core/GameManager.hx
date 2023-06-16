@@ -1,9 +1,27 @@
 package gameengine.core;
 
+import haxe.ds.Vector;
+import game.exception.RuntimeException;
+import haxe.Json;
 import game.Player;
+import gameengine.java.Log;
+import gameengine.java.Scanner;
+import gameengine.core.InputCommand;
+import gameengine.exception.IllegalArgumentException;
+import gameengine.exception.IllegalStateException;
 
-class GameManager {
+using Lambda;
+/**
+ * The <code>GameManager</code> takes care of running each turn of the game and computing each visual frame of the replay. It provides many utility
+ * methods that handle instances of your implementation of AbstractPlayer.
+ *
+ * @param <T>
+ *            Your implementation of AbstractPlayer
+ */
+abstract class GameManager {
 	
+	static final log = new Log();
+
 	static final VIEW_DATA_TOTAL_SOFT_QUOTA = 512 * 1024;
 	static final VIEW_DATA_TOTAL_HARD_QUOTA = 1024 * 1024;
 	static final GAME_SUMMARY_TOTAL_HARD_QUOTA = 512 * 1024;
@@ -13,20 +31,34 @@ class GameManager {
 	static final MAX_TURN_TIME = GAME_DURATION_SOFT_QUOTA;
 	static final MIN_TURN_TIME = 50;
 
-    public final players:Array<Player>;
-    public var maxTurns = 200;
-    var turnMaxTime = 50;
-    var firstTurnMaxTime = 1000;
-    var turn:Null<Int> = null;
-    var frame = 0;
-    public var gameEnd = false;
-    
-    var newTurn:Bool;
+	var players:Array<AbstractPlayer>;
+	var maxTurns = 200;
+	var turnMaxTime = 50;
+	var firstTurnMaxTime = 1000;
+	var turn:Null<Int> = null;
+	var frame = 0;
+	var gameEnd = false;
+	var s:Scanner;
+	var out:String;
+	var referee:AbstractReferee;
+	var newTurn:Bool;
 	
-	final currentTooltips:Array<Tooltip> = [];
-	final currentGameSummary:Array<String> = [];
+	var currentTooltips:Array<Tooltip> = [];
+	var prevTooltips:Array<Tooltip>;
 
-	public var frameDuration = 1000;
+	var currentGameSummary:Array<String> = [];
+	var prevGameSummary:Array<String>;
+
+	var currentViewData:Dynamic;
+	var prevViewData:Dynamic;
+
+	var frameDuration = 1000;
+
+	var globalViewData:Dynamic = {}
+
+	var registeredModules:Array<Module> = [];
+
+	var metadata:Map<String, String> = [];
 
 	var initDone = false;
 	var outputsRead = false;
@@ -37,35 +69,345 @@ class GameManager {
 	var viewWarning:Bool;
 	var summaryWarning:Bool;
 	
-	public function new( players:Array<Player> ) {
+	public function new() {}
+
+	public function inject( referee:AbstractReferee, players:Array<AbstractPlayer> ) {
+		this.referee = referee;
 		this.players = players;
 	}
-
+	
 	public function init() {
+		turn = 0;
+		frame = 0;
+		gameEnd = false;
+
 		currentTooltips.splice( 0, currentTooltips.length );
 		currentGameSummary.splice( 0, currentGameSummary.length );
-		gameEnd = false;
 
 		initDone = false;
 		outputsRead = false;
 		totalViewDataBytesSent = 0;
 		totalGameSummaryBytes = 0;
 		totalTurnTime = 0;
-		for( player in players ) player.init();
+		// for( player in players ) player.init();
 	}
 
-	public static function formatErrorMessage( message:String ) return message;
+	/**
+	 * GameManager main loop.
+	 *
+	 * @param is
+	 *            input stream used to read commands from Game
+	 * @param out
+	 *            print stream used to issue commands to Game
+	 */
+	public function start( inputStream:String, out:String ) {
+		s = new Scanner( inputStream );
+		try {
+			this.out = out;
+		
+			// Init ---------------------------------------------------------------
+			log.info( "Init" );
+			final iCmd = InputCommand.parse( s.nextLine());
+			final playerCount = s.nextInt();
+			s.nextLine();
+
+			// for( i in 0...playerCount ) {
+			// 	final player = players[i];
+			// 	player.setIndex( i ); // index is already set in constructor
+			// }
+
+			readGameProperties( iCmd, s );
+
+			prevViewData = null;
+			currentViewData = {}
+
+			referee.init();
+			registeredModules.iter( module -> module.onGameInit());
+			initDone = true;
+
+			// Game Loop ----------------------------------------------------------
+			var turn = 1;
+			while( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
+				swapInfoAndViewData();
+				log.info( 'Turn ' + turn );
+				newTurn = true;
+				outputsRead = false; // Set as true after first getOutputs() to forbid sendInputs
+
+				referee.gameTurn( turn );
+				registeredModules.iter( module -> module.onAfterGameTurn());
+
+				// Create a frame if no player has been executed
+				if( players.length != 0 && players.filter( p -> p.hasBeenExecuted() ).length == 0 ) {
+					execute( players[0], 0 );
+				}
+
+				// reset players' outputs
+				for( player in players ) {
+					player.resetOutputs();
+					player.setHasBeenExecuted( false );
+				}
+
+				turn++;
+			}
+
+			log.info( "End" );
+
+			referee.onEnd();
+			registeredModules.iter( module -> module.onAfterOnEnd());
+
+			// Send last frame ----------------------------------------------------
+			swapInfoAndViewData();
+			newTurn = true;
+
+			dumpView();
+			dumpInfos();
+
+			dumpGameProperties();
+			dumpMetadata();
+			dumpScores();
+			
+			s.close();
+
+		} catch( e ) {
+			dumpFail( e );
+			s.close();
+			throw e;
+		}
+	}
+
+	function allPlayersInactive() return false;
+
+	function readGameProperties( iCmd:InputCommand, s:Scanner ) {}
 
 	/**
-	 * Adds a tooltip for the current turn.
+	 * Executes a player for a maximum of turnMaxTime milliseconds and store the output. Used by player.execute().
 	 *
 	 * @param player
-	 * The player the tooltip information is about.
-	 * @param message
-	 * Tooltip message.
+	 *            Player to execute.
+	 * @param nbrOutputLines
+	 *            The amount of expected output lines from the player.
 	 */
-	 public function addTooltip( player:Player, message:String ) {
-		currentTooltips.push( new Tooltip( player.index, message ));
+	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) {
+		try {
+			if( !this.initDone ) {
+				throw new RuntimeException( "Impossible to execute a player during init phase." );
+			}
+
+			player.setTimeout( false );
+
+			var iCmd = InputCommand.parse( s.nextLine());
+
+			if (iCmd.cmd != InputCommand.Command.GET_GAME_INFO) {
+			    throw new RuntimeException("Invalid command: " + iCmd.cmd);
+			}
+
+			dumpView();
+			dumpInfos();
+			dumpNextPlayerInput( player.getInputs() );
+			if( nbrOutputLines > 0 ) {
+				addTurnTime();
+			}
+			dumpNextPlayerInfos( player.getIndex(), nbrOutputLines, player.hasNeverBeenExecuted() ? firstTurnMaxTime : turnMaxTime );
+
+			// READ PLAYER OUTPUTS
+			iCmd = InputCommand.parse( s.nextLine() );
+			if( iCmd.cmd == gameengine.core.Command.SET_PLAYER_OUTPUT ) {
+				final output = new Vector<String>( iCmd.lineCount );
+				for( i in 0...iCmd.lineCount ) output[i] = s.nextLine();
+				player.setOutputs( output.toArray() );
+			} else if( iCmd.cmd == InputCommand.Command.SET_PLAYER_TIMEOUT ) {
+				player.setTimeout( true );
+			} else {
+				throw new RuntimeException( "Invalid command: " + iCmd.cmd );
+			}
+		}
+	}
+		/**
+	 * Executes a player for a maximum of turnMaxTime milliseconds and store the output. Used by player.execute().
+	 *
+	 * @param player
+	 *            Player to execute.
+	 */
+	function execute( player:AbstractPlayer, nbrOutputLines:Int ) {
+		executePlayer( player, player.getExpectedOutputLines() );
+	}
+
+	/**
+	 * Swap game summary and view.
+	 *
+	 * As these values are sent in the first call to gameManger.execute(player), this function allows to change the current view at the end of each
+	 * gameTurn instead of the middle of the gameTurn.
+	 */
+	function swapInfoAndViewData() {
+		prevViewData = currentViewData;
+		currentViewData = {};
+
+		prevGameSummary = currentGameSummary;
+		currentGameSummary = [];
+
+		prevTooltips = currentTooltips;
+		currentTooltips = [];
+	}
+
+	function dumpGameProperties() {}
+
+	function dumpMetadata() {
+		final data = new OutputData( OutputCommand.METADATA );
+		data.add( getMetadata() );
+		out += data;
+	}
+
+	function dumpScores() {
+		final data = new OutputData( OutputCommand.SCORES );
+		final playerScores = [];
+		for( player in players ) {
+			playerScores.push( '${player.getIndex()} ${player.getScore()}' );
+		}
+		data.addAll( playerScores );
+		out += data;
+	}
+
+	function dumpFail( e ) {
+		final data = new OutputData( OutputCommand.FAIL );
+		data.add( e.toString());
+		out += data;
+	}
+
+	function dumpView() {
+		final data = new OutputData( OutputCommand.VIEW );
+		if( newTurn ) {
+			data.add( 'KEY_FRAME $frame' );
+			if( turn == 1 ) {
+				final initFrame = {
+					global: globalViewData,
+					frame: prevViewData
+				}
+				data.add( Json.stringify( initFrame ));
+			} else {
+				data.add( prevViewData.toString());
+			}
+		} else {
+			data.add( 'INTERMEDIATE_FRAME $frame' );
+		}
+
+		final viewData = data.toString();
+
+		totalViewDataBytesSent = data.toString().length;
+
+		if( totalViewDataBytesSent > VIEW_DATA_TOTAL_HARD_QUOTA ) {
+			throw new RuntimeException( "The amount of data sent to the viewer is too big!" );
+		} else if( totalViewDataBytesSent > VIEW_DATA_TOTAL_SOFT_QUOTA && !viewWarning ) {
+			log.warn( "Warning: the amount of data sent to the viewer is too big.\nPlease try to optimize your code to send less data (try replacing some commitEntityStates by a commitWorldState)." );
+			viewWarning = true;
+		}
+
+		log.info( viewData );
+		out += data;
+
+		frame++;
+	}
+
+	function dumpInfos() {
+		final data = new OutputData( OutputCommand.INFOS );
+		trace( data );
+
+		if( newTurn && prevGameSummary != null ) {
+			final summary = new OutputData( getGameSummaryOutputCommand());
+			summary.addAll( prevGameSummary );
+			tout += summary;
+		}
+
+		if( newTurn && prevTooltips != null && prevTooltips.length > 0 ) {
+			final data = new OutputData( OutputCommand.TOOLTIP );
+			for( t in prevTooltips ) {
+				data.add( t.message );
+				data.add( '${t.player}' );
+			}
+			out += data;
+		}
+	}
+
+	function getGameSummaryOutputCommand() {
+		return OutputCommand.FAIL; // placeholder for return value of sub class
+	}
+
+	function dumpNextPlayerInfos( nextPlayer:Int, expectedOutputLineCount:Int, timeout:Int ) {
+		final data = new OutputData( OutputCommand.NEXT_PLAYER_INFO );
+		data.add( '$nextPlayer' );
+		data.add( '$expectedOutputLineCount' );
+		data.add( '$timeout' );
+
+		out += data;
+	}
+
+	function dumpNextPlayerInput( input:Array<String> ) {
+		final data = new OutputData( OutputCommand.NEXT_PLAYER_INPUT );
+		data.addAll( input );
+		out += data;
+		if( log.isInfoEnabled()) {
+			log.info( data.toString() );
+		}
+	}
+
+	function getMetadata() {
+		return metadata.toString();
+	}
+
+	function setOutputsRead( outputsRead:Bool ) {
+		this.outputsRead = outputsRead;
+	}
+
+	function getOutputsRead() {
+		return outputsRead;
+	}
+
+ 	//
+	// Public methods used by Referee:
+	//
+
+	/**
+	 * Puts a new metadata that will be included in the game's <code>GameResult</code>.
+	 * <p>
+	 * Can be used for:
+	 * </p>
+	 * <ul>
+	 * <li>Setting the value of an optimization criteria for OPTI games, used by the CodinGame IDE</li>
+	 * <li>Dumping game statistics for local analysis after a batch run of GameRunner.simulate()</li>
+	 * </ul>
+	 *
+	 * @param key
+	 *            the property to send
+	 * @param value
+	 *            the property's value
+	 */
+	 public function putMetadata( key:String, value:String ) {
+		metadata.set( key, value );
+	}
+
+   /**
+	 * Specifies the frameDuration in milliseconds. Default: 1000ms
+	 *
+	 * @param frameDuration
+	 *            The frame duration in milliseconds.
+	 * @throws IllegalArgumentException
+	 *             if frameDuration &le; 0
+	 */
+	public function setFrameDuration( frameDuration:Int ) {
+		if (frameDuration <= 0) {
+			 throw new IllegalArgumentException( "Invalid frame duration: only positive frame duration is supported" );
+		} else if( this.frameDuration != frameDuration ) {
+			this.frameDuration = frameDuration;
+			// currentViewData.addProperty("duration", frameDuration);
+		}
+	}
+
+	/**
+	 * Returns the duration in milliseconds for the frame currently being computed.
+	 *
+	 * @return the frame duration in milliseconds.
+	 */
+	public function getFrameDuration() {
+		return frameDuration;
 	}
 
 	/**
@@ -76,6 +418,150 @@ class GameManager {
 	}
 	
 	/**
+	 * Check if the game has been terminated by the referee.
+	 *
+	 * @return true if the game is over.
+	 */
+	 public function isGameEnd() {
+		return this.gameEnd;
+	}
+
+	/**
+	 * Set the maximum amount of turns. Default: 400.
+	 *
+	 * @param maxTurns
+	 *            the number of turns for a game.
+	 * @throws IllegalArgumentException
+	 *             if maxTurns &le; 0
+	 */
+	public function setMaxTurns( maxTurns :Int )  {
+		if (maxTurns <= 0) {
+			throw new IllegalArgumentException( "Invalid maximum number of turns" );
+		}
+		this.maxTurns = maxTurns;
+	}
+
+	/**
+	 * Get the maximum amount of turns.
+	 *
+	 * @return the maximum number of turns.
+	 */
+	public function getMaxTurns() {
+		return maxTurns;
+	}
+
+   /**
+	 * Set the timeout delay for every player. This value can be updated during a game and will be used by execute(). Default is 50ms.
+	 *
+	 * @param turnMaxTime
+	 *            Duration in milliseconds.
+	 * @throws IllegalArgumentException
+	 *             if turnMaxTime &lt; 50 or &gt; 25000
+	 */
+	public function setTurnMaxTime( turnMaxTime:Int ) {
+		if( turnMaxTime < MIN_TURN_TIME ) {
+			throw new IllegalArgumentException( "Invalid turn max time : stay above 50ms" );
+		} else if( turnMaxTime > MAX_TURN_TIME ) {
+			throw new IllegalArgumentException( "Invalid turn max time : stay under 25s" );
+		}
+		this.turnMaxTime = turnMaxTime;
+	}
+
+	/**
+	 * Set the timeout delay of the first turn for every player. Default is 1000ms.
+	 * 
+	 * @param firstTurnMaxTime
+	 *            Duration in milliseconds.
+	 * @throws IllegalArgumentException
+	 *             if firstTurnMaxTime &lt; 50 or &gt; 25000
+	 */
+	public function setFirstTurnMaxTime( firstTurnMaxTime:Int ) {
+		if( firstTurnMaxTime < MIN_TURN_TIME ) {
+			throw new IllegalArgumentException( "Invalid turn max time : stay above 50ms" );
+		} else if (firstTurnMaxTime > MAX_TURN_TIME) {
+			throw new IllegalArgumentException( "Invalid turn max time : stay under 25s" );
+		}
+		this.firstTurnMaxTime = firstTurnMaxTime;
+	}
+
+	/**
+	 * Get the timeout delay for every player.
+	 *
+	 * @return the current timeout duration in milliseconds.
+	*/
+	 public function getTurnMaxTime() {
+		return turnMaxTime;
+	}
+	
+	/**
+	 * Get the timeout delay of the first turn for every player.
+	 *
+	 * @return the first turn timeout duration in milliseconds.
+	*/
+	public function getFirstTurnMaxTime() {
+		return firstTurnMaxTime;
+	}
+
+	/**
+	 * Set data for use by the viewer, for the current frame.
+	 *
+	 * @param data
+	 *            any object that can be serialized in JSON using gson.
+	 */
+	public function setViewData( data:Dynamic ) {
+		setModuleViewData( "default", data );
+	}
+
+	/**
+	 * Set data for use by the viewer, for the current frame, for a specific module.
+	 *
+	 * @param moduleName
+	 *            the name of the module
+	 * @param data
+	 *            any object that can be serialized in JSON using gson.
+	 */
+	public function setModuleViewData( moduleName:String, data:Dynamic ) {
+		currentViewData.add( moduleName, Json.parse( data ));
+	}
+
+	/**
+	 * Set data for use by the viewer and not related to a specific frame. This must be use in the init only.
+	 *
+	 * @param moduleName
+	 *            the name of the module
+	 * @param data
+	 *            any object that can be serialized in JSON using gson.
+	 */
+	public function setViewGlobalData( moduleName:String, data:Dynamic ) {
+		if (initDone) {
+			throw new IllegalStateException( "Impossible to send global data to view outside of init phase" );
+		}
+		globalViewData.add( moduleName, Json.parse( data ));
+	}
+	
+	/**
+	 * Adds a tooltip for the current turn.
+	 *
+	 * @param tooltip
+	 *            A tooltip that will be shown in the player.
+	 */
+	 public function addTooltip( tooltip:Tooltip ) {
+		currentTooltips.push( tooltip );
+	}
+	
+	/**
+	 * Adds a tooltip for the current turn.
+	 *
+	 * @param player
+	 * The player the tooltip information is about.
+	 * @param message
+	 * Tooltip message.
+	 */
+	public function addPlayerTooltip( player:Player, message:String ) {
+		currentTooltips.push( new Tooltip( player.getIndex(), message ));
+	}
+
+		/**
 	 * Add a new line to the game summary for the current turn.
 	 *
 	 * @param summary
@@ -96,81 +582,54 @@ class GameManager {
 		}
 	}
 
+	function addTurnTime() {
+		totalTurnTime += turnMaxTime;
+		if( totalTurnTime > GAME_DURATION_HARD_QUOTA ) {
+			throw new RuntimeException( 'Total game duration too long (>${GAME_DURATION_HARD_QUOTA}ms)' );
+		} else if (totalTurnTime > GAME_DURATION_SOFT_QUOTA) {
+			log.warn( 'Warning: too many turns and/or too much time allocated to players per turn (${totalTurnTime}ms/${GAME_DURATION_HARD_QUOTA}ms)' );
+		}
+	}
+
+	    /**
+     * Register a module to the gameManager. After this, the gameManager will call the module callbacks automatically.
+     *
+     * @param module
+     *            the module to register
+     */
+	 public function registerModule( module:Module ) {
+        registeredModules.push( module );
+    }
+
+
+   /**
+     * Get current league level. The value can be set by using -Dleague.level=X where X is the league level.
+     *
+     * @return a strictly positive integer. 1 is the lowest level and default value.
+     */
 	public function getLeagueLevel() {
 		// return 1; // Wood 2
 		// return 2; // Wood 1
 		return 3; // Above Wood
 	}
 
-	public function getPlayerCount() return players.length;
-
-	public function getActivePlayers() return players.filter( p -> p.isActive );
-
     /**
-     * Specifies the frameDuration in milliseconds. Default: 1000ms
+     * Helper function to display a colored message. Usually used at the end of the game.
      *
-     * @param frameDuration
-     *            The frame duration in milliseconds.
-     * @throws IllegalArgumentException
-     *             if frameDuration &le; 0
+     * @param message
+     *            The message to display.
+     * @return The formatted string.
      */
-	public function setFrameDuration( frameDuration:Int ) {
-        if (frameDuration <= 0) {
-            throw "Invalid frame duration: only positive frame duration is supported";
-        } else if( this.frameDuration != frameDuration ) {
-            this.frameDuration = frameDuration;
-            // currentViewData.addProperty("duration", frameDuration);
-        }
+	public static function formatSuccessMessage( message:String ) {
+        return return message;
     }
 
-    /**
-     * Returns the duration in milliseconds for the frame currently being computed.
-     *
-     * @return the frame duration in milliseconds.
-     */
-	public function getFrameDuration() {
-        return frameDuration;
-    }
-
-   /**
-     * Set the maximum amount of turns. Default: 400.
-     *
-     * @param maxTurns
-     *            the number of turns for a game.
-     * @throws IllegalArgumentException
-     *             if maxTurns &le; 0
-     */
-	public function setMaxTurns( maxTurns :Int )  {
-        if (maxTurns <= 0) {
-            throw "Invalid maximum number of turns";
-        }
-        this.maxTurns = maxTurns;
-    }
-
-    /**
-     * Get the maximum amount of turns.
-     *
-     * @return the maximum number of turns.
-     */
-    public function getMaxTurns() {
-        return maxTurns;
-	}
-
-   /**
-     * Set the timeout delay for every player. This value can be updated during a game and will be used by execute(). Default is 50ms.
-     *
-     * @param turnMaxTime
-     *            Duration in milliseconds.
-     * @throws IllegalArgumentException
-     *             if turnMaxTime &lt; 50 or &gt; 25000
-     */
-	public function setTurnMaxTime( turnMaxTime:Int ) {
-        if( turnMaxTime < MIN_TURN_TIME ) {
-            throw "Invalid turn max time : stay above 50ms";
-        } else if( turnMaxTime > MAX_TURN_TIME ) {
-            throw "Invalid turn max time : stay under 25s";
-        }
-        this.turnMaxTime = turnMaxTime;
-    }
-
+	/**
+	 * Helper function to display a colored message. Usually used at the end of the game.
+	 *
+	 * @param message
+	 *            The message to display.
+	 * @return The formatted string.
+	 */
+	public static function formatErrorMessage( message:String ) return message;
 }
