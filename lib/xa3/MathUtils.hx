@@ -10,6 +10,8 @@ using Lambda;
 
 class MathUtils {
 
+	public static inline var INTEGER_MIN_VALUE = -2147483648;
+
 	extern public static inline function abs( v:Int ) return v < 0 ? -v : v;
 	extern public static inline function angle( x:Int, y:Int ) return -Math.atan2( x, y );
 	extern public static inline function avg( a:Float, b:Float ) return ( a + b ) / 2;

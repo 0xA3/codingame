@@ -1,7 +1,7 @@
 package gameengine.core;
 
 import haxe.ds.Vector;
-import game.exception.RuntimeException;
+import gameengine.exception.RuntimeException;
 import haxe.Json;
 import game.Player;
 import gameengine.java.Log;
@@ -314,7 +314,7 @@ abstract class GameManager {
 		if( newTurn && prevGameSummary != null ) {
 			final summary = new OutputData( getGameSummaryOutputCommand());
 			summary.addAll( prevGameSummary );
-			tout += summary;
+			out += summary;
 		}
 
 		if( newTurn && prevTooltips != null && prevTooltips.length > 0 ) {
@@ -362,7 +362,7 @@ abstract class GameManager {
 	}
 
  	//
-	// Public methods used by Referee:
+	//public methods used by Referee:
 	//
 
 	/**
@@ -380,7 +380,7 @@ abstract class GameManager {
 	 * @param value
 	 *            the property's value
 	 */
-	 public function putMetadata( key:String, value:String ) {
+	public function putMetadata( key:String, value:String ) {
 		metadata.set( key, value );
 	}
 
@@ -422,7 +422,7 @@ abstract class GameManager {
 	 *
 	 * @return true if the game is over.
 	 */
-	 public function isGameEnd() {
+	public function isGameEnd() {
 		return this.gameEnd;
 	}
 
@@ -469,7 +469,7 @@ abstract class GameManager {
 
 	/**
 	 * Set the timeout delay of the first turn for every player. Default is 1000ms.
-	 * 
+	 *
 	 * @param firstTurnMaxTime
 	 *            Duration in milliseconds.
 	 * @throws IllegalArgumentException
@@ -489,7 +489,7 @@ abstract class GameManager {
 	 *
 	 * @return the current timeout duration in milliseconds.
 	*/
-	 public function getTurnMaxTime() {
+	public function getTurnMaxTime() {
 		return turnMaxTime;
 	}
 	
@@ -545,7 +545,7 @@ abstract class GameManager {
 	 * @param tooltip
 	 *            A tooltip that will be shown in the player.
 	 */
-	 public function addTooltip( tooltip:Tooltip ) {
+	public function addTooltip( tooltip:Tooltip ) {
 		currentTooltips.push( tooltip );
 	}
 	
@@ -561,13 +561,13 @@ abstract class GameManager {
 		currentTooltips.push( new Tooltip( player.getIndex(), message ));
 	}
 
-		/**
+	/**
 	 * Add a new line to the game summary for the current turn.
 	 *
 	 * @param summary
 	 * summary line to add to the current summary.
 	 */
-	 public function addToGameSummary( summary:String ) {
+	public function addToGameSummary( summary:String ) {
 		
 		#if game Sys.println( summary ); #end
 		
@@ -597,7 +597,7 @@ abstract class GameManager {
      * @param module
      *            the module to register
      */
-	 public function registerModule( module:Module ) {
+	public function registerModule( module:Module ) {
         registeredModules.push( module );
     }
 

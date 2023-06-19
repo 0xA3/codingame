@@ -1,5 +1,6 @@
 -lib xa3.format
 -lib tink_core
+-cp ../../lib/
 -cp ../../codingame_game_engine/
 -cp ../../codingame_extension/
 -cp src

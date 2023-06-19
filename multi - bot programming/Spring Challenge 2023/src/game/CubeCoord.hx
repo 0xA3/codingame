@@ -1,8 +1,10 @@
 package game;
 
 class CubeCoord {
-	
+
 	public static final directions:Array<Array<Int>> = [[ 1, -1, 0 ], [ 1, 0, -1 ], [ 0, 1, -1 ], [ -1, 1, 0 ], [ -1, 0, 1 ], [ 0, -1, 1 ]];
+	public static final CENTER = new CubeCoord( 0, 0, 0 );
+	public static final NO_COORD = new CubeCoord( 0, 0, 0 );
 
 	public final x:Int;
 	public final y:Int;
@@ -17,6 +19,18 @@ class CubeCoord {
 	}
 
 	inline function toS( x:Int, y:Int, z:Int ) return '$x$y$z';
+
+	public function getX() {
+        return x;
+    }
+
+    public function getY() {
+        return y;
+    }
+
+    public function getZ() {
+        return z;
+    }
 
 	public function hashCode() {
 		final prime = 31;
@@ -43,21 +57,21 @@ class CubeCoord {
         return new CubeCoord(nx, ny, nz);
 	}
 
+    /**
+     * Warning: this return ALL neighbor coords, even those that aren't within the board limits.
+     */
+	public function neighbors() {
+		final neighborCoords:Array<CubeCoord> = [];
+		for( i in 0...CubeCoord.directions.length ) {
+			final next = this.neighbor( i );
+			neighborCoords.push( next );
+		}
+		return neighborCoords;
+	}
+
 	public function distanceTo( dst:CubeCoord ) return ( Math.abs( x - dst.x ) + Math.abs( y - dst.y ) + Math.abs( z - dst.z )) / 2;
 
 	public function toString() return '$x $y $z';
 
 	public function getOpposite() return new CubeCoord( -x, -y, -z );
-
-	// public function getFromArray( coords:Array<CubeCoord> ) {
-	// 	for( c in coords ) if( c.equals( this )) return c;
-	// 	// throw 'Error: $this not found in array $coords';
-	// 	return new CubeCoord( -1, -1, -1 );
-	// }
-
-	// public function getOppositeFromArray( coords:Array<CubeCoord> ) {
-	// 	final opposite = getOpposite();
-	// 	for( c in coords ) if( c.equals( opposite )) return c;
-	// 	throw 'Error: opposite of $this not found in array $coords';
-	// }
 }

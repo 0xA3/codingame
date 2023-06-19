@@ -5,4 +5,5 @@ enum ActionType {
 	LINE;
 	MESSAGE;
 	WAIT;
+	NONE;
 }

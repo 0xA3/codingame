@@ -1,6 +1,6 @@
 package gameengine.core;
 
-import game.exception.RuntimeException;
+import gameengine.exception.RuntimeException;
 
 /**
  * An Exception thrown by <code>getOutputs()</code> when the player's AI did not respond in time after an <code>execute()</code>.

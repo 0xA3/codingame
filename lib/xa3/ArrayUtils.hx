@@ -1,12 +1,17 @@
 package xa3;
 
 import haxe.ds.Vector;
+import haxe.ds.Option;
 import Std.int;
 import xa3.MathUtils;
 import xa3.StringUtils.repeat;
 
 class ArrayUtils {
 
+	extern public static inline function addAll<T>( a:Array<T>, b:Array<T> ) {
+		for( x in b ) a.push( x );
+	}
+	
 	extern public static inline function alignRight( a:Array<String> ) {
 		final m = maxLength( a );
 		return a.map( s -> repeat(" ", m - s.length ) + s );
@@ -15,6 +20,58 @@ class ArrayUtils {
 	extern public static inline function alignCenter( a:Array<String> ) {
 		final center = int( maxLength( a ) / 2 );
 		return a.map( s -> repeat(" ", center - int( s.length / 2 )) + s );
+	}
+
+	extern public static inline function anyMatch<T>( a:Array<T>, f:( T ) -> Bool ) {
+		var found = false;
+		for( x in a ) if( f(x) ) {
+			found = true;
+			break;
+		}
+		return found;
+	}
+
+	/**
+	 * Removes all elements from this Array.
+	 */
+	extern public static inline function clear<T>( a:Array<T> ) a.splice( 0, a.length );
+	 
+	/**
+	 * Return the first Element of `this` Array
+	 */
+	extern public static inline function first<T>( a:Array<T> ):T {
+		return a[0];
+	}
+	
+	/**
+	 * returns the first element in an array that satisfies the provided testing function
+	 */
+	extern public static inline function find<T>( a:Array<T>, f:(item:T) -> Bool ) {
+		var index = -1;
+		for( x in 0...a.length ) if( f( a[x] )) {
+			index = x;
+			break;
+		}
+		return a[index];
+	}
+	
+	/**
+	 * returns the index of the first element in an array that satisfies the provided testing function
+	 */
+	extern public static inline function findIndex<T>( a:Array<T>, f:(item:T) -> Bool ) {
+		var index = -1;
+		for( x in 0...a.length ) if( f( a[x] )) {
+			index = x;
+			break;
+		}
+		return index;
+	}
+	
+	/**
+	 * Returns `True` if Array.length is 0
+	 */
+	extern public static inline function isEmpty<T>( a:Array<T> ):Bool {
+		return a.length == 0;
 	}
 
 	extern public static inline function compare<T>( a1:Array<T>, a2:Array<T> ) {
@@ -68,6 +125,21 @@ class ArrayUtils {
 		return result;
 	}
 
+	extern public static inline function shuffle<T>( a:Array<T>, ?mtRandom:MTRandom ) {
+		final rnd = mtRandom == null ? Std.random : mtRandom.nextInt;
+		for( i in -a.length + 1...0 ) {
+			final j = rnd( -i + 1 );
+			final temp = a[-i];
+			a[-i] = a[j];
+			a[j] = temp;
+		}
+	}
+	
+	extern public static inline function findAny<T>( a:Array<T> ) {
+		if( a.length == 0 ) return None;
+		return Some( a[0] );
+	}
+
 	extern public static inline function fact( a:Array<Int> ) {
 		var fact = 1;
 		for( v in a ) fact *= v;
@@ -97,6 +169,32 @@ class ArrayUtils {
 		return a[a.length - 1];
 	}
 
+	extern public static inline function maxIndex( a:Array<Float> ) {
+		var max = 0.0;
+		var maxIndex = -1;
+		for( i in 0...a.length ) {
+			final v = a[i];
+			if( v > max ) {
+				max = v;
+				maxIndex = i;
+			}
+		}
+		return maxIndex;
+	}
+	
+	extern public static inline function minIndex( a:Array<Float> ) {
+		var min = Math.POSITIVE_INFINITY;
+		var minIndex = -1;
+		for( i in 0...a.length ) {
+			final v = a[i];
+			if( v < min ) {
+				min = v;
+				minIndex = i;
+			}
+		}
+		return minIndex;
+	}
+	
 	extern public static inline function maxLength( a:Array<String> ) {
 		var m = 0;
 		for( s in a ) m = MathUtils.max( m, s.length );
@@ -113,6 +211,12 @@ class ArrayUtils {
 		var m = 0.0;
 		for( v in a ) m = Math.min( m, v );
 		return m;
+	}
+
+	extern public static inline function removeIf<T>( a:Array<T>, f:(item:T) -> Bool ) {
+		for( i in -a.length + 1...1 ) {
+			if( f( a[-i] )) a.remove( a[-i] );
+		}
 	}
 
 	extern public static inline function repeatArray<T>( v:T, n:Int ) {

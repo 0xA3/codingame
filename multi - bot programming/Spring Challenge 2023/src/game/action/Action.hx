@@ -1,12 +1,9 @@
 package game.action;
 
-abstract class Action {
-	
-	final type:ActionType;
-
-	function new( type:ActionType ) {
-		this.type = type;
-	}
-
-	public function getType() return type;
+enum Action {
+	BEACON( cellIndex:Int, power:Int );
+	LINE( from:Int, to:Int, ants:Int );
+	MESSAGE( message:String );
+	WAIT;
+	NONE;
 }

@@ -126,6 +126,10 @@ class StringUtils {
 		return s.substr( 0, start ) + s.substr( end );
 	}
 
+	extern public static inline function startsWith( s1:String, s2:String ) {
+		return s1.substr( 0, s2.length ) == s2;
+	}
+
 	extern public static inline function reverse( s:String ) {
 		final buf = new StringBuf();
 		for( i in 0...s.length ) buf.add( s.charAt( s.length - 1 - i ));

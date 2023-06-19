@@ -1,12 +1,12 @@
 package game;
 
-import Std.int;
 import Std.parseInt;
 import ai.CurrentAis;
 import ai.IAi;
-import gameengine.core.AbstractMultiplayerPlayer;
+import event.Animation;
 import gameengine.core.AbstractPlayer;
 import gameengine.core.MultiplayerGameManager;
+import gameengine.module.endscreen.EndScreenModule;
 import xa3.MTRandom;
 
 using Lambda;
@@ -32,15 +32,17 @@ class MainReferee {
 
 		final gameManager = new MultiplayerGameManager( 0, random );
 		players.iter( p -> p.setGameManager( gameManager ));
-/*		
-		final endScreenModule = new EndScreenModule();
+		
+		final endScreenModule = new EndScreenModule( gameManager );
+		
 		final commandManager = new CommandManager();
-		final pathFinder = new PathFinder();
+		commandManager.inject( gameManager );
+		
 		final animation = new Animation();
 		final gameSummaryManager = new GameSummaryManager();
-		final game = new Game( gameManager, endScreenModule, pathFinder, animation, gameSummaryManager );
+		final game = new Game( gameManager, endScreenModule, animation, gameSummaryManager );
 
-		final gameDataProvider = new GameDataProvider( game, gameManager );
+/*		final gameDataProvider = new GameDataProvider( game, gameManager );
 
 		final viewModule = new ViewModule( gameManager, gameDataProvider );
 		final referee = new Referee( gameManager, commandManager, game, viewModule );

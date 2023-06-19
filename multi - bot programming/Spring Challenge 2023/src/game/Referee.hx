@@ -1,6 +1,6 @@
 package game;
 
-import gameengine.core.AbstractMultiplayerPlayer;
+import gameengine.core.AbstractPlayer.TimeoutException;
 import gameengine.core.AbstractReferee;
 import gameengine.core.MultiplayerGameManager;
 import view.ViewModule;
@@ -75,6 +75,18 @@ import view.ViewModule;
 
 	function handlePlayerCommands() {
 		
+		for( player in gameManager.getActivePlayers()) {
+			try {
+				commandManager.parseCommands( player, player.getOutputs());
+			} catch( e:TimeoutException ) {
+				player.deactivate( "Timeout!" );
+				gameManager.addToGameSummary( '${player.getNicknameToken()} has not provided ${player.getExpectedOutputLines()} lines in time' );
+			}
+		}
+	}
+
+	override function onEnd() {
+		game.onEnd();
 	}
 
 }

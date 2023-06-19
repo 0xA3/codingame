@@ -1,3 +1,3 @@
-package game.exception;
+package gameengine.exception;
 
 class RuntimeException extends haxe.Exception {}
