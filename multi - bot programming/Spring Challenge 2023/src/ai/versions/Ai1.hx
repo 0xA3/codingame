@@ -29,7 +29,7 @@ class Ai1 implements IAi {
 		this.oppBaseIndices = oppBaseIndices;
 	}
 	
-	public function setInputs( frameCellDatasets:Array<FrameCellDataset> ) {
+	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {
 		for( i in 0...frameCellDatasets.length ) {
 			cells[i].resources = frameCellDatasets[i].resources;
 			cells[i].myAnts = frameCellDatasets[i].myAnts;

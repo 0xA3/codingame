@@ -38,7 +38,7 @@ class Ai3 implements IAi {
 		nodes = [for( _ in cells ) new Node()];
 	}
 	
-	public function setInputs( frameCellDatasets:Array<FrameCellDataset> ) {
+	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {
 		myAntsTotal = 0;
 		oppAntsTotal = 0;
 		for( i in 0...frameCellDatasets.length ) {

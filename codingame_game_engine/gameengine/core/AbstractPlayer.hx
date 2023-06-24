@@ -103,7 +103,7 @@ abstract class AbstractPlayer {
 	 * Executes the player for a maximum of turnMaxTime milliseconds and store the output.
 	 */
 	public function execute() {
-		//gameManagerProvider.get().execute(this);
+		gameManager.execute( this );
 		_hasBeenExecuted = true;
 		_hasNeverBeenExecuted = false;
 	}
@@ -116,7 +116,7 @@ abstract class AbstractPlayer {
      *             if the player's AI crashes or stops responding
      */
  	public function getOutputs() {
-		// gameManagerProvider.get().setOutputsRead( true );
+		gameManager.setOutputsRead( true );
         if( !_hasBeenExecuted ) {
             throw new RuntimeException( "Can't get outputs without executing it! ");
         }

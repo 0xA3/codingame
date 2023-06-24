@@ -52,6 +52,7 @@ class MainReferee {
 
 		final viewModule = new ViewModule( gameManager, gameDataProvider );
 		final referee = new Referee( gameManager, commandManager, game, viewModule );
+		// referee.init();
 
 		gameManager.inject( referee, cast players );
 
@@ -88,6 +89,10 @@ class MainReferee {
 		inputStream.clear();
 		inputStream.add( "INIT" );
 		inputStream.add( "2" );
+		inputStream.add( "" );
 		inputStream.add( "GET_GAME_INFO" );
+		inputStream.add( "SET_PLAYER_OUTPUT" );
+		inputStream.add( "GET_GAME_INFO" );
+		inputStream.add( "SET_PLAYER_OUTPUT" );
 	}
 }

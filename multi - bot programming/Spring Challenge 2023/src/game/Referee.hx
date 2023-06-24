@@ -71,7 +71,7 @@ class Referee extends AbstractReferee {
 		}
 	}
 
-	override function gameTurn( turn:Int ) {
+	override function gameTurn( turn:Int ) { trace( 'gameTurn $turn' );
 		try {
 			game.resetGameTurnData();
 			for( player in gameManager.getActivePlayers()) {

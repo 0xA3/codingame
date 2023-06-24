@@ -57,7 +57,7 @@ class Game {
 		return gameTurn % Config.FRAMES_PER_TURN == 0;
 	}
 
-	public function resetGameTurnData() {
+	public function resetGameTurnData() { //trace( "resetGameTurnData" );
 		if( isKeyFrame()) {
 			board.cells.iter( cell -> cell.removeBeacons());
 		}

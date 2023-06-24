@@ -102,7 +102,7 @@ abstract class GameManager {
 	 */
 	public function start( inputStream:haxe.ds.List<String>, out:haxe.ds.List<OutputData> ) {
 		s = new Scanner( inputStream );
-		try {
+		// try {
 			this.out = out;
 		
 			// Init ---------------------------------------------------------------
@@ -138,7 +138,7 @@ abstract class GameManager {
 
 				// Create a frame if no player has been executed
 				if( players.length != 0 && players.filter( p -> p.hasBeenExecuted() ).length == 0 ) {
-					execute( players[0], 0 );
+					executePlayer( players[0], 0 );
 				}
 
 				// reset players' outputs
@@ -168,11 +168,11 @@ abstract class GameManager {
 			
 			s.close();
 
-		} catch( e ) {
-			dumpFail( e );
-			s.close();
-			throw e;
-		}
+		// } catch( e ) {
+		// 	dumpFail( e );
+		// 	s.close();
+		// 	throw e;
+		// }
 	}
 
 	function allPlayersInactive() return false;
@@ -187,7 +187,7 @@ abstract class GameManager {
 	 * @param nbrOutputLines
 	 *            The amount of expected output lines from the player.
 	 */
-	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) {
+	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) { trace( 'executePlayer ${player.getIndex()}' );
 		try {
 			if( !this.initDone ) {
 				throw new RuntimeException( "Impossible to execute a player during init phase." );
@@ -220,7 +220,11 @@ abstract class GameManager {
 			} else {
 				throw new RuntimeException( "Invalid command: " + iCmd.cmd );
 			}
-		}
+		} catch ( e ) {
+            //Don't let the user catch game fail exceptions
+            dumpFail( e );
+            throw e;
+        }
 	}
 		/**
 	 * Executes a player for a maximum of turnMaxTime milliseconds and store the output. Used by player.execute().
@@ -228,7 +232,7 @@ abstract class GameManager {
 	 * @param player
 	 *            Player to execute.
 	 */
-	function execute( player:AbstractPlayer, nbrOutputLines:Int ) {
+	public function execute( player:AbstractPlayer ) {
 		executePlayer( player, player.getExpectedOutputLines() );
 	}
 
@@ -251,13 +255,13 @@ abstract class GameManager {
 
 	function dumpGameProperties() {}
 
-	function dumpMetadata() {
+	function dumpMetadata() { trace( "dumpMetadata" );
 		final data = new OutputData( OutputCommand.METADATA );
 		data.add( getMetadata() );
 		out.add( data );
 	}
 
-	function dumpScores() {
+	function dumpScores() { trace( "dumpScores" );
 		final data = new OutputData( OutputCommand.SCORES );
 		final playerScores = [];
 		for( player in players ) {
@@ -273,7 +277,7 @@ abstract class GameManager {
 		out.add( data );
 	}
 
-	function dumpView() {
+	function dumpView() { trace( "dumpView" );
 		final data = new OutputData( OutputCommand.VIEW );
 		if( newTurn ) {
 			data.add( 'KEY_FRAME $frame' );
@@ -307,7 +311,7 @@ abstract class GameManager {
 		frame++;
 	}
 
-	function dumpInfos() {
+	function dumpInfos() { trace( "dumpInfos" );
 		final data = new OutputData( OutputCommand.INFOS );
 		Sys.println( data );
 
@@ -331,7 +335,7 @@ abstract class GameManager {
 		return OutputCommand.FAIL; // placeholder for return value of sub class
 	}
 
-	function dumpNextPlayerInfos( nextPlayer:Int, expectedOutputLineCount:Int, timeout:Int ) {
+	function dumpNextPlayerInfos( nextPlayer:Int, expectedOutputLineCount:Int, timeout:Int ) { trace( "dumpNextPlayerInfos" );
 		final data = new OutputData( OutputCommand.NEXT_PLAYER_INFO );
 		data.add( '$nextPlayer' );
 		data.add( '$expectedOutputLineCount' );
@@ -340,7 +344,7 @@ abstract class GameManager {
 		out.add( data );
 	}
 
-	function dumpNextPlayerInput( input:Array<String> ) {
+	function dumpNextPlayerInput( input:Array<String> ) { trace( "dumpNextPlayerInput" );
 		final data = new OutputData( OutputCommand.NEXT_PLAYER_INPUT );
 		data.addAll( input );
 		out.add( data );
@@ -353,7 +357,7 @@ abstract class GameManager {
 		return metadata.toString();
 	}
 
-	function setOutputsRead( outputsRead:Bool ) {
+	public function setOutputsRead( outputsRead:Bool ) {
 		this.outputsRead = outputsRead;
 	}
 

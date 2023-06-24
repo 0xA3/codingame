@@ -19,6 +19,7 @@ class Scanner {
 		if( stream.isEmpty()) {
 			throw "Error: stream is empty";
 		}
+		trace( 'nextLine ${stream.first()}' );
 		return stream.pop();
 	}
 
@@ -26,6 +27,7 @@ class Scanner {
 		if( stream.isEmpty()) {
 			throw "Error: stream is empty";
 		}
+		trace( 'nextInt ${stream.first()}' );
 		return parseInt( stream.pop() );
 	}
 }
