@@ -39,7 +39,7 @@ abstract class GameManager {
 	var frame = 0;
 	var gameEnd = false;
 	var s:Scanner;
-	var out:String;
+	var out:haxe.ds.List<OutputData>;
 	var referee:AbstractReferee;
 	var newTurn:Bool;
 	
@@ -100,7 +100,7 @@ abstract class GameManager {
 	 * @param out
 	 *            print stream used to issue commands to Game
 	 */
-	public function start( inputStream:String, out:String ) {
+	public function start( inputStream:haxe.ds.List<String>, out:haxe.ds.List<OutputData> ) {
 		s = new Scanner( inputStream );
 		try {
 			this.out = out;
@@ -254,7 +254,7 @@ abstract class GameManager {
 	function dumpMetadata() {
 		final data = new OutputData( OutputCommand.METADATA );
 		data.add( getMetadata() );
-		out += data;
+		out.add( data );
 	}
 
 	function dumpScores() {
@@ -264,13 +264,13 @@ abstract class GameManager {
 			playerScores.push( '${player.getIndex()} ${player.getScore()}' );
 		}
 		data.addAll( playerScores );
-		out += data;
+		out.add( data );
 	}
 
 	function dumpFail( e ) {
 		final data = new OutputData( OutputCommand.FAIL );
 		data.add( e.toString());
-		out += data;
+		out.add( data );
 	}
 
 	function dumpView() {
@@ -302,7 +302,7 @@ abstract class GameManager {
 		}
 
 		log.info( viewData );
-		out += data;
+		out.add( data );
 
 		frame++;
 	}
@@ -314,7 +314,7 @@ abstract class GameManager {
 		if( newTurn && prevGameSummary != null ) {
 			final summary = new OutputData( getGameSummaryOutputCommand());
 			summary.addAll( prevGameSummary );
-			out += summary;
+			out.add( summary );
 		}
 
 		if( newTurn && prevTooltips != null && prevTooltips.length > 0 ) {
@@ -323,7 +323,7 @@ abstract class GameManager {
 				data.add( t.message );
 				data.add( '${t.player}' );
 			}
-			out += data;
+			out.add( data );
 		}
 	}
 
@@ -337,13 +337,13 @@ abstract class GameManager {
 		data.add( '$expectedOutputLineCount' );
 		data.add( '$timeout' );
 
-		out += data;
+		out.add( data );
 	}
 
 	function dumpNextPlayerInput( input:Array<String> ) {
 		final data = new OutputData( OutputCommand.NEXT_PLAYER_INPUT );
 		data.addAll( input );
-		out += data;
+		out.add( data );
 		if( log.isInfoEnabled()) {
 			log.info( data.toString() );
 		}

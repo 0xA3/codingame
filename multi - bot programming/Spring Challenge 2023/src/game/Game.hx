@@ -2,8 +2,11 @@ package game;
 
 import event.Animation;
 import event.EventData;
+import game.move.AntAllocater;
+import game.move.AntMove;
 import gameengine.core.MultiplayerGameManager;
 import gameengine.module.endscreen.EndScreenModule;
+import haxe.ds.HashMap;
 import xa3.MTRandom;
 import xa3.MathUtils;
 
@@ -90,7 +93,7 @@ class Game {
 		final lines:Array<String> = [];
 		final other = getOpponent( player );
 		if( Config.SCORES_IN_IO ) {
-			lines.push( '${player.getPoints()} ${other.getPoints()}' );
+			lines.push( '${player.points} ${other.points}' );
 		}
 		for( coord in board.coords ) {
 			final cell = board.get( coord );
@@ -103,8 +106,8 @@ class Game {
 	function doBuild() {
 		final eggCells = board.getEggCells();
 		final builds:Array<AntConsumption> = [];
-		for( player in gameManager.getPlayers()) {
-			builds.addAll( computeCellConsumption( cast player, eggCells ));
+		for( player in players ) {
+			builds.addAll( computeCellConsumption( player, eggCells ));
 		}
 		for( build in builds ) {
 			for( idx in build.player.anthills ) {
@@ -117,11 +120,41 @@ class Game {
 	}
 
 	function doFights() {
-		
+		if( Config.FIGHTING_ANTS_KILL ) {
+			for( coord in board.coords ) {
+				final cell = board.get( coord );
+				final ants0 = cell.getAntsId( 0 );
+				final ants1 = cell.getAntsId( 1 );
+				cell.removeAntsId( 0, MathUtils.min( Config.MAX_ANT_LOSS, ants1 ));
+				cell.removeAntsId( 1, MathUtils.min( Config.MAX_ANT_LOSS, ants0 ));
+			}
+		}
 	}
 
 	public function performGameUpdate( frameIdx:Int ) {
-		
+		doLines();
+		doBeacons();
+		doMove();
+		animation.catchUp();
+		if( moveAnimatedThisTurn ) {
+			animation.wait( Animation.THIRD );
+		}
+		doFights();
+		doBuild();
+		animation.catchUp();
+		board.resetAttackCache();
+		doScore();
+		animation.catchUp();
+		gameTurn++;
+		if( checkGameOver()) {
+			gameManager.endGame();
+		}
+
+		gameManager.addToGameSummary( gameSummaryManager.toString());
+		gameSummaryManager.clear();
+
+		final frameTime = animation.computeEvents();
+		gameManager.setFrameDuration( frameTime );
 	}
 
 	function computeCellConsumption( player:Player, targetCells:Array<Cell> ) {
@@ -156,7 +189,7 @@ class Game {
 			final maxMin = bestPath.length > 0 ? pathValue( player, bestPath ) : 0;
 
 			// What if there's only 1 food on a cell and both players eat it at the same time?
-            // => it gets duplicated and they both eat 1
+			// => it gets duplicated and they both eat 1
 			final foodEaten = MathUtils.min( maxMin, foodCell.getRichness());
 			if( foodEaten > 0 ) {
 				meals.push({ player: player, amount: foodEaten, cell: foodCell, path: bestPath });
@@ -166,38 +199,120 @@ class Game {
 	}
 
 	function pathValue( player:Player, list:Array<Cell> ) {
-		return 0;
+		if( list.length == 0 ) return 0;
+		return list.map( cell -> cell.getAntsPlayer( player )).min();
 	}
 
 	function doScore() {
-		
+		final foodCells = board.getFoodCells();
+		final meals:Array<AntConsumption> = [];
+		for( player in players ) {
+			// For each food output, find best path that leads to one of the player's anthills.
+			// The best path is the one with the largest minimum amount of ants on a node of the path.
+			// e.g.   food--- 10 --- 2 --- 10 --- hill
+			//         \            /      /
+			//          \---5------7----6-/                 should retrieve the path food-5-7-6-10-hill
+			// the player should then be given as many points as the lowest node: 5 points.
+			// This repeats for each food source.
+			meals.addAll( computeCellConsumption( player, foodCells ));
+		}
+
+		for( meal in meals ) {
+			launchFoodEvent( meal );
+			gameSummaryManager.addMeal( meal );
+
+			meal.player.addPoints( meal.amount );
+			meal.cell.deplete( meal.amount );
+		}
 	}
 
 	function launchFoodEvent( meal:AntConsumption ) {
-		
+		final e = new EventData();
+		e.type = EventData.FOOD;
+		e.playerIdx = meal.player.getIndex();
+		e.path = meal.path.map( cell -> cell.getIndex());
+
+		e.amount = meal.amount;
+		animation.startAnim( e.animData, Animation.HALF );
+		viewerEvents.push( e );
 	}
 
 	function doMove() {
-		
+		for( player in players ) {
+			final playerAntCells = getPlayerAntCells( player );
+			final playerBeaconCells = getPlayerBeaconCells( player );
+			final allocations = AntAllocater.allocateAnts( playerAntCells, playerBeaconCells, player.getIndex(), board );
+
+			final moves = new HashMap<AntMove, Int>();
+
+			for( alloc in allocations ) {
+				// Get next step in path
+				final path = board.findShortestPath( alloc.getAntIndex(), alloc.getBeaconIndex(), player.getIndex());
+
+				if( path.length > 1 ) {
+					final neighbor = path[1];
+					final from = alloc.getAntIndex();
+					final to = neighbor;
+					final amount = alloc.getAmount();
+
+					final antMove = new AntMove( from, to );
+					antMoveCompute( moves, antMove, (k, v:Null<Int>) -> v == null ? amount : v + amount );
+				}
+			}
+
+			for( move => amount in moves ) {
+				applyMove( move.getFrom(), move.getTo(), amount, player.getIndex());
+			}
+		}
 	}
 
+	function antMoveCompute( map:HashMap<AntMove, Int>, key:AntMove, remappingFunction:( k:AntMove, v:Int ) -> Null<Int> ) {
+		final result = try {
+			remappingFunction( key, map[key] );
+		} catch( e:Dynamic ) {
+			throw e;
+		}
+		if( result == null ) map.remove( key );
+		else map.set( key, result );
+	}
+	
+
 	function applyMove( fromIdx:Int, toIdx:Int, amount:Int, playerIdx:Int ) {
-		
+		final source = board.getByIndex( fromIdx );
+		final target = board.getByIndex( toIdx );
+
+		source.removeAntsId( playerIdx, amount );
+		source.placeAntsId( playerIdx, amount );
+
+		// viewer animation
+		launchMoveEvent( source.getIndex(), target.getIndex(), amount, playerIdx );
+		moveAnimatedThisTurn = true;
 	}
 
 	function getPlayerAntCells( player:Player ) {
-		
+		return board.cells.filter( cell -> cell.getAntsId( player.getIndex()) > 0 );
 	}
 
 	function getPlayerBeaconCells( player:Player ) {
-		
+		return board.cells.filter( cell -> cell.getBeaconPowerId( player.getIndex()) > 0 );
 	}
 
 	function launchMoveEvent( fromIdx:Int, toIdx:Int, amount:Int, playerIdx:Int ) {
-		
+		final e = new EventData();
+		e.type = EventData.MOVE;
+		e.playerIdx = playerIdx;
+		e.cellIdx = fromIdx;
+		e.targetIdx = toIdx;
+		e.amount = amount;
+		animation.startAnim( e.animData, Animation.HALF );
+		viewerEvents.push( e );
 	}
 
 	function launchBuildEvent( amount:Int, playerIdx:Int, path:Array<Cell> ) {
+		final e = new EventData();
+		e.type = EventData.BUILD;
+		e.playerIdx = playerIdx;
+		e.amount = amount;
 		
 	}
 
@@ -218,15 +333,46 @@ class Game {
 	}
 
 	function checkGameOver() {
-		
+		final remainingFood = board.getRemainingFood();
+
+		if( remainingFood == 0 ) {
+			gameSummaryManager.addNoMoreFood();
+			return true;
+		}
+		if( players[0].points >= players[1].points + remainingFood ) {
+			gameSummaryManager.addNotEnoughFoodLeft( players[0] );
+			return true;
+		} else if( players[1].points >= players[0].points + remainingFood ) {
+			gameSummaryManager.addNotEnoughFoodLeft( players[1] );
+			return true;
+		}
+		return false;
 	}
 
 	public function onEnd() {
-		
+		players.iter( p -> {
+			if( p.isActive()) {
+				p.setScore( p.points );
+			} else {
+				p.setScore( -1 );
+			}
+		});
+
+		if( players[0].getScore() == players[1].getScore() && players[0].getScore() != -1 ) {
+			players.iter( p -> p.setScore( getAntTotal( p )));
+			endScreenModule.setScoresAndDisplayedText(
+				players.map( p -> p.getScore()),
+				players.map( p -> '${p.points} points and ${p.getScore()} ants' )
+			);
+		} else {
+			endScreenModule.setScores(
+				players.map( p -> p.getScore())
+			);
+		}
 	}
 
 	function getAntTotal( p:Player ) {
-		
+		return board.cells.map( cell -> cell.getAntsPlayer( p )).sum();
 	}
 
 	public function getViewerEvents() {

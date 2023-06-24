@@ -7,7 +7,7 @@ class EventData {
 	public static final FOOD = 2;
 	public static final BEACON = 3;
 
-	public var type:Type;
+	public var type:Int;
 	public var animData:Array<AnimationData> = [];
 	public var playerIdx:Int;
 	public var cellIdx:Int;

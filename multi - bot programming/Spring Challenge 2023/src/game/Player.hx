@@ -17,7 +17,7 @@ class Player extends AbstractMultiplayerPlayer {
 
 	final beacons:Array<{cellIndex:Int, power:Int}> = [];
 	final lines:Array<{from:Int, to:Int, ants:Int}> = [];
-	var points = 0;
+	public var points(get, null ) = 0;
 
 	public function new( index:Int, id:String ) {
 		this.index = index;
@@ -63,7 +63,7 @@ class Player extends AbstractMultiplayerPlayer {
 		points += n;
 	}
 
-	public function getPoints() {
+	function get_points() {
 		return points;
 	}
 }

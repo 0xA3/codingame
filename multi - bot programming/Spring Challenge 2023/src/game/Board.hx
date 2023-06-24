@@ -107,7 +107,7 @@ class Board {
 	/**
 	 * Finds the shortest path between 2 points, using a BFS.
 	 */
-	 function findShortestPath( a:Int, b:Int, ?playerIdx:Int  ) {
+	public function findShortestPath( a:Int, b:Int, ?playerIdx:Int  ) {
 		// BFS
 		final queue = new haxe.ds.List<Int>();
 		final prev = new Map<Int, Int>();

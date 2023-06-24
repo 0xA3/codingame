@@ -5,11 +5,13 @@ import Std.int;
 import Std.parseFloat;
 import Std.parseInt;
 import Std.string;
+import haxe.Int64;
 
 using Lambda;
 
 class MathUtils {
 
+	public static inline var INTEGER_MAX_VALUE = 2147483647;
 	public static inline var INTEGER_MIN_VALUE = -2147483648;
 
 	extern public static inline function abs( v:Int ) return v < 0 ? -v : v;
@@ -24,8 +26,10 @@ class MathUtils {
 	extern public static inline function isOdd( v:Int ) return v % 2 == 1;
 	extern public static inline function log( x:Float, base:Float ) return int( Math.log( x ) / Math.log( base ));
 	extern public static inline function manhattanDist( v1:Int, v2:Int ) return abs( v2 - v1 );
-	extern public static inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
-	extern public static inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
+	overload extern public static inline function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
+	overload extern public static inline function max( v1:Int64, v2:Int64 ) return v1 > v2 ? v1 : v2;
+	overload extern public static inline function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
+	overload extern public static inline function min( v1:Int64, v2:Int64 ) return v1 < v2 ? v1 : v2;
 	extern public static inline function rad2deg( v:Float ) return v / Math.PI * 180;
 	extern public static inline function sign( v:Float ) return v < 0 ? -1 : v > 0 ? 1 : 0;
 

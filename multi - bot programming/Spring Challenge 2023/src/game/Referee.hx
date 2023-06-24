@@ -5,12 +5,24 @@ import gameengine.core.AbstractReferee;
 import gameengine.core.MultiplayerGameManager;
 import view.ViewModule;
 
-@:structInit class Referee extends AbstractReferee {
+class Referee extends AbstractReferee {
 
 	final gameManager:MultiplayerGameManager;
 	final commandManager:CommandManager;
 	final game:Game;
 	final viewModule:ViewModule;
+
+	public function new(
+		gameManager:MultiplayerGameManager,
+		commandManager:CommandManager,
+		game:Game,
+		viewModule:ViewModule
+	) {
+		this.gameManager = gameManager;
+		this.commandManager = commandManager;
+		this.game = game;
+		this.viewModule = viewModule;
+	}
 
 	override public function init() {
 		try {	
@@ -53,7 +65,7 @@ import view.ViewModule;
 	function sendGlobalInfo() {
 		// Give input to players
 		for( player in gameManager.getActivePlayers()) {
-			for( line in game.getGlobalInfoFor( player )) {
+			for( line in game.getGlobalInfoFor( cast player )) {
 				player.sendInputLine( line );
 			}
 		}
@@ -63,7 +75,7 @@ import view.ViewModule;
 		try {
 			game.resetGameTurnData();
 			for( player in gameManager.getActivePlayers()) {
-				for( line in game.getCurrentFrameInfoFor( player )) {
+				for( line in game.getCurrentFrameInfoFor( cast player )) {
 					player.sendInputLine( line );
 				}
 				player.execute();
@@ -77,9 +89,9 @@ import view.ViewModule;
 		
 		for( player in gameManager.getActivePlayers()) {
 			try {
-				commandManager.parseCommands( player, player.getOutputs());
+				commandManager.parseCommands( cast player, player.getOutputs());
 			} catch( e:TimeoutException ) {
-				player.deactivate( "Timeout!" );
+				( cast player ).deactivate( "Timeout!" );
 				gameManager.addToGameSummary( '${player.getNicknameToken()} has not provided ${player.getExpectedOutputLines()} lines in time' );
 			}
 		}

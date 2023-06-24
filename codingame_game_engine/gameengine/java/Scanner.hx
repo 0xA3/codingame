@@ -5,22 +5,21 @@ import Std.parseInt;
 class Scanner {
 	
 	var currentLine = 0;
-	final lines:Array<String>;
+	final stream:haxe.ds.List<String>;
 
-	public function new( stream:String ) {
-		lines = stream.split( "\n" );
+	public function new( stream:haxe.ds.List<String> ) {
+		this.stream = stream;
 	}
 
 	public function close() {
-		
+		stream.clear();
 	}
 
 	public function nextLine() {
-		return lines[currentLine];
-		currentLine++;
+		return stream.pop();
 	}
 
 	public function nextInt() {
-		return parseInt( lines[currentLine] );
+		return parseInt( stream.pop() );
 	}
 }

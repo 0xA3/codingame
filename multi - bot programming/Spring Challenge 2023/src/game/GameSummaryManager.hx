@@ -32,10 +32,10 @@ class GameSummaryManager {
 
 	public function addError( player:Player, error:String ) {
 		final key = player.getNicknameToken();
-		// if( !playersErrors.exists( key )) {
-		// 	playersErrors.set( key, [] );
-		// }
-		// playersErrors[key].push( error );
+		if( !playersErrors.exists( key )) {
+			playersErrors.set( key, [] );
+		}
+		playersErrors[key].push( error );
 		playersErrorsSize++;
 	}
 
@@ -94,16 +94,16 @@ class GameSummaryManager {
 	}
 
 	public function addBuild( meal:AntConsumption ) {
-		// eggMap[meal.player.getIndex()].push( meal );
+		eggMap[meal.player.getIndex()].push( meal );
 	}
 
 	public function addMeal( meal:AntConsumption ) {
-		// mealMap[meal.player.getIndex()].push( meal );
+		mealMap[meal.player.getIndex()].push( meal );
 	}
 
 	function formatCellList( list:ReadOnlyArray<Int> ) {
 		if( list.length == 1 ) {
-			// return '${list[0]}';
+			return '${list[0]}';
 		}
 		return list.join(" & ");
 	}
