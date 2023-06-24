@@ -2,6 +2,11 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"type": "hxml",
+			"label": "Build Referee hl",
+			"file": "referee.hxml"
+		},
+		{
 			"type": "haxe",
 			"args": "active configuration",
 			"group": {

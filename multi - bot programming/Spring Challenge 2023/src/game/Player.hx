@@ -46,6 +46,10 @@ class Player extends AbstractMultiplayerPlayer {
 		lines.slice( 0, lines.length );
 	}
 
+	override function getNicknameToken() {
+		return id;
+	}
+
 	public function addAction( action:Action ) {
 		switch action {
 			case BEACON( cellIndex, power ): beacons.push({ cellIndex: cellIndex, power: power });

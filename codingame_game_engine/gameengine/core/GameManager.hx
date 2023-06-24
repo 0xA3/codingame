@@ -197,8 +197,8 @@ abstract class GameManager {
 
 			var iCmd = InputCommand.parse( s.nextLine());
 
-			if (iCmd.cmd != InputCommand.Command.GET_GAME_INFO) {
-			    throw new RuntimeException("Invalid command: " + iCmd.cmd);
+			if ( iCmd.cmd != InputCommand.Command.GET_GAME_INFO ) {
+			    throw new RuntimeException( "Invalid command: " + iCmd.cmd );
 			}
 
 			dumpView();
@@ -284,7 +284,7 @@ abstract class GameManager {
 				}
 				data.add( Json.stringify( initFrame ));
 			} else {
-				data.add( prevViewData.toString());
+				data.add( Json.stringify( prevViewData ));
 			}
 		} else {
 			data.add( 'INTERMEDIATE_FRAME $frame' );
@@ -309,7 +309,7 @@ abstract class GameManager {
 
 	function dumpInfos() {
 		final data = new OutputData( OutputCommand.INFOS );
-		trace( data );
+		Sys.println( data );
 
 		if( newTurn && prevGameSummary != null ) {
 			final summary = new OutputData( getGameSummaryOutputCommand());
@@ -397,7 +397,7 @@ abstract class GameManager {
 			 throw new IllegalArgumentException( "Invalid frame duration: only positive frame duration is supported" );
 		} else if( this.frameDuration != frameDuration ) {
 			this.frameDuration = frameDuration;
-			// currentViewData.addProperty("duration", frameDuration);
+			Reflect.setProperty( currentViewData, "duration", frameDuration );
 		}
 	}
 
@@ -521,7 +521,7 @@ abstract class GameManager {
 	 *            any object that can be serialized in JSON using gson.
 	 */
 	public function setModuleViewData( moduleName:String, data:Dynamic ) {
-		currentViewData.add( moduleName, Json.parse( data ));
+		Reflect.setProperty( currentViewData, moduleName, Json.parse( data ));
 	}
 
 	/**

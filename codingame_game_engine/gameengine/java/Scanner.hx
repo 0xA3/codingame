@@ -16,10 +16,16 @@ class Scanner {
 	}
 
 	public function nextLine() {
+		if( stream.isEmpty()) {
+			throw "Error: stream is empty";
+		}
 		return stream.pop();
 	}
 
 	public function nextInt() {
+		if( stream.isEmpty()) {
+			throw "Error: stream is empty";
+		}
 		return parseInt( stream.pop() );
 	}
 }

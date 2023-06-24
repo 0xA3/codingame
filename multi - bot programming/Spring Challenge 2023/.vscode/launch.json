@@ -2,6 +2,14 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"type": "hl",
+			"name": "Debug Referee hl",
+			"cwd": "${workspaceFolder}/bin",
+			"request": "launch",
+			"program": "referee.hl",
+			"preLaunchTask": "Build Referee hl"
+		},
+		{
 			"name": "Haxe Interpreter",
 			"type": "haxe-eval",
 			"request": "launch"

@@ -56,6 +56,8 @@ class MainReferee {
 		gameManager.inject( referee, cast players );
 
 		for( i in 0...repeats ) {
+			initInputStream( inputStream );
+			
 			gameManager.start( inputStream, printStream );
 			var winner = "";
 			
@@ -80,5 +82,12 @@ class MainReferee {
 		Sys.println( 'Ties $ties ${ties / repeats * 100}%' );
 
 		Sys.exit( 0 );
+	}
+
+	static function initInputStream( inputStream:haxe.ds.List<String> ) {
+		inputStream.clear();
+		inputStream.add( "INIT" );
+		inputStream.add( "2" );
+		inputStream.add( "GET_GAME_INFO" );
 	}
 }
