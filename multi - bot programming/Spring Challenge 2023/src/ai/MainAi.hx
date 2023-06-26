@@ -39,13 +39,17 @@ class MainAi {
 		}
 	}
 
-	static function parseCellDataset( line:String ) {
+	public static function parseCellDataset( line:String ) {
 		var inputs = line.split(' ');
 		final type = parseInt( inputs[0] ); // 0 for empty, 1 for eggs, 2 for crystal
 		final initialResources = parseInt( inputs[1] ); // the initial amount of eggs/crystals on this cell
 
 		// the index of the neighbouring cell for each direction
-		final neighbors = [for( i in 2...8 ) if( inputs[i] != "-1" ) parseInt( inputs[i] )];
+		final neighbors:Array<Int> = [];
+		for( i in 2...8 ) if( inputs[i] != "-1" ) {
+			final neighbor = parseInt( inputs[i] );
+			if( neighbor != null ) neighbors.push( neighbor );
+		}
 
 		final cellDataset:CellDataset = {
 			type: type,
@@ -59,7 +63,7 @@ class MainAi {
 		return cellDataset;
 	}
 
-	static function parseFrameCellDataset( line:String ) {
+	public static function parseFrameCellDataset( line:String ) {
 		final inputs = line.split(' ');
 		final frameCellDataset:FrameCellDataset = {
 			resources: parseInt( inputs[0] ),  // the current amount of eggs/crystals on this cell

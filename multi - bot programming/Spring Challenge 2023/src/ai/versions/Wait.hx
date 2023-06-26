@@ -27,10 +27,10 @@ class Wait implements IAi {
 		this.myBaseIndices = myBaseIndices;
 		this.oppBaseIndices = oppBaseIndices;
 
-		for( i in 0...cells.length ) {
-			final cell = cells[i];
-			printErr( 'cell $i $cell' );
-		}
+		// for( i in 0...cells.length ) {
+		// 	final cell = cells[i];
+			// printErr( 'cell $i $cell' );
+		// }
 	}
 	
 	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {

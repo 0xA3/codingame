@@ -142,7 +142,7 @@ class Ai10 implements IAi {
 			}
 		}
 		turn++;
-		printErr( 'beacons ' + [for( cellId => _ in beacons ) cellId].join( "," ));
+		// printErr( 'beacons ' + [for( cellId => _ in beacons ) cellId].join( "," ));
 		final outputs = [for( cellId => amount in beacons ) 'BEACON $cellId $amount'];
 		
 		if( outputs.length == 0 ) return "WAIT";

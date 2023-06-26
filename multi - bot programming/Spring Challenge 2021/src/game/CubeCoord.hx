@@ -36,10 +36,10 @@ class CubeCoord {
 	}
 
 	public function neighbor( orientation:Int, distance = 1 ) {
-		final nx = this.x + directions[orientation][0] * distance;
-        final ny = this.y + directions[orientation][1] * distance;
-        final nz = this.z + directions[orientation][2] * distance;
-
+		final nx = x + directions[orientation][0] * distance;
+        final ny = y + directions[orientation][1] * distance;
+        final nz = z + directions[orientation][2] * distance;
+		if( orientation == 0 ) trace( '$x $y $z  orientation $orientation  directions[orientation][0] ${directions[orientation][0]}  distance $distance' );
         return new CubeCoord(nx, ny, nz);
 	}
 

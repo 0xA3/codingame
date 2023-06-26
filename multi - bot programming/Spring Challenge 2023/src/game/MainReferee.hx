@@ -8,6 +8,7 @@ import gameengine.core.AbstractPlayer;
 import gameengine.core.MultiplayerGameManager;
 import gameengine.core.OutputData;
 import gameengine.module.endscreen.EndScreenModule;
+import tink.core.Signal;
 import view.GameDataProvider;
 import view.ViewModule;
 import xa3.MTRandom;
@@ -26,19 +27,22 @@ class MainReferee {
 		final random = new MTRandom( 0 );
 
 		final inputStream = new haxe.ds.List<String>();
-		final printStream = new haxe.ds.List<OutputData>();
-
+		final printStream = new haxe.ds.List<String>();
+		
 		final aiMe = CurrentAis.aiMe;
 		final aiOpp = CurrentAis.aiOpp;
+		final ais = [aiMe, aiOpp];
 
 		final playerMe = new Player( 0, aiMe.aiId );
 		final playerOpp = new Player( 1, aiOpp.aiId );
 		final players = [playerMe, playerOpp];
-		final playerAis:Map<AbstractPlayer, IAi> = [playerMe => aiMe, playerOpp => aiOpp];
 
-		final gameManager = new MultiplayerGameManager( 0, random );
+		final nextPlayerInfoTrigger = Signal.trigger();
+		final nextPlayerInputTrigger = Signal.trigger();
+
+		final gameManager = new MultiplayerGameManager( 0, random, nextPlayerInfoTrigger, nextPlayerInputTrigger );
 		players.iter( p -> p.setGameManager( gameManager ));
-		
+
 		final endScreenModule = new EndScreenModule( gameManager );
 		
 		final commandManager = new CommandManager();
@@ -52,9 +56,15 @@ class MainReferee {
 
 		final viewModule = new ViewModule( gameManager, gameDataProvider );
 		final referee = new Referee( gameManager, commandManager, game, viewModule );
-		// referee.init();
 
 		gameManager.inject( referee, cast players );
+
+		final aiConnector = new AiConnector( ais, inputStream );
+		// connect signals to ais via AiConnector
+		final nextPlayerInfoSignal = nextPlayerInfoTrigger.asSignal();
+		final nextPlayerInputSignal = nextPlayerInputTrigger.asSignal();
+		nextPlayerInfoSignal.handle( aiConnector.handleNextPlayerInfo );
+		nextPlayerInputSignal.handle( aiConnector.handleNextPlayerInput );
 
 		for( i in 0...repeats ) {
 			initInputStream( inputStream );
@@ -85,13 +95,15 @@ class MainReferee {
 		Sys.exit( 0 );
 	}
 
+	static function controlAis( ais:Array<IAi> ) {
+		
+	}
+
 	static function initInputStream( inputStream:haxe.ds.List<String> ) {
 		inputStream.clear();
 		inputStream.add( "INIT" );
 		inputStream.add( "2" );
 		inputStream.add( "" );
-		inputStream.add( "GET_GAME_INFO" );
-		inputStream.add( "SET_PLAYER_OUTPUT" );
 		inputStream.add( "GET_GAME_INFO" );
 		inputStream.add( "SET_PLAYER_OUTPUT" );
 	}

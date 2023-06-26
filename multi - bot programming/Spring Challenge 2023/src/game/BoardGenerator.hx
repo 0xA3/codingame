@@ -50,9 +50,9 @@ class BoardGenerator {
 		final verticalLimit = Math.ceil( ringCount * VERTICAL_CUTOFF );
 		for( distance in 1...ringCount ) {
 			for( orientation in 0...6 ) {
-				for( count in 0...distance ) {
+				for( _ in 0...distance ) {
 					if( cur.z > -verticalLimit && cur.z < verticalLimit ) {
-						if( !coordList.contains( cur )) {
+						if( !coordListContains( coordList, cur )) {
 							coordList.push( cur );
 							coordList.push( cur.getOpposite());
 						}
@@ -118,6 +118,13 @@ class BoardGenerator {
 		}
 
 		return new Board( cells, ringCount, players );
+	}
+
+	static function coordListContains( coordList:Array<CubeCoord>, coord:CubeCoord ) {
+		for( c in coordList ) {
+			if( c.equals( coord )) return true;
+		}
+		return false;
 	}
 
 	static function randomPercentage( min:Int, max:Int, total:Int ) {

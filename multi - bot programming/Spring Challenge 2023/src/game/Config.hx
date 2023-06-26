@@ -32,5 +32,5 @@ class Config {
 	public static var LOSING_ANTS_CANT_CARRY = true;
 	public static var FORCE_SINGLE_HILL = false;
 	public static var ENABLE_EGGS = true;
-	public static var SCORES_IN_IO = false;
+	public static var SCORES_IN_IO = true; // alwas use scores in io
 }

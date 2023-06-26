@@ -54,7 +54,8 @@ class Board {
 	public function getNeighbourIds( coord:CubeCoord ) {
 		final orderedNeighborIds = new Vector<Int>( CubeCoord.directions.length );
 		for( i in 0...CubeCoord.directions.length ) {
-			orderedNeighborIds[i] = ( map.exists( coord.neighbor( i )) ? map[coord.neighbor( i )] : Cell.NO_CELL ).getIndex();
+			final neighbor = map.exists( coord.neighbor( i )) ? map[coord.neighbor( i )] : Cell.NO_CELL;
+			orderedNeighborIds[i] = neighbor.getIndex();
 		}
 		return orderedNeighborIds.join(" ");
 	}

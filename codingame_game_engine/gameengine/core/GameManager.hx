@@ -1,5 +1,6 @@
 package gameengine.core;
 
+import tink.core.Signal;
 import haxe.ds.Vector;
 import gameengine.exception.RuntimeException;
 import haxe.Json;
@@ -39,7 +40,7 @@ abstract class GameManager {
 	var frame = 0;
 	var gameEnd = false;
 	var s:Scanner;
-	var out:haxe.ds.List<OutputData>;
+	var out:haxe.ds.List<String>;
 	var referee:AbstractReferee;
 	var newTurn:Bool;
 	
@@ -69,7 +70,16 @@ abstract class GameManager {
 	var viewWarning:Bool;
 	var summaryWarning:Bool;
 	
-	public function new() {}
+	final nextPlayerInfoTrigger:SignalTrigger<String>;
+	final nextPlayerInputTrigger:SignalTrigger<String>;
+
+	public function new(
+		nextPlayerInfoTrigger:SignalTrigger<String>,
+		nextPlayerInputTrigger:SignalTrigger<String>
+	) {
+		this.nextPlayerInfoTrigger = nextPlayerInfoTrigger;
+		this.nextPlayerInputTrigger = nextPlayerInputTrigger;
+	}
 
 	public function inject( referee:AbstractReferee, players:Array<AbstractPlayer> ) {
 		this.referee = referee;
@@ -100,7 +110,7 @@ abstract class GameManager {
 	 * @param out
 	 *            print stream used to issue commands to Game
 	 */
-	public function start( inputStream:haxe.ds.List<String>, out:haxe.ds.List<OutputData> ) {
+	public function start( inputStream:haxe.ds.List<String>, out:haxe.ds.List<String> ) {
 		s = new Scanner( inputStream );
 		// try {
 			this.out = out;
@@ -135,7 +145,6 @@ abstract class GameManager {
 
 				referee.gameTurn( turn );
 				registeredModules.iter( module -> module.onAfterGameTurn());
-
 				// Create a frame if no player has been executed
 				if( players.length != 0 && players.filter( p -> p.hasBeenExecuted() ).length == 0 ) {
 					executePlayer( players[0], 0 );
@@ -148,6 +157,7 @@ abstract class GameManager {
 				}
 
 				turn++;
+				trace( '${turn <= getMaxTurns()} && ${!isGameEnd()} && ${!allPlayersInactive()}' );
 			}
 
 			log.info( "End" );
@@ -188,7 +198,7 @@ abstract class GameManager {
 	 *            The amount of expected output lines from the player.
 	 */
 	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) { trace( 'executePlayer ${player.getIndex()}' );
-		try {
+		// try {
 			if( !this.initDone ) {
 				throw new RuntimeException( "Impossible to execute a player during init phase." );
 			}
@@ -220,11 +230,11 @@ abstract class GameManager {
 			} else {
 				throw new RuntimeException( "Invalid command: " + iCmd.cmd );
 			}
-		} catch ( e ) {
+		// } catch ( e ) {
             //Don't let the user catch game fail exceptions
-            dumpFail( e );
-            throw e;
-        }
+            // dumpFail( e );
+            // throw e;
+        // }
 	}
 		/**
 	 * Executes a player for a maximum of turnMaxTime milliseconds and store the output. Used by player.execute().
@@ -258,7 +268,7 @@ abstract class GameManager {
 	function dumpMetadata() { trace( "dumpMetadata" );
 		final data = new OutputData( OutputCommand.METADATA );
 		data.add( getMetadata() );
-		out.add( data );
+		// out.add( data.toString() );
 	}
 
 	function dumpScores() { trace( "dumpScores" );
@@ -268,13 +278,13 @@ abstract class GameManager {
 			playerScores.push( '${player.getIndex()} ${player.getScore()}' );
 		}
 		data.addAll( playerScores );
-		out.add( data );
+		// out.add( data.toString() );
 	}
 
 	function dumpFail( e ) {
 		final data = new OutputData( OutputCommand.FAIL );
 		data.add( e.toString());
-		out.add( data );
+		// out.add( data.toString() );
 	}
 
 	function dumpView() { trace( "dumpView" );
@@ -305,20 +315,20 @@ abstract class GameManager {
 			viewWarning = true;
 		}
 
-		log.info( viewData );
-		out.add( data );
+		// log.info( viewData );
+		// out.add( viewData );
 
 		frame++;
 	}
 
 	function dumpInfos() { trace( "dumpInfos" );
 		final data = new OutputData( OutputCommand.INFOS );
-		Sys.println( data );
+		// Sys.println( data.toString() );
 
 		if( newTurn && prevGameSummary != null ) {
 			final summary = new OutputData( getGameSummaryOutputCommand());
 			summary.addAll( prevGameSummary );
-			out.add( summary );
+			// out.add( summary.toString() );
 		}
 
 		if( newTurn && prevTooltips != null && prevTooltips.length > 0 ) {
@@ -327,7 +337,7 @@ abstract class GameManager {
 				data.add( t.message );
 				data.add( '${t.player}' );
 			}
-			out.add( data );
+			// out.add( data.toString() );
 		}
 	}
 
@@ -341,16 +351,18 @@ abstract class GameManager {
 		data.add( '$expectedOutputLineCount' );
 		data.add( '$timeout' );
 
-		out.add( data );
+		// out.add( data.toString() );
+		nextPlayerInfoTrigger.trigger( data.toString() );
 	}
 
 	function dumpNextPlayerInput( input:Array<String> ) { trace( "dumpNextPlayerInput" );
 		final data = new OutputData( OutputCommand.NEXT_PLAYER_INPUT );
 		data.addAll( input );
-		out.add( data );
+		// out.add( data.toString() );
 		if( log.isInfoEnabled()) {
-			log.info( data.toString() );
+			// log.info( data.toString() );
 		}
+		nextPlayerInputTrigger.trigger( data.toString() );
 	}
 
 	function getMetadata() {
@@ -361,7 +373,7 @@ abstract class GameManager {
 		this.outputsRead = outputsRead;
 	}
 
-	function getOutputsRead() {
+	public function getOutputsRead() {
 		return outputsRead;
 	}
 

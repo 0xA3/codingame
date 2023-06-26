@@ -1,6 +1,7 @@
 package gameengine.core;
 
 using StringTools;
+using Lambda;
 
 class OutputData extends haxe.ds.List<String> {
 	
@@ -22,13 +23,9 @@ class OutputData extends haxe.ds.List<String> {
 	}
 
 	override function toString() {
-		final sb:Array<String> = [];
-		for( line in this ) {
-			sb.push( '$line\n' );
-		}
-		final content = sb.toString().trim();
-		final length = content.length > 0 ? content.split( "\n" ).length : 0;
+		final sb = Lambda.array( this );
+		final content = sb.join( "\n" ).trim();
 
-		return 'length $length\n$content';
+		return content;
 	}
 }

@@ -46,7 +46,6 @@ class GetPaths {
 					nextNode.distanceFromStart = nextDistance;
 					nextNode.resourcesFromStart = nextResources;
 					frontier.add( nextNode );
-					// else frontier.sort();
 					
 					nextNode.visited = true;
 				}
