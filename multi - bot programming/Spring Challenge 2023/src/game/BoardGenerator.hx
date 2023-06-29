@@ -44,6 +44,7 @@ class BoardGenerator {
 
 		// Generate all coords as a hexagon
 		final coordList:Array<CubeCoord> = [];
+		final coordSet = new HashMap<CubeCoord, Bool>();
 		final center = CubeCoord.CENTER;
 		coordList.push( center );
 		var cur = center.neighbor( 0 );
@@ -52,9 +53,11 @@ class BoardGenerator {
 			for( orientation in 0...6 ) {
 				for( _ in 0...distance ) {
 					if( cur.z > -verticalLimit && cur.z < verticalLimit ) {
-						if( !coordListContains( coordList, cur )) {
+						if( !coordSet.exists( cur )) {
 							coordList.push( cur );
 							coordList.push( cur.getOpposite());
+							coordSet.set( cur, true );
+							coordSet.set( cur.getOpposite(), true );
 						}
 					}
 					cur = cur.neighbor(( orientation + 2 ) % 6 );
@@ -118,13 +121,6 @@ class BoardGenerator {
 		}
 
 		return new Board( cells, ringCount, players );
-	}
-
-	static function coordListContains( coordList:Array<CubeCoord>, coord:CubeCoord ) {
-		for( c in coordList ) {
-			if( c.equals( coord )) return true;
-		}
-		return false;
 	}
 
 	static function randomPercentage( min:Int, max:Int, total:Int ) {
