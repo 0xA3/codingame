@@ -14,13 +14,15 @@ class MultiplayerGameManager extends GameManager {
 	var seed:Float;
 	var random:MTRandom;
 
-	public function new( seed:Float, random:MTRandom, nextPlayerInfoTrigger:SignalTrigger<String>, nextPlayerInputTrigger:SignalTrigger<String> ) {
+	public function new( nextPlayerInfoTrigger:SignalTrigger<String>, nextPlayerInputTrigger:SignalTrigger<String> ) {
 		super( nextPlayerInfoTrigger, nextPlayerInputTrigger );
-		this.seed = seed;
-		this.random = random;
 	}
 
-	override function readGameProperties( iCmd:InputCommand, s:Scanner ) {} // not implemented
+	override public function readGameProperties( iCmd:InputCommand, s:Scanner ) {
+		// create game properties
+		final seed = s.nextInt();
+		random = new MTRandom( seed );
+	}
 
 	override  function dumpGameProperties() {} // not implemented
 

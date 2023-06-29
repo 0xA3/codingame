@@ -23,9 +23,8 @@ class MainReferee {
 	public static function main() {
 		final args = Sys.args();
 		final repeats = args[0] == null ? 1 : parseInt( args[0] );
+		final seed = args[1] == null ? "0" : args[1];
 		
-		final random = new MTRandom( 0 );
-
 		final inputStream = new haxe.ds.List<String>();
 		final printStream = new haxe.ds.List<String>();
 		
@@ -40,7 +39,7 @@ class MainReferee {
 		final nextPlayerInfoTrigger = Signal.trigger();
 		final nextPlayerInputTrigger = Signal.trigger();
 
-		final gameManager = new MultiplayerGameManager( 0, random, nextPlayerInfoTrigger, nextPlayerInputTrigger );
+		final gameManager = new MultiplayerGameManager( nextPlayerInfoTrigger, nextPlayerInputTrigger );
 		players.iter( p -> p.setGameManager( gameManager ));
 
 		final endScreenModule = new EndScreenModule( gameManager );
@@ -67,8 +66,8 @@ class MainReferee {
 		nextPlayerInputSignal.handle( aiConnector.handleNextPlayerInput );
 
 		for( i in 0...repeats ) {
-			initInputStream( inputStream );
-			
+			initInputStream( inputStream, seed );
+	
 			gameManager.start( inputStream, printStream );
 			var winner = "";
 			
@@ -99,12 +98,13 @@ class MainReferee {
 		
 	}
 
-	static function initInputStream( inputStream:haxe.ds.List<String> ) {
+	static function initInputStream( inputStream:haxe.ds.List<String>, seed:String ) {
 		inputStream.clear();
 		inputStream.add( "INIT" );
 		inputStream.add( "2" );
 		inputStream.add( "" );
+		inputStream.add( seed );
 		inputStream.add( "GET_GAME_INFO" );
-		inputStream.add( "SET_PLAYER_OUTPUT" );
-	}
+		inputStream.add( "SET_PLAYER_OUTPUT 1" );
+}
 }
