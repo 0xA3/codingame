@@ -157,7 +157,6 @@ abstract class GameManager {
 				}
 
 				turn++;
-				trace( '${turn <= getMaxTurns()} && ${!isGameEnd()} && ${!allPlayersInactive()}' );
 			}
 
 			log.info( "End" );
@@ -187,7 +186,7 @@ abstract class GameManager {
 
 	function allPlayersInactive() return false;
 
-	function readGameProperties( iCmd:InputCommand, s:Scanner ) {}
+	public function readGameProperties( iCmd:InputCommand, s:Scanner ) {}
 
 	/**
 	 * Executes a player for a maximum of turnMaxTime milliseconds and store the output. Used by player.execute().
@@ -197,7 +196,8 @@ abstract class GameManager {
 	 * @param nbrOutputLines
 	 *            The amount of expected output lines from the player.
 	 */
-	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) { trace( 'executePlayer ${player.getIndex()}' );
+	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) {
+		// trace( 'executePlayer ${player.getIndex()}' );
 		// try {
 			if( !this.initDone ) {
 				throw new RuntimeException( "Impossible to execute a player during init phase." );
@@ -218,13 +218,14 @@ abstract class GameManager {
 				addTurnTime();
 			}
 			dumpNextPlayerInfos( player.getIndex(), nbrOutputLines, player.hasNeverBeenExecuted() ? firstTurnMaxTime : turnMaxTime );
-
+			
 			// READ PLAYER OUTPUTS
 			iCmd = InputCommand.parse( s.nextLine() );
 			if( iCmd.cmd == gameengine.core.Command.SET_PLAYER_OUTPUT ) {
-				final output = new Vector<String>( iCmd.lineCount );
-				for( i in 0...iCmd.lineCount ) output[i] = s.nextLine();
-				player.setOutputs( output.toArray() );
+				if( iCmd.lineCount == 0 ) throw new RuntimeException( "InputCommand line count is 0" );
+				final outputs = new Vector<String>( iCmd.lineCount );
+				for( i in 0...iCmd.lineCount ) outputs[i] = s.nextLine();
+				player.setOutputs( outputs.toArray() );
 			} else if( iCmd.cmd == InputCommand.Command.SET_PLAYER_TIMEOUT ) {
 				player.setTimeout( true );
 			} else {
@@ -265,13 +266,15 @@ abstract class GameManager {
 
 	function dumpGameProperties() {}
 
-	function dumpMetadata() { trace( "dumpMetadata" );
+	function dumpMetadata() {
+		// trace( "dumpMetadata" );
 		final data = new OutputData( OutputCommand.METADATA );
 		data.add( getMetadata() );
 		// out.add( data.toString() );
 	}
 
-	function dumpScores() { trace( "dumpScores" );
+	function dumpScores() {
+		// trace( "dumpScores" );
 		final data = new OutputData( OutputCommand.SCORES );
 		final playerScores = [];
 		for( player in players ) {
@@ -287,7 +290,8 @@ abstract class GameManager {
 		// out.add( data.toString() );
 	}
 
-	function dumpView() { trace( "dumpView" );
+	function dumpView() {
+		// trace( "dumpView" );
 		final data = new OutputData( OutputCommand.VIEW );
 		if( newTurn ) {
 			data.add( 'KEY_FRAME $frame' );
@@ -321,7 +325,8 @@ abstract class GameManager {
 		frame++;
 	}
 
-	function dumpInfos() { trace( "dumpInfos" );
+	function dumpInfos() {
+		// trace( "dumpInfos" );
 		final data = new OutputData( OutputCommand.INFOS );
 		// Sys.println( data.toString() );
 
@@ -345,7 +350,8 @@ abstract class GameManager {
 		return OutputCommand.FAIL; // placeholder for return value of sub class
 	}
 
-	function dumpNextPlayerInfos( nextPlayer:Int, expectedOutputLineCount:Int, timeout:Int ) { trace( "dumpNextPlayerInfos" );
+	function dumpNextPlayerInfos( nextPlayer:Int, expectedOutputLineCount:Int, timeout:Int ) {
+		// trace( "dumpNextPlayerInfos" );
 		final data = new OutputData( OutputCommand.NEXT_PLAYER_INFO );
 		data.add( '$nextPlayer' );
 		data.add( '$expectedOutputLineCount' );
@@ -355,7 +361,8 @@ abstract class GameManager {
 		nextPlayerInfoTrigger.trigger( data.toString() );
 	}
 
-	function dumpNextPlayerInput( input:Array<String> ) { trace( "dumpNextPlayerInput" );
+	function dumpNextPlayerInput( input:Array<String> ) {
+		// trace( "dumpNextPlayerInput" );
 		final data = new OutputData( OutputCommand.NEXT_PLAYER_INPUT );
 		data.addAll( input );
 		// out.add( data.toString() );

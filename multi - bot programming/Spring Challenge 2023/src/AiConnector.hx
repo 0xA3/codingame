@@ -51,12 +51,14 @@ class AiConnector {
 		final frameCellDatasets = [for( _ in 0...numberOfCells ) MainAi.parseFrameCellDataset( readline())];
 		ais[nextPlayer].setInputs( scores[0], scores[1], frameCellDatasets );
 
-		inputStream.add( "GET_GAME_INFO" );
-		inputStream.add( "SET_PLAYER_OUTPUT" );
-
 		final outputs = ais[nextPlayer].process();
-		trace( outputs );
+		trace( 'player $nextPlayer: $outputs' );
 		inputStream.add( outputs );
+		
+		inputStream.add( "GET_GAME_INFO" );
+		// trace( 'inputStream.add( GET_GAME_INFO )' );
+		inputStream.add( "SET_PLAYER_OUTPUT 1" );
+		// trace( 'inputStream.add( SET_PLAYER_OUTPUT 1 )' );
 
 		if( nextPlayer == ais.length - 1 ) turn++;
 	}

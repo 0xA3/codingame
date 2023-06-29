@@ -28,8 +28,7 @@ class InputCommand {
 			case "SET_PLAYER_TIMEOUT": SET_PLAYER_TIMEOUT;
 			default: throw 'Error: invalid command ${parts[0]}';
 		}
-
-		final lineCount = parseInt( parts[1] );
+		final lineCount = parts.length == 2 ? parseInt( parts[1] ) : 0;
 
 		return new InputCommand( cmd, lineCount );
 	}

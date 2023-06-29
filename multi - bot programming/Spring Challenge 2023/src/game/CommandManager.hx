@@ -19,6 +19,7 @@ class CommandManager {
 	}
 
 	public function parseCommands( player:Player, lines:Array<String> ) {
+		// trace( 'parseCommands ${player.getIndex()} $lines' );
 		final line = lines[0];
 		try {
 			final commands = line.split( ";" );
