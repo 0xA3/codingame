@@ -11,7 +11,6 @@ import gameengine.module.endscreen.EndScreenModule;
 import tink.core.Signal;
 import view.GameDataProvider;
 import view.ViewModule;
-import xa3.MTRandom;
 
 using Lambda;
 
@@ -94,10 +93,6 @@ class MainReferee {
 		Sys.exit( 0 );
 	}
 
-	static function controlAis( ais:Array<IAi> ) {
-		
-	}
-
 	static function initInputStream( inputStream:haxe.ds.List<String>, seed:String ) {
 		inputStream.clear();
 		inputStream.add( "INIT" );
@@ -106,5 +101,5 @@ class MainReferee {
 		inputStream.add( seed );
 		inputStream.add( "GET_GAME_INFO" );
 		inputStream.add( "SET_PLAYER_OUTPUT 1" );
-}
+	}
 }

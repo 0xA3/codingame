@@ -15,8 +15,8 @@ class Player extends AbstractMultiplayerPlayer {
 	public var anthills(get, never):haxe.ds.ReadOnlyArray<Int>;
 	function get_anthills() return _anthills;
 
-	final beacons:Array<{cellIndex:Int, power:Int}> = [];
-	final lines:Array<{from:Int, to:Int, ants:Int}> = [];
+	public final beacons:Array<{cellIndex:Int, power:Int}> = [];
+	public final lines:Array<{from:Int, to:Int, ants:Int}> = [];
 	public var points(get, null ) = 0;
 
 	public function new( index:Int, id:String ) {

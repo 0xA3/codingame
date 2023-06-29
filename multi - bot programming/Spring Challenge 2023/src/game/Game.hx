@@ -313,23 +313,69 @@ class Game {
 		e.type = EventData.BUILD;
 		e.playerIdx = playerIdx;
 		e.amount = amount;
-		
+		e.path = path.map( cell -> cell.getIndex());
+		animation.startAnim( e.animData, Animation.HALF );
+		viewerEvents.push( e );
 	}
 
 	function doBeacons() {
-		
+		for( player in players ) {
+			for( beacon in player.beacons ) {
+				final cellIdx = beacon.cellIndex;
+				final power = beacon.power;
+				setBeaconPower( cellIdx, player, power );
+			}
+		}
 	}
 
-	function setBeaconPower() {
-		
+	function setBeaconPower( cellIndex:Int, player:Player, power:Int ) {
+		final cell = board.getByIndex( cellIndex );
+		if( !cell.isValid()) {
+			gameSummaryManager.addError(
+				player,
+				'cannot find cell $cellIndex'
+			);
+			return;
+		}
+		cell.setBeaconPower( player.getIndex(), MathUtils.max( 1, power ));
 	}
 
 	function launchBeaconEvent( playerIdx:Int, power:Int, cellIdx:Int ) {
-		
+		final e = new EventData();
+		e.type = EventData.BEACON;
+		e.playerIdx = playerIdx;
+		e.cellIdx = cellIdx;
+		e.amount = power;
+		animation.startAnim( e.animData, Animation.HALF );
+		viewerEvents.push( e );
 	}
 
 	function doLines() {
-		
+		for( player in players ) {
+			for( line in player.lines ) {
+				final from = line.from;
+				final to = line.to;
+				final beaconPower = line.ants;
+				if( !board.getByIndex( from ).isValid()) {
+					gameSummaryManager.addError(
+						player,
+						'cannot find cell $from'
+					);
+					continue;
+				}
+				if( !board.getByIndex( to ).isValid()) {
+					gameSummaryManager.addError(
+						player,
+						'cannot find cell $to'
+					);
+					continue;
+				}
+				final path = board.findShortestPath( from, to );
+				for( cellIndex in path ) {
+					setBeaconPower( cellIndex, player, beaconPower );
+				}
+			}
+		}
 	}
 
 	function checkGameOver() {
