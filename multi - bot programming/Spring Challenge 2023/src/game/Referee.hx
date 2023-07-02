@@ -3,6 +3,7 @@ package game;
 import gameengine.core.AbstractPlayer.TimeoutException;
 import gameengine.core.AbstractReferee;
 import gameengine.core.MultiplayerGameManager;
+import haxe.Exception;
 import view.ViewModule;
 
 class Referee extends AbstractReferee {
@@ -75,14 +76,27 @@ class Referee extends AbstractReferee {
 		//trace( 'gameTurn $turn' );
 		try {
 			game.resetGameTurnData();
-			for( player in gameManager.getActivePlayers()) {
-				for( line in game.getCurrentFrameInfoFor( cast player )) {
-					player.sendInputLine( line );
+			
+			if( game.isKeyFrame()) {
+				// Give input to players
+				for( player in gameManager.getActivePlayers()) {
+					for( line in game.getCurrentFrameInfoFor( cast player )) {
+						player.sendInputLine( line );
+					}
+					player.execute();
 				}
-				player.execute();
+				// Get output from players
+				handlePlayerCommands();
 			}
-			// Get output from players
-			handlePlayerCommands();
+
+			game.performGameUpdate( turn );
+
+			if( gameManager.getActivePlayers().length < 2 ) {
+				abort();
+			}
+		} catch( e:Exception ) {
+			Sys.println( 'Referee failed to compute turn. seed=${gameManager.getSeed()}' );
+			abort();
 		}
 	}
 

@@ -35,7 +35,7 @@ class Ai3 implements IAi {
 		this.myBaseIndices = myBaseIndices;
 		this.oppBaseIndices = oppBaseIndices;
 		
-		nodes = [for( _ in cells ) new Node()];
+		nodes = [for( _ in cells ) Node.getNew()];
 	}
 	
 	public function setInputs( myScore:Int, oppScore:Int, frameCellDatasets:Array<FrameCellDataset> ) {

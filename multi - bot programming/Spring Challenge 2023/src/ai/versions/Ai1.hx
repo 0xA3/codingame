@@ -54,7 +54,7 @@ class Ai1 implements IAi {
 	}
 
 	function getCellDistances( cells:Array<CellDataset>, start:Int ) {
-		final nodes = [for( _ in cells ) new Node()];
+		final nodes = [for( _ in cells ) Node.getNew()];
 		final frontier = new List<Int>();
 		
 		frontier.add( start );

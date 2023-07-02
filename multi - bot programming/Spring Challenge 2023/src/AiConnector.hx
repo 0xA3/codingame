@@ -52,7 +52,7 @@ class AiConnector {
 		ais[nextPlayer].setInputs( scores[0], scores[1], frameCellDatasets );
 
 		final outputs = ais[nextPlayer].process();
-		// trace( 'player $nextPlayer: $outputs' );
+		trace( 'player $nextPlayer: $outputs' );
 		inputStream.add( outputs );
 		
 		inputStream.add( "GET_GAME_INFO" );

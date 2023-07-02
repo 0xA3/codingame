@@ -9,7 +9,7 @@ import ai.versions.Graph4;
 class Graph4Factory {
 	
 	public static function create( baseIndices:Array<Int>, cells:Array<CellDataset>, minDistances:Map<Int, Int> ) {
-		final nodes = [for( _ in cells ) new Node()];
+		final nodes = [for( _ in cells ) Node.getNew()];
 		final vertices = [for( i in 0...cells.length ) if( baseIndices.contains( i ) || cells[i].resources > 0 ) i];
 		final verticesSet = [for( vertex in vertices ) vertex => true];
 		
