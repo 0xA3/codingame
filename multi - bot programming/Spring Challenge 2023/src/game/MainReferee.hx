@@ -24,9 +24,6 @@ class MainReferee {
 		final repeats = args[0] == null ? 1 : parseInt( args[0] );
 		final seed = args[1] == null ? "0" : args[1];
 		
-		final inputStream = new haxe.ds.List<String>();
-		final printStream = new haxe.ds.List<String>();
-		
 		final aiMe = CurrentAis.aiMe;
 		final aiOpp = CurrentAis.aiOpp;
 		final ais = [aiMe, aiOpp];
@@ -57,6 +54,9 @@ class MainReferee {
 
 		gameManager.inject( referee, cast players );
 
+		final inputStream = new haxe.ds.List<String>();
+		final printStream = new haxe.ds.List<String>();
+		
 		final aiConnector = new AiConnector( ais, inputStream );
 		// connect signals to ais via AiConnector
 		final nextPlayerInfoSignal = nextPlayerInfoTrigger.asSignal();
@@ -93,7 +93,7 @@ class MainReferee {
 		Sys.exit( 0 );
 	}
 
-	static function initInputStream( inputStream:haxe.ds.List<String>, seed:String ) {
+	public static function initInputStream( inputStream:haxe.ds.List<String>, seed:String ) {
 		inputStream.clear();
 		inputStream.add( "INIT" );
 		inputStream.add( "2" );

@@ -3,6 +3,11 @@
 	"tasks": [
 		{
 			"type": "hxml",
+			"label": "Build Game",
+			"file": "game.hxml"
+		},
+		{
+			"type": "hxml",
 			"label": "Build Referee hl",
 			"file": "referee.hxml"
 		},

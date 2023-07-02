@@ -20,7 +20,8 @@ class App extends hxd.App {
 	public static final CANVAS_WIDTH = 1920;
 	public static final CANVAS_HEIGHT = 1080;
 	
-	final gameManager:MultiplayerGameManager;
+	final playerMeName:String;
+	final playerOppName:String;
 	
 	final onInitComplete:()->Void;
 	var width = CANVAS_WIDTH;
@@ -35,9 +36,10 @@ class App extends hxd.App {
 	var gameView:viewer.GameView;
 	var gameplayer:gameplayer.Gameplayer;
 	
-	public function new( gameManager:MultiplayerGameManager, onInitComplete:()->Void ) {
+	public function new( playerMeName:String, playerOppName:String, onInitComplete:()->Void ) {
 		super();
-		this.gameManager = gameManager;
+		this.playerMeName = playerMeName;
+		this.playerOppName = playerOppName;
 		this.onInitComplete = onInitComplete;
 	}
 
@@ -51,7 +53,7 @@ class App extends hxd.App {
 		// final viewModule = new ViewModule( tooltipManager, entityCreator );
 		
 		gameView = new viewer.GameView( s2d, scene );
-		gameView.init( gameManager.getPlayers()[0].getNicknameToken(), gameManager.getPlayers()[1].getNicknameToken() );
+		gameView.init( playerMeName, playerOppName );
 		
 		gameplayer = new gameplayer.Gameplayer( s2d, window );
 		gameplayer.init( 2 );
@@ -88,19 +90,21 @@ class App extends hxd.App {
 		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 	}
 
-	public function receiveViewGlobalData( dataset:GlobalViewData ) {
+	// public function receiveViewGlobalData( dataset:GlobalViewData ) {
+	public function receiveViewGlobalData( dataset:String ) {
 		// trace( 'receiveViewGlobalData\n$dataset' );
 	}
 
-	public function receiveFrameViewData( frame:Int, dataset:FrameViewData ) {
-		frameDatasets[frame] = dataset;
-		gameView.updateFrame( frame, dataset );
+	// public function receiveFrameViewData( frame:Int, dataset:FrameViewData ) {
+	public function receiveFrameViewData( dataset:String ) {
+		// frameDatasets[frame] = dataset;
+		// gameView.updateFrame( frame, dataset );
 		
-		if( frameDatasets.length > 1 ) {
-			final nextFrame = frameDatasets.length - 1;
-			gameplayer.maxFrame = nextFrame;
-			gameplayer.next();
-		}
+		// if( frameDatasets.length > 1 ) {
+		// 	final nextFrame = frameDatasets.length - 1;
+		// 	gameplayer.maxFrame = nextFrame;
+		// 	gameplayer.next();
+		// }
 	}
 
 	function goToFrame( frame:Float ) {

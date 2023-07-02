@@ -1,31 +1,37 @@
 package game;
 
-import Std.int;
 import Std.parseInt;
 import ai.CurrentAis;
 import ai.IAi;
 import event.Animation;
-import gameengine.core.AbstractPlayer;
 import gameengine.core.MultiplayerGameManager;
 import gameengine.module.endscreen.EndScreenModule;
 import tink.core.Signal;
 import view.GameDataProvider;
 import view.ViewModule;
-import xa3.MTRandom;
+
+using Lambda;
 
 class MainGame {
 	
-	static var seed:Int;
+	static var seed:String;
 	static var app:viewer.App;
 
 	static var gameManager:MultiplayerGameManager;
+	static var ais:Array<IAi>;
+	static var players:Array<Player>;
 	
+	static var viewGlobalDataTrigger:SignalTrigger<String>;
+	static var frameViewDataTrigger:SignalTrigger<String>;
+	static var nextPlayerInfoTrigger:SignalTrigger<String>;
+	static var nextPlayerInputTrigger:SignalTrigger<String>;
+
 	static function main() {
 		#if sys
 		final args = Sys.args();
-		seed = args[0] == null ? 0 : parseInt( args[0] );
+		seed = args[0] == null ? "0" : args[0];
 		#else
-		seed = 6;
+		seed = "6";
 		// seed = Std.random( 10000 );
 		#end
 		hxd.Res.initEmbed();
@@ -40,31 +46,60 @@ class MainGame {
 		});
 		#end
 
-		final player0 = new Player( 0, CurrentAis.aiMe.aiId );
-		final player1 = new Player( 1, CurrentAis.aiOpp.aiId );
+		final aiMe = CurrentAis.aiMe;
+		final aiOpp = CurrentAis.aiOpp;
+		ais = [aiMe, aiOpp];
+
+		final playerMe = new Player( 0, aiMe.aiId );
+		final playerOpp = new Player( 1, aiOpp.aiId );
+		players = [playerMe, playerOpp];
 		
-		final nextPlayerInfoTrigger = Signal.trigger();
-		final nextPlayerInputTrigger = Signal.trigger();
+		viewGlobalDataTrigger = Signal.trigger();
+		frameViewDataTrigger = Signal.trigger();
+		nextPlayerInfoTrigger = Signal.trigger();
+		nextPlayerInputTrigger = Signal.trigger();
 
-		final gameManager = new MultiplayerGameManager( nextPlayerInfoTrigger, nextPlayerInputTrigger );
+		gameManager = new MultiplayerGameManager( nextPlayerInfoTrigger, nextPlayerInputTrigger );
+		players.iter( p -> p.setGameManager( gameManager ));
 
-		app = new viewer.App( gameManager, startGame );
+		app = new viewer.App( playerMe.getNicknameToken(), playerOpp.getNicknameToken(), startGame );
 	}
 
 	static function startGame() {
 		final endScreenModule = new EndScreenModule( gameManager );
+		
 		final commandManager = new CommandManager();
+		commandManager.inject( gameManager );
+		
 		final animation = new Animation();
 		final gameSummaryManager = new GameSummaryManager();
-		// final game = new Game( gameManager, endScreenModule, pathFinder, animation, gameSummaryManager );
+		final game = new Game( gameManager, endScreenModule, animation, gameSummaryManager );
 
-		// final gameDataProvider = new GameDataProvider( game, gameManager );
-		// final viewModule = new ViewModule( gameManager, gameDataProvider );
-		// final referee = new Referee( gameManager, commandManager, game, viewModule );
+		final gameDataProvider = new GameDataProvider( game, gameManager );
+
+		final viewModule = new ViewModule( gameManager, gameDataProvider );
+		final referee = new Referee( gameManager, commandManager, game, viewModule );
+
+		gameManager.inject( referee, cast players );
+
+		final inputStream = new haxe.ds.List<String>();
+		final printStream = new haxe.ds.List<String>();
 		
-		// gameManager.sendViewGlobalData = app.receiveViewGlobalData;
-		// gameManager.sendFrameViewData = app.receiveFrameViewData;
+		final aiConnector = new AiConnector( ais, inputStream );
+		
+		// connect signals to ais via AiConnector
+		final viewGlobalDataSignal = viewGlobalDataTrigger.asSignal();
+		final frameViewDataSignal = frameViewDataTrigger.asSignal();
+		final nextPlayerInfoSignal = nextPlayerInfoTrigger.asSignal();
+		final nextPlayerInputSignal = nextPlayerInputTrigger.asSignal();
+		
+		viewGlobalDataSignal.handle( app.receiveViewGlobalData );
+		frameViewDataSignal.handle( app.receiveFrameViewData );
+		nextPlayerInfoSignal.handle( aiConnector.handleNextPlayerInfo );
+		nextPlayerInputSignal.handle( aiConnector.handleNextPlayerInput );
 
-		// gameManager.start( referee, true );
+		MainReferee.initInputStream( inputStream, seed );
+		
+		gameManager.start( inputStream, printStream );
 	}
 }
