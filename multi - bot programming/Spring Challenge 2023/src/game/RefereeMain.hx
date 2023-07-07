@@ -14,7 +14,7 @@ import view.ViewModule;
 
 using Lambda;
 
-class MainReferee {
+class RefereeMain {
 	
 	static final scoreTotals = [0, 0];
 	static var ties = 0;

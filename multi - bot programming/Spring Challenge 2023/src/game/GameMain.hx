@@ -1,6 +1,5 @@
 package game;
 
-import Std.parseInt;
 import ai.CurrentAis;
 import ai.IAi;
 import event.Animation;
@@ -12,7 +11,7 @@ import view.ViewModule;
 
 using Lambda;
 
-class MainGame {
+class GameMain {
 	
 	static var seed:String;
 	static var app:viewer.App;
@@ -98,7 +97,7 @@ class MainGame {
 		nextPlayerInfoSignal.handle( aiConnector.handleNextPlayerInfo );
 		nextPlayerInputSignal.handle( aiConnector.handleNextPlayerInput );
 
-		MainReferee.initInputStream( inputStream, seed );
+		RefereeMain.initInputStream( inputStream, seed );
 		
 		gameManager.start( inputStream, printStream );
 	}
