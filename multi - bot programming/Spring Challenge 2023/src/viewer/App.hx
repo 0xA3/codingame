@@ -90,21 +90,19 @@ class App extends hxd.App {
 		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 	}
 
-	// public function receiveViewGlobalData( dataset:GlobalViewData ) {
-	public function receiveViewGlobalData( dataset:String ) {
-		// trace( 'receiveViewGlobalData\n$dataset' );
+	public function receiveViewGlobalData( dataset:GlobalViewData ) {
+		trace( 'receiveViewGlobalData\n$dataset' );
 	}
 
-	// public function receiveFrameViewData( frame:Int, dataset:FrameViewData ) {
-	public function receiveFrameViewData( dataset:String ) {
-		// frameDatasets[frame] = dataset;
-		// gameView.updateFrame( frame, dataset );
+	public function receiveFrameViewData( dataset:FrameViewData ) {
+		frameDatasets.push( dataset );
+		gameView.updateFrame( frameDatasets.length - 1, dataset );
 		
-		// if( frameDatasets.length > 1 ) {
-		// 	final nextFrame = frameDatasets.length - 1;
-		// 	gameplayer.maxFrame = nextFrame;
-		// 	gameplayer.next();
-		// }
+		if( frameDatasets.length > 1 ) {
+			final nextFrame = frameDatasets.length - 1;
+			gameplayer.maxFrame = nextFrame;
+			gameplayer.next();
+		}
 	}
 
 	function goToFrame( frame:Float ) {

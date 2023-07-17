@@ -1,8 +1,9 @@
 package view;
 
 import gameengine.core.GameManager;
+import gameengine.core.Module;
 
-class ViewModule {
+class ViewModule implements Module {
 	
 	final gameManager:GameManager;
 	final gameDataProvider:GameDataProvider;
@@ -11,4 +12,25 @@ class ViewModule {
 		this.gameManager = gameManager;
 		this.gameDataProvider = gameDataProvider;
 	}
+
+	public function onGameInit() {
+		sendGlobalData();
+		sendFrameData();
+	}
+
+	function sendFrameData() {
+		final data = gameDataProvider.getCurrentFrameData();
+		gameManager.setViewData( "graphics", data );
+	}
+
+	function sendGlobalData() {
+		final data = gameDataProvider.getGlobalData();
+		gameManager.setViewGlobalData( "graphics", data );
+	}
+
+	public function onAfterGameTurn() {
+		sendFrameData();
+	}
+
+	public function onAfterOnEnd() {}
 }

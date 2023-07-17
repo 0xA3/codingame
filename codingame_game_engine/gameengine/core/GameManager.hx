@@ -1,5 +1,7 @@
 package gameengine.core;
 
+import view.GlobalViewData;
+import view.FrameViewData;
 import tink.core.Signal;
 import haxe.ds.Vector;
 import gameengine.exception.RuntimeException;
@@ -309,7 +311,6 @@ abstract class GameManager {
 		}
 
 		final viewData = data.toString();
-
 		totalViewDataBytesSent = data.toString().length;
 
 		if( totalViewDataBytesSent > VIEW_DATA_TOTAL_HARD_QUOTA ) {
@@ -319,6 +320,7 @@ abstract class GameManager {
 			viewWarning = true;
 		}
 
+		trace( 'viewData: $viewData' );
 		// log.info( viewData );
 		// out.add( viewData );
 
@@ -334,6 +336,7 @@ abstract class GameManager {
 			final summary = new OutputData( getGameSummaryOutputCommand());
 			summary.addAll( prevGameSummary );
 			// out.add( summary.toString() );
+			trace( 'Summary: $summary' );
 		}
 
 		if( newTurn && prevTooltips != null && prevTooltips.length > 0 ) {
@@ -343,6 +346,7 @@ abstract class GameManager {
 				data.add( '${t.player}' );
 			}
 			// out.add( data.toString() );
+			trace( 'Tooltips: $data' );
 		}
 	}
 
@@ -531,8 +535,8 @@ abstract class GameManager {
 	 * @param data
 	 *            any object that can be serialized in JSON using gson.
 	 */
-	public function setViewData( data:Dynamic ) {
-		setModuleViewData( "default", data );
+	public function setViewData( moduleName = "default", data:FrameViewData ) {
+		setModuleViewData( moduleName, data );
 	}
 
 	/**
@@ -543,8 +547,8 @@ abstract class GameManager {
 	 * @param data
 	 *            any object that can be serialized in JSON using gson.
 	 */
-	public function setModuleViewData( moduleName:String, data:Dynamic ) {
-		Reflect.setProperty( currentViewData, moduleName, Json.parse( data ));
+	public function setModuleViewData( moduleName:String, data:FrameViewData ) {
+		Reflect.setProperty( currentViewData, moduleName, data );
 	}
 
 	/**
@@ -555,11 +559,11 @@ abstract class GameManager {
 	 * @param data
 	 *            any object that can be serialized in JSON using gson.
 	 */
-	public function setViewGlobalData( moduleName:String, data:Dynamic ) {
+	public function setViewGlobalData( moduleName:String, data:GlobalViewData ) {
 		if (initDone) {
 			throw new IllegalStateException( "Impossible to send global data to view outside of init phase" );
 		}
-		globalViewData.add( moduleName, Json.parse( data ));
+		Reflect.setProperty( globalViewData, moduleName, data );
 	}
 	
 	/**

@@ -6,7 +6,9 @@ import event.Animation;
 import gameengine.core.MultiplayerGameManager;
 import gameengine.module.endscreen.EndScreenModule;
 import tink.core.Signal;
+import view.FrameViewData;
 import view.GameDataProvider;
+import view.GlobalViewData;
 import view.ViewModule;
 
 using Lambda;
@@ -20,8 +22,8 @@ class GameMain {
 	static var ais:Array<IAi>;
 	static var players:Array<Player>;
 	
-	static var viewGlobalDataTrigger:SignalTrigger<String>;
-	static var frameViewDataTrigger:SignalTrigger<String>;
+	static var viewGlobalDataTrigger:SignalTrigger<GlobalViewData>;
+	static var frameViewDataTrigger:SignalTrigger<FrameViewData>;
 	static var nextPlayerInfoTrigger:SignalTrigger<String>;
 	static var nextPlayerInputTrigger:SignalTrigger<String>;
 
