@@ -11,4 +11,6 @@ class CellData {
 	public var ants:Array<Int> = [];
 
 	public function new() {}
+
+	public function toString() return 'q: $q, r: $r, richness: $richness, index: $index, owner: $owner, type: $type, ants: $ants';
 }

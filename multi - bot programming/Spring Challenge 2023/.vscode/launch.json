@@ -10,11 +10,11 @@
 		},
 		{
 			"type": "hl",
-			"name": "Debug Referee hl",
+			"name": "Debug Referee",
 			"cwd": "${workspaceFolder}/bin",
 			"request": "launch",
 			"program": "referee.hl",
-			"preLaunchTask": "Build Referee hl"
+			"preLaunchTask": "Build Referee"
 		},
 		{
 			"name": "Haxe Interpreter",

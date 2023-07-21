@@ -33,7 +33,6 @@ class GameDataProvider {
 
 			return cellData;
 		});
-
 		return data;
 	}
 
@@ -55,7 +54,6 @@ class GameDataProvider {
 
 		data.messages = gameManager.getPlayers().map( player -> ( cast player ).getMessage());
 		data.beacons = collectCellDataBi(( cell:Cell, player:Player ) -> cell.getBeaconPower( player ));
-
 		data.scores = gameManager.getPlayers().map( player -> ( cast player ).getPoints());
 
 		data.events = game.getViewerEvents();

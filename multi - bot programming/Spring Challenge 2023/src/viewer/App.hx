@@ -91,10 +91,12 @@ class App extends hxd.App {
 	}
 
 	public function receiveViewGlobalData( dataset:GlobalViewData ) {
-		trace( 'receiveViewGlobalData\n$dataset' );
+		trace( 'receiveViewGlobalData\n${dataset.cells}' );
 	}
 
 	public function receiveFrameViewData( dataset:FrameViewData ) {
+		trace( 'receiveFrameViewData\n$dataset' );
+		
 		frameDatasets.push( dataset );
 		gameView.updateFrame( frameDatasets.length - 1, dataset );
 		

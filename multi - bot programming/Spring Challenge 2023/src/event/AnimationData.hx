@@ -9,4 +9,6 @@ class AnimationData {
 		this.start = start;
 		this.end = end;
 	}
+
+	public function toString() return 'start: $start, end: $end';
 }

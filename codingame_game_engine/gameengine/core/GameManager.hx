@@ -38,7 +38,7 @@ abstract class GameManager {
 	var maxTurns = 200;
 	var turnMaxTime = 50;
 	var firstTurnMaxTime = 1000;
-	var turn:Null<Int> = null;
+	var turn = 0;
 	var frame = 0;
 	var gameEnd = false;
 	var s:Scanner;
@@ -52,12 +52,12 @@ abstract class GameManager {
 	var currentGameSummary:Array<String> = [];
 	var prevGameSummary:Array<String>;
 
-	var currentViewData:Dynamic;
-	var prevViewData:Dynamic;
+	var currentViewData:FrameViewData;
+	var prevViewData:FrameViewData;
 
 	var frameDuration = 1000;
 
-	var globalViewData:Dynamic = {}
+	var globalViewData:GlobalViewData;
 
 	var registeredModules:Array<Module> = [];
 
@@ -72,13 +72,19 @@ abstract class GameManager {
 	var viewWarning:Bool;
 	var summaryWarning:Bool;
 	
+	final viewGlobalDataTrigger:SignalTrigger<GlobalViewData>;
+	final frameViewDataTrigger:SignalTrigger<FrameViewData>;
 	final nextPlayerInfoTrigger:SignalTrigger<String>;
 	final nextPlayerInputTrigger:SignalTrigger<String>;
 
 	public function new(
+		viewGlobalDataTrigger:SignalTrigger<GlobalViewData>,
+		frameViewDataTrigger:SignalTrigger<FrameViewData>,
 		nextPlayerInfoTrigger:SignalTrigger<String>,
 		nextPlayerInputTrigger:SignalTrigger<String>
 	) {
+		this.viewGlobalDataTrigger = viewGlobalDataTrigger;
+		this.frameViewDataTrigger = frameViewDataTrigger;
 		this.nextPlayerInfoTrigger = nextPlayerInfoTrigger;
 		this.nextPlayerInputTrigger = nextPlayerInputTrigger;
 	}
@@ -89,7 +95,6 @@ abstract class GameManager {
 	}
 	
 	public function init() {
-		turn = 0;
 		frame = 0;
 		gameEnd = false;
 
@@ -130,15 +135,15 @@ abstract class GameManager {
 
 			readGameProperties( iCmd, s );
 
-			prevViewData = null;
-			currentViewData = {}
+			prevViewData = new FrameViewData();
+			currentViewData = new FrameViewData();
 
 			referee.init();
 			registeredModules.iter( module -> module.onGameInit());
 			initDone = true;
 
 			// Game Loop ----------------------------------------------------------
-			var turn = 1;
+			turn = 1;
 			while( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
 				swapInfoAndViewData();
 				log.info( 'Turn ' + turn );
@@ -200,6 +205,7 @@ abstract class GameManager {
 	 */
 	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) {
 		// trace( 'executePlayer ${player.getIndex()}' );
+		final playerIndex = player.getIndex();
 		// try {
 			if( !this.initDone ) {
 				throw new RuntimeException( "Impossible to execute a player during init phase." );
@@ -213,8 +219,8 @@ abstract class GameManager {
 			    throw new RuntimeException( "Invalid command: " + iCmd.cmd );
 			}
 
-			dumpView();
-			dumpInfos();
+			if( playerIndex == 0 ) dumpView();
+			if( playerIndex == 0 ) dumpInfos();
 			dumpNextPlayerInput( player.getInputs() );
 			if( nbrOutputLines > 0 ) {
 				addTurnTime();
@@ -257,7 +263,7 @@ abstract class GameManager {
 	 */
 	function swapInfoAndViewData() {
 		prevViewData = currentViewData;
-		currentViewData = {};
+		currentViewData = new FrameViewData();
 
 		prevGameSummary = currentGameSummary;
 		currentGameSummary = [];
@@ -296,33 +302,39 @@ abstract class GameManager {
 		// trace( "dumpView" );
 		final data = new OutputData( OutputCommand.VIEW );
 		if( newTurn ) {
-			data.add( 'KEY_FRAME $frame' );
+			// data.add( 'KEY_FRAME $frame' );
+			prevViewData.type = "KEY_FRAME";
 			if( turn == 1 ) {
-				final initFrame = {
-					global: globalViewData,
-					frame: prevViewData
-				}
-				data.add( Json.stringify( initFrame ));
+				// final initFrame = {
+				// 	global: globalViewData,
+				// 	frame: prevViewData
+				// }
+				// data.add( Json.stringify( initFrame ));
+				viewGlobalDataTrigger.trigger( globalViewData );
+
 			} else {
 				data.add( Json.stringify( prevViewData ));
 			}
 		} else {
-			data.add( 'INTERMEDIATE_FRAME $frame' );
+			// data.add( 'INTERMEDIATE_FRAME $frame' );
+			prevViewData.type = "INTERMEDIATE_FRAME";
 		}
+		// final viewData = data.toString();
+		// totalViewDataBytesSent = data.toString().length;
 
-		final viewData = data.toString();
-		totalViewDataBytesSent = data.toString().length;
+		// if( totalViewDataBytesSent > VIEW_DATA_TOTAL_HARD_QUOTA ) {
+		// 	throw new RuntimeException( "The amount of data sent to the viewer is too big!" );
+		// } else if( totalViewDataBytesSent > VIEW_DATA_TOTAL_SOFT_QUOTA && !viewWarning ) {
+		// 	log.warn( "Warning: the amount of data sent to the viewer is too big.\nPlease try to optimize your code to send less data (try replacing some commitEntityStates by a commitWorldState)." );
+		// 	viewWarning = true;
+		// }
 
-		if( totalViewDataBytesSent > VIEW_DATA_TOTAL_HARD_QUOTA ) {
-			throw new RuntimeException( "The amount of data sent to the viewer is too big!" );
-		} else if( totalViewDataBytesSent > VIEW_DATA_TOTAL_SOFT_QUOTA && !viewWarning ) {
-			log.warn( "Warning: the amount of data sent to the viewer is too big.\nPlease try to optimize your code to send less data (try replacing some commitEntityStates by a commitWorldState)." );
-			viewWarning = true;
-		}
+		prevViewData.frame = turn;
 
-		trace( 'viewData: $viewData' );
+		// trace( 'viewData: $viewData' );
 		// log.info( viewData );
 		// out.add( viewData );
+		frameViewDataTrigger.trigger( prevViewData );
 
 		frame++;
 	}
@@ -336,7 +348,7 @@ abstract class GameManager {
 			final summary = new OutputData( getGameSummaryOutputCommand());
 			summary.addAll( prevGameSummary );
 			// out.add( summary.toString() );
-			trace( 'Summary: $summary' );
+			// trace( 'dumpInfos Summary: $summary' );
 		}
 
 		if( newTurn && prevTooltips != null && prevTooltips.length > 0 ) {
@@ -346,7 +358,7 @@ abstract class GameManager {
 				data.add( '${t.player}' );
 			}
 			// out.add( data.toString() );
-			trace( 'Tooltips: $data' );
+			// trace( 'dumpInfos Tooltips: $data' );
 		}
 	}
 
@@ -424,7 +436,7 @@ abstract class GameManager {
 			 throw new IllegalArgumentException( "Invalid frame duration: only positive frame duration is supported" );
 		} else if( this.frameDuration != frameDuration ) {
 			this.frameDuration = frameDuration;
-			Reflect.setProperty( currentViewData, "duration", frameDuration );
+			currentViewData.duration = frameDuration;
 		}
 	}
 
@@ -548,7 +560,7 @@ abstract class GameManager {
 	 *            any object that can be serialized in JSON using gson.
 	 */
 	public function setModuleViewData( moduleName:String, data:FrameViewData ) {
-		Reflect.setProperty( currentViewData, moduleName, data );
+		currentViewData = data;
 	}
 
 	/**
@@ -560,10 +572,10 @@ abstract class GameManager {
 	 *            any object that can be serialized in JSON using gson.
 	 */
 	public function setViewGlobalData( moduleName:String, data:GlobalViewData ) {
-		if (initDone) {
+		if( initDone ) {
 			throw new IllegalStateException( "Impossible to send global data to view outside of init phase" );
 		}
-		Reflect.setProperty( globalViewData, moduleName, data );
+		globalViewData = data;
 	}
 	
 	/**

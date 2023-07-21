@@ -60,7 +60,7 @@ class GameMain {
 		nextPlayerInfoTrigger = Signal.trigger();
 		nextPlayerInputTrigger = Signal.trigger();
 
-		gameManager = new MultiplayerGameManager( nextPlayerInfoTrigger, nextPlayerInputTrigger );
+		gameManager = new MultiplayerGameManager( viewGlobalDataTrigger, frameViewDataTrigger, nextPlayerInfoTrigger, nextPlayerInputTrigger );
 		players.iter( p -> p.setGameManager( gameManager ));
 
 		app = new viewer.App( playerMe.getNicknameToken(), playerOpp.getNicknameToken(), startGame );
@@ -87,7 +87,7 @@ class GameMain {
 		final printStream = new haxe.ds.List<String>();
 		
 		final aiConnector = new AiConnector( ais, inputStream );
-		
+
 		// connect signals to ais via AiConnector
 		final viewGlobalDataSignal = viewGlobalDataTrigger.asSignal();
 		final frameViewDataSignal = frameViewDataTrigger.asSignal();

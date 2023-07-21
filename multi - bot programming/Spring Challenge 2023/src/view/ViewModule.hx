@@ -11,6 +11,7 @@ class ViewModule implements Module {
 	public function new( gameManager:GameManager, gameDataProvider:GameDataProvider ) {
 		this.gameManager = gameManager;
 		this.gameDataProvider = gameDataProvider;
+		gameManager.registerModule( this );
 	}
 
 	public function onGameInit() {

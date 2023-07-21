@@ -14,10 +14,6 @@ class MultiplayerGameManager extends GameManager {
 	var seed:Float;
 	var random:MTRandom;
 
-	public function new( nextPlayerInfoTrigger:SignalTrigger<String>, nextPlayerInputTrigger:SignalTrigger<String> ) {
-		super( nextPlayerInfoTrigger, nextPlayerInputTrigger );
-	}
-
 	override public function readGameProperties( iCmd:InputCommand, s:Scanner ) {
 		// create game properties
 		final seed = s.nextInt();

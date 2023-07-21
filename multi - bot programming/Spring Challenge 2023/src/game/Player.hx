@@ -10,14 +10,14 @@ class Player extends AbstractMultiplayerPlayer {
 	public static final NO_PLAYER = new Player( -1, "" );
 
 	final id:String;
-	var message:String;
+	var message = "";
 	final _anthills:Array<Int> = [];
 	public var anthills(get, never):haxe.ds.ReadOnlyArray<Int>;
 	function get_anthills() return _anthills;
 
 	public final beacons:Array<{cellIndex:Int, power:Int}> = [];
 	public final lines:Array<{from:Int, to:Int, ants:Int}> = [];
-	public var points(get, null ) = 0;
+	public var points = 0;
 
 	public function new( index:Int, id:String ) {
 		this.index = index;
@@ -67,7 +67,7 @@ class Player extends AbstractMultiplayerPlayer {
 		points += n;
 	}
 
-	function get_points() {
+	function getPoints() {
 		return points;
 	}
 }
