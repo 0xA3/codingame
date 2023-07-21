@@ -3,17 +3,22 @@ package viewer;
 import h2d.Object;
 import h2d.Text;
 import h2d.Tile;
-import viewer.Types.Effect;
+import view.CellData;
+import view.GlobalViewData;
+import viewer.GameConstants.POINTS;
+import viewer.Types;
 
-typedef EffectPool = Map<String, Array<Effect>>;
+using Lambda;
+
+typedef EffectPool = Map<String, Array<Effect<Tile>>>;
 
 typedef Api = {
-	var options: {
+	var options:{
 		var debugMode:Bool;
 		var seeAnts:Bool;
 	}
-	var setDebug:() -> Void;
-	var seeAnts:( v:Bool ) -> Void;
+	var ?setDebug:()->Void;
+	var ?seeAnts:( v:Bool )->Void;
 }
 
 typedef Hud = {
@@ -44,14 +49,14 @@ class ViewModule {
 	static final CRYSTAL_COLORS = [0xfdf100, 0xe86a02];
 
 	static final MESSAGE_RECT = {
-		x: 130,
-		y: 80,
-		w: 688,
-		h: 42
+		x:130,
+		y:80,
+		w:688,
+		h:42
 	}
 
 	var api:Api = {
-		options: {
+		options:{
 			debugMode: true,
 			seeAnts: false
 		}
@@ -77,15 +82,15 @@ class ViewModule {
 
 	var scoreBar:Tile;
 
-	var hexes: Map<Int, Hex>;
-	var beacons: Map<Int, Tile>;
-	var currentTempCellData: { ants:Array<Array<Int>>, beacons: Array<Array<Int>>, richness:Array<Int> }
-	var tiles: Map<String, Tile>;
+	var hexes:Map<Int, Hex>;
+	var beacons:Map<Int, Tile>;
+	var currentTempCellData:{ ants:Array<Array<Int>>, beacons:Array<Array<Int>>, richness:Array<Int> }
+	var tiles:Map<String, Tile>;
 
 	var particleGroupsByPlayer:Array<ParticleGroup>;
 
 	var overlay:Tile;
-	var conveyors: Array<PIXI.TilingSprite>;
+	var conveyors:Array<Tile>;
 	var conveyorLayer:Object;
 	var beaconLayer:Object;
 	var arrowLayer:Object;
@@ -94,23 +99,14 @@ class ViewModule {
 	var distanceBetweenHexes:Int;
 	var explosions:Array<Explosion> = [];
 
+	final tileLibrary:Map<String, h2d.Tile> = [];
+
 	public function new() {
-		// window.debug = this;
+		CreateTiles.create( tileLibrary, hxd.Res.ants.spritesheet_png.toTile(), hxd.Res.load( "ants/spritesheet.json" ).toText() );
 	}
 
 	// Effects
 	function getFromPool<T>( type:String ) {
-		if( !pool.exists( type )) {
-			pool.set( type, [] );
-		}
-
-		for( e in pool[type] ) {
-			if( !e.busy ) {
-				e.busy = true;
-				e.display.visible = true;
-				return e;
-			}
-		}
 	}
 
 	function createEffect<T>() {
@@ -128,8 +124,8 @@ class ViewModule {
 
 		// reset zIndex
 		for( index => hex in hexes ) {
-			if( hex.icon != null ) hex.iconBounceContainer.zIndex = 1;
-			hex.indicatorLayer.zIndex = 2;
+			// if( hex.icon != null ) hex.iconBounceContainer.zIndex = 1;
+			// hex.indicatorLayer.zIndex = 2;
 		}
 
 		// resetEffects()
@@ -141,7 +137,7 @@ class ViewModule {
 		// updateParticles(frameChange, lastShownData)
 		updateHud();
 		if (frameChange || (fullProgressChange && playerSpeed == 0)) {
-			this.tooltipManager.updateGlobalText();
+			tooltipManager.updateGlobalText();
 		}
 	}
 
@@ -162,28 +158,28 @@ class ViewModule {
 	}
 
 	function showPlayerDebug() {
-		return api.options.debugMode == true || api.options.debugMode == playerIdx;
+		// return api.options.debugMode == true || api.options.debugMode == playerIdx;
 	}
 
 	function updateMoves() {
-		for( event in currentData.events.filter( type -> type == ev.MOVE )) {
-			if( !showPlayerDebug( event.playerIdx )) {
-				continue;
-			}
+		// for( event in currentData.events.filter( type -> type == ev.MOVE )) {
+		// 	if( !showPlayerDebug( event.playerIdx )) {
+		// 		continue;
+		// 	}
 
-			final p = genAnimProgress( event.animData, progress );
-			if( p < 0 || p > 1 ) {
-				continue;
-			}
+		// 	final p = genAnimProgress( event.animData, progress );
+		// 	if( p < 0 || p > 1 ) {
+		// 		continue;
+		// 	}
 
-			final fromIdx = event.cellIdx;
-			final toIdx = event.targetIdx;
-			final amount = event.amount;
-			final playerIdx = event.playerIdx;
+		// 	final fromIdx = event.cellIdx;
+		// 	final toIdx = event.targetIdx;
+		// 	final amount = event.amount;
+		// 	final playerIdx = event.playerIdx;
 
 
 			// ...
-		}
+		// }
 	}
 
 	function updateExplosions () {
@@ -195,8 +191,8 @@ class ViewModule {
 
 	function screenToBoard( point:Point ):Point {
 		return {
-			x: point.x + boardLayer.x,
-			y: point.y + boardLayer.y
+			x:point.x + boardLayer.x,
+			y:point.y + boardLayer.y
 		}
 	}
 
@@ -205,15 +201,15 @@ class ViewModule {
 	}
 
 	function getLastMoveEndP() {
-		return getLastEventEndP( ev.MOVE );
+		// return getLastEventEndP( ev.MOVE );
 	}
 	
 	function getLastFoodEndP() {
-		return getLastEventEndP( ev.FOOD );
+		// return getLastEventEndP( ev.FOOD );
 	}
 
 	function getLastBuildEndP() {
-		return getLastEventEndP( ev.BUILD );
+		// return getLastEventEndP( ev.BUILD );
 	}
 	
 	function getOwnersOfBeaconOn( cellIdx:Int, data:FrameData ) {
@@ -287,8 +283,8 @@ class ViewModule {
 		
 	}
 
-	function drawTile() {
-		
+	function drawTile( cell:CellData ) {
+		// final tile = Tile.from( "case.png" );
 	}
 
 	function initBackground() {
@@ -303,15 +299,24 @@ class ViewModule {
 		
 	}
 
-	function initBoard() {
-		
+	public function initBoard( layer:Object ) {
+		// tiles.clear();
+		// for( cell in globalData.cells ) {
+		// 	final hex = initHex( cell );
+		// 	layer.addChild( hex );
+		// }
+
+		// centerLayer( layer );
 	}
 
 	function initTileData() {
 		
 	}
 
-	function initHex() {
+	function initHex( cell:CellData ) {
+		// final drawnHex = drawTile( cell );
+		
+		// final container = new Object();
 		
 	}
 
@@ -335,8 +340,28 @@ class ViewModule {
 		
 	}
 
-	function handleGlobalData() {
-		
+	public function handleGlobalData( players:Array<PlayerInfo>, globalViewData:GlobalViewData ) {
+		final anthills:Array<Array<Int>> = [[], []];
+		globalViewData.cells.filter( cell -> cell.owner != -1 ).iter( cell -> anthills[cell.owner].push( cell.index ));
+
+		final maxScore = globalViewData.cells
+		.filter( cell -> cell.type == POINTS )
+		.map( cell -> cell.richness )
+		.fold(( v, sum ) -> sum + v, 0 );
+
+		globalData = {
+			cells: globalViewData.cells,
+			players: players,
+			playerCount: players.length,
+			anthills: anthills,
+			maxScore: maxScore
+		}
+
+		currentTempCellData = {
+			ants: globalData.players.map( p -> globalData.cells.map( cell -> cell.ants[p.index] )),
+			beacons: globalData.players.map( p -> this.globalData.cells.map( _ -> 0 )),
+			richness: globalData.cells.map( cell -> cell.richness )
+		}
 	}
 
 	function createExplosionParticleEffect() {

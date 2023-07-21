@@ -1,12 +1,14 @@
 package gameengine.core;
 
+import viewer.Point;
+
 using xa3.StringUtils;
 
 /**
  * return word padded to width with char characters
  */
-function paddingString(  word:String, width:int, char = " "  ) {
-	return MathUtils.max( width - word.length + 1, 0 )).repeat( char ) + word
+function paddingString(  word:String, width:Int, char = " "  ) {
+	return MathUtils.max( width - word.length + 1, 0 ).repeat( char ) + word;
 }
   
 /**
@@ -14,8 +16,8 @@ function paddingString(  word:String, width:int, char = " "  ) {
  * Returns a random integer from [a;b[ if b is not null.
  */
 function randInt(  a:Int, b = 0 ) {
-	if( b != 0 && b > a ) { return a + Math.floor( Math.random(  ) * ( b - a )) }
-	return Math.floor( Math.random(  ) * a )
+	if( b != 0 && b > a ) { return a + Math.floor( Math.random(  ) * ( b - a )); }
+	return Math.floor( Math.random(  ) * a );
   }
   
 /**
@@ -23,9 +25,9 @@ function randInt(  a:Int, b = 0 ) {
  */
 function lerp( a:Int, b:Int, u:Int ) {
 	if( a <= b ) {
-		return a + ( b - a ) * u
+		return a + ( b - a ) * u;
 	} else {
-		return b + ( a - b ) * ( 1 - u )
+		return b + ( a - b ) * ( 1 - u );
 	}
 }
   
@@ -33,15 +35,15 @@ function lerp( a:Int, b:Int, u:Int ) {
  * Gets the percentage position in [a;b] of number v
  */
 function unlerpUnclamped( a:Int, b:Int, v:Int ) {
-	return ( v - a ) / ( b - a )
+	return ( v - a ) / ( b - a );
 }
   
 /**
  * Gets the angle between start & end at percentage amount
 */
 function lerpAngle( start:Int, end:Int, amount:Int, maxDelta = 0 ) {
-	while( end > start + Math.PI ) { end -= Math.PI * 2 }
-	while( end < start - Math.PI ) { end += Math.PI * 2 }
+	while( end > start + Math.PI ) { end -= Math.PI * 2; }
+	while( end < start - Math.PI ) { end += Math.PI * 2; }
 	var value = 0;
 	if( maxDelta != 0 && Math.abs( end - start ) > maxDelta ) {
 		value = end;
@@ -83,14 +85,14 @@ function lerpColor( start:Int, ?end:Int, ?amount:Int ) {
 		g: lerp( from.g, to.g, amount ) << 8,
 		b: lerp( from.b, to.b, amount )
 	}
-	return result.r | result.g | result.b
+	return result.r | result.g | result.b;
 }
 
 /**
  * Gets the percentage position in [a;b] of number v, clamped into [0;1]
  */
 function unlerp( a:Int, b:Int, v:Float ) {
-	return Math.min( 1, Math.max( 0, unlerpUnclamped( a, b, v )) )
+	return Math.min( 1, Math.max( 0, unlerpUnclamped( a, b, v )) );
 }
   
 /**
@@ -104,6 +106,6 @@ function unlerp( a:Int, b:Int, v:Float ) {
  * Returns the scale needed to fit ( srcWidth, srcHeight ) inside ( maxWidth, maxHeight )
  */
 function fitAspectRatio( srcWidth:Int, srcHeight:Int, maxWidth:Int, maxHeight:Int, padding = 0 ) {
-	return Math.min( maxWidth / ( srcWidth + padding ), maxHeight / ( srcHeight + padding ))
+	return Math.min( maxWidth / ( srcWidth + padding ), maxHeight / ( srcHeight + padding ));
 }
   

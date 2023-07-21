@@ -10,6 +10,7 @@ import view.FrameViewData;
 import view.GameDataProvider;
 import view.GlobalViewData;
 import view.ViewModule;
+import viewer.Types.PlayerInfo;
 
 using Lambda;
 
@@ -63,7 +64,28 @@ class GameMain {
 		gameManager = new MultiplayerGameManager( viewGlobalDataTrigger, frameViewDataTrigger, nextPlayerInfoTrigger, nextPlayerInputTrigger );
 		players.iter( p -> p.setGameManager( gameManager ));
 
-		app = new viewer.App( playerMe.getNicknameToken(), playerOpp.getNicknameToken(), startGame );
+		final players:Array<PlayerInfo> = [
+			{
+				name: playerMe.getNicknameToken(),
+				avatar: hxd.Res.avatar.robot_01.toTile(),
+				color: 0x0359a9,
+				index: 0,
+				isMe: true,
+				number: 0,
+				type: ""
+			},
+			{
+				name: playerOpp.getNicknameToken(),
+				avatar: hxd.Res.avatar.robot_02.toTile(),
+				color: 0xd10404,
+				index: 1,
+				isMe: false,
+				number: 1,
+				type: ""
+			}
+		];
+
+		app = new viewer.App( players, startGame );
 	}
 
 	static function startGame() {

@@ -3,12 +3,13 @@ package viewer;
 import h2d.Object;
 import h2d.Text;
 import h2d.Tile;
-import viewer.Utils.Point;
+import view.CellData;
+import viewer.Point;
 
 /**
  * Given by the SDK
  */
-@:StructInit class FrameInfo {
+@:structInit class FrameInfo {
 	public var number:Int;
 	public var frameDuration:Int;
 	public var date:Int;
@@ -16,7 +17,7 @@ import viewer.Utils.Point;
   /**
    * Given by the SDK
    */
-@:StructInit class CanvasInfo {
+@:structInit class CanvasInfo {
 	public var width:Int;
 	public var height:Int;
 	public var oversampling:Int;
@@ -24,7 +25,7 @@ import viewer.Utils.Point;
   /**
    * Given by the SDK
    */
-@:StructInit class PlayerInfo {
+@:structInit class PlayerInfo {
 	public var name:String;
 	public var avatar:h2d.Tile;
 	public var color:Int;
@@ -34,7 +35,7 @@ import viewer.Utils.Point;
 	public var type = "";
 }
   
-@:StructInit class EventDto {
+@:structInit class EventDto {
 	public var type:Int;
 	public var animData:AnimData;
 	public var cellIdx:Int;
@@ -48,14 +49,14 @@ import viewer.Utils.Point;
 	public var crisscross = false;
 }
   
-@:StructInit class FrameDataDto {
+@:structInit class FrameDataDto {
 	public var scores:Array<Int>;
 	public var events:Array<EventDto>;
 	public var messages:Array<String>;
 	public var beacons:Array<Int>;
 }
   
-@:StructInit class PathSegment {
+@:structInit class PathSegment {
 	public var key:String;
 	public var from:Int;
 	public var to:Int;
@@ -63,7 +64,7 @@ import viewer.Utils.Point;
 	public var pathKeys:Map<String, Bool>;
 }
   
-@:StructInit class AggregatedPathsEvent {
+@:structInit class AggregatedPathsEvent {
 	public var type:Int;
 	public var animData:AnimData;
 	public var segments:Array<PathSegment>;
@@ -73,7 +74,7 @@ import viewer.Utils.Point;
 	public var bouncing:Array<Int>;
 }
   
-@:StructInit class FrameData extends FrameDataDto { //, FrameInfo
+@:structInit class FrameData extends FrameDataDto { //, FrameInfo
 	public var number:Int;
 	public var previous:FrameData;
 	public var ants:Array<Int>;
@@ -84,46 +85,36 @@ import viewer.Utils.Point;
 	public var consumedFrom:Map<Int, Bool>;
 }
   
-@:StructInit class CoordDto {
+@:structInit class CoordDto {
 	public var x:Int;
 	public var y:Int;
 }
   
-@:StructInit class CellDto {
-	public var q:Int;
-	public var r:Int;
-	public var richness:Int;
-	public var index:Int;
-	public var owner:Int;
-	public var type:Int;
-	public var ants:Array<Int>;
-}
-  
-@:StructInit class GlobalDataDto {
-	public var cells:Array<CellDto>;
+@:structInit class GlobalDataDto {
+	public var cells:Array<CellData>;
 }
 
-@:StructInit class GlobalData extends GlobalDataDto {
+@:structInit class GlobalData extends GlobalDataDto {
 	public var players:Array<PlayerInfo>;
 	public var playerCount:Int;
-	public var anthills:Array<Int>;
+	public var anthills:Array<Array<Int>>;
 	public var maxScore:Int;
 }
   
-@:StructInit class AnimData {
+@:structInit class AnimData {
 	public var start:Int;
 	public var end:Int;
 }
   
-@:StructInit class Effect<T> {
+@:structInit class Effect<T> {
 	public var busy:Bool;
 	public var display:T;
 }
   
 /* View entities */
-@:StructInit class Hex {
+@:structInit class Hex {
 	public var container:Object;
-	public var data:CellDto;
+	public var data:CellData;
 	public var texts:Array<Text>;
 	public var indicators:Array<Tile>;
 	public var foodText:Text;
@@ -134,12 +125,12 @@ import viewer.Utils.Point;
 	public var indicatorLayer:Object;
 }
 
-@:StructInit class Tile {
+@:structInit class Tile {
 	public var container:Object;
 	public var sprite:Tile;
 }
   
-@:StructInit class AntParticleGroup {
+@:structInit class AntParticleGroup {
 	public var particles:Array<AntParticle>;
 	public var fromIdx:Int;
 	public var toIdx:Int;
@@ -148,7 +139,7 @@ import viewer.Utils.Point;
 	public var animData:AnimData;
 }
   
-@:StructInit class AntParticle {
+@:structInit class AntParticle {
 	public var offset:Point;
 	public var random:Int;
 	public var direction:Int;
@@ -156,14 +147,14 @@ import viewer.Utils.Point;
 	public var placed:Bool;
 }
   
-@:StructInit class SfxData {
+@:structInit class SfxData {
 	public var angle:Int;
 	public var speed:Int;
 	public var size:Int;
 	public var deathAt:Int;
 }
   
-@:StructInit class Explosion extends AnimData {
+@:structInit class Explosion extends AnimData {
 	public var cellIdx:Int;
 	public var data:Array<SfxData>;
 }

@@ -1,13 +1,13 @@
 package viewer;
 
-import gameengine.core.GameManager;
-import gameengine.core.MultiplayerGameManager;
 import gameplayer.Gameplayer;
 import h2d.Object;
 import hxd.Event;
 import hxd.Window;
 import view.FrameViewData;
 import view.GlobalViewData;
+import viewer.Types.GlobalData;
+import viewer.Types.PlayerInfo;
 import xa3.MathUtils.max;
 
 using Lambda;
@@ -20,8 +20,7 @@ class App extends hxd.App {
 	public static final CANVAS_WIDTH = 1920;
 	public static final CANVAS_HEIGHT = 1080;
 	
-	final playerMeName:String;
-	final playerOppName:String;
+	final players:Array<PlayerInfo>;
 	
 	final onInitComplete:()->Void;
 	var width = CANVAS_WIDTH;
@@ -33,13 +32,12 @@ class App extends hxd.App {
 	var currentFrame:Int;
 	final frameDatasets:Array<FrameViewData> = [];
 
-	var gameView:viewer.GameView;
+	var viewModule:ViewModule;
 	var gameplayer:gameplayer.Gameplayer;
 	
-	public function new( playerMeName:String, playerOppName:String, onInitComplete:()->Void ) {
+	public function new( players:Array<PlayerInfo>, onInitComplete:()->Void ) {
 		super();
-		this.playerMeName = playerMeName;
-		this.playerOppName = playerOppName;
+		this.players = players;
 		this.onInitComplete = onInitComplete;
 	}
 
@@ -50,10 +48,10 @@ class App extends hxd.App {
 		// final entityCreator = new viewer.EntityCreator();
 		// entityCreator.initTiles();
 		// final tooltipManager = new TooltipManager( scene, entityCreator.timesFont );
-		// final viewModule = new ViewModule( tooltipManager, entityCreator );
+		viewModule = new ViewModule();
 		
-		gameView = new viewer.GameView( s2d, scene );
-		gameView.init( playerMeName, playerOppName );
+		// gameView = new viewer.GameView( s2d, scene );
+		// gameView.init( playerMeName, playerOppName );
 		
 		gameplayer = new gameplayer.Gameplayer( s2d, window );
 		gameplayer.init( 2 );
@@ -87,18 +85,19 @@ class App extends hxd.App {
 
 		final minScale = Math.min( scaleX, scaleY );
 		// trace( 'onResize $minScale' );
-		gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
+		// gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 	}
 
 	public function receiveViewGlobalData( dataset:GlobalViewData ) {
 		trace( 'receiveViewGlobalData\n${dataset.cells}' );
+		viewModule.handleGlobalData( players, dataset );
 	}
 
 	public function receiveFrameViewData( dataset:FrameViewData ) {
 		trace( 'receiveFrameViewData\n$dataset' );
 		
 		frameDatasets.push( dataset );
-		gameView.updateFrame( frameDatasets.length - 1, dataset );
+		// gameView.updateFrame( frameDatasets.length - 1, dataset );
 		
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
@@ -111,13 +110,13 @@ class App extends hxd.App {
 		currentFrame = max( 0, Math.floor( frame ));
 		
 		final subFrame = frame - currentFrame;
-		gameView.update( frame, currentFrame, subFrame, frameDatasets );
+		// gameView.update( frame, currentFrame, subFrame, frameDatasets );
 	}
 
 	override function update( dt:Float ) {
-		gameplayer.update( dt );
-		if( s2d.mouseY < window.height - Gameplayer.HEIGHT ) {
-			if( frameDatasets.length > 0 ) gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
-		} else gameView.mouseOut();
+		// gameplayer.update( dt );
+		// if( s2d.mouseY < window.height - Gameplayer.HEIGHT ) {
+		// 	if( frameDatasets.length > 0 ) gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
+		// } else gameView.mouseOut();
 	}
 }

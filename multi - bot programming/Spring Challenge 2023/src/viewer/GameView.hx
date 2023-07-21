@@ -3,6 +3,7 @@ package viewer;
 import h2d.Object;
 import h2d.Scene;
 import view.FrameViewData;
+import viewer.ViewModule;
 
 class GameView {
 	

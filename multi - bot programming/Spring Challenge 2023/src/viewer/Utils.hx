@@ -9,11 +9,6 @@ import xa3.MathUtils;
 
 using Lambda;
 
-typedef Point = {
-	final x:Int;
-	final y:Int;
-}
-
 function setAnimationProgress( fx:Anim, progress:Float ) {
 	var idx = Math.floor( progress * fx.frames.length );
 	idx = MathUtils.min( fx.frames.length - 1, idx );
@@ -64,14 +59,14 @@ function keyOf( x:Float, y:Float ) {
 	return '${x},${y}';
 }
 function angleDiff( a:Float, b:Float ):Float {
-	return Math.abs( utils.lerpAngle( a, b, 0 ) - utils.lerpAngle( a, b, 1 ));
+	return Math.abs( lerpAngle( a, b, 0 ) - lerpAngle( a, b, 1 ));
 }
 
 function randomChoice( rand:Float, coeffs:Array<Float> ) {
-	final total = coeffs.reduce(( a, b ) -> a + b, 0 );
+	final total = coeffs.fold(( a, sum ) -> sum + a, 0 );
 	final b = 1 / total;
 	final weights = coeffs.map( v -> v * b );
-	final cur = 0;
+	var cur = 0.0;
 	for ( i in 0...weights.length ) {
 		cur += weights[i];
 		if ( cur >= rand ) {
