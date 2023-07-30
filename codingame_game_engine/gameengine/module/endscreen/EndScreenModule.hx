@@ -1,8 +1,8 @@
 package gameengine.module.endscreen;
 
-import view.FrameViewData;
-import gameengine.core.Module;
 import gameengine.core.GameManager;
+import gameengine.core.Module;
+import main.view.FrameViewData;
 
 class EndScreenModule implements Module {
 	

@@ -1,17 +1,17 @@
 package gameengine.core;
 
-import view.GlobalViewData;
-import view.FrameViewData;
-import tink.core.Signal;
-import haxe.ds.Vector;
-import gameengine.exception.RuntimeException;
-import haxe.Json;
-import game.Player;
-import gameengine.java.Log;
-import gameengine.java.Scanner;
 import gameengine.core.InputCommand;
 import gameengine.exception.IllegalArgumentException;
 import gameengine.exception.IllegalStateException;
+import gameengine.exception.RuntimeException;
+import gameengine.java.Log;
+import gameengine.java.Scanner;
+import haxe.Json;
+import haxe.ds.Vector;
+import main.game.Player;
+import main.view.FrameViewData;
+import main.view.GlobalViewData;
+import tink.core.Signal;
 
 using Lambda;
 /**
