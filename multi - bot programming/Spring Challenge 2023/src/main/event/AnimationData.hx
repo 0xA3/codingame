@@ -2,10 +2,10 @@ package main.event;
 
 class AnimationData {
 
-	public final start:Int;
-	public final end:Int;
+	public var start:Float;
+	public var end:Float;
 
-	public function new( start:Int, end:Int ) {
+	public function new( start:Float, end:Float ) {
 		this.start = start;
 		this.end = end;
 	}

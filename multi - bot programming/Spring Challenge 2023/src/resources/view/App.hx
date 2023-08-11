@@ -6,7 +6,8 @@ import hxd.Event;
 import hxd.Window;
 import main.view.FrameViewData;
 import main.view.GlobalViewData;
-import resources.view.Types.GlobalData;
+import resources.view.Types.FrameData;
+import resources.view.Types.FrameInfo;
 import resources.view.Types.PlayerInfo;
 import xa3.MathUtils.max;
 
@@ -20,8 +21,6 @@ class App extends hxd.App {
 	public static final CANVAS_WIDTH = 1920;
 	public static final CANVAS_HEIGHT = 1080;
 	
-	final players:Array<PlayerInfo>;
-	
 	final onInitComplete:()->Void;
 	var width = CANVAS_WIDTH;
 	var height = CANVAS_HEIGHT;
@@ -30,14 +29,14 @@ class App extends hxd.App {
 	
 	var window:Window;
 	var currentFrame:Int;
-	final frameDatasets:Array<FrameViewData> = [];
-
+	final frameInfoDatasets:Array<FrameInfo> = [];
+	final frameDatasets:Array<FrameData> = [];
+	
 	var viewModule:ViewModule;
 	var gameplayer:gameplayer.Gameplayer;
 	
-	public function new( players:Array<PlayerInfo>, onInitComplete:()->Void ) {
+	public function new( onInitComplete:()->Void ) {
 		super();
-		this.players = players;
 		this.onInitComplete = onInitComplete;
 	}
 
@@ -88,7 +87,7 @@ class App extends hxd.App {
 		// gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
 	}
 
-	public function receiveViewGlobalData( dataset:GlobalViewData ) {
+	public function receiveViewGlobalData( players:Array<PlayerInfo>, dataset:GlobalViewData ) {
 		trace( 'receiveViewGlobalData\n${dataset.cells}' );
 		viewModule.handleGlobalData( players, dataset );
 	}
@@ -96,9 +95,20 @@ class App extends hxd.App {
 	public function receiveFrameViewData( dataset:FrameViewData ) {
 		trace( 'receiveFrameViewData\n$dataset' );
 		
+		final number = frameDatasets.length;
+		final duration = dataset.duration;
+		final date = frameInfoDatasets.length == 0 ? 0 : frameInfoDatasets[frameInfoDatasets.length - 1].date + duration;
+
+		final frameInfoDataset:FrameInfo = {
+			number: number,
+			frameDuration: duration,
+			date: date
+		}
+		frameInfoDatasets.push( frameInfoDataset );
+		
+		final dataset = viewModule.handleFrameData( frameInfoDataset, dataset );
 		frameDatasets.push( dataset );
-		viewModule.handleFrameData( dataset );
-		// gameView.updateFrame( frameDatasets.length - 1, dataset );
+		viewModule.updateScene( frameDatasets[frameDatasets.length - 1], dataset, 0 );
 		
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;

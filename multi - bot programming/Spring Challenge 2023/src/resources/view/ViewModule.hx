@@ -9,7 +9,9 @@ import main.view.CellData;
 import main.view.FrameViewData;
 import main.view.GlobalViewData;
 import resources.view.GameConstants.POINTS;
+import resources.view.PathSegments.computePathSegments;
 import resources.view.Types;
+import resources.view.Utils.sum;
 
 using Lambda;
 
@@ -116,7 +118,7 @@ class ViewModule {
 		// not important
 	}
 
-	function updateScene( previousData:FrameData, currentData:FrameData, progress:Float, playerSpeed = 0 ) {
+	public function updateScene( previousData:FrameData, currentData:FrameData, progress:Float, playerSpeed = 0 ) {
 		final lastShownData = this.currentData;
 		final frameChange = lastShownData != currentData;
 		final fullProgressChange = (this.progress == 1) != (progress == 1);
@@ -165,7 +167,7 @@ class ViewModule {
 	}
 
 	function updateMoves() {
-		// for( event in currentData.events.filter( type -> type == ev.MOVE )) {
+		// for( event in currentData.events.filter( type -> type == EventData.MOVE )) {
 		// 	if( !showPlayerDebug( event.playerIdx )) {
 		// 		continue;
 		// 	}
@@ -204,15 +206,15 @@ class ViewModule {
 	}
 
 	function getLastMoveEndP() {
-		// return getLastEventEndP( ev.MOVE );
+		// return getLastEventEndP( EventData.MOVE );
 	}
 	
 	function getLastFoodEndP() {
-		// return getLastEventEndP( ev.FOOD );
+		// return getLastEventEndP( EventData.FOOD );
 	}
 
 	function getLastBuildEndP() {
-		// return getLastEventEndP( ev.BUILD );
+		// return getLastEventEndP( EventData.BUILD );
 	}
 	
 	function getOwnersOfBeaconOn( cellIdx:Int, data:FrameData ) {
@@ -367,11 +369,23 @@ class ViewModule {
 		}
 	}
 
-	function createExplosionParticleEffect() {
-		
+	function createExplosionParticleEffect( xplosion: Explosion ) {
+		//TODO
+
+
+
+
+
+
+
+
+
+
+
+		return xplosion;
 	}
 
-	public function handleFrameData( frameInfo:FrameInfo, frameViewData:FrameViewData ) {
+	public function handleFrameData( frameInfo:FrameInfo, dto:FrameViewData ) {
 		final ants = currentTempCellData.ants.map( a -> a.copy());
 		final richness = currentTempCellData.richness.copy();
 		final eventMapPerPlayer = [new Map<Int, Array<EventData>>(), new Map<Int, Array<EventData>>()];
@@ -380,7 +394,7 @@ class ViewModule {
 
 		// Handle explosions
 		final shouldExplodeThisFrame:Map<Explosion, Bool> = [];
-		for( event in frameViewData.events ) {
+		for( event in dto.events ) {
 			eventMapPerPlayer[event.playerIdx][event.type] = eventMapPerPlayer[event.playerIdx][event.type] ?? [];
 			eventMapPerPlayer[event.playerIdx][event.type].push( event );
 			final start = event.animData.length > 0 ? event.animData[0].start : 0;
@@ -389,13 +403,114 @@ class ViewModule {
 			final pEnd = end / frameInfo.frameDuration;
 
 			if( event.type == EventData.BUILD ) {
+				consumedFrom[event.playerIdx].set( event.path[0], true );
+				for( cellIdx in globalData.anthills[event.playerIdx] ) {
+					ants[event.playerIdx][cellIdx] += event.amount;
+				}
+				final fromRichness = richness[event.path[0]];
+				final toRichness = fromRichness - event.amount;
 				
-			} else if( event.type == EventData.MOVE ) {
+				if( fromRichness >= THRESHOLD_TRIPLE && toRichness < THRESHOLD_TRIPLE ||
+					fromRichness >= THRESHOLD_DOUBLE && toRichness < THRESHOLD_DOUBLE ||
+					toRichness == 0 ) {
+					final tStart = frameInfo.date + frameInfo.frameDuration * pEnd;
+					final tEnd = tStart + XPLODE_DURATION;
+					final e:Explosion = {
+						cellIdx: event.path[0],
+						start: tStart,
+						end: tEnd,
+						data: []
+					}
 
+					shouldExplodeThisFrame.set( e, true );
+				}
+				richness[event.path[0]] = toRichness;
+			} else if( event.type == EventData.MOVE ) {
+				ants[event.playerIdx][event.cellIdx] -= event.amount;
+				ants[event.playerIdx][event.targetIdx] += event.amount;
+				for( other in dto.events ) {
+					if( other.cellIdx == event.targetIdx && other.targetIdx == event.cellIdx ) {
+						event.double = true;
+						event.crisscross = true;
+					} else if( other.cellIdx == event.cellIdx && other.targetIdx == event.targetIdx && other.playerIdx != event.playerIdx ) {
+						event.double = true;
+						event.crisscross = false;
+					}
+				}
 			} else if( event.type == EventData.FOOD ) {
-				
+				consumedFrom[event.playerIdx].set( event.path[0], true );
+				final fromRichness = richness[event.path[0]];
+				final toRichness = fromRichness - event.amount;
+				if( fromRichness >= THRESHOLD_TRIPLE && toRichness < THRESHOLD_TRIPLE ||
+					fromRichness >= THRESHOLD_DOUBLE && toRichness < THRESHOLD_DOUBLE ||
+					toRichness == 0 ) {
+					final tStart = frameInfo.date + frameInfo.frameDuration * pEnd;
+					final tEnd = tStart + XPLODE_DURATION;
+					final e:Explosion = {
+						cellIdx: event.path[0],
+						start: tStart,
+						end: tEnd,
+						data: []
+					}
+
+					shouldExplodeThisFrame.set( e, true );
+				}
+				richness[event.path[0]] = toRichness;
 			}
+			event.animData[0].start /= frameInfo.frameDuration;
+      		event.animData[event.animData.length - 1].end /= frameInfo.frameDuration;
 		}
+		// Create synthetic multi-path event to aggregate FOOD and BUILD events
+		final foodEvents = globalData.players.map( p -> computePathSegments( eventMapPerPlayer[p.index][EventData.FOOD] ?? [], p.index, EventData.FOOD ));
+		final buildEvents = globalData.players.map( p -> computePathSegments( eventMapPerPlayer[p.index][EventData.BUILD] ?? [], p.index, EventData.BUILD ));
+
+		final buildAmount = ants
+		.mapi(( playerIndex, playerAnts ) -> {
+			return playerAnts.mapi(( cellIndex, _ ) -> {
+				return dto.events
+					.filter( event -> event.type == EventData.BUILD )
+					.filter( event -> event.playerIdx == playerIndex )
+					.filter( (_) -> globalData.anthills[playerIndex].contains( cellIndex ))
+					.fold(( event, buildAmount ) -> buildAmount + event.amount, 0 );
+			});
+		});
+
+		final explosionParticleEffects = [for( e in shouldExplodeThisFrame.keys()) e].map( e -> createExplosionParticleEffect( e ));
+		for( e in explosionParticleEffects ) explosions.push( e );
+
+		final antTotals = [
+			sum( ants[0] ),
+			sum( ants[1] )
+		];
+
+		final frameData:FrameData = {
+			scores: dto.scores,
+			events: dto.events,
+			messages: dto.messages,
+			beacons: dto.beacons,
+			number: frameInfo.number,
+			frameDuration: frameInfo.frameDuration,
+			date: frameInfo.date,
+			
+			previous: null,
+			syntheticEvents: [foodEvents, buildEvents].flatten().filter( v -> v != null ),
+			buildAmount: buildAmount,
+			ants: ants,
+			richness: richness,
+			antTotals: antTotals,
+			consumedFrom: consumedFrom
+		}
+
+		frameData.previous = Utils.last( states ) ?? frameData;
+		states.push( frameData );
+
+		currentTempCellData = {
+			ants: frameData.ants,
+			beacons: frameData.beacons,
+			richness: frameData.richness
+		}
+
+		return frameData;
 	}
 
 	function fitTextWithin() {

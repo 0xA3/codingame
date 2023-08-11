@@ -15,6 +15,9 @@ class EventData {
 	public var amount:Int;
 	public var path:Array<Int>;
 
+	public var double = false;
+	public var crisscross = false;
+
 	public function new() {}
 
 	public function toString() return 'type: $type, animData: $animData, playerIdx: $playerIdx, cellIdx: $cellIdx, targetIdx: $targetIdx, amount: $amount, path: $path';

@@ -64,28 +64,7 @@ class GameMain {
 		gameManager = new MultiplayerGameManager( viewGlobalDataTrigger, frameViewDataTrigger, nextPlayerInfoTrigger, nextPlayerInputTrigger );
 		players.iter( p -> p.setGameManager( gameManager ));
 
-		final players:Array<PlayerInfo> = [
-			{
-				name: playerMe.getNicknameToken(),
-				avatar: hxd.Res.avatar.robot_01.toTile(),
-				color: 0x0359a9,
-				index: 0,
-				isMe: true,
-				number: 0,
-				type: ""
-			},
-			{
-				name: playerOpp.getNicknameToken(),
-				avatar: hxd.Res.avatar.robot_02.toTile(),
-				color: 0xd10404,
-				index: 1,
-				isMe: false,
-				number: 1,
-				type: ""
-			}
-		];
-
-		app = new resources.view.App( players, startGame );
+		app = new resources.view.App( startGame );
 	}
 
 	static function startGame() {
@@ -105,24 +84,44 @@ class GameMain {
 
 		gameManager.inject( referee, cast players );
 
+		final playerInfos:Array<PlayerInfo> = [
+			{
+				name: players[0].getNicknameToken(),
+				avatar: hxd.Res.avatar.robot_01.toTile(),
+				color: 0x0359a9,
+				index: 0,
+				isMe: true,
+				number: 0,
+				type: ""
+			},
+			{
+				name: players[1].getNicknameToken(),
+				avatar: hxd.Res.avatar.robot_02.toTile(),
+				color: 0xd10404,
+				index: 1,
+				isMe: false,
+				number: 1,
+				type: ""
+			}
+		];
+		
 		final inputStream = new haxe.ds.List<String>();
 		final printStream = new haxe.ds.List<String>();
-		
-		final aiConnector = new AiConnector( ais, inputStream );
 
-		// connect signals to ais via AiConnector
+		// connect signals
 		final viewGlobalDataSignal = viewGlobalDataTrigger.asSignal();
 		final frameViewDataSignal = frameViewDataTrigger.asSignal();
 		final nextPlayerInfoSignal = nextPlayerInfoTrigger.asSignal();
 		final nextPlayerInputSignal = nextPlayerInputTrigger.asSignal();
 		
-		viewGlobalDataSignal.handle( app.receiveViewGlobalData );
+		viewGlobalDataSignal.handle(( data ) -> app.receiveViewGlobalData( playerInfos, data ));
 		frameViewDataSignal.handle( app.receiveFrameViewData );
+		
+		final aiConnector = new AiConnector( ais, inputStream );
 		nextPlayerInfoSignal.handle( aiConnector.handleNextPlayerInfo );
 		nextPlayerInputSignal.handle( aiConnector.handleNextPlayerInput );
 
 		RefereeMain.initInputStream( inputStream, seed );
-		
 		gameManager.start( inputStream, printStream );
 	}
 }

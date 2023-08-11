@@ -1,6 +1,6 @@
 package resources.view;
 
-import gameengine.core.Utils;
+import gameengine.view.core.Utils;
 import h2d.Anim;
 import h2d.Object;
 import h2d.Text;
@@ -76,6 +76,10 @@ function randomChoice( rand:Float, coeffs:Array<Float> ) {
 	return 0;
 }
 
-function sum( arr:Array<Float> ) {
+function sum( arr:Array<Int> ) {
+	return arr.fold(( a, sum ) -> sum + a, 0 );
+}
+
+function fsum( arr:Array<Float> ) {
 	return arr.fold(( a, sum ) -> sum + a, 0.0 );
 }

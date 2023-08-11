@@ -4,7 +4,9 @@ import gameengine.view.core.Point;
 import h2d.Object;
 import h2d.Text;
 import h2d.Tile;
+import main.event.EventData;
 import main.view.CellData;
+import main.view.FrameViewData;
 
 /**
  * Given by the SDK
@@ -49,12 +51,12 @@ import main.view.CellData;
 	public var crisscross = false;
 }
   
-@:structInit class FrameDataDto {
-	public var scores:Array<Int>;
-	public var events:Array<EventDto>;
-	public var messages:Array<String>;
-	public var beacons:Array<Int>;
-}
+// @:structInit class FrameDataDto {
+// 	public var scores:Array<Int>;
+// 	public var events:Array<EventDto>;
+// 	public var messages:Array<String>;
+// 	public var beacons:Array<Int>;
+// }
   
 @:structInit class PathSegment {
 	public var key:String;
@@ -74,15 +76,24 @@ import main.view.CellData;
 	public var bouncing:Array<Int>;
 }
   
-@:structInit class FrameData extends FrameDataDto { //, FrameInfo
+@:structInit class FrameData { // extends FrameViewData { //, FrameInfo
+	// from FrameViewData
+	public var scores:Array<Int>;
+	public var events:Array<EventData>;
+	public var messages:Array<String>;
+	public var beacons:Array<Array<Int>>;
+	// from FrameInfo
 	public var number:Int;
+	public var frameDuration:Int;
+	public var date:Int;
+
 	public var previous:FrameData;
-	public var ants:Array<Int>;
+	public var ants:Array<Array<Int>>;
 	public var richness:Array<Int>;
 	public var syntheticEvents:Array<AggregatedPathsEvent>;
-	public var buildAmount:Array<Int>;
+	public var buildAmount:Array<Array<Int>>;
 	public var antTotals:Array<Int>;
-	public var consumedFrom:Map<Int, Bool>;
+	public var consumedFrom:Array<Map<Int, Bool>>;
 }
   
 @:structInit class CoordDto {
@@ -102,8 +113,8 @@ import main.view.CellData;
 }
   
 @:structInit class AnimData {
-	public var start:Int;
-	public var end:Int;
+	public var start:Float;
+	public var end:Float;
 }
   
 @:structInit class Effect<T> {
