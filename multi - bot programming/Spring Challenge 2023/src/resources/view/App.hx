@@ -1,7 +1,6 @@
 package resources.view;
 
 import gameplayer.Gameplayer;
-import h2d.Object;
 import hxd.Event;
 import hxd.Window;
 import main.view.FrameViewData;
@@ -9,6 +8,7 @@ import main.view.GlobalViewData;
 import resources.view.Types.FrameData;
 import resources.view.Types.FrameInfo;
 import resources.view.Types.PlayerInfo;
+import resources.view.Utils.last;
 import xa3.MathUtils.max;
 
 using Lambda;
@@ -42,12 +42,14 @@ class App extends hxd.App {
 
 	override function init() {
 		window = Window.getInstance();
-		final scene = new Object( s2d );
+		final scene = new Container( s2d );
 
 		// final entityCreator = new resources.view.EntityCreator();
 		// entityCreator.initTiles();
 		// final tooltipManager = new TooltipManager( scene, entityCreator.timesFont );
-		viewModule = new ViewModule();
+		final tileLibrary:TileLibrary = cast CreateTileLibrary.create( hxd.Res.ants.spritesheet_png.toTile(), hxd.Res.load( "ants/spritesheet.json" ).toText() );
+		
+		viewModule = new ViewModule( tileLibrary );
 		
 		// gameView = new resources.view.GameView( s2d, scene );
 		// gameView.init( playerMeName, playerOppName );
@@ -88,12 +90,12 @@ class App extends hxd.App {
 	}
 
 	public function receiveViewGlobalData( players:Array<PlayerInfo>, dataset:GlobalViewData ) {
-		trace( 'receiveViewGlobalData\n${dataset.cells}' );
+		// trace( 'receiveViewGlobalData\n${dataset.cells}' );
 		viewModule.handleGlobalData( players, dataset );
 	}
 
 	public function receiveFrameViewData( dataset:FrameViewData ) {
-		trace( 'receiveFrameViewData\n$dataset' );
+		// trace( 'receiveFrameViewData\n$dataset' );
 		
 		final number = frameDatasets.length;
 		final duration = dataset.duration;
@@ -108,7 +110,7 @@ class App extends hxd.App {
 		
 		final dataset = viewModule.handleFrameData( frameInfoDataset, dataset );
 		frameDatasets.push( dataset );
-		viewModule.updateScene( frameDatasets[frameDatasets.length - 1], dataset, 0 );
+		viewModule.updateScene( last( frameDatasets ), dataset, 0 );
 		
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
@@ -119,13 +121,14 @@ class App extends hxd.App {
 
 	function goToFrame( frame:Float ) {
 		currentFrame = max( 0, Math.floor( frame ));
-		
+		final previousFrame = max( 0, currentFrame - 1 );
+
 		final subFrame = frame - currentFrame;
-		// gameView.update( frame, currentFrame, subFrame, frameDatasets );
+		viewModule.updateScene( frameDatasets[currentFrame], frameDatasets[previousFrame], subFrame );
 	}
 
 	override function update( dt:Float ) {
-		// gameplayer.update( dt );
+		gameplayer.update( dt );
 		// if( s2d.mouseY < window.height - Gameplayer.HEIGHT ) {
 		// 	if( frameDatasets.length > 0 ) gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
 		// } else gameView.mouseOut();

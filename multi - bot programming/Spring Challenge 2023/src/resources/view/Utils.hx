@@ -2,9 +2,7 @@ package resources.view;
 
 import gameengine.view.core.Utils;
 import h2d.Anim;
-import h2d.Object;
-import h2d.Text;
-import h2d.Tile;
+import h2d.Bitmap;
 import xa3.MathUtils;
 
 using Lambda;
@@ -19,15 +17,20 @@ function distance ( a, b ) {
 	return Math.sqrt(( a.x - b.x ) * ( a.x - b.x ) + ( a.y - b.y ) * ( a.y - b.y ));
 }
 
-// function fit( entity:Tile, maxWidth:Int, maxHeight:Int ) {
-// 	entity.scale.set( fitAspectRatio( entity.width, entity.height, maxWidth, maxHeight ));
-// }
+function fit( entity:Bitmap, maxWidth:Float, maxHeight:Float ) {
+	entity.setScale( fitAspectRatio( entity.width, entity.height, maxWidth, maxHeight ));
+}
 
-function fitAspectRatio( srcWidth:Int, srcHeight:Int, maxWidth:Int, maxHeight:Int, padding = 0 ) {
+function fitContainer( entity:Container, maxWidth:Float, maxHeight:Float ) {
+	final bounds = entity.getBounds();
+	entity.setScale( fitAspectRatio( bounds.width, bounds.height, maxWidth, maxHeight ));
+}
+
+function fitAspectRatio( srcWidth:Float, srcHeight:Float, maxWidth:Float, maxHeight:Float, padding = 0 ) {
 	return Math.min( maxWidth / ( srcWidth + padding ), maxHeight / ( srcHeight + padding ));
 }
 
-// function setSize( sprite:Object, size:Float ) {
+// function setSize( sprite:Container, size:Float ) {
 // 	sprite.width = size;
 // 	sprite.height = size;
 // }
@@ -52,12 +55,13 @@ function bounce( t:Float ):Float {
 // }
 
 function last<T>( arr:Array<T> ) {
-	return arr[arr.length - 1];
+	return arr.length == 0 ? null : arr[arr.length - 1];
 }
 
 function keyOf( x:Float, y:Float ) {
 	return '${x},${y}';
 }
+
 function angleDiff( a:Float, b:Float ):Float {
 	return Math.abs( lerpAngle( a, b, 0 ) - lerpAngle( a, b, 1 ));
 }

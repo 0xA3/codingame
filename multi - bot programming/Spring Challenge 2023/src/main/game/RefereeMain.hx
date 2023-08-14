@@ -2,10 +2,7 @@ package main.game;
 
 import Std.parseInt;
 import ai.CurrentAis;
-import ai.IAi;
-import gameengine.core.AbstractPlayer;
 import gameengine.core.MultiplayerGameManager;
-import gameengine.core.OutputData;
 import gameengine.module.endscreen.EndScreenModule;
 import main.event.Animation;
 import main.view.GameDataProvider;

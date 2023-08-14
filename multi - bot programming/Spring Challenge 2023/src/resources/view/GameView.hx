@@ -1,6 +1,5 @@
 package resources.view;
 
-import h2d.Object;
 import h2d.Scene;
 import main.view.FrameViewData;
 import resources.view.ViewModule;
@@ -9,9 +8,9 @@ class GameView {
 	
 	final s2d:Scene;
 
-	public final scene:Object;
+	public final scene:Container;
 
-	public function new( s2d:Scene, scene:Object ) {
+	public function new( s2d:Scene, scene:Container ) {
 		this.s2d = s2d;
 		this.scene = scene;
 	}

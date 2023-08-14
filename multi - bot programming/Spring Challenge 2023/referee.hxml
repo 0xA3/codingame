@@ -6,5 +6,5 @@
 -cp src
 -D localGame
 -D analyzer-optimize
--main game.RefereeMain
+-main main.game.RefereeMain
 --hl bin/referee.hl

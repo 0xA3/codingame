@@ -1,16 +1,22 @@
 package resources.view;
 
+import gameengine.view.core.Constants.HEIGHT;
+import gameengine.view.core.Constants.WIDTH;
 import gameengine.view.core.Point;
-import h2d.Object;
+import h2d.Bitmap;
 import h2d.Text;
-import h2d.Tile;
 import main.event.EventData;
 import main.view.CellData;
 import main.view.FrameViewData;
 import main.view.GlobalViewData;
+import resources.view.AssetConstants.HUD_HEIGHT;
 import resources.view.GameConstants.POINTS;
+import resources.view.HexTools.hexToScreen;
 import resources.view.PathSegments.computePathSegments;
 import resources.view.Types;
+import resources.view.Utils.fit;
+import resources.view.Utils.fitContainer;
+import resources.view.Utils.last;
 import resources.view.Utils.sum;
 
 using Lambda;
@@ -75,39 +81,39 @@ class ViewModule {
 	var currentData:FrameData;
 	var progress:Float;
 	var oversampling:Int;
-	var container:Object;
+	var container:Container;
 	var time = 0;
 	final tooltipManager = new TooltipManager();
   
-	var antParticleLayer:Object;
-	var boardOverlay:Object;
-	var boardLayer:Object;
+	var antParticleLayer:Container;
+	var boardOverlay:Container;
+	var boardLayer:Container;
   
 	var huds:Array<Hud> = [];
 
 	var scoreBar:Tile;
 
-	var hexes:Map<Int, Hex>;
-	var beacons:Map<Int, Tile>;
+	var hexes:Map<Int, Hex> = [];
+	var beacons:Map<Int, Array<Bitmap>> = [];
 	var currentTempCellData:{ ants:Array<Array<Int>>, beacons:Array<Array<Int>>, richness:Array<Int> }
-	var tiles:Map<String, Tile>;
+	var tiles:Map<String, Tile> = [];
 
 	var particleGroupsByPlayer:Array<ParticleGroup>;
 
 	var overlay:Tile;
 	var conveyors:Array<Tile>;
-	var conveyorLayer:Object;
-	var beaconLayer:Object;
-	var arrowLayer:Object;
-	var particleLayer:Object;
-	var counterLayer:Object;
+	var conveyorLayer:Container;
+	var beaconLayer:Container;
+	var arrowLayer:Container;
+	var particleLayer:Container;
+	var counterLayer:Container;
 	var distanceBetweenHexes:Int;
 	var explosions:Array<Explosion> = [];
 
-	final tileLibrary:Map<String, h2d.Tile> = [];
+	final tileLibrary:TileLibrary;
 
-	public function new() {
-		CreateTiles.create( tileLibrary, hxd.Res.ants.spritesheet_png.toTile(), hxd.Res.load( "ants/spritesheet.json" ).toText() );
+	public function new( tileLibrary:TileLibrary ) {
+		this.tileLibrary = tileLibrary;
 	}
 
 	// Effects
@@ -128,10 +134,10 @@ class ViewModule {
 		this.playerSpeed = playerSpeed;
 
 		// reset zIndex
-		for( index => hex in hexes ) {
+		// for( index => hex in hexes ) {
 			// if( hex.icon != null ) hex.iconBounceContainer.zIndex = 1;
 			// hex.indicatorLayer.zIndex = 2;
-		}
+		// }
 
 		// resetEffects()
 		updateTiles();
@@ -284,56 +290,145 @@ class ViewModule {
 		
 	}
 
-	function asLayer() {
-		
+	function asLayer( func:( Container )->Void ) {
+		final layer = new Container();
+		func( layer );
+		return layer;
 	}
 
-	function drawTile( cell:CellData ) {
-		// final tile = Tile.from( "case.png" );
+	function drawTile() {
+		final sprite = new Bitmap( tileLibrary.Case.center() );
+
+		return sprite;
 	}
 
-	function initBackground() {
-		
+	function initBackground( layer:Container ) {
+		final b = new Bitmap( hxd.Res.ants.Background.toTile(), layer );
+		fit( b, Math.POSITIVE_INFINITY, HEIGHT );
 	}
 
-	function initBeacons() {
-		
+	function initBeacons( layer:Container ) {
+		for( cell in globalData.cells ) {
+			final beacons = [];
+			for( player in globalData.players ) {
+				final crosshair = new Bitmap( player.index == 0 ? tileLibrary.Balise_Bleu : tileLibrary.Balise_Rouge );
+				
+				final hexaP = hexToScreen( cell.q, cell.r );
+				crosshair.setPosition( hexaP.x, hexaP.y );
+
+				beacons.push( crosshair );
+				layer.addChild( crosshair );
+			}
+			this.beacons.set( cell.index, beacons );
+		}
+		centerLayer( layer );
 	}
 
-	function centerLayer() {
-		
+	function centerLayer( layer:Container ) {
+		layer.setPosition( WIDTH / 2, ( HEIGHT + HUD_HEIGHT ) / 2 );
 	}
 
-	public function initBoard( layer:Object ) {
-		// tiles.clear();
-		// for( cell in globalData.cells ) {
-		// 	final hex = initHex( cell );
-		// 	layer.addChild( hex );
-		// }
+	public function initBoard( layer:Container ) {
+		tiles.clear();
+		for( cell in globalData.cells ) {
+			final hex = initHex( cell );
+			layer.addChild( hex );
+		}
 
-		// centerLayer( layer );
+		centerLayer( layer );
 	}
 
-	function initTileData() {
-		
+	function initTileData( layer:Container ) {
+		hexes.clear();
+		for( cell in globalData.cells ) {
+			final hex = initHexData( cell );
+			layer.addChild( hex );
+		}
 	}
 
 	function initHex( cell:CellData ) {
-		// final drawnHex = drawTile( cell );
+		final drawnHex = drawTile();
 		
-		// final container = new Object();
-		
+		final container = new Container();
+
+		// ...
+
+		return container;
 	}
 
-	function initHexData() {
-		
+	function initHexData( cell:CellData ) {
+		final container = new Container();
+
+		// ...
+
+		return container;
 	}
 
-	function initHud() {
-		
+	function initHud( layer:Container ) {
+		final hudFrame = tileLibrary.HUD;
+
+		// ...
 	}
 
-	function reinitScene() {
+	public function reinitScene( container:Container ) {
+		this.container = container;
+		this.pool = [];
+		this.conveyors = [];
+		this.distanceBetweenHexes = 0;
+
+		destroyParticles();
+		
+		final tooltipLayer = tooltipManager.reinit();
+
+		antParticleLayer = new Container();
+		centerLayer( antParticleLayer );
+
+		particleLayer = new Container();
+		centerLayer( particleLayer );
+
+		counterLayer = new Container();
+		centerLayer( counterLayer );
+
+		final background = asLayer( initBackground );
+		boardLayer = asLayer( initBoard );
+
+		beaconLayer = asLayer( initBeacons );
+		arrowLayer = new Container();
+		conveyorLayer = new Container();
+
+		final hudLayer = asLayer( initHud );
+
+		boardOverlay = asLayer( initTileData );
+		boardOverlay.addChild( conveyorLayer );
+		boardOverlay.addChild( arrowLayer );
+
+		final gameZone = new Container();
+		gameZone.addChild( boardLayer );
+		gameZone.addChild( beaconLayer );
+		gameZone.addChild( antParticleLayer );
+		gameZone.addChild( boardOverlay );
+		gameZone.addChild( particleLayer );
+		gameZone.addChild( counterLayer );
+
+		container.addChild( background );
+		container.addChild( gameZone );
+		container.addChild( hudLayer );
+		container.addChild( tooltipLayer );
+
+		final pad = 20;
+		fitContainer( boardLayer, WIDTH - pad, HEIGHT - pad - HUD_HEIGHT );
+		antParticleLayer.setScale( boardLayer.scaleX );
+		beaconLayer.setScale( boardLayer.scaleX );
+		particleLayer.setScale( boardLayer.scaleX );
+		boardOverlay.setScale( boardLayer.scaleX );
+		counterLayer.setScale( boardLayer.scaleX );
+
+		// container.interactive = true;
+	
+		// tooltipLayer.interactiveChildren = false
+		// hudLayer.interactiveChildren = false
+
+		// ...
 		
 	}
 
@@ -370,17 +465,8 @@ class ViewModule {
 	}
 
 	function createExplosionParticleEffect( xplosion: Explosion ) {
-		//TODO
-
-
-
-
-
-
-
-
-
-
+		
+		// ...
 
 		return xplosion;
 	}
@@ -501,7 +587,7 @@ class ViewModule {
 			consumedFrom: consumedFrom
 		}
 
-		frameData.previous = Utils.last( states ) ?? frameData;
+		frameData.previous = last( states ) ?? frameData;
 		states.push( frameData );
 
 		currentTempCellData = {

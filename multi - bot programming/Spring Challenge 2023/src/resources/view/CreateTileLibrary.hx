@@ -2,19 +2,22 @@ package resources.view;
 
 import h2d.Tile;
 
-class CreateTiles {
+class CreateTileLibrary {
 	
-	public static function create( subTiles:Map<String, Tile>, tile:Tile, mapFile:String ) {
+	public static function create( tile:Tile, mapFile:String ) {
+		final tileLibrary = {};
 		final map = haxe.Json.parse( mapFile ).frames;
 
 		final fields = Reflect.fields( map );
 		for( field in fields ) {
-			if( subTiles.exists( field )) throw 'Error: $field already exists in Tiles';
+			if( Reflect.getProperty( tileLibrary, field ) != null ) throw 'Error: $field already exists in Tiles';
 			final value:TilemapDataset = Reflect.field( map, field );
 			final frame = value.frame;
 			final subTile = tile.sub( frame.x, frame.y, frame.w, frame.h );
-			subTiles.set( field, subTile );
+			Reflect.setField( tileLibrary, field, subTile );
 		}
+
+		return tileLibrary;
 	}
 }
 

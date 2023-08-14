@@ -1,14 +1,10 @@
 package viewer;
 
-import game.Config;
-import game.Coord;
 import h2d.Anim;
 import h2d.Bitmap;
-import h2d.Graphics;
 import h2d.Object;
 import h2d.Text;
 import h2d.Tile;
-import viewer.AssetConstants;
 
 using xa3.MathUtils;
 

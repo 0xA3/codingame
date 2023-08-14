@@ -29,7 +29,7 @@ function process( answer:String, attempts:Array<Array<String>> ) {
 		}
 		for( i in 0...attempt.length ) {
 			final letter = attempt[i];
-			if( result[i] != "#" && counted.split( letter ).length - 1 < answer.split( letter ).length - 1 ) {
+			if( result[i] != "#" && count( counted, letter ) != count( answer, letter )) {
 				result[i] = "O";
 				counted += letter;
 			}
@@ -37,4 +37,8 @@ function process( answer:String, attempts:Array<Array<String>> ) {
 		results.push( result.join( "" ));
 	}
 	return results.join( "\n" );
+}
+
+function count( word:String, letter:String ) {
+	return word.split( "" ).filter( s -> s == letter ).length;
 }

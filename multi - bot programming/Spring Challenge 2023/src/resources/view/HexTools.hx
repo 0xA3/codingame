@@ -1,6 +1,8 @@
 package resources.view;
 
-@:structInit class Hex {
+import gameengine.view.core.Point;
+
+@:structInit class HexTools {
 
 	static final TILE_SEPERATION = 20;
 
@@ -22,18 +24,18 @@ package resources.view;
 	/**
 	 * https://www.redblobgames.com/grids/hexagons/#pixel-to-hex
 	 */
-	public static function screenToHex( point:Point ):Hex {
+	public static function screenToHex( point:Point ) {
 		final q = ( Math.sqrt( 3 ) / 3 * point.x - 1.0 / 3 * point.y ) / HEXAGON_RADIUS;
 		final r = ( 2.0 / 3 * point.y ) / HEXAGON_RADIUS;
 		
 		return axialRound({ q: q, r: r });
 	}
 
-	static function axialRound( hex:Hex ) {
+	static function axialRound( hex:{ q:Float, r:Float } ) {
 		return cubeToAxial( Cube.cubeRound( Cube.axialToCube( hex )));
 	}
 
-	static function cubeToAxial( cube:Cube ):Hex {
+	static function cubeToAxial( cube:Cube ) {
 		final q = cube.q;
 		final r = cube.r;
 		return { q: q, r: r }

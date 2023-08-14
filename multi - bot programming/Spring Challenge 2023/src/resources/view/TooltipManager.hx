@@ -6,6 +6,16 @@ class TooltipManager {
 		
 	}
 
+	public function reinit() {
+		final container = new Container();
+
+		//
+		// ...
+		//
+
+		return container;
+	}
+
 	public function updateGlobalText() {
 		
 	}

@@ -2,11 +2,11 @@ package resources.view;
 
 @:structInit class Cube {
 
-	public final q:Int;
-	public final r:Int;
-	public final s:Int;
+	public final q:Float;
+	public final r:Float;
+	public final s:Float;
 
-	public static function axialToCube( hex:Hex ):Cube {
+	public static function axialToCube( hex:{ q:Float, r:Float } ):Cube {
 		final q = hex.q;
 		final r = hex.r;
 		final s = -q - r;

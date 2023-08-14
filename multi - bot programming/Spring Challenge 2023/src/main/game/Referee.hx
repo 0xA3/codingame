@@ -74,7 +74,7 @@ class Referee extends AbstractReferee {
 
 	override function gameTurn( turn:Int ) {
 		//trace( 'gameTurn $turn' );
-		try {
+		// try {
 			game.resetGameTurnData();
 			
 			if( game.isKeyFrame()) {
@@ -94,10 +94,10 @@ class Referee extends AbstractReferee {
 			if( gameManager.getActivePlayers().length < 2 ) {
 				abort();
 			}
-		} catch( e:Exception ) {
-			Sys.println( 'Referee failed to compute turn. seed=${gameManager.getSeed()}' );
-			abort();
-		}
+		// } catch( e:Exception ) {
+			// Sys.println( 'Referee failed to compute turn. seed=${gameManager.getSeed()}' );
+			// abort();
+		// }
 	}
 
 	function handlePlayerCommands() {

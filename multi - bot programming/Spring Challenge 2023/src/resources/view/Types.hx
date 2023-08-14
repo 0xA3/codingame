@@ -1,17 +1,16 @@
 package resources.view;
 
 import gameengine.view.core.Point;
-import h2d.Object;
 import h2d.Text;
 import h2d.Tile;
 import main.event.EventData;
 import main.view.CellData;
-import main.view.FrameViewData;
 
 /**
  * Given by the SDK
  */
-@:structInit class FrameInfo {
+@:structInit
+class FrameInfo {
 	public var number:Int;
 	public var frameDuration:Int;
 	public var date:Int;
@@ -19,7 +18,8 @@ import main.view.FrameViewData;
   /**
    * Given by the SDK
    */
-@:structInit class CanvasInfo {
+@:structInit
+class CanvasInfo {
 	public var width:Int;
 	public var height:Int;
 	public var oversampling:Int;
@@ -27,7 +27,8 @@ import main.view.FrameViewData;
   /**
    * Given by the SDK
    */
-@:structInit class PlayerInfo {
+@:structInit
+class PlayerInfo {
 	public var name:String;
 	public var avatar:h2d.Tile;
 	public var color:Int;
@@ -37,7 +38,8 @@ import main.view.FrameViewData;
 	public var type = "";
 }
   
-@:structInit class EventDto {
+@:structInit
+class EventDto {
 	public var type:Int;
 	public var animData:AnimData;
 	public var cellIdx:Int;
@@ -51,14 +53,16 @@ import main.view.FrameViewData;
 	public var crisscross = false;
 }
   
-// @:structInit class FrameDataDto {
+// @:structInit
+// class FrameDataDto {
 // 	public var scores:Array<Int>;
 // 	public var events:Array<EventDto>;
 // 	public var messages:Array<String>;
 // 	public var beacons:Array<Int>;
 // }
   
-@:structInit class PathSegment {
+@:structInit
+class PathSegment {
 	public var key:String;
 	public var from:Int;
 	public var to:Int;
@@ -66,7 +70,8 @@ import main.view.FrameViewData;
 	public var pathKeys:Map<String, Bool>;
 }
   
-@:structInit class AggregatedPathsEvent {
+@:structInit
+class AggregatedPathsEvent {
 	public var type:Int;
 	public var animData:AnimData;
 	public var segments:Array<PathSegment>;
@@ -76,7 +81,8 @@ import main.view.FrameViewData;
 	public var bouncing:Array<Int>;
 }
   
-@:structInit class FrameData { // extends FrameViewData { //, FrameInfo
+@:structInit
+class FrameData { // extends FrameViewData { //, FrameInfo
 	// from FrameViewData
 	public var scores:Array<Int>;
 	public var events:Array<EventData>;
@@ -96,52 +102,60 @@ import main.view.FrameViewData;
 	public var consumedFrom:Array<Map<Int, Bool>>;
 }
   
-@:structInit class CoordDto {
-	public var x:Int;
-	public var y:Int;
-}
+// @:structInit
+// class CoordDto {
+// 	public var x:Int;
+// 	public var y:Int;
+// }
   
-@:structInit class GlobalDataDto {
+@:structInit
+class GlobalDataDto {
 	public var cells:Array<CellData>;
 }
 
-@:structInit class GlobalData extends GlobalDataDto {
+@:structInit
+class GlobalData extends GlobalDataDto {
 	public var players:Array<PlayerInfo>;
 	public var playerCount:Int;
 	public var anthills:Array<Array<Int>>;
 	public var maxScore:Int;
 }
   
-@:structInit class AnimData {
+@:structInit
+class AnimData {
 	public var start:Float;
 	public var end:Float;
 }
   
-@:structInit class Effect<T> {
+@:structInit
+class Effect<T> {
 	public var busy:Bool;
 	public var display:T;
 }
   
 /* View entities */
-@:structInit class Hex {
-	public var container:Object;
+@:structInit
+class Hex {
+	public var container:Container;
 	public var data:CellData;
 	public var texts:Array<Text>;
 	public var indicators:Array<Tile>;
 	public var foodText:Text;
 	public var foodTextBackground:Tile;
 	public var icon:Tile;
-	public var iconBounceContainer:Object;
+	public var iconBounceContainer:Container;
 	public var bouncing:Bool;
-	public var indicatorLayer:Object;
+	public var indicatorLayer:Container;
 }
 
-@:structInit class Tile {
-	public var container:Object;
+@:structInit
+class Tile {
+	public var container:Container;
 	public var sprite:Tile;
 }
   
-@:structInit class AntParticleGroup {
+@:structInit
+class AntParticleGroup {
 	public var particles:Array<AntParticle>;
 	public var fromIdx:Int;
 	public var toIdx:Int;
@@ -150,7 +164,8 @@ import main.view.FrameViewData;
 	public var animData:AnimData;
 }
   
-@:structInit class AntParticle {
+@:structInit
+class AntParticle {
 	public var offset:Point;
 	public var random:Int;
 	public var direction:Int;
@@ -158,14 +173,16 @@ import main.view.FrameViewData;
 	public var placed:Bool;
 }
   
-@:structInit class SfxData {
+@:structInit
+class SfxData {
 	public var angle:Int;
 	public var speed:Int;
 	public var size:Int;
 	public var deathAt:Int;
 }
   
-@:structInit class Explosion extends AnimData {
+@:structInit
+class Explosion extends AnimData {
 	public var cellIdx:Int;
 	public var data:Array<SfxData>;
 }
