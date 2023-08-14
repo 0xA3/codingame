@@ -28,6 +28,7 @@ class App extends hxd.App {
 	public static var scaleFactor = 1.0;
 	
 	var window:Window;
+	var scene:Container;
 	var currentFrame:Int;
 	final frameInfoDatasets:Array<FrameInfo> = [];
 	final frameDatasets:Array<FrameData> = [];
@@ -42,7 +43,7 @@ class App extends hxd.App {
 
 	override function init() {
 		window = Window.getInstance();
-		final scene = new Container( s2d );
+		scene = new Container( s2d );
 
 		// final entityCreator = new resources.view.EntityCreator();
 		// entityCreator.initTiles();
@@ -92,6 +93,7 @@ class App extends hxd.App {
 	public function receiveViewGlobalData( players:Array<PlayerInfo>, dataset:GlobalViewData ) {
 		// trace( 'receiveViewGlobalData\n${dataset.cells}' );
 		viewModule.handleGlobalData( players, dataset );
+		viewModule.reinitScene( scene );
 	}
 
 	public function receiveFrameViewData( dataset:FrameViewData ) {

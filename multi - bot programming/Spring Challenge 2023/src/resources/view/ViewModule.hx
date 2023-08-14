@@ -297,7 +297,8 @@ class ViewModule {
 	}
 
 	function drawTile() {
-		final sprite = new Bitmap( tileLibrary.Case.center() );
+		// final sprite = new Bitmap( tileLibrary.Case.center() );
+		final sprite = new Bitmap( tileLibrary.Case );
 
 		return sprite;
 	}
