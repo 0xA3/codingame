@@ -8,6 +8,7 @@ import gameengine.java.Log;
 import gameengine.java.Scanner;
 import haxe.Json;
 import haxe.ds.Vector;
+import haxe.Timer;
 import main.game.Player;
 import main.view.FrameViewData;
 import main.view.GlobalViewData;
@@ -77,6 +78,8 @@ abstract class GameManager {
 	final nextPlayerInfoTrigger:SignalTrigger<String>;
 	final nextPlayerInputTrigger:SignalTrigger<String>;
 
+	var timer = new Timer( 1 );
+
 	public function new(
 		viewGlobalDataTrigger:SignalTrigger<GlobalViewData>,
 		frameViewDataTrigger:SignalTrigger<FrameViewData>,
@@ -117,7 +120,7 @@ abstract class GameManager {
 	 * @param out
 	 *            print stream used to issue commands to Game
 	 */
-	public function start( inputStream:haxe.ds.List<String>, out:haxe.ds.List<String> ) {
+	public function start( inputStream:haxe.ds.List<String>, out:haxe.ds.List<String>, withTimer = false ) {
 		s = new Scanner( inputStream );
 		// try {
 			this.out = out;
@@ -144,51 +147,73 @@ abstract class GameManager {
 
 			// Game Loop ----------------------------------------------------------
 			turn = 1;
-			while( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
-				swapInfoAndViewData();
-				log.info( 'Turn ' + turn );
-				newTurn = true;
-				outputsRead = false; // Set as true after first getOutputs() to forbid sendInputs
-
-				referee.gameTurn( turn );
-				registeredModules.iter( module -> module.onAfterGameTurn());
-				// Create a frame if no player has been executed
-				if( players.length != 0 && players.filter( p -> p.hasBeenExecuted() ).length == 0 ) {
-					executePlayer( players[0], 0 );
+			if( withTimer ) {
+				loopWithTimer();
+			} else {
+				while( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
+					processTurn();
 				}
-
-				// reset players' outputs
-				for( player in players ) {
-					player.resetOutputs();
-					player.setHasBeenExecuted( false );
-				}
-
-				turn++;
+				end();
 			}
-
-			log.info( "End" );
-
-			referee.onEnd();
-			registeredModules.iter( module -> module.onAfterOnEnd());
-
-			// Send last frame ----------------------------------------------------
-			swapInfoAndViewData();
-			newTurn = true;
-
-			dumpView();
-			dumpInfos();
-
-			dumpGameProperties();
-			dumpMetadata();
-			dumpScores();
-			
-			s.close();
 
 		// } catch( e ) {
 		// 	dumpFail( e );
 		// 	s.close();
 		// 	throw e;
 		// }
+	}
+
+	function loopWithTimer() {
+		timer.stop();
+		if( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
+			processTurn();
+			timer = new Timer( 10 );
+			timer.run = loopWithTimer;
+		} else {
+			end();
+		}
+	}
+	
+	function processTurn() {
+		swapInfoAndViewData();
+		log.info( 'Turn ' + turn );
+		newTurn = true;
+		outputsRead = false; // Set as true after first getOutputs() to forbid sendInputs
+
+		referee.gameTurn( turn );
+		registeredModules.iter( module -> module.onAfterGameTurn());
+		// Create a frame if no player has been executed
+		if( players.length != 0 && players.filter( p -> p.hasBeenExecuted() ).length == 0 ) {
+			executePlayer( players[0], 0 );
+		}
+
+		// reset players' outputs
+		for( player in players ) {
+			player.resetOutputs();
+			player.setHasBeenExecuted( false );
+		}
+
+		turn++;
+	}
+
+	function end() {
+		log.info( "End" );
+
+		referee.onEnd();
+		registeredModules.iter( module -> module.onAfterOnEnd());
+
+		// Send last frame ----------------------------------------------------
+		swapInfoAndViewData();
+		newTurn = true;
+
+		dumpView();
+		dumpInfos();
+
+		dumpGameProperties();
+		dumpMetadata();
+		dumpScores();
+		
+		s.close();
 	}
 
 	function allPlayersInactive() return false;

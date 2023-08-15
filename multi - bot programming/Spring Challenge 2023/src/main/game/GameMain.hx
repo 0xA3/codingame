@@ -122,6 +122,6 @@ class GameMain {
 		nextPlayerInputSignal.handle( aiConnector.handleNextPlayerInput );
 
 		RefereeMain.initInputStream( inputStream, seed );
-		gameManager.start( inputStream, printStream );
+		gameManager.start( inputStream, printStream, true );
 	}
 }
