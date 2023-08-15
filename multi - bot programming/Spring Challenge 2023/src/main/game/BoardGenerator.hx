@@ -119,7 +119,7 @@ class BoardGenerator {
 			final cell = new Cell( nextCellIndex++, coord );
 			cells.set( coord, cell );
 		}
-
+		
 		return new Board( cells, ringCount, players );
 	}
 

@@ -25,6 +25,8 @@ class Cell {
 		this.coord = coord;
 	}
 
+	public function toString() return 'index: $index, coord: $coord, type: $type, richness: $richness, ants: $ants, beacons: $beacons';
+
 	dynamic public function getIndex() {
 		return index;
 	}

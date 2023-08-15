@@ -17,19 +17,21 @@ class GameDataProvider {
 
 	public function getGlobalData() {
 		final data = new GlobalViewData();
+
 		data.cells = game.getBoardCoords().map( entry -> {
 			final coord = entry;
 			final cell = game.getBoard().get( coord );
-
-			final cellData = new CellData();
-			cellData.q = coord.getX();
-			cellData.r = coord.getZ();
-			cellData.richness = cell.getRichness();
-			cellData.index = cell.getIndex();
+			trace( cell );
 			final anthill = cell.getAnthill();
-			cellData.owner = anthill == null ? -1 : anthill.getIndex();
-			cellData.type = cell.getType() == EGG ? 1 : 2;
-			cellData.ants = cell.getAnts();
+			final cellData:CellData = {
+				q: coord.getX(),
+				r: coord.getZ(),
+				richness: cell.getRichness(),
+				index: cell.getIndex(),
+				owner: anthill == null ? -1 : anthill.getIndex(),
+				type: cell.getType() == EGG ? 1 : 2,
+				ants: cell.getAnts()
+			}
 
 			return cellData;
 		});
