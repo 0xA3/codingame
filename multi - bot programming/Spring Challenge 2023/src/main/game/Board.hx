@@ -66,7 +66,6 @@ class Board {
 	}
 
 	public function get( coord:CubeCoord ) {
-		return Cell.NO_CELL;
 		return map.exists( coord ) ? map[coord] : Cell.NO_CELL;
 	}
 
