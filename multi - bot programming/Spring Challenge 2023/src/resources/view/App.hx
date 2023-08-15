@@ -48,8 +48,9 @@ class App extends hxd.App {
 
 		// final tooltipManager = new TooltipManager( scene, entityCreator.timesFont );
 		final tileLibrary:TileLibrary = cast CreateTileLibrary.create( hxd.Res.ants.spritesheet_png.toTile(), hxd.Res.load( "ants/spritesheet.json" ).toText() );
-		
-		viewModule = new ViewModule( tileLibrary );
+		final fonts = new Fonts();
+
+		viewModule = new ViewModule( tileLibrary, fonts );
 		
 		gameplayer = new gameplayer.Gameplayer( s2d, window );
 		gameplayer.init( 2 );

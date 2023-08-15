@@ -5,17 +5,20 @@ import gameengine.view.core.Constants.WIDTH;
 import gameengine.view.core.Point;
 import h2d.Bitmap;
 import h2d.Text;
+import h2d.TileGroup.TileLayerContent;
 import main.event.EventData;
 import main.view.CellData;
 import main.view.FrameViewData;
 import main.view.GlobalViewData;
 import resources.view.AssetConstants.HUD_HEIGHT;
+import resources.view.AssetConstants.TILE_HEIGHT;
 import resources.view.GameConstants.POINTS;
 import resources.view.HexTools.hexToScreen;
 import resources.view.PathSegments.computePathSegments;
 import resources.view.Types;
 import resources.view.Utils.fit;
 import resources.view.Utils.fitContainer;
+import resources.view.Utils.generateText;
 import resources.view.Utils.last;
 import resources.view.Utils.sum;
 
@@ -111,9 +114,11 @@ class ViewModule {
 	var explosions:Array<Explosion> = [];
 
 	final tileLibrary:TileLibrary;
+	final fonts:Fonts;
 
-	public function new( tileLibrary:TileLibrary ) {
+	public function new( tileLibrary:TileLibrary, fonts:Fonts ) {
 		this.tileLibrary = tileLibrary;
+		this.fonts = fonts;
 	}
 
 	// Effects
@@ -343,7 +348,6 @@ class ViewModule {
 			final hex = initHex( cell );
 			layer.addChild( hex );
 		}
-
 		centerLayer( layer );
 	}
 
@@ -353,6 +357,7 @@ class ViewModule {
 			final hex = initHexData( cell );
 			layer.addChild( hex );
 		}
+		centerLayer( layer );
 	}
 
 	function initHex( cell:CellData ) {
@@ -367,12 +372,35 @@ class ViewModule {
 			sprite: drawnHex,
 			container: container
 		});
-
 		return container;
 	}
 
 	function initHexData( cell:CellData ) {
 		final container = new Container();
+		// container.sortableChildren = true
+
+		final hexaP = hexToScreen( cell.q, cell.r );
+		container.setPosition( hexaP.x, hexaP.y );
+		if( cell.owner != -1 ) {
+			final anthill = new Bitmap( cell.owner == 0 ? tileLibrary.Fourmie_Bleu : tileLibrary.Fourmie_Rouge );
+			anthill.tile.center();
+			container.addChild( anthill );
+			// anthill.zIndex = 0
+		}
+		var foodTextBackground:Bitmap = null;
+		var foodText:Text = null;
+		var icon:Bitmap = null;
+		var iconBounceContainer:Container = null;
+
+		if( cell.richness > 0 ) {
+			iconBounceContainer = new Container();
+			foodTextBackground = new Bitmap( tileLibrary.Oeufs_Nombre );
+			foodTextBackground.tile.center();
+			trace( 'font size ${TILE_HEIGHT / 6}' );
+			foodText = generateText( '${cell.richness}', 0, fonts.lato_bold_24 );
+
+			// ...
+		}
 
 		// ...
 

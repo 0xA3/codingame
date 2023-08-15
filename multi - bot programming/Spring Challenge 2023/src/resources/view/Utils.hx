@@ -3,6 +3,8 @@ package resources.view;
 import gameengine.view.core.Utils;
 import h2d.Anim;
 import h2d.Bitmap;
+import h2d.Font;
+import h2d.Text;
 import xa3.MathUtils;
 
 using Lambda;
@@ -36,20 +38,23 @@ function bounce( t:Float ):Float {
 	return 1 + ( Math.sin( t * 10 ) * 0.5 * Math.cos( t * 3.14 / 2 )) * ( 1 - t ) * ( 1 - t );
 }
 
-// function generateText( text:String, color:Float, size:Float, strokeThickness = 4 ) {
-// 	final drawnText = new Text( typeof text == 'number' ? '' + text : text, {
-// 		fontSize: Math.round( size ) + 'px',
-// 		fontFamily: 'Arial',
-// 		fontWeight: 'bold',
-// 		fill: color,
-// 		stroke: 0x0,
-// 		strokeThickness,
-// 		lineHeight: Math.round( size )
-// 	} )
-// 	drawnText.anchor.x = 0.5
-// 	drawnText.anchor.y = 0.5
-// 	return drawnText
-// }
+function generateText( text:String, color:Float, font:Font, strokeThickness = 4 ) {
+	trace( generateText );
+	final drawnText = new Text( font );
+	drawnText.text = text;
+	// final drawnText = new Text( text, {
+	// 	fontSize: Math.round( size ) + 'px',
+	// 	fontFamily: 'Arial',
+	// 	fontWeight: 'bold',
+	// 	fill: color,
+	// 	stroke: 0x0,
+	// 	strokeThickness,
+	// 	lineHeight: Math.round( size )
+	// } )
+	// drawnText.anchor.x = 0.5
+	// drawnText.anchor.y = 0.5
+	return drawnText;
+}
 
 function last<T>( arr:Array<T> ) {
 	return arr.length == 0 ? null : arr[arr.length - 1];
