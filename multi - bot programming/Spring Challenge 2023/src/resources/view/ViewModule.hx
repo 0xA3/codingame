@@ -308,7 +308,6 @@ class ViewModule {
 
 	function drawTile() {
 		final sprite = new Bitmap( tileLibrary.Case );
-		
 		return sprite;
 	}
 
@@ -363,7 +362,7 @@ class ViewModule {
 		container.addChild( drawnHex );
 		final hexaP = hexToScreen( cell.q, cell.r );
 		container.setPosition( hexaP.x, hexaP.y );
-		// trace( 'initHex ${cell.index} ${hexaP.x}:${hexaP.y}' );
+		trace( 'initHex ${cell.index} ${hexaP.x}:${hexaP.y}' );
 		tiles.set( cell.index, {
 			sprite: drawnHex,
 			container: container

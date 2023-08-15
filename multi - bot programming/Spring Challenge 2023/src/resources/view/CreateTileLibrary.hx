@@ -10,13 +10,13 @@ class CreateTileLibrary {
 
 		final fields = Reflect.fields( map );
 		for( field in fields ) {
-			if( Reflect.getProperty( tileLibrary, field ) != null ) throw 'Error: $field already exists in Tiles';
+			final tileName = field.split(".")[0];
+			if( Reflect.getProperty( tileLibrary, tileName ) != null ) throw 'Error: $tileName already exists in Tiles';
 			final value:TilemapDataset = Reflect.field( map, field );
 			final frame = value.frame;
 			final subTile = tile.sub( frame.x, frame.y, frame.w, frame.h );
-			Reflect.setField( tileLibrary, field, subTile );
+			Reflect.setField( tileLibrary, tileName, subTile );
 		}
-
 		return tileLibrary;
 	}
 }

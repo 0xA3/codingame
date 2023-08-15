@@ -21,7 +21,7 @@ class GameDataProvider {
 		data.cells = game.getBoardCoords().map( entry -> {
 			final coord = entry;
 			final cell = game.getBoard().get( coord );
-			trace( cell );
+
 			final anthill = cell.getAnthill();
 			final cellData:CellData = {
 				q: coord.getX(),
