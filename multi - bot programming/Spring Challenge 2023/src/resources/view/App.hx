@@ -44,16 +44,12 @@ class App extends hxd.App {
 	override function init() {
 		window = Window.getInstance();
 		scene = new Container( s2d );
+		scene.setScale( 0.5 );
 
-		// final entityCreator = new resources.view.EntityCreator();
-		// entityCreator.initTiles();
 		// final tooltipManager = new TooltipManager( scene, entityCreator.timesFont );
 		final tileLibrary:TileLibrary = cast CreateTileLibrary.create( hxd.Res.ants.spritesheet_png.toTile(), hxd.Res.load( "ants/spritesheet.json" ).toText() );
 		
 		viewModule = new ViewModule( tileLibrary );
-		
-		// gameView = new resources.view.GameView( s2d, scene );
-		// gameView.init( playerMeName, playerOppName );
 		
 		gameplayer = new gameplayer.Gameplayer( s2d, window );
 		gameplayer.init( 2 );

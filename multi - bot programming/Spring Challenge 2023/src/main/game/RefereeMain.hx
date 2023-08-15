@@ -29,12 +29,12 @@ class RefereeMain {
 		final playerOpp = new Player( 1, aiOpp.aiId );
 		final players = [playerMe, playerOpp];
 
-		final viewGlobalDataTrigger = Signal.trigger();
+		final globalViewDataTrigger = Signal.trigger();
 		final frameViewDataTrigger = Signal.trigger();
 		final nextPlayerInfoTrigger = Signal.trigger();
 		final nextPlayerInputTrigger = Signal.trigger();
 
-		final gameManager = new MultiplayerGameManager( viewGlobalDataTrigger, frameViewDataTrigger, nextPlayerInfoTrigger, nextPlayerInputTrigger );
+		final gameManager = new MultiplayerGameManager( globalViewDataTrigger, frameViewDataTrigger, nextPlayerInfoTrigger, nextPlayerInputTrigger );
 		players.iter( p -> p.setGameManager( gameManager ));
 
 		final endScreenModule = new EndScreenModule( gameManager );

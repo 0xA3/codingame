@@ -114,7 +114,7 @@ function unlerp( a:Int, b:Int, v:Float ) {
 /**
  * Returns the scale needed to fit ( srcWidth, srcHeight ) inside ( maxWidth, maxHeight )
  */
-function fitAspectRatio( srcWidth:Int, srcHeight:Int, maxWidth:Int, maxHeight:Int, padding = 0 ) {
+function fitAspectRatio( srcWidth:Float, srcHeight:Float, maxWidth:Float, maxHeight:Float, padding = 0 ) {
 	return Math.min( maxWidth / ( srcWidth + padding ), maxHeight / ( srcHeight + padding ));
 }
   

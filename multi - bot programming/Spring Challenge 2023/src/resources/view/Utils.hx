@@ -18,16 +18,13 @@ function distance ( a, b ) {
 }
 
 function fit( entity:Bitmap, maxWidth:Float, maxHeight:Float ) {
-	entity.setScale( fitAspectRatio( entity.width, entity.height, maxWidth, maxHeight ));
+	final bounds = entity.getSize();
+	entity.setScale( fitAspectRatio( bounds.width, bounds.height, maxWidth, maxHeight ) );
 }
 
 function fitContainer( entity:Container, maxWidth:Float, maxHeight:Float ) {
 	final bounds = entity.getBounds();
 	entity.setScale( fitAspectRatio( bounds.width, bounds.height, maxWidth, maxHeight ));
-}
-
-function fitAspectRatio( srcWidth:Float, srcHeight:Float, maxWidth:Float, maxHeight:Float, padding = 0 ) {
-	return Math.min( maxWidth / ( srcWidth + padding ), maxHeight / ( srcHeight + padding ));
 }
 
 // function setSize( sprite:Container, size:Float ) {

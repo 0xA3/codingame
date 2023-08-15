@@ -23,7 +23,7 @@ class GameMain {
 	static var ais:Array<IAi>;
 	static var players:Array<Player>;
 	
-	static var viewGlobalDataTrigger:SignalTrigger<GlobalViewData>;
+	static var globalViewDataTrigger:SignalTrigger<GlobalViewData>;
 	static var frameViewDataTrigger:SignalTrigger<FrameViewData>;
 	static var nextPlayerInfoTrigger:SignalTrigger<String>;
 	static var nextPlayerInputTrigger:SignalTrigger<String>;
@@ -56,12 +56,12 @@ class GameMain {
 		final playerOpp = new Player( 1, aiOpp.aiId );
 		players = [playerMe, playerOpp];
 		
-		viewGlobalDataTrigger = Signal.trigger();
+		globalViewDataTrigger = Signal.trigger();
 		frameViewDataTrigger = Signal.trigger();
 		nextPlayerInfoTrigger = Signal.trigger();
 		nextPlayerInputTrigger = Signal.trigger();
 
-		gameManager = new MultiplayerGameManager( viewGlobalDataTrigger, frameViewDataTrigger, nextPlayerInfoTrigger, nextPlayerInputTrigger );
+		gameManager = new MultiplayerGameManager( globalViewDataTrigger, frameViewDataTrigger, nextPlayerInfoTrigger, nextPlayerInputTrigger );
 		players.iter( p -> p.setGameManager( gameManager ));
 
 		app = new resources.view.App( startGame );
@@ -109,7 +109,7 @@ class GameMain {
 		final printStream = new haxe.ds.List<String>();
 
 		// connect signals
-		final viewGlobalDataSignal = viewGlobalDataTrigger.asSignal();
+		final viewGlobalDataSignal = globalViewDataTrigger.asSignal();
 		final frameViewDataSignal = frameViewDataTrigger.asSignal();
 		final nextPlayerInfoSignal = nextPlayerInfoTrigger.asSignal();
 		final nextPlayerInputSignal = nextPlayerInputTrigger.asSignal();

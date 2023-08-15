@@ -73,7 +73,7 @@ abstract class GameManager {
 	var viewWarning:Bool;
 	var summaryWarning:Bool;
 	
-	final viewGlobalDataTrigger:SignalTrigger<GlobalViewData>;
+	final globalViewDataTrigger:SignalTrigger<GlobalViewData>;
 	final frameViewDataTrigger:SignalTrigger<FrameViewData>;
 	final nextPlayerInfoTrigger:SignalTrigger<String>;
 	final nextPlayerInputTrigger:SignalTrigger<String>;
@@ -81,12 +81,12 @@ abstract class GameManager {
 	var timer = new Timer( 1 );
 
 	public function new(
-		viewGlobalDataTrigger:SignalTrigger<GlobalViewData>,
+		globalViewDataTrigger:SignalTrigger<GlobalViewData>,
 		frameViewDataTrigger:SignalTrigger<FrameViewData>,
 		nextPlayerInfoTrigger:SignalTrigger<String>,
 		nextPlayerInputTrigger:SignalTrigger<String>
 	) {
-		this.viewGlobalDataTrigger = viewGlobalDataTrigger;
+		this.globalViewDataTrigger = globalViewDataTrigger;
 		this.frameViewDataTrigger = frameViewDataTrigger;
 		this.nextPlayerInfoTrigger = nextPlayerInfoTrigger;
 		this.nextPlayerInputTrigger = nextPlayerInputTrigger;
@@ -165,7 +165,8 @@ abstract class GameManager {
 
 	function loopWithTimer() {
 		timer.stop();
-		if( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
+		// if( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
+		if( turn <= 1 && !isGameEnd() && !allPlayersInactive() ) {
 			processTurn();
 			timer = new Timer( 10 );
 			timer.run = loopWithTimer;
@@ -335,7 +336,7 @@ abstract class GameManager {
 				// 	frame: prevViewData
 				// }
 				// data.add( Json.stringify( initFrame ));
-				viewGlobalDataTrigger.trigger( globalViewData );
+				globalViewDataTrigger.trigger( globalViewData );
 
 			} else {
 				data.add( Json.stringify( prevViewData ));

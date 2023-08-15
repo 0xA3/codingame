@@ -15,11 +15,11 @@ class Scanner {
 	}
 
 	public function nextLine() {
-		trace( 'inputStream $stream' );
+		// trace( 'inputStream $stream' );
 		if( stream.isEmpty()) {
 			throw "Error: stream is empty";
 		}
-		trace( 'nextLine "${stream.first()}"' );
+		// trace( 'nextLine "${stream.first()}"' );
 		return stream.pop();
 	}
 

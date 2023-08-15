@@ -96,7 +96,7 @@ class ViewModule {
 	var hexes:Map<Int, Hex> = [];
 	var beacons:Map<Int, Array<Bitmap>> = [];
 	var currentTempCellData:{ ants:Array<Array<Int>>, beacons:Array<Array<Int>>, richness:Array<Int> }
-	var tiles:Map<String, Tile> = [];
+	var tiles:Map<Int, { sprite:Bitmap, container:Container }> = [];
 
 	var particleGroupsByPlayer:Array<ParticleGroup>;
 
@@ -121,7 +121,7 @@ class ViewModule {
 	}
 
 	function createEffect<T>() {
-		// not important
+		// ...
 	}
 
 	public function updateScene( previousData:FrameData, currentData:FrameData, progress:Float, playerSpeed = 0 ) {
@@ -139,13 +139,13 @@ class ViewModule {
 			// hex.indicatorLayer.zIndex = 2;
 		// }
 
-		// resetEffects()
+		resetEffects();
 		updateTiles();
 		updateBeacons();
 		updateMoves();
 		updateGains();
-		// updateExplosions()
-		// updateParticles(frameChange, lastShownData)
+		updateExplosions();
+		updateParticles( frameChange, lastShownData );
 		updateHud();
 		if (frameChange || (fullProgressChange && playerSpeed == 0)) {
 			tooltipManager.updateGlobalText();
@@ -153,19 +153,19 @@ class ViewModule {
 	}
 
 	function destroyParticles() {
-		// not important
+		// ...
 	}
 
 	function resetParticles() {
-		// not important
+		// ...
 	}
 
-	function updateParticles() {
-		// not important
+	function updateParticles( frameChange:Bool, lastShownData:FrameData ) {
+		// ...
 	}
 
 	function drawParticleGroup() {
-		// not important
+		// ...
 	}
 
 	function showPlayerDebug() {
@@ -231,7 +231,17 @@ class ViewModule {
 	}
 
 	function updateTiles() {
-		
+		for( index => hex in hexes ) {
+			final curr = currentData;
+			final prev = previousData;
+			tiles[index].sprite.alpha = 1;
+			// tiles[index].sprite.tint = 0xFFFFFF;
+			hexes[index].bouncing = false;
+
+			for( player in globalData.players ) {
+				// ...
+			}
+		}
 	}
 
 	function updateHud() {
@@ -297,9 +307,8 @@ class ViewModule {
 	}
 
 	function drawTile() {
-		// final sprite = new Bitmap( tileLibrary.Case.center() );
 		final sprite = new Bitmap( tileLibrary.Case );
-
+		
 		return sprite;
 	}
 
@@ -351,8 +360,14 @@ class ViewModule {
 		final drawnHex = drawTile();
 		
 		final container = new Container();
-
-		// ...
+		container.addChild( drawnHex );
+		final hexaP = hexToScreen( cell.q, cell.r );
+		container.setPosition( hexaP.x, hexaP.y );
+		// trace( 'initHex ${cell.index} ${hexaP.x}:${hexaP.y}' );
+		tiles.set( cell.index, {
+			sprite: drawnHex,
+			container: container
+		});
 
 		return container;
 	}
