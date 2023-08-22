@@ -1,10 +1,13 @@
 package resources.view;
 
 import gameengine.view.core.Point;
-import h2d.Text;
 import h2d.Tile;
+import h3d.Vector;
 import main.event.EventData;
 import main.view.CellData;
+import resources.view.pixi.Container;
+import resources.view.pixi.Sprite;
+import resources.view.pixi.Text;
 
 /**
  * Given by the SDK
@@ -139,10 +142,10 @@ class Hex {
 	public var container:Container;
 	public var data:CellData;
 	public var texts:Array<Text>;
-	public var indicators:Array<Tile>;
+	public var indicators:Array<Sprite>;
 	public var foodText:Text;
-	public var foodTextBackground:Tile;
-	public var icon:Tile;
+	public var foodTextBackground:Sprite;
+	public var icon:Sprite;
 	public var iconBounceContainer:Container;
 	public var bouncing:Bool;
 	public var indicatorLayer:Container;

@@ -4,6 +4,7 @@ import ai.CurrentAis;
 import ai.IAi;
 import gameengine.core.MultiplayerGameManager;
 import gameengine.module.endscreen.EndScreenModule;
+import h3d.Vector;
 import main.event.Animation;
 import main.view.FrameViewData;
 import main.view.GameDataProvider;

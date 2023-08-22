@@ -3,14 +3,15 @@ package resources.view;
 import gameengine.view.core.Constants.HEIGHT;
 import gameengine.view.core.Constants.WIDTH;
 import gameengine.view.core.Point;
-import h2d.Bitmap;
-import h2d.Text;
-import h2d.TileGroup.TileLayerContent;
+import gameengine.view.core.Utils.fitAspectRatio;
+import h2d.Graphics;
+import h3d.Vector;
 import main.event.EventData;
 import main.view.CellData;
 import main.view.FrameViewData;
 import main.view.GlobalViewData;
 import resources.view.AssetConstants.HUD_HEIGHT;
+import resources.view.AssetConstants.INDICATOR_OFFSET;
 import resources.view.AssetConstants.TILE_HEIGHT;
 import resources.view.GameConstants.POINTS;
 import resources.view.HexTools.hexToScreen;
@@ -21,6 +22,9 @@ import resources.view.Utils.fitContainer;
 import resources.view.Utils.generateText;
 import resources.view.Utils.last;
 import resources.view.Utils.sum;
+import resources.view.pixi.Container;
+import resources.view.pixi.Sprite;
+import resources.view.pixi.Text;
 
 using Lambda;
 
@@ -36,8 +40,8 @@ typedef Api = {
 }
 
 typedef Hud = {
-	var bar:Tile;
-	var avatar:Tile;
+	var bar:Sprite;
+	var avatar:Sprite;
 	var ants:Text;
 	var nickname:Text;
 	var message:Text;
@@ -97,9 +101,9 @@ class ViewModule {
 	var scoreBar:Tile;
 
 	var hexes:Map<Int, Hex> = [];
-	var beacons:Map<Int, Array<Bitmap>> = [];
+	var beacons:Map<Int, Array<Sprite>> = [];
 	var currentTempCellData:{ ants:Array<Array<Int>>, beacons:Array<Array<Int>>, richness:Array<Int> }
-	var tiles:Map<Int, { sprite:Bitmap, container:Container }> = [];
+	var tiles:Map<Int, { sprite:Sprite, container:Container }> = [];
 
 	var particleGroupsByPlayer:Array<ParticleGroup>;
 
@@ -236,6 +240,7 @@ class ViewModule {
 	}
 
 	function updateTiles() {
+		return;
 		for( index => hex in hexes ) {
 			final curr = currentData;
 			final prev = previousData;
@@ -312,34 +317,38 @@ class ViewModule {
 	}
 
 	function drawTile() {
-		final sprite = new Bitmap( tileLibrary.Case );
+		final sprite = new Sprite( tileLibrary.Case );
+		sprite.anchor.set( 0.5 );
 		return sprite;
 	}
 
 	function initBackground( layer:Container ) {
-		final b = new Bitmap( hxd.Res.ants.Background.toTile(), layer );
+		final b = new Sprite( hxd.Res.ants.Background.toTile(), layer );
 		fit( b, Math.POSITIVE_INFINITY, HEIGHT );
 	}
 
 	function initBeacons( layer:Container ) {
+		return;
 		for( cell in globalData.cells ) {
 			final beacons = [];
 			for( player in globalData.players ) {
-				final crosshair = new Bitmap( player.index == 0 ? tileLibrary.Balise_Bleu : tileLibrary.Balise_Rouge );
+				final crosshair = new Sprite( player.index == 0 ? tileLibrary.Balise_Bleu : tileLibrary.Balise_Rouge );
+				crosshair.anchor.set( 0.5 );
 				
 				final hexaP = hexToScreen( cell.q, cell.r );
-				crosshair.setPosition( hexaP.x, hexaP.y );
+				crosshair.position.set( hexaP.x, hexaP.y );
 
 				beacons.push( crosshair );
 				layer.addChild( crosshair );
 			}
 			this.beacons.set( cell.index, beacons );
+			break;
 		}
 		centerLayer( layer );
 	}
 
 	function centerLayer( layer:Container ) {
-		layer.setPosition( WIDTH / 2, ( HEIGHT + HUD_HEIGHT ) / 2 );
+		layer.position.set( WIDTH / 2, ( HEIGHT + HUD_HEIGHT ) / 2 );
 	}
 
 	public function initBoard( layer:Container ) {
@@ -347,6 +356,7 @@ class ViewModule {
 		for( cell in globalData.cells ) {
 			final hex = initHex( cell );
 			layer.addChild( hex );
+			break;
 		}
 		centerLayer( layer );
 	}
@@ -356,6 +366,7 @@ class ViewModule {
 		for( cell in globalData.cells ) {
 			final hex = initHexData( cell );
 			layer.addChild( hex );
+			break;
 		}
 		centerLayer( layer );
 	}
@@ -366,8 +377,8 @@ class ViewModule {
 		final container = new Container();
 		container.addChild( drawnHex );
 		final hexaP = hexToScreen( cell.q, cell.r );
-		container.setPosition( hexaP.x, hexaP.y );
-		trace( 'initHex ${cell.index} ${hexaP.x}:${hexaP.y}' );
+		container.position.set( hexaP.x, hexaP.y );
+		// trace( 'initHex ${cell.index} ${hexaP.x}:${hexaP.y}' );
 		tiles.set( cell.index, {
 			sprite: drawnHex,
 			container: container
@@ -377,40 +388,173 @@ class ViewModule {
 
 	function initHexData( cell:CellData ) {
 		final container = new Container();
-		// container.sortableChildren = true
+		container.sortableChildren = true;
 
 		final hexaP = hexToScreen( cell.q, cell.r );
-		container.setPosition( hexaP.x, hexaP.y );
+		container.position.set( hexaP.x, hexaP.y );
 		if( cell.owner != -1 ) {
-			final anthill = new Bitmap( cell.owner == 0 ? tileLibrary.Fourmie_Bleu : tileLibrary.Fourmie_Rouge );
-			anthill.tile.center();
+			final anthill = new Sprite( cell.owner == 0 ? tileLibrary.Fourmie_Bleu : tileLibrary.Fourmie_Rouge );
+			anthill.anchor.set( 0.5 );
 			container.addChild( anthill );
-			// anthill.zIndex = 0
+			anthill.zIndex = 0;
 		}
-		var foodTextBackground:Bitmap = null;
+		var foodTextBackground:Sprite = null;
 		var foodText:Text = null;
-		var icon:Bitmap = null;
+		var icon:Sprite = null;
 		var iconBounceContainer:Container = null;
 
 		if( cell.richness > 0 ) {
 			iconBounceContainer = new Container();
-			foodTextBackground = new Bitmap( tileLibrary.Oeufs_Nombre );
-			foodTextBackground.tile.center();
-			trace( 'font size ${TILE_HEIGHT / 6}' );
-			foodText = generateText( '${cell.richness}', 0, fonts.lato_bold_24 );
+			foodTextBackground = new Sprite( tileLibrary.Oeufs_Nombre );
+			foodTextBackground.anchor.set( 0.5 );
+			// trace( 'font size ${TILE_HEIGHT / 6}' );
+			foodText = generateText( '${cell.richness}', 0xffffff, fonts.arial_black_125 );
 
-			// ...
+			fit( foodTextBackground, Math.POSITIVE_INFINITY, TILE_HEIGHT / 6 );
+
+			if( cell.type == 1 ) {
+				icon = new Sprite( tileLibrary.Oeufs_1 );
+				icon.anchor.set( 0.5 );
+				iconBounceContainer.addChild( icon );
+				iconBounceContainer.zIndex = 1;
+			} else {
+				icon = new Sprite( tileLibrary.Cristaux_1 );
+				icon.anchor.set( 0.5 );
+				iconBounceContainer.addChild( icon );
+				container.addChild( iconBounceContainer );
+				iconBounceContainer.zIndex = 1;
+			}
+			container.addChild( foodTextBackground );
+			container.addChild( foodText );
+			foodTextBackground.zIndex = 2;
+			foodText.zIndex = 3;
 		}
 
-		// ...
+		final indicators:Array<Sprite> = [];
+		final texts:Array<Text> = [];
+		final indicatorLayer = new Container();
+		for( player in globalData.players ) {
+			final offsetY = INDICATOR_OFFSET;
+			final indicator = new Sprite( player.index == 0 ? tileLibrary.Fourmies_Nombre_Bleu : tileLibrary.Fourmies_Nombre_Rouge );
+			indicator.anchor.set( 0.5, player.index == 0 ? 0 : 1 );
+			indicator.position.set( 0, player.index == 0 ? -offsetY : offsetY );
+			indicators.push( indicator );
+			indicatorLayer.addChild( indicator );
+			indicator.setScale( 1.4 );
+
+			// final bounds = indicator.getBounds();
+			// trace( 'font size ${bounds.height * 0.8}' );
+			final text = generateText( "0", 0xffffff, fonts.arial_black_214 );
+			text.anchor.set( 0.5, 0.5 );
+			text.position.set( 0, indicator.y + ( indicator.height / 2 ) * ( player.index == 0 ? 1 : -1 ));
+			texts.push( text );
+			indicatorLayer.addChild( text );
+		}
+		container.addChild( indicatorLayer );
+
+		final hex:Hex = {
+			container: container,
+			data: cell,
+			texts: texts,
+			indicators: indicators,
+			foodText: foodText,
+			foodTextBackground: foodTextBackground,
+			icon: icon,
+			iconBounceContainer: iconBounceContainer,
+			bouncing: false,
+			indicatorLayer: indicatorLayer
+		}
+		hexes.set( cell.index, hex );
 
 		return container;
 	}
 
 	function initHud( layer:Container ) {
-		final hudFrame = tileLibrary.HUD;
+		huds.splice( 0, huds.length );
+		final hudFrame = new Sprite( tileLibrary.HUD );
 
-		// ...
+		final backdrop = new Graphics();
+		backdrop.beginFill(0x454142);
+		backdrop.drawRect( 0, 0, WIDTH, 96 );
+		backdrop.endFill();
+		
+		final barLayer = new Container();
+
+		layer.addChild( backdrop );
+		layer.addChild( barLayer );
+		layer.addChild( hudFrame );
+
+		final white = 0xffffff;
+
+		for( player in globalData.players ) {
+			final place = ( x:Float ) -> player.index == 0 ? x : WIDTH - x;
+
+			final avatar = new Sprite( player.avatar );
+			avatar.position.set( place( 51 ), 51 );
+			avatar.width = 96;
+			avatar.height = 96;
+			avatar.anchor.set( 0.5 );
+
+			final antRect = {
+				x: 503,
+				y: 11,
+				w: 100,
+				h: 48
+			}
+
+			final ants = generateText( "10", white, fonts.arial_black_54 );
+			fitTextWithin( ants, antRect, place );
+
+			final nicknameRect = {
+				x: 115,
+				y: 13,
+				w: 354,
+				h: 43
+			}
+
+			final nickname = generateText( player.name, white, fonts.arial_black_54 );
+			fitTextWithin( nickname, nicknameRect, place );
+
+			final message = generateText( "Chat zone", player.color, fonts.arial_black_64 );
+			fitTextWithin( message, MESSAGE_RECT, place );
+
+			final scoreRect = {
+				x: 672,
+				y: 20,
+				w: 60,
+				h: 29
+			}
+
+			final score = generateText( "000", white, fonts.arial_black_64 );
+			fitTextWithin( score, scoreRect, place );
+			
+			final bar = new Sprite( player.index == 0 ? tileLibrary.Jauge_Bleu : tileLibrary.Jauge_Rouge );
+			bar.anchor.set( player.index == 0 ? 1 : 0, 0.5 );
+			final barX = 958 + ( 294 * ( player.index == 0 ? -1 : 1 ));
+			bar.position.set( barX, 34 );
+
+			final hud:Hud = {
+				avatar: avatar,
+				ants: ants,
+				nickname: nickname,
+				message: message,
+				score: score,
+				bar: bar,
+				targetBarX: barX
+			}
+
+			huds.push( hud );
+
+			final playerHud = new Container();
+
+			barLayer.addChild( bar );
+			playerHud.addChild( avatar );
+			playerHud.addChild( ants );
+			playerHud.addChild( nickname );
+			playerHud.addChild( message );
+			playerHud.addChild( score );
+			layer.addChild( playerHud );
+		}
 	}
 
 	public function reinitScene( container:Container ) {
@@ -440,7 +584,7 @@ class ViewModule {
 		conveyorLayer = new Container();
 
 		final hudLayer = asLayer( initHud );
-
+		
 		boardOverlay = asLayer( initTileData );
 		boardOverlay.addChild( conveyorLayer );
 		boardOverlay.addChild( arrowLayer );
@@ -459,7 +603,7 @@ class ViewModule {
 		container.addChild( tooltipLayer );
 
 		final pad = 20;
-		fitContainer( boardLayer, WIDTH - pad, HEIGHT - pad - HUD_HEIGHT );
+		// fitContainer( boardLayer, WIDTH - pad, HEIGHT - pad - HUD_HEIGHT );
 		antParticleLayer.setScale( boardLayer.scaleX );
 		beaconLayer.setScale( boardLayer.scaleX );
 		particleLayer.setScale( boardLayer.scaleX );
@@ -642,7 +786,14 @@ class ViewModule {
 		return frameData;
 	}
 
-	function fitTextWithin() {
-		
+	function fitTextWithin( text:Text, rect:{ x:Int, y:Int, w:Int, h:Int }, place:( x:Float )->Float ) {
+		text.anchor.set( 0.5 );
+		final x = rect.x + rect.w / 2;
+		final y = rect.y + rect.h / 2;
+		text.position.set( place( x ), y );
+		if( text.textWidth > rect.w || text.textHeight > rect.h ) {
+			final coeff = fitAspectRatio( text.textWidth, text.textHeight, rect.w, rect.h );
+			text.tscale.set( coeff );
+		}
 	}
 }

@@ -9,6 +9,7 @@ import resources.view.Types.FrameData;
 import resources.view.Types.FrameInfo;
 import resources.view.Types.PlayerInfo;
 import resources.view.Utils.last;
+import resources.view.pixi.Container;
 import xa3.MathUtils.max;
 
 using Lambda;
@@ -44,7 +45,6 @@ class App extends hxd.App {
 	override function init() {
 		window = Window.getInstance();
 		scene = new Container( s2d );
-		scene.setScale( 0.5 );
 
 		// final tooltipManager = new TooltipManager( scene, entityCreator.timesFont );
 		final tileLibrary:TileLibrary = cast CreateTileLibrary.create( hxd.Res.ants.spritesheet_png.toTile(), hxd.Res.load( "ants/spritesheet.json" ).toText() );
@@ -84,13 +84,14 @@ class App extends hxd.App {
 
 		final minScale = Math.min( scaleX, scaleY );
 		// trace( 'onResize $minScale' );
-		// gameView.scene.scaleX = scaleFactor = gameView.scene.scaleY = minScale;
+		scene.scaleX = scaleFactor = scene.scaleY = minScale;
 	}
 
 	public function receiveViewGlobalData( players:Array<PlayerInfo>, dataset:GlobalViewData ) {
 		// trace( 'receiveViewGlobalData\n${dataset.cells}' );
 		viewModule.handleGlobalData( players, dataset );
 		viewModule.reinitScene( scene );
+
 	}
 
 	public function receiveFrameViewData( dataset:FrameViewData ) {

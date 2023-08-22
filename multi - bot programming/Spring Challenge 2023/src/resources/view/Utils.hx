@@ -2,9 +2,10 @@ package resources.view;
 
 import gameengine.view.core.Utils;
 import h2d.Anim;
-import h2d.Bitmap;
 import h2d.Font;
-import h2d.Text;
+import resources.view.pixi.Container;
+import resources.view.pixi.Sprite;
+import resources.view.pixi.Text;
 import xa3.MathUtils;
 
 using Lambda;
@@ -19,7 +20,7 @@ function distance ( a, b ) {
 	return Math.sqrt(( a.x - b.x ) * ( a.x - b.x ) + ( a.y - b.y ) * ( a.y - b.y ));
 }
 
-function fit( entity:Bitmap, maxWidth:Float, maxHeight:Float ) {
+function fit( entity:Sprite, maxWidth:Float, maxHeight:Float ) {
 	final bounds = entity.getSize();
 	entity.setScale( fitAspectRatio( bounds.width, bounds.height, maxWidth, maxHeight ) );
 }
@@ -38,21 +39,12 @@ function bounce( t:Float ):Float {
 	return 1 + ( Math.sin( t * 10 ) * 0.5 * Math.cos( t * 3.14 / 2 )) * ( 1 - t ) * ( 1 - t );
 }
 
-function generateText( text:String, color:Float, font:Font, strokeThickness = 4 ) {
-	trace( generateText );
+function generateText( text:String, color:Int, font:Font ) {
 	final drawnText = new Text( font );
+	drawnText.textColor = color;
 	drawnText.text = text;
-	// final drawnText = new Text( text, {
-	// 	fontSize: Math.round( size ) + 'px',
-	// 	fontFamily: 'Arial',
-	// 	fontWeight: 'bold',
-	// 	fill: color,
-	// 	stroke: 0x0,
-	// 	strokeThickness,
-	// 	lineHeight: Math.round( size )
-	// } )
-	// drawnText.anchor.x = 0.5
-	// drawnText.anchor.y = 0.5
+	drawnText.anchor.x = 0.5;
+	drawnText.anchor.y = 0.5;
 	return drawnText;
 }
 

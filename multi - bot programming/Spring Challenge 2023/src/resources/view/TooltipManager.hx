@@ -1,5 +1,7 @@
 package resources.view;
 
+import resources.view.pixi.Container;
+
 class TooltipManager {
 	
 	public function new() {
