@@ -342,7 +342,6 @@ class ViewModule {
 				layer.addChild( crosshair );
 			}
 			this.beacons.set( cell.index, beacons );
-			break;
 		}
 		centerLayer( layer );
 	}
@@ -365,7 +364,6 @@ class ViewModule {
 		for( cell in globalData.cells ) {
 			final hex = initHexData( cell );
 			layer.addChild( hex );
-			break;
 		}
 		centerLayer( layer );
 	}
@@ -406,8 +404,7 @@ class ViewModule {
 			iconBounceContainer = new Container();
 			foodTextBackground = new Sprite( tileLibrary.Oeufs_Nombre );
 			foodTextBackground.anchor.set( 0.5 );
-			// trace( 'font size ${TILE_HEIGHT / 6}' );
-			foodText = generateText( '${cell.richness}', 0xffffff, fonts.arial_black_125 );
+			foodText = generateText( '${cell.richness}', 0, fonts.arial_black_125 );
 
 			fit( foodTextBackground, Math.POSITIVE_INFINITY, TILE_HEIGHT / 6 );
 
@@ -441,8 +438,6 @@ class ViewModule {
 			indicatorLayer.addChild( indicator );
 			indicator.setScale( 1.4 );
 
-			// final bounds = indicator.getBounds();
-			// trace( 'font size ${bounds.height * 0.8}' );
 			final text = generateText( "0", 0xffffff, fonts.arial_black_214 );
 			text.anchor.set( 0.5, 0.5 );
 			
