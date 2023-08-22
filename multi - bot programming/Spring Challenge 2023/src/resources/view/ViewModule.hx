@@ -356,7 +356,6 @@ class ViewModule {
 		for( cell in globalData.cells ) {
 			final hex = initHex( cell );
 			layer.addChild( hex );
-			break;
 		}
 		centerLayer( layer );
 	}
@@ -446,7 +445,9 @@ class ViewModule {
 			// trace( 'font size ${bounds.height * 0.8}' );
 			final text = generateText( "0", 0xffffff, fonts.arial_black_214 );
 			text.anchor.set( 0.5, 0.5 );
-			text.position.set( 0, indicator.y + ( indicator.height / 2 ) * ( player.index == 0 ? 1 : -1 ));
+			
+			final indicatorBounds = indicator.getBounds();
+			text.position.set( 0, indicator.y + ( indicatorBounds.height / 2 ) * ( player.index == 0 ? 1 : -1 ));
 			texts.push( text );
 			indicatorLayer.addChild( text );
 		}
@@ -603,7 +604,7 @@ class ViewModule {
 		container.addChild( tooltipLayer );
 
 		final pad = 20;
-		// fitContainer( boardLayer, WIDTH - pad, HEIGHT - pad - HUD_HEIGHT );
+		fitContainer( boardLayer, WIDTH - pad, HEIGHT - pad - HUD_HEIGHT );
 		antParticleLayer.setScale( boardLayer.scaleX );
 		beaconLayer.setScale( boardLayer.scaleX );
 		particleLayer.setScale( boardLayer.scaleX );

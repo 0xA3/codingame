@@ -1,6 +1,7 @@
 package resources.view;
 
-import gameengine.view.core.Utils;
+import gameengine.view.core.Utils.fitAspectRatio;
+import gameengine.view.core.Utils.lerpAngle;
 import h2d.Anim;
 import h2d.Font;
 import resources.view.pixi.Container;
@@ -21,12 +22,12 @@ function distance ( a, b ) {
 }
 
 function fit( entity:Sprite, maxWidth:Float, maxHeight:Float ) {
-	final bounds = entity.getSize();
+	final bounds = entity.getBounds( entity.parent );
 	entity.setScale( fitAspectRatio( bounds.width, bounds.height, maxWidth, maxHeight ) );
 }
 
 function fitContainer( entity:Container, maxWidth:Float, maxHeight:Float ) {
-	final bounds = entity.getBounds();
+	final bounds = entity.getBounds( entity.parent );
 	entity.setScale( fitAspectRatio( bounds.width, bounds.height, maxWidth, maxHeight ));
 }
 
