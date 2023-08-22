@@ -43,7 +43,7 @@ function flerp( a:Float, b:Float, u:Float ) {
 /**
  * Gets the percentage position in [a;b] of number v
  */
-function unlerpUnclamped( a:Int, b:Int, v:Float ) {
+function unlerpUnclamped( a:Float, b:Float, v:Float ) {
 	return ( v - a ) / ( b - a );
 }
   
@@ -100,7 +100,7 @@ function lerpColor( start:Int, ?end:Int, ?amount:Float ) {
 /**
  * Gets the percentage position in [a;b] of number v, clamped into [0;1]
  */
-function unlerp( a:Int, b:Int, v:Float ) {
+function unlerp( a:Float, b:Float, v:Float ) {
 	return Math.min( 1, Math.max( 0, unlerpUnclamped( a, b, v )) );
 }
   

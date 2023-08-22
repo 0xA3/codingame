@@ -13,7 +13,7 @@ class Text extends h2d.Text {
 	public function new( font:Font, ?parent:h2d.Object ) {
 		super( font, parent );
 		anchor = new TextAnchor( this );
-		tscale = new TextScale( this );
+		tscale = new TextScale();
 		position = new TextPosition( this, anchor, tscale );
 	}
 }
@@ -80,18 +80,13 @@ class TextPosition {
 
 class TextScale {
 
-	final text:Text;
-	
 	public var x = 1.0;
 	public var y = 1.0;
 
-	public function new( text:Text ) {
-		this.text = text;
-	}
+	public function new() { }
 
 	public function set( x:Float, ?y:Float ) {
 		this.x = x;
 		this.y = y == null ? x : y;
-		text.position.update();
 	}
 }

@@ -2,6 +2,7 @@ package resources.view.pixi;
 
 import h2d.Bitmap;
 import h2d.Tile;
+import h3d.Vector;
 
 class Sprite extends Bitmap {
 	
@@ -9,6 +10,12 @@ class Sprite extends Bitmap {
 	public final position:SpritePosition;
 
 	public var zIndex = 0;
+	@:isVar public var tint(get, set):Int;
+	function get_tint() return this.color.toColor();
+	function set_tint( c:Int ) {
+		this.color = Vector.fromColor( c );
+		return c;
+	}
 
 	public function new( tile:Tile, ?parent:h2d.Object ) {
 		super( tile, parent );

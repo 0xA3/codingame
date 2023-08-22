@@ -4,8 +4,8 @@ import gameengine.view.core.Constants.HEIGHT;
 import gameengine.view.core.Constants.WIDTH;
 import gameengine.view.core.Point;
 import gameengine.view.core.Utils.fitAspectRatio;
+import gameengine.view.core.Utils.unlerp;
 import h2d.Graphics;
-import h3d.Vector;
 import main.event.EventData;
 import main.view.CellData;
 import main.view.FrameViewData;
@@ -13,6 +13,7 @@ import main.view.GlobalViewData;
 import resources.view.AssetConstants.HUD_HEIGHT;
 import resources.view.AssetConstants.INDICATOR_OFFSET;
 import resources.view.AssetConstants.TILE_HEIGHT;
+import resources.view.GameConstants.EGG;
 import resources.view.GameConstants.POINTS;
 import resources.view.HexTools.hexToScreen;
 import resources.view.PathSegments.computePathSegments;
@@ -217,39 +218,112 @@ class ViewModule {
 	}
 
 	function getLastEventEndP( eventType:Int ) {
-
+		return currentData.events
+			.filter( e -> e.type == eventType )
+			.map( e -> e.animData[e.animData.length - 1].end )
+			.fold(( a, b ) -> Math.max( a, b ), 0 );
 	}
 
 	function getLastMoveEndP() {
-		// return getLastEventEndP( EventData.MOVE );
+		return getLastEventEndP( EventData.MOVE );
 	}
 	
 	function getLastFoodEndP() {
-		// return getLastEventEndP( EventData.FOOD );
+		return getLastEventEndP( EventData.FOOD );
 	}
 
 	function getLastBuildEndP() {
-		// return getLastEventEndP( EventData.BUILD );
+		return getLastEventEndP( EventData.BUILD );
 	}
 	
 	function getOwnersOfBeaconOn( cellIdx:Int, data:FrameData ) {
 	}
 
 	function updateBeacons() {
-		
+		for( index => hex in hexes ) {
+			final beacons = this.beacons[index];
+			final beaconP = unlerp( 0, 0.5, progress );
+
+			beacons.map( beacon -> {
+				beacon.visible = false;
+				beacon.alpha = 1;
+			});
+
+			// ...
+		}
 	}
 
 	function updateTiles() {
-		return;
 		for( index => hex in hexes ) {
 			final curr = currentData;
 			final prev = previousData;
 			tiles[index].sprite.alpha = 1;
-			// tiles[index].sprite.tint = 0xFFFFFF;
+			tiles[index].sprite.tint = 0xFFFFFF;
 			hexes[index].bouncing = false;
 
 			for( player in globalData.players ) {
-				// ...
+				final antAmountDataSource = this.progress >= ( ARROW_FADE_OUT_P * getLastMoveEndP() ) ? curr : prev;
+				final foodAmountDataSource = this.progress >= getLastFoodEndP() ? curr : prev;
+				final eggAmountDataSource = this.progress >= getLastBuildEndP() ? curr : prev;
+				
+				final finalAmount = antAmountDataSource.ants[player.index][index];
+				final buildAmount = curr.buildAmount[player.index][index];
+				final isBetweenMoveAndBuild = this.progress >= ( ARROW_FADE_OUT_P * this.getLastMoveEndP() ) && this.progress < this.getLastBuildEndP();
+				final temporaryAntAmount = isBetweenMoveAndBuild
+					? finalAmount - buildAmount
+					: finalAmount;
+				hex.texts[player.index].visible = temporaryAntAmount > 0 && !api.options.seeAnts;
+
+				hex.texts[player.index].text = '$temporaryAntAmount';
+
+				hex.indicators[player.index].visible = temporaryAntAmount > 0 && !api.options.seeAnts;
+
+				final richness = ( hex.data.type == EGG ? eggAmountDataSource : foodAmountDataSource ).richness[index];
+				var richIdx = 0;
+				if( richness >= THRESHOLD_TRIPLE ) {
+				  richIdx = 1;
+				} else if (richness >= THRESHOLD_DOUBLE) {
+				  richIdx = 2;
+				} else {
+				  richIdx = 3;
+				}
+
+				if( richness > 0 ) {
+					hex.foodText.text = '$richness';
+					hex.foodText.visible = true;
+					hex.foodTextBackground.visible = true;
+					if( hex.icon != null ) {
+						hex.icon.visible = true;
+						hex.icon.setScale( 1 );
+						if (hex.data.type == POINTS ) {
+							hex.icon.tile = switch richIdx {
+								case 1: tileLibrary.Cristaux_1;
+								case 2: tileLibrary.Cristaux_2;
+								case 3: tileLibrary.Cristaux_3;
+								default: tileLibrary.Cristaux_3;
+							}
+						} else {
+							if( hex.data.richness < THRESHOLD_DOUBLE ) {
+								hex.icon.tile = tileLibrary.Oeufs;
+							} else {
+								hex.icon.tile = switch richIdx {
+									case 1: tileLibrary.Oeufs_1;
+									case 2: tileLibrary.Oeufs_2;
+									case 3: tileLibrary.Oeufs_3;
+									case 4: tileLibrary.Oeufs_4;
+									case 5: tileLibrary.Oeufs_5;
+									default: throw 'Error: richIdx can only be between 1-5 but is $richIdx';
+								}
+							}
+						}
+					}
+					} else if( hex.foodText != null ) {
+						hex.foodText.visible = false;
+						hex.foodTextBackground.visible = false;
+					if( hex.icon != null ) {
+						hex.icon.visible = false;
+					}
+				}
 			}
 		}
 	}
@@ -328,7 +402,6 @@ class ViewModule {
 	}
 
 	function initBeacons( layer:Container ) {
-		return;
 		for( cell in globalData.cells ) {
 			final beacons = [];
 			for( player in globalData.players ) {

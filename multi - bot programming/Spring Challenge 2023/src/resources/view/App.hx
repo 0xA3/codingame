@@ -91,7 +91,6 @@ class App extends hxd.App {
 		// trace( 'receiveViewGlobalData\n${dataset.cells}' );
 		viewModule.handleGlobalData( players, dataset );
 		viewModule.reinitScene( scene );
-
 	}
 
 	public function receiveFrameViewData( dataset:FrameViewData ) {
