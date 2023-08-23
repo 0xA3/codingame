@@ -13,7 +13,7 @@ class Text extends h2d.Text {
 	public function new( font:Font, ?parent:h2d.Object ) {
 		super( font, parent );
 		anchor = new TextAnchor( this );
-		tscale = new TextScale();
+		tscale = new TextScale( this );
 		position = new TextPosition( this, anchor, tscale );
 	}
 }
@@ -50,16 +50,16 @@ class TextAnchor {
 class TextPosition {
 	
 	final anchor:TextAnchor;
-	final scale:TextScale;
+	final tscale:TextScale;
 	final text:h2d.Text;
 
 	public var x:Float;
 	public var y:Float;
 
-	public function new( text:h2d.Text, anchor:TextAnchor, scale:TextScale ) {
+	public function new( text:h2d.Text, anchor:TextAnchor, tscale:TextScale ) {
 		this.text = text;
 		this.anchor = anchor;
-		this.scale = scale;
+		this.tscale = tscale;
 		x = text.x;
 		y = text.y;
 	}
@@ -70,8 +70,8 @@ class TextPosition {
 	}
 
 	public function set( x:Float, y:Float ) {
-		final textX = x - anchor.x * text.textWidth * scale.x;
-		final textY = y - anchor.y * text.textHeight * scale.y;
+		final textX = x - anchor.x * text.textWidth * tscale.scale;
+		final textY = y - anchor.y * text.textHeight * tscale.scale;
 		text.setPosition( textX, textY );
 		this.x = x;
 		this.y = y;
@@ -80,13 +80,18 @@ class TextPosition {
 
 class TextScale {
 
-	public var x = 1.0;
-	public var y = 1.0;
+	final text:Text;
 
-	public function new() { }
+	public var scale = 1.0;
 
-	public function set( x:Float, ?y:Float ) {
-		this.x = x;
-		this.y = y == null ? x : y;
+	public function new( text:Text ) {
+		this.text = text;
+	}
+
+	public function set( scale:Float ) {
+		this.scale = scale;
+
+		text.setScale( scale );
+		text.position.update();
 	}
 }

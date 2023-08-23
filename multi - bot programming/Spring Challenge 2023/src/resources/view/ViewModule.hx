@@ -463,7 +463,8 @@ class ViewModule {
 		final hexaP = hexToScreen( cell.q, cell.r );
 		container.position.set( hexaP.x, hexaP.y );
 		if( cell.owner != -1 ) {
-			final anthill = new Sprite( cell.owner == 0 ? tileLibrary.Fourmie_Bleu : tileLibrary.Fourmie_Rouge );
+			trace( 'cell.owner ${cell.owner}' );
+			final anthill = new Sprite( cell.owner == 0 ? tileLibrary.Fourmiliere_Bleu : tileLibrary.Fourmiliere_Rouge );
 			anthill.anchor.set( 0.5 );
 			container.addChild( anthill );
 			anthill.zIndex = 0;
