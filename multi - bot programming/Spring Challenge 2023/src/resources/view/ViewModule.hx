@@ -260,7 +260,7 @@ class ViewModule {
 			tiles[index].sprite.alpha = 1;
 			tiles[index].sprite.tint = 0xFFFFFF;
 			hexes[index].bouncing = false;
-
+			
 			for( player in globalData.players ) {
 				final antAmountDataSource = this.progress >= ( ARROW_FADE_OUT_P * getLastMoveEndP() ) ? curr : prev;
 				final foodAmountDataSource = this.progress >= getLastFoodEndP() ? curr : prev;
@@ -300,7 +300,7 @@ class ViewModule {
 								case 1: tileLibrary.Cristaux_1;
 								case 2: tileLibrary.Cristaux_2;
 								case 3: tileLibrary.Cristaux_3;
-								default: tileLibrary.Cristaux_3;
+								default: throw 'Error: richIdx can only be between 1-3 but is $richIdx';
 							}
 						} else {
 							if( hex.data.richness < THRESHOLD_DOUBLE ) {
@@ -310,9 +310,7 @@ class ViewModule {
 									case 1: tileLibrary.Oeufs_1;
 									case 2: tileLibrary.Oeufs_2;
 									case 3: tileLibrary.Oeufs_3;
-									case 4: tileLibrary.Oeufs_4;
-									case 5: tileLibrary.Oeufs_5;
-									default: throw 'Error: richIdx can only be between 1-5 but is $richIdx';
+									default: throw 'Error: richIdx can only be between 1-3 but is $richIdx';
 								}
 							}
 						}

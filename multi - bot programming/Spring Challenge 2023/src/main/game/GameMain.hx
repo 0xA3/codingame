@@ -110,12 +110,12 @@ class GameMain {
 		final printStream = new haxe.ds.List<String>();
 
 		// connect signals
-		final viewGlobalDataSignal = globalViewDataTrigger.asSignal();
+		final globalViewDataSignal = globalViewDataTrigger.asSignal();
 		final frameViewDataSignal = frameViewDataTrigger.asSignal();
 		final nextPlayerInfoSignal = nextPlayerInfoTrigger.asSignal();
 		final nextPlayerInputSignal = nextPlayerInputTrigger.asSignal();
 		
-		viewGlobalDataSignal.handle(( data ) -> app.receiveViewGlobalData( playerInfos, data ));
+		globalViewDataSignal.handle(( data ) -> app.receiveGlobalViewData( playerInfos, data ));
 		frameViewDataSignal.handle( app.receiveFrameViewData );
 		
 		final aiConnector = new AiConnector( ais, inputStream );

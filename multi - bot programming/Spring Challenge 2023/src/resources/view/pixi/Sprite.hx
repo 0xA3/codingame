@@ -11,9 +11,15 @@ class Sprite extends Bitmap {
 
 	public var zIndex = 0;
 	@:isVar public var tint(get, set):Int;
-	function get_tint() return this.color.toColor();
+	function get_tint() {
+		final rgb = this.color.clone();
+		rgb.a = 0;
+		return rgb.toColor();
+	}
 	function set_tint( c:Int ) {
-		this.color = Vector.fromColor( c );
+		final rgb = Vector.fromColor( c );
+		rgb.a = 1;
+		this.color = rgb;
 		return c;
 	}
 

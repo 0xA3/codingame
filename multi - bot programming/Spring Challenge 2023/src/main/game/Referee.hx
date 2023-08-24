@@ -26,7 +26,7 @@ class Referee extends AbstractReferee {
 	}
 
 	override public function init() {
-		try {	
+		// try {
 			final leagueLevel = gameManager.getLeagueLevel();
 
 			if( leagueLevel == 1 ) {
@@ -52,11 +52,11 @@ class Referee extends AbstractReferee {
 			gameManager.setFrameDuration( 500 );
 			gameManager.setMaxTurns( Config.MAX_TURNS );
 			gameManager.setTurnMaxTime( 100 );
-		} catch( e ) {
+		// } catch( e ) {
 			// e.printStackTrace();
-			Sys.println("Referee failed to initialize");
-			abort();
-		}
+			// Sys.println("Referee failed to initialize");
+			// abort();
+		// }
 	}
 
 	function abort() {

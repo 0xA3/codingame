@@ -87,8 +87,8 @@ class App extends hxd.App {
 		scene.scaleX = scaleFactor = scene.scaleY = minScale;
 	}
 
-	public function receiveViewGlobalData( players:Array<PlayerInfo>, dataset:GlobalViewData ) {
-		// trace( 'receiveViewGlobalData\n${dataset.cells}' );
+	public function receiveGlobalViewData( players:Array<PlayerInfo>, dataset:GlobalViewData ) {
+		// trace( 'receiveGlobalViewData\n${dataset.cells}' );
 		viewModule.handleGlobalData( players, dataset );
 		viewModule.reinitScene( scene );
 	}

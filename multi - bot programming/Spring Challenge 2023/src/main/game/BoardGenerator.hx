@@ -145,7 +145,7 @@ class BoardGenerator {
 		final hillsPerPlayer = Config.FORCE_SINGLE_HILL ? 1 : ( random.nextFloat() < .33 ? 2 : 1 );
 
 		final validCoords = selectAnthillCoords( board, hillsPerPlayer );
-
+		
 		final player1 = players[0];
 		final player2 = players[1];
 		for( i in 0...MathUtils.min( hillsPerPlayer, validCoords.length )) {
@@ -155,7 +155,7 @@ class BoardGenerator {
 			cell1.setAnthill( player1 );
 			player1.addAnthill( cell1.getIndex());
 
-			final cell2 = board.map[coord];
+			final cell2 = board.map[coord.getOpposite()];
 			cell2.setAnthill( player2 );
 			player2.addAnthill( cell2.getIndex());
 		}
@@ -173,7 +173,7 @@ class BoardGenerator {
 			ArrayUtils.shuffle( validFoodCoords, random );
 			var i = 0;
 			while( i < wantedFoodCells ) {
-				final coord = validCoords[i];
+				final coord = validFoodCoords[i];
 				final cell = board.get( coord );
 				final roll = random.nextFloat();
 				if( roll < 0.65 ) {
@@ -268,7 +268,7 @@ class BoardGenerator {
 
 	static function selectAnthillCoords( board:Board, hillsPerPlayer:Int ) {
 		var validCoords:Array<CubeCoord> = [];
-
+		
 		var iter = 1000;
 		while( validCoords.length < hillsPerPlayer && iter > 0 ) {
 			iter--;
@@ -290,7 +290,7 @@ class BoardGenerator {
 	static function trySelectAnthillCoords( board:Board, startingHillCount:Int ) {
 		final coordinates:Array<CubeCoord> = [];
 
-		final availableCoords:Array<CubeCoord> = [];
+		final availableCoords = board.coords.copy();
 		availableCoords.removeIf( coord -> board.get( coord ).getIndex() == 0 );
 		availableCoords.removeIf( coord -> board.get( coord ).getRichness() > 0 );
 		var i = 0;
