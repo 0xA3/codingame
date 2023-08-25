@@ -1,8 +1,8 @@
 package resources.view;
 
 import gameengine.view.core.Point;
+import h2d.Drawable;
 import h2d.Tile;
-import h3d.Vector;
 import main.event.EventData;
 import main.view.CellData;
 import resources.view.pixi.Container;
@@ -131,9 +131,9 @@ class AnimData {
 }
   
 @:structInit
-class Effect<T> {
+class Effect {
 	public var busy:Bool;
-	public var display:T;
+	public var display:Drawable;
 }
   
 /* View entities */

@@ -4,8 +4,13 @@ import gameengine.view.core.Constants.HEIGHT;
 import gameengine.view.core.Constants.WIDTH;
 import gameengine.view.core.Point;
 import gameengine.view.core.Utils.fitAspectRatio;
+import gameengine.view.core.Utils.lerpPosition;
 import gameengine.view.core.Utils.unlerp;
+import gameengine.view.core.Utils.unlerpUnclamped;
+import h2d.Bitmap;
+import h2d.Drawable;
 import h2d.Graphics;
+import main.event.AnimationData;
 import main.event.EventData;
 import main.view.CellData;
 import main.view.FrameViewData;
@@ -29,7 +34,7 @@ import resources.view.pixi.Text;
 
 using Lambda;
 
-typedef EffectPool = Map<String, Array<Effect<Tile>>>;
+typedef EffectPool = Map<String, Array<Effect>>;
 
 typedef Api = {
 	var options:{
@@ -109,7 +114,7 @@ class ViewModule {
 	var particleGroupsByPlayer:Array<ParticleGroup>;
 
 	var overlay:Tile;
-	var conveyors:Array<Tile>;
+	var conveyors:Array<Sprite>;
 	var conveyorLayer:Container;
 	var beaconLayer:Container;
 	var arrowLayer:Container;
@@ -127,11 +132,67 @@ class ViewModule {
 	}
 
 	// Effects
-	function getFromPool<T>( type:String ) {
+	function getFromPool( type:String ):Effect {
+		if( !pool.exists( type )) {
+			pool.set( type, [] );
+		}
+		
+		for( e in pool[type] ) {
+			if( !e.busy ) {
+			  e.busy = true;
+			  e.display.visible = true;
+			  return cast e;
+			}
+		  }
+		
+		  final e = createEffect( type );
+		  pool[type].push( e );
+		  e.busy = true;
+		  return e;
 	}
 
-	function createEffect<T>() {
-		// ...
+	function createEffect( type:String ) {
+		var display:Dynamic = null;
+		if (type == "conveyor") {
+			// display = PIXI.TilingSprite.fromImage("convey3.png", { width: CONVEYOR_WIDTH, height: CONVEYOR_HEIGHT });
+			display = new Sprite( tileLibrary.convey3 );
+			display.interactive = true;
+	
+			// this.registerTooltip(display, function() {
+			// 	return (display as Dynamic).tooltip ?? "";
+			// });
+			// display.on("mouseover", function() {
+			// 	return (display as Dynamic).mouseOver?.();
+			// });
+			// display.on("mouseout", function() {
+			// 	return (display as Dynamic).mouseOut?.();
+			// });
+	
+			display.anchor.set( 0, 0.5 );
+			this.conveyors.push( display );
+			this.conveyorLayer.addChild( display );
+		} else if(type == "antText" ) {
+			display = generateText( "5", 0xFFFFFF, fonts.arial_black_40 );
+			this.counterLayer.addChild( display );
+		} else if( type == "arrow" ) {
+			display = new Container();
+			var spriteContainer = new Container();
+			var sprite = new Sprite( tileLibrary.Fleche_Bleu );
+			var number = generateText( "5", 0xFFFFFF, fonts.arial_black_188 );
+			sprite.anchor.set( 0.5 );
+			number.anchor.set( 0.5 );
+			spriteContainer.addChild( sprite );
+			display.addChild( spriteContainer );
+			display.addChild( number );
+			fitContainer( spriteContainer, Math.POSITIVE_INFINITY, TILE_HEIGHT / 3 );
+			this.arrowLayer.addChild( display );
+		} else if( type == "particle" ) {
+			display = new Sprite( hxd.Res.ants.particle.toTile() );
+			display.anchor.set( 0.5 );
+			this.particleLayer.addChild( display );
+		}
+		final effect:Effect = { busy: false, display: display }
+		return effect;
 	}
 
 	public function updateScene( previousData:FrameData, currentData:FrameData, progress:Float, playerSpeed = 0 ) {
@@ -178,29 +239,54 @@ class ViewModule {
 		// ...
 	}
 
-	function showPlayerDebug() {
-		// return api.options.debugMode == true || api.options.debugMode == playerIdx;
+	function showPlayerDebug( playerIdx:Int ) {
+		return api.options.debugMode == true;// || api.options.debugMode == playerIdx;
 	}
 
 	function updateMoves() {
-		// for( event in currentData.events.filter( type -> type == EventData.MOVE )) {
-		// 	if( !showPlayerDebug( event.playerIdx )) {
-		// 		continue;
-		// 	}
-
-		// 	final p = genAnimProgress( event.animData, progress );
-		// 	if( p < 0 || p > 1 ) {
-		// 		continue;
-		// 	}
-
-		// 	final fromIdx = event.cellIdx;
-		// 	final toIdx = event.targetIdx;
-		// 	final amount = event.amount;
-		// 	final playerIdx = event.playerIdx;
-
-
-			// ...
-		// }
+		var progress = this.progress;
+		for( event in currentData.events.filter( event -> event.type == EventData.MOVE )) {
+			if( !showPlayerDebug( event.playerIdx )) continue;
+			
+			var p = getAnimProgress( event.animData, progress );
+			if( p < 0 || p > 1 ) continue;
+			
+			final fromIdx = event.cellIdx;
+			final toIdx = event.targetIdx;
+			final amount = event.amount;
+			final playerIdx = event.playerIdx;
+			
+			var display = getFromPool( 'arrow' ).display;
+			var sprite:Sprite = cast display.getChildAt( 0 ).getChildAt( 0 );
+			var number:Text = cast display.getChildAt( 1 );
+			number.text = '$amount';
+			sprite.tile = playerIdx == 0 ? tileLibrary.Fleche_Bleu : tileLibrary.Fleche_Rouge;
+			
+			var sourceCell = this.hexes[fromIdx];
+			var targetCell = this.hexes[toIdx];
+			var sourceP = hexToScreen( sourceCell.data.q, sourceCell.data.r );
+			var targetP = hexToScreen( targetCell.data.q, targetCell.data.r );
+			var newPosition = lerpPosition( sourceP, targetP, unlerp( 0, 0.5, p ) * 0.5 );
+			display.setPosition( newPosition.x, newPosition.y );
+			var rotation = Math.atan2( targetP.y - sourceP.y, targetP.x - sourceP.x );
+			sprite.rotation = rotation;
+			display.alpha = 1 - unlerp( ARROW_FADE_OUT_P, 1, p );
+			
+			if( event.double && api.options.debugMode == true ) {
+				var offset = TILE_HEIGHT / 8;
+				if( !event.crisscross && playerIdx == 0 ) {
+					offset *= -1;
+				}
+				display.setPosition( display.x + Math.cos(rotation + Math.PI / 2) * offset,
+				display.y + Math.sin(rotation + Math.PI / 2) * offset );
+				display.setScale( 0.7 );
+			} else {
+				display.setScale( 1 );
+			}
+			
+			sprite.sscale.x = unlerp( 0, 0.5, p );
+			number.tscale.set( unlerp( 0, 0.25, p ));
+		}
 	}
 
 	function updateExplosions () {
@@ -338,8 +424,8 @@ class ViewModule {
 		
 	}
 
-	function getAnimProgress() {
-		
+	function getAnimProgress( animData:Array<AnimationData>, progress:Float ) {
+		return unlerpUnclamped( animData[0].start, animData[animData.length - 1].end, progress );
 	}
 
 	function upThenDown() {
@@ -461,7 +547,6 @@ class ViewModule {
 		final hexaP = hexToScreen( cell.q, cell.r );
 		container.position.set( hexaP.x, hexaP.y );
 		if( cell.owner != -1 ) {
-			trace( 'cell.owner ${cell.owner}' );
 			final anthill = new Sprite( cell.owner == 0 ? tileLibrary.Fourmiliere_Bleu : tileLibrary.Fourmiliere_Rouge );
 			anthill.anchor.set( 0.5 );
 			container.addChild( anthill );
@@ -484,6 +569,7 @@ class ViewModule {
 				icon = new Sprite( tileLibrary.Oeufs_1 );
 				icon.anchor.set( 0.5 );
 				iconBounceContainer.addChild( icon );
+				container.addChild( iconBounceContainer );
 				iconBounceContainer.zIndex = 1;
 			} else {
 				icon = new Sprite( tileLibrary.Cristaux_1 );

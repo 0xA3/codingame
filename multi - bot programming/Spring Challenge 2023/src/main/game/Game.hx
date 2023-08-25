@@ -451,7 +451,6 @@ class Game {
 	}
 
 	public function getBoardCoords() {
-		trace( board );
-		return board.coords;
+		return board?.coords;
 	}
 }
