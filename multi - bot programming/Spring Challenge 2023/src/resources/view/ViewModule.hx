@@ -383,19 +383,19 @@ class ViewModule {
 						hex.icon.setScale( 1 );
 						if (hex.data.type == POINTS ) {
 							hex.icon.tile = switch richIdx {
-								case 1: tileLibrary.Cristaux_1;
-								case 2: tileLibrary.Cristaux_2;
-								case 3: tileLibrary.Cristaux_3;
+								case 1: tileLibrary.Cristaux_1.center();
+								case 2: tileLibrary.Cristaux_2.center();
+								case 3: tileLibrary.Cristaux_3.center();
 								default: throw 'Error: richIdx can only be between 1-3 but is $richIdx';
 							}
 						} else {
 							if( hex.data.richness < THRESHOLD_DOUBLE ) {
-								hex.icon.tile = tileLibrary.Oeufs;
+								hex.icon.tile = tileLibrary.Oeufs.center();
 							} else {
 								hex.icon.tile = switch richIdx {
-									case 1: tileLibrary.Oeufs_1;
-									case 2: tileLibrary.Oeufs_2;
-									case 3: tileLibrary.Oeufs_3;
+									case 1: tileLibrary.Oeufs_1.center();
+									case 2: tileLibrary.Oeufs_2.center();
+									case 3: tileLibrary.Oeufs_3.center();
 									default: throw 'Error: richIdx can only be between 1-3 but is $richIdx';
 								}
 							}
