@@ -40,17 +40,17 @@ class Ai1 implements IAi {
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
 		
-		var output = "";
+		var outputs = [];
 		for( myBaseIndex in myBaseIndices ) {
 			final cellDistances = getCellDistances( cells, myBaseIndex );
 			cellDistances.sort(( a, b ) -> a.distance - b.distance );
 			final closestCell = cellDistances[0];
-			output += 'LINE ${closestCell.start} ${closestCell.end} 1';
+			outputs.push( 'LINE ${closestCell.start} ${closestCell.end} 1' );
 		}
 
 		// for( cellDistance in cellDistances ) printErr( 'start: ${cellDistance.start}, end: ${cellDistance.end}, distance: ${cellDistance.distance}' );
-		
-		return output;
+		trace( outputs.join(" "));
+		return outputs.join(" ");
 	}
 
 	function getCellDistances( cells:Array<CellDataset>, start:Int ) {

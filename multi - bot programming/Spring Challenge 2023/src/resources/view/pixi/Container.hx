@@ -6,6 +6,7 @@ class Container extends Object {
 
 	public final position:ContainerPosition;
 
+	public var interactive = false;
 	public var sortableChildren = false;
 	public var zIndex = 0;
 	

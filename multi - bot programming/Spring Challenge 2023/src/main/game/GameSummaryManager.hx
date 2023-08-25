@@ -31,6 +31,7 @@ class GameSummaryManager {
 	}
 
 	public function addError( player:Player, error:String ) {
+		trace( '${player.getNicknameToken()} $error' );
 		final key = player.getNicknameToken();
 		if( !playersErrors.exists( key )) {
 			playersErrors.set( key, [] );
