@@ -8,6 +8,7 @@ import gameengine.view.core.Utils.fitAspectRatio;
 import gameengine.view.core.Utils.lerpPosition;
 import gameengine.view.core.Utils.unlerp;
 import gameengine.view.core.Utils.unlerpUnclamped;
+import h2d.Drawable;
 import h2d.Graphics;
 import h2d.Interactive;
 import main.event.AnimationData;
@@ -154,10 +155,9 @@ class ViewModule {
 	}
 
 	function createEffect( type:String ) {
-		var display:Dynamic = null;
 		if (type == "conveyor") {
 			// display = PIXI.TilingSprite.fromImage("convey3.png", { width: CONVEYOR_WIDTH, height: CONVEYOR_HEIGHT });
-			display = new Sprite( tileLibrary.convey3 );
+			final display = new Sprite( tileLibrary.convey3 );
 			display.interactive = true;
 	
 			// registerTooltip( display, function() {
@@ -173,11 +173,19 @@ class ViewModule {
 			display.anchor.set( 0, 0.5 );
 			conveyors.push( display );
 			conveyorLayer.addChild( display );
+			
+			final effect:Effect = { busy: false, display: display }
+			return effect;
+			
 		} else if(type == "antText" ) {
-			display = generateText( "5", 0xFFFFFF, fonts.arial_black_40 );
+			final display = generateText( "5", 0xFFFFFF, fonts.arial_black_40 );
 			counterLayer.addChild( display );
+			
+			final effect:Effect = { busy: false, display: display }
+			return effect;
+
 		} else if( type == "arrow" ) {
-			display = new Container();
+			final display = new Container();
 			var spriteContainer = new Container();
 			var sprite = new Sprite( tileLibrary.Fleche_Bleu );
 			var number = generateText( "5", 0xFFFFFF, fonts.arial_black_188 );
@@ -188,13 +196,21 @@ class ViewModule {
 			display.addChild( number );
 			fitContainer( spriteContainer, Math.POSITIVE_INFINITY, TILE_HEIGHT / 3 );
 			arrowLayer.addChild( display );
+			
+			final effect:Effect = { busy: false, display: display }
+			return effect;
+			
 		} else if( type == "particle" ) {
-			display = new Sprite( hxd.Res.ants.particle.toTile() );
+			final display = new Sprite( hxd.Res.ants.particle.toTile() );
 			display.anchor.set( 0.5 );
 			particleLayer.addChild( display );
+
+			final effect:Effect = { busy: false, display: display }
+			return effect;
+		} else {
+			throw 'Error: unknown type $type';
 		}
-		final effect:Effect = { busy: false, display: display }
-		return effect;
+
 	}
 
 	public function updateScene( previousData:FrameData, currentData:FrameData, progress:Float, playerSpeed = 0 ) {

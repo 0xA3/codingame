@@ -371,10 +371,10 @@ class Game {
 					continue;
 				}
 				final path = board.findShortestPath( from, to );
-				trace( path );
+				// trace( path );
 				for( cellIndex in path ) {
 					setBeaconPower( cellIndex, player, beaconPower );
-					trace( 'setBeaconPower $cellIndex player ${player.getIndex()} power $beaconPower' );
+					// trace( 'setBeaconPower $cellIndex player ${player.getIndex()} power $beaconPower' );
 				}
 			}
 		}

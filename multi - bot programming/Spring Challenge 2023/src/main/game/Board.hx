@@ -72,7 +72,6 @@ class Board {
 	public function getByIndex( index:Int ) {
 		if( index < 0 || index >= coords.length ) return Cell.NO_CELL;
 		
-		return Cell.NO_CELL;
 		return map[coords[index]];
 	}
 
