@@ -183,7 +183,7 @@ class Gameplayer {
 	
 	public function next( ?e:hxd.Event ) {
 		pause();
-		final frame = currentFrame % 1 > 0.9 ? Math.floor( currentFrame + 2 ) : Math.floor( currentFrame + 1 );
+		final frame = Math.min( maxFrame, currentFrame % 1 > 0.9 ? Math.floor( currentFrame + 2 ) : Math.floor( currentFrame + 1 ));
 		slider.update( frame, maxFrame );
 		updateButtons( frame );
 		currentFrame = frame;
