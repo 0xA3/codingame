@@ -364,8 +364,10 @@ class ViewModule {
 				beacon.alpha = 1;
 			});
 
-			var fromPlayers = getOwnersOfBeaconOn(index, previousData).filter(showPlayerDebug);
-			var toPlayers = getOwnersOfBeaconOn(index, currentData).filter(showPlayerDebug);
+			var fromPlayers = getOwnersOfBeaconOn( index, previousData ).filter( showPlayerDebug );
+			var toPlayers = getOwnersOfBeaconOn( index, currentData ).filter( showPlayerDebug );
+			
+			if( fromPlayers.length == 0 && toPlayers.length == 0 ) continue;
 	
 			var fromSuffix = fromPlayers.length == 0 ? null : fromPlayers.length == 2 ? 'Rouge_Bleu' : COLOR_NAMES[fromPlayers[0]];
 			var toSuffix = toPlayers.length == 0 ? null : toPlayers.length == 2 ? 'Rouge_Bleu' : COLOR_NAMES[toPlayers[0]];
@@ -374,25 +376,23 @@ class ViewModule {
 				var beacon = beacons[0];
 				beacon.visible = true;
 				beacon.alpha = easeOut( beaconP );
-				// beacon.tile = PIXI.Texture.from("Balise_" + toSuffix + ".png");
-				trace( '$index ${"Balise_" + toSuffix}' );
+				beacon.tile = getBeaconTile( toPlayers );
+
 			} else if( fromPlayers.length > 0 && toPlayers.length == 0 ) {
 				var beacon = beacons[0];
 				beacon.visible = true;
-				beacon.alpha = 1 - easeOut(beaconP);
-			// 	beacon.texture = PIXI.Texture.from("Balise_" + fromSuffix + ".png");
-				trace( '$index ${"Balise_" + fromSuffix}' );
-		} else if( fromPlayers.length > 0 && toPlayers.length > 0 ) {
+				beacon.alpha = 1 - easeOut( beaconP );
+				beacon.tile = getBeaconTile( fromPlayers );
+
+			} else if( fromPlayers.length > 0 && toPlayers.length > 0 ) {
 				var beacon = beacons[0];
 				beacon.visible = true;
-				// beacon.texture = PIXI.Texture.from("Balise_" + fromSuffix + ".png");
-				trace( '$index ${"Balise_" + fromSuffix}' );
-	
+				beacon.tile = getBeaconTile( fromPlayers );
+
 				if( fromSuffix != toSuffix ) {
 					var other = beacons[1];
 					other.visible = true;
-			// 		other.texture = PIXI.Texture.from("Balise_" + toSuffix + ".png");
-					trace( '$index ${"Balise_" + toSuffix}' );
+					other.tile = getBeaconTile( toPlayers );
 	
 					// Cross fade
 					beacon.alpha = 1 - beaconP;
@@ -400,6 +400,12 @@ class ViewModule {
 				}
 			}
 		}
+	}
+
+	function getBeaconTile( players:Array<Int> ) {
+		if( players.length == 2 ) return tileLibrary.Balise_Rouge_Bleu.center();
+		if( players[0] == 0 ) return tileLibrary.Balise_Bleu.center();
+		return tileLibrary.Balise_Rouge.center();
 	}
 
 	function updateTiles() {
