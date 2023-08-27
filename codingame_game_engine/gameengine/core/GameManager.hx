@@ -296,6 +296,7 @@ abstract class GameManager {
 
 		prevTooltips = currentTooltips;
 		currentTooltips = [];
+		trace( "swapInfoAndViewData" );
 	}
 
 	function dumpGameProperties() {}
@@ -575,11 +576,10 @@ abstract class GameManager {
 	 *            any object that can be serialized in JSON using gson.
 	 */
 	 public function setViewData( moduleName = "default", data:Any ) {
-		// trace( 'setViewData $data' );
 		switch moduleName {
 			case "graphics":
 				currentViewData.addGraphicsData( cast data );
-				trace( currentViewData.graphics.events );
+				// trace( "setViewData " + currentViewData.graphics.events );
 			case "endScreen": currentViewData.addEndScreenData( cast data );
 			default: throw 'Error: unknown data $data';
 		}

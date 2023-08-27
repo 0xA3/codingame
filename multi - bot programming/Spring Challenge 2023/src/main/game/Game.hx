@@ -283,8 +283,7 @@ class Game {
 		final target = board.getByIndex( toIdx );
 
 		source.removeAntsId( playerIdx, amount );
-		source.placeAntsId( playerIdx, amount );
-
+		target.placeAntsId( playerIdx, amount );
 		// viewer animation
 		launchMoveEvent( source.getIndex(), target.getIndex(), amount, playerIdx );
 		moveAnimatedThisTurn = true;
