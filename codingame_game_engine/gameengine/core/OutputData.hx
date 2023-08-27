@@ -13,13 +13,11 @@ class OutputData extends haxe.ds.List<String> {
 	}
 
 	override public function add( s:Null<String> ) {
-		if( s != null )
-			return super.add( s );
+		if( s != null )	return super.add( s );
 	}
 
 	public function addAll( data:Null<Array<String>> ) {
-		if( data != null )
-			for( s in data ) super.add( s );
+		if( data != null ) for( s in data ) super.add( s );
 	}
 
 	override function toString() {

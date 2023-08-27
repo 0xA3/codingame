@@ -1,7 +1,5 @@
 package main.view;
 
-import main.event.EventData;
-
 class FrameViewData {
 	
 	public var type = "";
@@ -9,16 +7,16 @@ class FrameViewData {
 
 	public var duration = 0;
 	
-	public var events:Array<EventData> = [];
-	public var scores:Array<Int> = [];
-	public var messages:Array<String> = [];
-	
-	public var beacons:Array<Array<Int>> = [];
+	public var graphics:GraphicsDataset;
+	public var endScreen:EndScreenDataset;
 
 	public var titleRankingsSprite = "";
 	public var displayedText:Array<String> = [];
 
 	public function new() {}
 
-	public function toString() return 'type: $type, frame: $frame, duration: $duration, events: $events, scores: $scores, messages: $messages, beacons: $beacons, titleRankingsSprite: $titleRankingsSprite, displayedText: $displayedText';
+	public function addGraphicsData( graphics:GraphicsDataset ) this.graphics = graphics;
+	public function addEndScreenData( endScreen:EndScreenDataset ) this.endScreen = endScreen;
+
+	public function toString() return 'type: $type, frame: $frame, duration: $duration, graphics: $graphics, titleRankingsSprite: $titleRankingsSprite, displayedText: $displayedText';
 }

@@ -891,7 +891,7 @@ class ViewModule {
 
 		// Handle explosions
 		final shouldExplodeThisFrame:Map<Explosion, Bool> = [];
-		for( event in dto.events ) {
+		for( event in dto.graphics.events ) {
 			eventMapPerPlayer[event.playerIdx][event.type] = eventMapPerPlayer[event.playerIdx][event.type] ?? [];
 			eventMapPerPlayer[event.playerIdx][event.type].push( event );
 			final start = event.animData.length > 0 ? event.animData[0].start : 0;
@@ -925,7 +925,7 @@ class ViewModule {
 			} else if( event.type == EventData.MOVE ) {
 				ants[event.playerIdx][event.cellIdx] -= event.amount;
 				ants[event.playerIdx][event.targetIdx] += event.amount;
-				for( other in dto.events ) {
+				for( other in dto.graphics.events ) {
 					if( other.cellIdx == event.targetIdx && other.targetIdx == event.cellIdx ) {
 						event.double = true;
 						event.crisscross = true;
@@ -964,7 +964,7 @@ class ViewModule {
 		final buildAmount = ants
 		.mapi(( playerIndex, playerAnts ) -> {
 			return playerAnts.mapi(( cellIndex, _ ) -> {
-				return dto.events
+				return dto.graphics.events
 					.filter( event -> event.type == EventData.BUILD )
 					.filter( event -> event.playerIdx == playerIndex )
 					.filter( (_) -> globalData.anthills[playerIndex].contains( cellIndex ))
@@ -981,10 +981,10 @@ class ViewModule {
 		];
 
 		final frameData:FrameData = {
-			scores: dto.scores,
-			events: dto.events,
-			messages: dto.messages,
-			beacons: dto.beacons,
+			scores: dto.graphics.scores,
+			events: dto.graphics.events,
+			messages: dto.graphics.messages,
+			beacons: dto.graphics.beacons,
 			number: frameInfo.number,
 			frameDuration: frameInfo.frameDuration,
 			date: frameInfo.date,

@@ -166,7 +166,7 @@ abstract class GameManager {
 	function loopWithTimer() {
 		timer.stop();
 		// if( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
-		if( turn <= 2 && !isGameEnd() && !allPlayersInactive() ) {
+		if( turn <= 3 && !isGameEnd() && !allPlayersInactive() ) {
 			processTurn();
 			timer = new Timer( 10 );
 			timer.run = loopWithTimer;
@@ -245,8 +245,8 @@ abstract class GameManager {
 			    throw new RuntimeException( "Invalid command: " + iCmd.cmd );
 			}
 
-			if( playerIndex == 0 ) dumpView();
-			if( playerIndex == 0 ) dumpInfos();
+			if( playerIndex == players.length - 1 ) dumpView();
+			if( playerIndex == players.length - 1 ) dumpInfos();
 			dumpNextPlayerInput( player.getInputs() );
 			if( nbrOutputLines > 0 ) {
 				addTurnTime();
@@ -326,7 +326,7 @@ abstract class GameManager {
 
 	function dumpView() {
 		// trace( "dumpView" );
-		final data = new OutputData( OutputCommand.VIEW );
+		// final data = new OutputData( OutputCommand.VIEW );
 		if( newTurn ) {
 			// data.add( 'KEY_FRAME $frame' );
 			prevViewData.type = "KEY_FRAME";
@@ -339,7 +339,7 @@ abstract class GameManager {
 				globalViewDataTrigger.trigger( globalViewData );
 
 			} else {
-				data.add( Json.stringify( prevViewData ));
+				// data.add( Json.stringify( prevViewData ));
 			}
 		} else {
 			// data.add( 'INTERMEDIATE_FRAME $frame' );
@@ -361,7 +361,6 @@ abstract class GameManager {
 		// log.info( viewData );
 		// out.add( viewData );
 		frameViewDataTrigger.trigger( prevViewData );
-
 		frame++;
 	}
 
@@ -568,16 +567,6 @@ abstract class GameManager {
 	}
 
 	/**
-	 * Set data for use by the viewer, for the current frame.
-	 *
-	 * @param data
-	 *            any object that can be serialized in JSON using gson.
-	 */
-	public function setViewData( moduleName = "default", data:FrameViewData ) {
-		setModuleViewData( moduleName, data );
-	}
-
-	/**
 	 * Set data for use by the viewer, for the current frame, for a specific module.
 	 *
 	 * @param moduleName
@@ -585,8 +574,12 @@ abstract class GameManager {
 	 * @param data
 	 *            any object that can be serialized in JSON using gson.
 	 */
-	public function setModuleViewData( moduleName:String, data:FrameViewData ) {
-		currentViewData = data;
+	 public function setViewData( moduleName = "default", data:Any ) {
+		switch moduleName {
+			case "graphics": currentViewData.addGraphicsData( cast data );
+			case "endScreen": currentViewData.addEndScreenData( cast data );
+			default: throw 'Error: unknown data $data';
+		}
 	}
 
 	/**

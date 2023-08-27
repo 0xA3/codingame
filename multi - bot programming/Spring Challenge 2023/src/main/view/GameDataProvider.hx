@@ -52,13 +52,12 @@ class GameDataProvider {
 	}
 
 	public function getCurrentFrameData() {
-		final data = new FrameViewData();
-
-		data.messages = gameManager.getPlayers().map( player -> ( cast player ).getMessage());
-		data.beacons = collectCellDataBi(( cell:Cell, player:Player ) -> cell.getBeaconPower( player ));
-		data.scores = gameManager.getPlayers().map( player -> ( cast player ).getPoints());
-
-		data.events = game.getViewerEvents();
+		final data:GraphicsDataset = {
+			messages: gameManager.getPlayers().map( player -> ( cast player ).getMessage()),
+			beacons: collectCellDataBi(( cell:Cell, player:Player ) -> cell.getBeaconPower( player )),
+			scores: gameManager.getPlayers().map( player -> ( cast player ).getPoints()),
+			events: game.getViewerEvents()
+		}
 
 		return data;
 	}

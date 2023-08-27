@@ -1,5 +1,6 @@
 package gameengine.module.endscreen;
 
+import main.view.EndScreenDataset;
 import gameengine.core.GameManager;
 import gameengine.core.Module;
 import main.view.FrameViewData;
@@ -64,10 +65,11 @@ class EndScreenModule implements Module {
     }
 
     public function onAfterOnEnd() {
-        final data = new FrameViewData();
-		data.scores = scores;
-		data.titleRankingsSprite = titleRankingsSprite;
-		data.displayedText = displayedText;
-        gameManager.setModuleViewData( "endScreen", data );
+        final data:EndScreenDataset = {
+			scores: scores,
+			titleRankingsSprite: titleRankingsSprite,
+			displayedText: displayedText
+		}
+        gameManager.setViewData( "endScreen", data );
     }
 }

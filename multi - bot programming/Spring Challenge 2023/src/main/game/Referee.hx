@@ -3,7 +3,6 @@ package main.game;
 import gameengine.core.AbstractPlayer.TimeoutException;
 import gameengine.core.AbstractReferee;
 import gameengine.core.MultiplayerGameManager;
-import haxe.Exception;
 import main.view.ViewModule;
 
 class Referee extends AbstractReferee {
