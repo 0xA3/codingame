@@ -23,7 +23,7 @@ class RefereeMain {
 		
 		final aiMe = CurrentAis.aiMe;
 		final aiOpp = CurrentAis.aiOpp;
-		final ais = [aiMe, aiOpp];
+		final ais:Array<ai.IAi> = [aiMe, aiOpp];
 
 		final playerMe = new Player( 0, aiMe.aiId );
 		final playerOpp = new Player( 1, aiOpp.aiId );

@@ -166,7 +166,7 @@ abstract class GameManager {
 	function loopWithTimer() {
 		timer.stop();
 		// if( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
-		if( turn <= 3 && !isGameEnd() && !allPlayersInactive() ) {
+		if( turn <= 4 && !isGameEnd() && !allPlayersInactive() ) {
 			processTurn();
 			timer = new Timer( 10 );
 			timer.run = loopWithTimer;
@@ -230,7 +230,7 @@ abstract class GameManager {
 	 *            The amount of expected output lines from the player.
 	 */
 	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) {
-		// trace( 'executePlayer ${player.getIndex()}' );
+		trace( 'executePlayer ${player.getIndex()}' );
 		final playerIndex = player.getIndex();
 		// try {
 			if( !this.initDone ) {
@@ -575,8 +575,11 @@ abstract class GameManager {
 	 *            any object that can be serialized in JSON using gson.
 	 */
 	 public function setViewData( moduleName = "default", data:Any ) {
+		// trace( 'setViewData $data' );
 		switch moduleName {
-			case "graphics": currentViewData.addGraphicsData( cast data );
+			case "graphics":
+				currentViewData.addGraphicsData( cast data );
+				trace( currentViewData.graphics.events );
 			case "endScreen": currentViewData.addEndScreenData( cast data );
 			default: throw 'Error: unknown data $data';
 		}

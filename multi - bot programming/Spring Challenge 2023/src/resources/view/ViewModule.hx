@@ -263,7 +263,7 @@ class ViewModule {
 
 	function updateMoves() {
 		var progress = this.progress;
-		for( event in currentData.events.filter( event -> event.type == EventData.MOVE )) {
+		for( event in currentData.events.filter( event -> event.type == EventType.Move )) {
 			if( !showPlayerDebug( event.playerIdx )) continue;
 			
 			var p = getAnimProgress( event.animData, progress );
@@ -329,15 +329,15 @@ class ViewModule {
 	}
 
 	function getLastMoveEndP() {
-		return getLastEventEndP( EventData.MOVE );
+		return getLastEventEndP( EventType.Move );
 	}
 	
 	function getLastFoodEndP() {
-		return getLastEventEndP( EventData.FOOD );
+		return getLastEventEndP( EventType.Food );
 	}
 
 	function getLastBuildEndP() {
-		return getLastEventEndP( EventData.BUILD );
+		return getLastEventEndP( EventType.Build );
 	}
 	
 	function getOwnersOfBeaconOn( cellIdx:Int, data:FrameData ) {
@@ -899,7 +899,7 @@ class ViewModule {
 			final pStart = start / frameInfo.frameDuration;
 			final pEnd = end / frameInfo.frameDuration;
 
-			if( event.type == EventData.BUILD ) {
+			if( event.type == EventType.Build ) {
 				consumedFrom[event.playerIdx].set( event.path[0], true );
 				for( cellIdx in globalData.anthills[event.playerIdx] ) {
 					ants[event.playerIdx][cellIdx] += event.amount;
@@ -922,7 +922,7 @@ class ViewModule {
 					shouldExplodeThisFrame.set( e, true );
 				}
 				richness[event.path[0]] = toRichness;
-			} else if( event.type == EventData.MOVE ) {
+			} else if( event.type == EventType.Move ) {
 				ants[event.playerIdx][event.cellIdx] -= event.amount;
 				ants[event.playerIdx][event.targetIdx] += event.amount;
 				for( other in dto.graphics.events ) {
@@ -934,7 +934,7 @@ class ViewModule {
 						event.crisscross = false;
 					}
 				}
-			} else if( event.type == EventData.FOOD ) {
+			} else if( event.type == EventType.Food ) {
 				consumedFrom[event.playerIdx].set( event.path[0], true );
 				final fromRichness = richness[event.path[0]];
 				final toRichness = fromRichness - event.amount;
@@ -958,14 +958,14 @@ class ViewModule {
       		event.animData[event.animData.length - 1].end /= frameInfo.frameDuration;
 		}
 		// Create synthetic multi-path event to aggregate FOOD and BUILD events
-		final foodEvents = globalData.players.map( p -> computePathSegments( eventMapPerPlayer[p.index][EventData.FOOD] ?? [], p.index, EventData.FOOD ));
-		final buildEvents = globalData.players.map( p -> computePathSegments( eventMapPerPlayer[p.index][EventData.BUILD] ?? [], p.index, EventData.BUILD ));
+		final foodEvents = globalData.players.map( p -> computePathSegments( eventMapPerPlayer[p.index][EventType.Food] ?? [], p.index, EventType.Food ));
+		final buildEvents = globalData.players.map( p -> computePathSegments( eventMapPerPlayer[p.index][EventType.Build] ?? [], p.index, EventType.Build ));
 
 		final buildAmount = ants
 		.mapi(( playerIndex, playerAnts ) -> {
 			return playerAnts.mapi(( cellIndex, _ ) -> {
 				return dto.graphics.events
-					.filter( event -> event.type == EventData.BUILD )
+					.filter( event -> event.type == EventType.Build )
 					.filter( event -> event.playerIdx == playerIndex )
 					.filter( (_) -> globalData.anthills[playerIndex].contains( cellIndex ))
 					.fold(( event, buildAmount ) -> buildAmount + event.amount, 0 );

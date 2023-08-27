@@ -228,7 +228,7 @@ class Game {
 
 	function launchFoodEvent( meal:AntConsumption ) {
 		final e = new EventData();
-		e.type = EventData.FOOD;
+		e.type = EventType.Food;
 		e.playerIdx = meal.player.getIndex();
 		e.path = meal.path.map( cell -> cell.getIndex());
 
@@ -299,7 +299,7 @@ class Game {
 
 	function launchMoveEvent( fromIdx:Int, toIdx:Int, amount:Int, playerIdx:Int ) {
 		final e = new EventData();
-		e.type = EventData.MOVE;
+		e.type = EventType.Move;
 		e.playerIdx = playerIdx;
 		e.cellIdx = fromIdx;
 		e.targetIdx = toIdx;
@@ -310,7 +310,7 @@ class Game {
 
 	function launchBuildEvent( amount:Int, playerIdx:Int, path:Array<Cell> ) {
 		final e = new EventData();
-		e.type = EventData.BUILD;
+		e.type = EventType.Build;
 		e.playerIdx = playerIdx;
 		e.amount = amount;
 		e.path = path.map( cell -> cell.getIndex());
@@ -342,7 +342,7 @@ class Game {
 
 	function launchBeaconEvent( playerIdx:Int, power:Int, cellIdx:Int ) {
 		final e = new EventData();
-		e.type = EventData.BEACON;
+		e.type = EventType.Beacon;
 		e.playerIdx = playerIdx;
 		e.cellIdx = cellIdx;
 		e.amount = power;
