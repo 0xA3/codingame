@@ -1,6 +1,7 @@
 package resources.view;
 
 import main.event.EventData;
+import main.event.EventType;
 import resources.view.Types.AggregatedPathsEvent;
 import resources.view.Types.PathSegment;
 import resources.view.Utils.keyOf;
@@ -24,7 +25,7 @@ function pathToKeys( path:Array<Int> ) {
 	return p;
 }
 
-function computePathSegments( events:Array<EventData>, playerIdx:Int, type:Int ) {
+function computePathSegments( events:Array<EventData>, playerIdx:Int, type:EventType ) {
 	if( events.length == 0 ) return null;
 
 	final segmentMap:Map<String, PathSegment> = [];

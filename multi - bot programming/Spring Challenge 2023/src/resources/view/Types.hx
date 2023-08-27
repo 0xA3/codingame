@@ -4,6 +4,7 @@ import gameengine.view.core.Point;
 import h2d.Object;
 import h2d.Tile;
 import main.event.EventData;
+import main.event.EventType;
 import main.view.CellData;
 import resources.view.pixi.Container;
 import resources.view.pixi.Sprite;
@@ -75,7 +76,7 @@ class PathSegment {
   
 @:structInit
 class AggregatedPathsEvent {
-	public var type:Int;
+	public var type:EventType;
 	public var animData:AnimData;
 	public var segments:Array<PathSegment>;
 	public var segmentMap:Map<String, PathSegment>;

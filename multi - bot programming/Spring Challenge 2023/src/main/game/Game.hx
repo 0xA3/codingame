@@ -5,6 +5,7 @@ import gameengine.module.endscreen.EndScreenModule;
 import haxe.ds.HashMap;
 import main.event.Animation;
 import main.event.EventData;
+import main.event.EventType;
 import main.game.move.AntAllocater;
 import main.game.move.AntMove;
 import xa3.MTRandom;

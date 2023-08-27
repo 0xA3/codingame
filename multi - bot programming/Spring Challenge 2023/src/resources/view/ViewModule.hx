@@ -13,6 +13,7 @@ import h2d.Graphics;
 import h2d.Interactive;
 import main.event.AnimationData;
 import main.event.EventData;
+import main.event.EventType;
 import main.view.CellData;
 import main.view.FrameViewData;
 import main.view.GlobalViewData;
@@ -321,7 +322,7 @@ class ViewModule {
 		}
 	}
 
-	function getLastEventEndP( eventType:Int ) {
+	function getLastEventEndP( eventType:EventType ) {
 		return currentData.events
 			.filter( e -> e.type == eventType )
 			.map( e -> e.animData[e.animData.length - 1].end )
@@ -885,7 +886,7 @@ class ViewModule {
 	public function handleFrameData( frameInfo:FrameInfo, dto:FrameViewData ) {
 		final ants = currentTempCellData.ants.map( a -> a.copy());
 		final richness = currentTempCellData.richness.copy();
-		final eventMapPerPlayer = [new Map<Int, Array<EventData>>(), new Map<Int, Array<EventData>>()];
+		final eventMapPerPlayer = [new Map<EventType, Array<EventData>>(), new Map<EventType, Array<EventData>>()];
 
 		final consumedFrom = [new Map<Int,Bool>(), new Map<Int,Bool>()];
 

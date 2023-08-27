@@ -2,7 +2,7 @@ package main.event;
 
 class EventData {
 	
-	public var type:Int;
+	public var type:EventType;
 	public var animData:Array<AnimationData> = [];
 	public var playerIdx:Int;
 	public var cellIdx:Int;
