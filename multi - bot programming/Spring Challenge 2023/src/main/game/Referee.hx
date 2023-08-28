@@ -72,7 +72,7 @@ class Referee extends AbstractReferee {
 	}
 
 	override function gameTurn( turn:Int ) {
-		//trace( 'gameTurn $turn' );
+		// trace( 'gameTurn $turn' );
 		// try {
 			game.resetGameTurnData();
 			

@@ -142,7 +142,8 @@ class BoardGenerator {
 		}
 
 		// Place anthills
-		final hillsPerPlayer = Config.FORCE_SINGLE_HILL ? 1 : ( random.nextFloat() < .33 ? 2 : 1 );
+		// final hillsPerPlayer = Config.FORCE_SINGLE_HILL ? 1 : ( random.nextFloat() < .33 ? 2 : 1 );
+		final hillsPerPlayer = 1;
 
 		final validCoords = selectAnthillCoords( board, hillsPerPlayer );
 		

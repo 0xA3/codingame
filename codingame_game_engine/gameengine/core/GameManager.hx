@@ -131,10 +131,10 @@ abstract class GameManager {
 			final playerCount = s.nextInt();
 			s.nextLine();
 
-			// for( i in 0...playerCount ) {
-			// 	final player = players[i];
-			// 	player.setIndex( i ); // index is already set in constructor
-			// }
+			for( i in 0...playerCount ) {
+				final player = players[i];
+				player.setIndex( i );
+			}
 
 			readGameProperties( iCmd, s );
 
@@ -144,6 +144,9 @@ abstract class GameManager {
 			referee.init();
 			registeredModules.iter( module -> module.onGameInit());
 			initDone = true;
+
+			globalViewDataTrigger.trigger( globalViewData );
+			frameViewDataTrigger.trigger( currentViewData );
 
 			// Game Loop ----------------------------------------------------------
 			turn = 1;
@@ -166,7 +169,7 @@ abstract class GameManager {
 	function loopWithTimer() {
 		timer.stop();
 		// if( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
-		if( turn <= 4 && !isGameEnd() && !allPlayersInactive() ) {
+		if( turn <= 10 && !isGameEnd() && !allPlayersInactive() ) {
 			processTurn();
 			timer = new Timer( 10 );
 			timer.run = loopWithTimer;
@@ -183,11 +186,14 @@ abstract class GameManager {
 
 		referee.gameTurn( turn );
 		registeredModules.iter( module -> module.onAfterGameTurn());
+		
+		frameViewDataTrigger.trigger( prevViewData );
+		
 		// Create a frame if no player has been executed
 		if( players.length != 0 && players.filter( p -> p.hasBeenExecuted() ).length == 0 ) {
 			executePlayer( players[0], 0 );
 		}
-
+		
 		// reset players' outputs
 		for( player in players ) {
 			player.resetOutputs();
@@ -230,7 +236,7 @@ abstract class GameManager {
 	 *            The amount of expected output lines from the player.
 	 */
 	function executePlayer( player:AbstractPlayer, nbrOutputLines:Int ) {
-		trace( 'executePlayer ${player.getIndex()}' );
+		// trace( 'executePlayer ${player.getIndex()}' );
 		final playerIndex = player.getIndex();
 		// try {
 			if( !this.initDone ) {
@@ -245,8 +251,8 @@ abstract class GameManager {
 			    throw new RuntimeException( "Invalid command: " + iCmd.cmd );
 			}
 
-			if( playerIndex == players.length - 1 ) dumpView();
-			if( playerIndex == players.length - 1 ) dumpInfos();
+			dumpView();
+			dumpInfos();
 			dumpNextPlayerInput( player.getInputs() );
 			if( nbrOutputLines > 0 ) {
 				addTurnTime();
@@ -296,7 +302,6 @@ abstract class GameManager {
 
 		prevTooltips = currentTooltips;
 		currentTooltips = [];
-		trace( "swapInfoAndViewData" );
 	}
 
 	function dumpGameProperties() {}
@@ -326,7 +331,7 @@ abstract class GameManager {
 	}
 
 	function dumpView() {
-		// trace( "dumpView" );
+		// trace( 'dumpView' );
 		// final data = new OutputData( OutputCommand.VIEW );
 		if( newTurn ) {
 			// data.add( 'KEY_FRAME $frame' );
@@ -337,7 +342,7 @@ abstract class GameManager {
 				// 	frame: prevViewData
 				// }
 				// data.add( Json.stringify( initFrame ));
-				globalViewDataTrigger.trigger( globalViewData );
+				// globalViewDataTrigger.trigger( globalViewData );
 
 			} else {
 				// data.add( Json.stringify( prevViewData ));
@@ -361,7 +366,8 @@ abstract class GameManager {
 		// trace( 'viewData: $viewData' );
 		// log.info( viewData );
 		// out.add( viewData );
-		frameViewDataTrigger.trigger( prevViewData );
+		// trace( 'dumpView ${prevViewData.graphics.events}' );
+		// frameViewDataTrigger.trigger( prevViewData );
 		frame++;
 	}
 

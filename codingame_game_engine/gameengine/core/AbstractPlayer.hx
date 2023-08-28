@@ -23,7 +23,7 @@ abstract class AbstractPlayer {
 	
 	var gameManager:GameManager;
 
-	var index:Int;
+	var index = -1;
 	var inputs:Array<String> = [];
 	var outputs:Array<String> = [];
 	var timeout:Bool;

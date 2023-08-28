@@ -7,7 +7,7 @@ using StringTools;
 
 class Player extends AbstractMultiplayerPlayer {
 	
-	public static final NO_PLAYER = new Player( -1, "" );
+	public static final NO_PLAYER = new Player( "" );
 
 	final id:String;
 	var message = "";
@@ -19,8 +19,7 @@ class Player extends AbstractMultiplayerPlayer {
 	public final lines:Array<{from:Int, to:Int, ants:Int}> = [];
 	public var points = 0;
 
-	public function new( index:Int, id:String ) {
-		this.index = index;
+	public function new( id:String ) {
 		this.id = id;
 	}
 

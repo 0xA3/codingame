@@ -8,15 +8,14 @@ import gameengine.view.core.Utils.fitAspectRatio;
 import gameengine.view.core.Utils.lerpPosition;
 import gameengine.view.core.Utils.unlerp;
 import gameengine.view.core.Utils.unlerpUnclamped;
-import h2d.Drawable;
 import h2d.Graphics;
 import h2d.Interactive;
 import main.event.AnimationData;
 import main.event.EventData;
 import main.event.EventType;
 import main.view.CellData;
-import main.view.FrameViewData;
 import main.view.GlobalViewData;
+import main.view.GraphicsDataset;
 import resources.view.AssetConstants.COLOR_NAMES;
 import resources.view.AssetConstants.HUD_HEIGHT;
 import resources.view.AssetConstants.INDICATOR_OFFSET;
@@ -883,16 +882,16 @@ class ViewModule {
 		return xplosion;
 	}
 
-	public function handleFrameData( frameInfo:FrameInfo, dto:FrameViewData ) {
+	public function handleFrameData( frameInfo:FrameInfo, dto:GraphicsDataset ) {
 		final ants = currentTempCellData.ants.map( a -> a.copy());
 		final richness = currentTempCellData.richness.copy();
 		final eventMapPerPlayer = [new Map<EventType, Array<EventData>>(), new Map<EventType, Array<EventData>>()];
 
 		final consumedFrom = [new Map<Int,Bool>(), new Map<Int,Bool>()];
-
+		
 		// Handle explosions
 		final shouldExplodeThisFrame:Map<Explosion, Bool> = [];
-		for( event in dto.graphics.events ) {
+		for( event in dto.events ) {
 			eventMapPerPlayer[event.playerIdx][event.type] = eventMapPerPlayer[event.playerIdx][event.type] ?? [];
 			eventMapPerPlayer[event.playerIdx][event.type].push( event );
 			final start = event.animData.length > 0 ? event.animData[0].start : 0;
@@ -926,7 +925,7 @@ class ViewModule {
 			} else if( event.type == EventType.Move ) {
 				ants[event.playerIdx][event.cellIdx] -= event.amount;
 				ants[event.playerIdx][event.targetIdx] += event.amount;
-				for( other in dto.graphics.events ) {
+				for( other in dto.events ) {
 					if( other.cellIdx == event.targetIdx && other.targetIdx == event.cellIdx ) {
 						event.double = true;
 						event.crisscross = true;
@@ -965,7 +964,7 @@ class ViewModule {
 		final buildAmount = ants
 		.mapi(( playerIndex, playerAnts ) -> {
 			return playerAnts.mapi(( cellIndex, _ ) -> {
-				return dto.graphics.events
+				return dto.events
 					.filter( event -> event.type == EventType.Build )
 					.filter( event -> event.playerIdx == playerIndex )
 					.filter( (_) -> globalData.anthills[playerIndex].contains( cellIndex ))
@@ -982,10 +981,10 @@ class ViewModule {
 		];
 
 		final frameData:FrameData = {
-			scores: dto.graphics.scores,
-			events: dto.graphics.events,
-			messages: dto.graphics.messages,
-			beacons: dto.graphics.beacons,
+			scores: dto.scores,
+			events: dto.events,
+			messages: dto.messages,
+			beacons: dto.beacons,
 			number: frameInfo.number,
 			frameDuration: frameInfo.frameDuration,
 			date: frameInfo.date,
@@ -1007,7 +1006,7 @@ class ViewModule {
 			beacons: frameData.beacons,
 			richness: frameData.richness
 		}
-
+		
 		return frameData;
 	}
 

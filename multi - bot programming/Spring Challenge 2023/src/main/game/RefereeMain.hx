@@ -25,8 +25,8 @@ class RefereeMain {
 		final aiOpp = CurrentAis.aiOpp;
 		final ais:Array<ai.IAi> = [aiMe, aiOpp];
 
-		final playerMe = new Player( 0, aiMe.aiId );
-		final playerOpp = new Player( 1, aiOpp.aiId );
+		final playerMe = new Player( aiMe.aiId );
+		final playerOpp = new Player( aiOpp.aiId );
 		final players = [playerMe, playerOpp];
 
 		final globalViewDataTrigger = Signal.trigger();

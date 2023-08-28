@@ -53,8 +53,8 @@ class GameMain {
 		final aiOpp = CurrentAis.aiOpp;
 		ais = [aiMe, aiOpp];
 
-		final playerMe = new Player( 0, aiMe.aiId );
-		final playerOpp = new Player( 1, aiOpp.aiId );
+		final playerMe = new Player( aiMe.aiId );
+		final playerOpp = new Player( aiOpp.aiId );
 		players = [playerMe, playerOpp];
 		
 		globalViewDataTrigger = Signal.trigger();

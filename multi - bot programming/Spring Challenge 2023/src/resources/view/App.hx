@@ -108,9 +108,9 @@ class App extends hxd.App {
 		}
 		frameInfoDatasets.push( frameInfoDataset );
 		
-		final dataset = viewModule.handleFrameData( frameInfoDataset, dataset );
-		frameDatasets.push( dataset );
-		viewModule.updateScene( last( frameDatasets ), dataset, 0 );
+		final frameData = viewModule.handleFrameData( frameInfoDataset, dataset.graphics );
+		frameDatasets.push( frameData );
+		viewModule.updateScene( frameData.previous, frameData, 0 );
 		
 		if( frameDatasets.length > 1 ) {
 			final nextFrame = frameDatasets.length - 1;
