@@ -1,21 +1,20 @@
 package main.game.move;
 
-import haxe.Int64;
-import xa3.MathUtils;
-
 using xa3.ArrayUtils;
 
 class CellData {
 	public final cell:Cell;
-	public var ants:Int64;
-	public var beacons:Int64;
-	public var wiggleRoom = 0i64;
+	public var ants:Float;
+	public var beacons:Float;
+	public var wiggleRoom = 0.0;
 
 	public function new( cell:Cell, playerIdx:Int ) {
 		this.cell = cell;
 		this.ants = cell.getAntsId( playerIdx );
 		this.beacons = cell.getBeaconPowerId( playerIdx );
 	}
+
+	public function toString() return 'ants: $ants, beacons: $beacons, wiggleRoom $wiggleRoom';
 }
 
 class AntBeaconPair {
@@ -34,6 +33,8 @@ class AntBeaconPair {
 	public function getBeacon() {
 		return beacon;
 	}
+
+	public function toString() return 'ant: $ant, beacon: $beacon';
 }
 
 class AntAllocater {
@@ -56,25 +57,29 @@ class AntAllocater {
 	}
 
 	static function innerAllocateAnts( antCells:Array<CellData>, beaconCells:Array<CellData>, playerIdx:Int, board:Board ) {
-		final allocations:Array<AntAllocation> = [];
-		var antSum = 0i64;
+		if( beaconCells.length == 0 ) return [];
+		
+		var antSum = 0.0;
 		for( cell in antCells ) {
 			antSum += cell.ants;
 		}
 
-		var beaconSum = 0i64;
+		var beaconSum = 0.0;
 		for( cell in beaconCells ) {
 			beaconSum += cell.beacons;
 		}
 
 		final scalingFactor = antSum / beaconSum;
 		for( cell in beaconCells ) {
-			final highBeaconValue = cell.beacons * scalingFactor; // TODO Math.ceil(cell.beacons * scalingFactor)
+			final highBeaconValue = Math.ceil( cell.beacons * scalingFactor );
 			final lowBeaconValue = cell.beacons * scalingFactor;
-			cell.beacons = MathUtils.max( 1, lowBeaconValue );
+			cell.beacons = Math.max( 1, lowBeaconValue );
 			cell.wiggleRoom = highBeaconValue - cell.beacons;
 			//XXX: wiggleRoom will equals 1 if the beaconValue got rounded down
 		}
+
+		// trace( 'antSum $antSum  beaconSum $beaconSum  scalingFactor $scalingFactor' );
+		// for( cell in beaconCells ) trace( cell );
 
 		final allPairs:Array<AntBeaconPair> = [];
 
@@ -107,9 +112,12 @@ class AntAllocater {
 			return 0;
 		});
 
+		// trace( 'allPairs: $allPairs' );
 
+		final allocations:Array<AntAllocation> = [];
+		
 		var stragglers = false;
-		while( allPairs.length != 0 ) {
+		while( allPairs.length > 0 ) {
 			for( pair in allPairs ) {
 				final antCell = pair.getAnt();
 				final antCount = antCell.ants;
@@ -117,11 +125,11 @@ class AntAllocater {
 				final beaconCount = beaconCell.beacons;
 				final wiggleRoom = beaconCell.wiggleRoom;
 
-				final maxAlloc = stragglers ? MathUtils.min( antCount, beaconCount + wiggleRoom ) : MathUtils.min( antCount, beaconCount );
+				final maxAlloc = Std.int( stragglers ? Math.min( antCount, beaconCount + wiggleRoom ) : Math.min( antCount, beaconCount ));
 				if( maxAlloc > 0 ) {
 					allocations.push(
 						new AntAllocation(
-							antCell.cell.getIndex(), beaconCell.cell.getIndex(), Int64.toInt( maxAlloc )
+							antCell.cell.getIndex(), beaconCell.cell.getIndex(), maxAlloc
 						)
 					);
 
@@ -137,7 +145,7 @@ class AntAllocater {
 				stragglers = true;
 			}
 		}
-
+		// if( playerIdx == 0 ) trace( allocations );
 		return allocations;
 	}
 }

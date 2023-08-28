@@ -23,4 +23,6 @@ class AntAllocation {
 	public function getAmount() {
 		return amount;
 	}
+
+	public function toString() return 'antIndex: $antIndex, beaconIndex: $beaconIndex, amount: $amount';
 }
