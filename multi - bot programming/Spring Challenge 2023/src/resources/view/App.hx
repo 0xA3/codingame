@@ -8,7 +8,6 @@ import main.view.GlobalViewData;
 import resources.view.Types.FrameData;
 import resources.view.Types.FrameInfo;
 import resources.view.Types.PlayerInfo;
-import resources.view.Utils.last;
 import resources.view.pixi.Container;
 import xa3.MathUtils.max;
 

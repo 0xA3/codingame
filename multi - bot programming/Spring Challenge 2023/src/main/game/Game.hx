@@ -158,11 +158,11 @@ class Game {
 		gameManager.setFrameDuration( frameTime );
 	}
 
-	function computeCellConsumption( player:Player, targetCells:Array<Cell> ) {
+	function computeCellConsumption( player:Player, foodCells:Array<Cell> ) {
 		final anthills = player.anthills;
 		final meals:Array<AntConsumption> = [];
 
-		for( foodCell in targetCells ) {
+		for( foodCell in foodCells ) {
 			final allPaths:Array<Array<Cell>> = [];
 			for( anthill in anthills ) {
 				final anthillCell = board.getByIndex( anthill );

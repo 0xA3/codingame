@@ -198,17 +198,17 @@ class ArrayUtils {
 	extern public static inline function maxLength( a:Array<String> ) {
 		var m = 0;
 		for( s in a ) m = MathUtils.max( m, s.length );
-		return m;		
+		return m;
 	}
 
 	extern public static inline function min( a:Array<Int> ) {
-		var m = 0;
+		var m = 2147483647;
 		for( v in a ) m = MathUtils.min( m, v );
 		return m;
 	}
 	
 	extern public static inline function fmin( a:Array<Int> ) {
-		var m = 0.0;
+		var m = Math.POSITIVE_INFINITY;
 		for( v in a ) m = Math.min( m, v );
 		return m;
 	}
