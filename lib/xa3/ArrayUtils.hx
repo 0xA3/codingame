@@ -4,6 +4,8 @@ import haxe.ds.Vector;
 import haxe.ds.Option;
 import Std.int;
 import xa3.MathUtils;
+import xa3.MathUtils.INTEGER_MAX_VALUE;
+import xa3.MathUtils.INTEGER_MIN_VALUE;
 import xa3.StringUtils.repeat;
 
 class ArrayUtils {
@@ -153,13 +155,13 @@ class ArrayUtils {
 	}
 	
 	extern public static inline function max( a:Array<Int> ) {
-		var m = 0;
+		var m = INTEGER_MIN_VALUE;
 		for( v in a ) m = MathUtils.max( m, v );
 		return m;
 	}
 	
 	extern public static inline function fmax( a:Array<Float> ) {
-		var m = 0.0;
+		var m = Math.NEGATIVE_INFINITY;
 		for( v in a ) m = Math.max( m, v );
 		return m;
 	}
@@ -202,7 +204,7 @@ class ArrayUtils {
 	}
 
 	extern public static inline function min( a:Array<Int> ) {
-		var m = 2147483647;
+		var m = INTEGER_MAX_VALUE;
 		for( v in a ) m = MathUtils.min( m, v );
 		return m;
 	}
