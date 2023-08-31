@@ -374,7 +374,7 @@ class Game {
 				// trace( path );
 				for( cellIndex in path ) {
 					setBeaconPower( cellIndex, player, beaconPower );
-					// trace( 'setBeaconPower $cellIndex player ${player.getIndex()} power $beaconPower' );
+					// if( player.getIndex() == 0 ) trace( 'setBeaconPower $cellIndex power $beaconPower' );
 				}
 			}
 		}

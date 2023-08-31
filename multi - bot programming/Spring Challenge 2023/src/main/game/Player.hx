@@ -41,8 +41,8 @@ class Player extends AbstractMultiplayerPlayer {
 	
 	public function reset() {
 		message = "";
-		beacons.slice( 0, beacons.length );
-		lines.slice( 0, lines.length );
+		beacons.splice( 0, beacons.length );
+		lines.splice( 0, lines.length );
 	}
 
 	override function getNicknameToken() {
