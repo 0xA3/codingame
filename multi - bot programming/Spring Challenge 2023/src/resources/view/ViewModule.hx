@@ -3,6 +3,7 @@ package resources.view;
 import gameengine.view.core.Constants.HEIGHT;
 import gameengine.view.core.Constants.WIDTH;
 import gameengine.view.core.Point;
+import gameengine.view.core.Transitions.bell;
 import gameengine.view.core.Transitions.easeOut;
 import gameengine.view.core.Utils.fitAspectRatio;
 import gameengine.view.core.Utils.flerp;
@@ -554,7 +555,27 @@ class ViewModule {
 	}
 
 	function updateHud() {
-		
+		final curr = currentData;
+		final prev = previousData;
+		final antAmountDataSource = progress >= getLastBuildEndP() ? curr : prev;
+		final scoreDataSource = progress >= getLastFoodEndP() ? curr : prev;
+	
+		for( player in this.globalData.players ) {
+			var hud = this.huds[player.index];
+			hud.ants.text = '${antAmountDataSource.antTotals[player.index]}';
+	
+			hud.score.text = '${scoreDataSource.scores[player.index]}';
+			hud.message.text = curr.messages[player.index];
+			hud.message.tscale.set( 1 );
+			var place = ( x:Float ) -> player.index == 0 ? x : WIDTH - x;
+			fitTextWithin( hud.message, MESSAGE_RECT, place );
+	
+			var scoreRatio = scoreDataSource.scores[player.index] / this.globalData.maxScore;
+			var percentageOfWin = unlerp( 0, 0.5, scoreRatio );
+			var x = lerp( 958 + ( 294 * ( player.index == 0 ? -1 : 1 )), 958, percentageOfWin );
+
+			hud.targetBarX = x;
+		}
 	}
 
 	function shake( entity:Tile, progress:Float ) {
@@ -768,6 +789,7 @@ class ViewModule {
 	function initHud( layer:Container ) {
 		huds.splice( 0, huds.length );
 		final hudFrame = new Sprite( tileLibrary.HUD );
+		hudFrame.visible = false;
 
 		final backdrop = new Graphics();
 		backdrop.beginFill(0x454142);
