@@ -283,8 +283,9 @@ class Board {
 		return Lambda.array( path );
 	}
 
-	public static function coordsIsConnected( coords:Array<CubeCoord> ) {
+	public static function coordsAreConnected( coords:Array<CubeCoord> ) {
 		final coordsSet = new HashMap<CubeCoord, Bool>();
+		for( coord in coords ) coordsSet.set( coord, true );
 		final visited = new HashMap<CubeCoord, Bool>();
 		final stack = new GenericStack<CubeCoord>();
 
@@ -308,7 +309,7 @@ class Board {
 	}
 
 	public function isConnected() {
-		return Board.coordsIsConnected( coords );
+		return Board.coordsAreConnected( coords );
 	}
 
 	public function getFoodCells() {

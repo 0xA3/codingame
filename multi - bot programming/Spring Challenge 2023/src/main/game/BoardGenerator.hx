@@ -24,7 +24,8 @@ class BoardGenerator {
 
 	static function createEmptyBoard( players:Array<Player> ) {
 		var board:Board;
-		var iterations = 1000;
+		// var iterations = 1000;
+		var iterations = 1;
 
 		do {
 			board = generatePotentiallyUnconnectedGraph( players );
@@ -47,6 +48,7 @@ class BoardGenerator {
 		final coordSet = new HashMap<CubeCoord, Bool>();
 		final center = CubeCoord.CENTER;
 		coordList.push( center );
+		coordSet.set( center, true );
 		var cur = center.neighbor( 0 );
 		final verticalLimit = Math.ceil( ringCount * VERTICAL_CUTOFF );
 		for( distance in 1...ringCount ) {
@@ -69,7 +71,7 @@ class BoardGenerator {
 		// Create holes
 		final coordListSize = coordList.length;
 		final wantedEmptyCells = randomPercentage( Config.MIN_EMPTY_CELLS_PERCENT, Config.MAX_EMPTY_CELLS_PERCENT, coordListSize );
-
+		
 		final toRemove = new HashMap<CubeCoord, Bool>();
 		var toRemoveSize = 0;
 		while( toRemoveSize < wantedEmptyCells ) {
@@ -81,7 +83,7 @@ class BoardGenerator {
 
 			// TODO: check it's still connected and remove it directly
 		}
-		for( coord in toRemove.keys()) coordList.remove( coord );
+		removeSet( toRemove, coordList, coordSet );
 
 		final CORRIDOR_MODE = random.nextFloat() < 0.05; // 5% chance
 		if( CORRIDOR_MODE ) {
@@ -91,7 +93,7 @@ class BoardGenerator {
 					toRemove.set( coord, true );
 				}
 			}
-			for( coord in toRemove.keys()) coordList.remove( coord );
+			removeSet( toRemove, coordList, coordSet );
 		}
 
 		final NO_BLOB_MODE = random.nextFloat() < 0.70; // 70% chance
@@ -105,8 +107,8 @@ class BoardGenerator {
 					final neighbours = v.neighbors();
 					neighbours.shuffle( random );
 
-					coordList.remove( neighbours[0] );
-					coordList.remove( neighbours[0].getOpposite() );
+					removeCoord( neighbours[0], coordList, coordSet );
+					removeCoord( neighbours[0].getOpposite(), coordList, coordSet );
 					changed = true;
 					
 				case None: changed = false;
@@ -121,6 +123,20 @@ class BoardGenerator {
 		}
 		
 		return new Board( cells, ringCount, players );
+	}
+
+	static function removeSet( toRemove:HashMap<CubeCoord, Bool>, coordList:Array<CubeCoord>, coordSet:HashMap<CubeCoord, Bool> ) {
+		for( coord in toRemove.keys()) removeCoord( coord, coordList, coordSet );
+	}
+
+	static function removeCoord( coord:CubeCoord, coordList:Array<CubeCoord>, coordSet:HashMap<CubeCoord, Bool> ) {
+		for( coordListCoord in coordList ) {
+			if( coord.equals( coordListCoord )) {
+				coordList.remove( coordListCoord );
+				coordSet.remove( coordListCoord );
+				break;
+			}
+		}
 	}
 
 	static function randomPercentage( min:Int, max:Int, total:Int ) {
