@@ -3,6 +3,7 @@ package resources.view;
 import gameengine.view.core.Point;
 import h2d.Object;
 import h2d.Tile;
+import main.event.AnimationData;
 import main.event.EventData;
 import main.event.EventType;
 import main.view.CellData;
@@ -77,7 +78,7 @@ class PathSegment {
 @:structInit
 class AggregatedPathsEvent {
 	public var type:EventType;
-	public var animData:AnimData;
+	public var animData:Array<AnimationData>;
 	public var segments:Array<PathSegment>;
 	public var segmentMap:Map<String, PathSegment>;
 	public var totals:Array<{cellIdx:Int, amount:Int}>;

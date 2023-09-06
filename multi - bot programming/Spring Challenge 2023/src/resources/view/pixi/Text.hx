@@ -1,6 +1,7 @@
 package resources.view.pixi;
 
 import h2d.Font;
+import h3d.Vector;
 
 class Text extends h2d.Text {
 	
@@ -9,6 +10,19 @@ class Text extends h2d.Text {
 	public final position:TextPosition;
 
 	public var zIndex = 0;
+
+	@:isVar public var tint(get, set):Int;
+	function get_tint() {
+		final rgb = this.color.clone();
+		rgb.a = 0;
+		return rgb.toColor();
+	}
+	function set_tint( c:Int ) {
+		final rgb = Vector.fromColor( c );
+		rgb.a = 1;
+		this.color = rgb;
+		return c;
+	}
 
 	public function new( font:Font, ?parent:h2d.Object ) {
 		super( font, parent );

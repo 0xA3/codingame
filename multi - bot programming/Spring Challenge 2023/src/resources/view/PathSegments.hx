@@ -1,5 +1,6 @@
 package resources.view;
 
+import main.event.AnimationData;
 import main.event.EventData;
 import main.event.EventType;
 import resources.view.Types.AggregatedPathsEvent;
@@ -69,10 +70,7 @@ function computePathSegments( events:Array<EventData>, playerIdx:Int, type:Event
 	}
 
 	final aggregatedPathsEvent:AggregatedPathsEvent = {
-		animData: {
-			start: startAnim,
-			end: endAnim
-		},
+		animData: [new AnimationData( startAnim, endAnim )],
 		segmentMap: segmentMap,
 		segments: [for( segment in segmentMap ) segment],
 		totals: [for( k => v in totalMap ) {cellIdx: k, amount: v}],

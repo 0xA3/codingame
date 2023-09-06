@@ -5,6 +5,8 @@ import gameengine.view.core.Constants.WIDTH;
 import gameengine.view.core.Point;
 import gameengine.view.core.Transitions.easeOut;
 import gameengine.view.core.Utils.fitAspectRatio;
+import gameengine.view.core.Utils.flerp;
+import gameengine.view.core.Utils.lerp;
 import gameengine.view.core.Utils.lerpPosition;
 import gameengine.view.core.Utils.unlerp;
 import gameengine.view.core.Utils.unlerpUnclamped;
@@ -122,7 +124,7 @@ class ViewModule {
 	var arrowLayer:Container;
 	var particleLayer:Container;
 	var counterLayer:Container;
-	var distanceBetweenHexes:Int;
+	var distanceBetweenHexes:Null<Float>;
 	var explosions:Array<Explosion> = [];
 
 	final tileLibrary:TileLibrary;
@@ -311,7 +313,77 @@ class ViewModule {
 	}
 
 	function updateGains () {
+		var progress = this.progress;
 		
+		for (event in currentData.syntheticEvents) {
+			var p = getAnimProgress( event.animData, progress );
+			if( p < 0 || p > 1 ) {
+				continue;
+			}
+			if( !showPlayerDebug( event.playerIdx )) {
+				continue;
+			}
+	
+			for( cellIdx in event.bouncing ) {
+				var hex = hexes[cellIdx];
+				hex.bouncing = true;
+				// swap zIndices
+				if (hex.icon != null) {
+					hex.iconBounceContainer.zIndex = 2;
+				}
+				hex.indicatorLayer.zIndex = 1;
+			}
+	
+			// Update +N counters
+			for( total in event.totals ) {
+				final counterP = unlerp( 0, 0.6, p );
+				final amount = total.amount;
+				final playerIdx = event.playerIdx;
+	
+				final g:Text = cast getFromPool( 'antText' ).display;
+				g.text = "+" + amount;
+				g.tint = ( event.type == EventType.Build ? EGG_COLORS : CRYSTAL_COLORS )[0];
+	
+				final targetCell = hexes[total.cellIdx];
+				final pos = hexToScreen( targetCell.data.q, targetCell.data.r );
+				final targetP:Point = { x: pos.x, y: pos.y - 100 / boardOverlay.scaleX };
+				final newPosition = lerpPosition( pos, targetP, counterP );
+				g.position.set(newPosition.x, newPosition.y);
+				// Text size scales with map size
+				g.tscale.set( 1 / boardOverlay.scaleX * flerp( 1, 2.4, easeOut( p )) );
+				g.alpha = 1 - unlerp( 0.5, 0.8, p ); // - easeIn(p)
+			}
+	
+			// Draw conveyors
+/*			var playerColor = globalData.players[event.playerIdx].color;
+			var conveyorMap = {};
+			for (segment in event.segments) {
+				var display:Sprite = cast getFromPool('conveyor').display;
+	
+				var fromCell = hexes[segment.from];
+				var toCell = hexes[segment.to];
+				var fromPos = hexToScreen(fromCell.data.q, fromCell.data.r);
+				var toPos = hexToScreen(toCell.data.q, toCell.data.r);
+	
+				if( distanceBetweenHexes == null ) {
+					var dist = Math.sqrt( Math.pow( fromPos.x - toPos.x, 2 ) + Math.pow( fromPos.y - toPos.y, 2 ));
+					distanceBetweenHexes = dist;
+				}
+				var scaleMult = (TILE_HEIGHT * CONVEYOR_SCALE / AssetConstants.CONVEYOR_HEIGHT);
+	
+				display.width = distanceBetweenHexes;
+				display.height = TILE_HEIGHT * CONVEYOR_SCALE;
+				display.tileScale.set(scaleMult);
+				var rotation = Math.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x);
+				display.rotation = rotation;
+				display.position.copyFrom(fromPos);
+				display.tint = playerColor;
+				display.alpha = upThenDown(p);
+				display.y += CONVEYOR_HEIGHT * 2 * (event.playerIdx == 0 ? -1 : 1);
+	
+				conveyorMap[segment.key] = display;
+			}
+		*/		}
 	}
 
 	function screenToBoard( point:Point ):Point {
