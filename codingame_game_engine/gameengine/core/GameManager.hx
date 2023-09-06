@@ -169,7 +169,6 @@ abstract class GameManager {
 	function loopWithTimer() {
 		timer.stop();
 		if( turn <= getMaxTurns() && !isGameEnd() && !allPlayersInactive() ) {
-		// if( turn <= 0 ) {
 			processTurn();
 			timer = new Timer( 10 );
 			timer.run = loopWithTimer;

@@ -1,10 +1,10 @@
 package ai.versions;
 
 import CodinGame.printErr;
-import ai.algorithm.Graph4Factory;
 import ai.data.CellDataset;
 import ai.data.FrameCellDataset;
 import ai.data.Node;
+import ai.factory.Graph4Factory;
 
 using Lambda;
 
@@ -48,12 +48,12 @@ class Ai4 implements IAi {
 			myAntsTotal += frameCellDataset.myAnts;
 			oppAntsTotal += frameCellDataset.oppAnts;
 		}
-		if( turn == 0 ) graph = Graph4Factory.create( myBaseIndices, cells );
+		if( turn == 0 ) graph = Graph4Factory.create( myBaseIndices, cells, [] );
 	}
 
 	// WAIT | LINE <sourceIdx> <targetIdx> <strength> | BEACON <cellIdx> <strength> | MESSAGE <text>
 	public function process() {
-		if( turn == 0 ) graph.createMinimumSpanningTree();
+		if( turn == 0 ) graph.createMinimumSpanningTree( [] );
 		
 		final startIndices = [for( myBaseIndex in myBaseIndices ) myBaseIndex => true];
 		final mstEdges = graph.mstEdges.copy();

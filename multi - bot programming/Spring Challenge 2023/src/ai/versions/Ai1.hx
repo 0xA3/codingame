@@ -49,7 +49,6 @@ class Ai1 implements IAi {
 		}
 
 		// for( cellDistance in cellDistances ) printErr( 'start: ${cellDistance.start}, end: ${cellDistance.end}, distance: ${cellDistance.distance}' );
-		trace( outputs.join(" "));
 		return outputs.join(" ");
 	}
 

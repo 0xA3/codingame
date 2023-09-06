@@ -19,7 +19,7 @@ class CommandManager {
 	}
 
 	public function parseCommands( player:Player, lines:Array<String> ) {
-		// trace( 'parseCommands ${player.getIndex()} $lines' );
+		Sys.println( 'commandManager player ${player.getIndex()} ${lines.join( "" )}' );
 		final line = lines[0];
 		try {
 			final commands = line.split( ";" );
