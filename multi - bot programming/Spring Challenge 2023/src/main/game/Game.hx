@@ -382,7 +382,7 @@ class Game {
 
 	function checkGameOver() {
 		final remainingFood = board.getRemainingFood();
-
+		
 		if( remainingFood == 0 ) {
 			gameSummaryManager.addNoMoreFood();
 			return true;

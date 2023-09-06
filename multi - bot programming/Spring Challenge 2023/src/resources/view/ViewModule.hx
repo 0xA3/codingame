@@ -8,6 +8,7 @@ import gameengine.view.core.Transitions.easeOut;
 import gameengine.view.core.Utils.fitAspectRatio;
 import gameengine.view.core.Utils.flerp;
 import gameengine.view.core.Utils.lerp;
+import gameengine.view.core.Utils.lerpAngle;
 import gameengine.view.core.Utils.lerpPosition;
 import gameengine.view.core.Utils.unlerp;
 import gameengine.view.core.Utils.unlerpUnclamped;
@@ -28,6 +29,7 @@ import resources.view.GameConstants.POINTS;
 import resources.view.HexTools.hexToScreen;
 import resources.view.PathSegments.computePathSegments;
 import resources.view.Types;
+import resources.view.Utils.angleDiff;
 import resources.view.Utils.fit;
 import resources.view.Utils.fitContainer;
 import resources.view.Utils.generateText;
@@ -100,7 +102,7 @@ class ViewModule {
 	var progress:Float;
 	var oversampling:Int;
 	var container:Container;
-	var time = 0;
+	var time = 0.0;
 	final tooltipManager:TooltipManager;
   
 	var antParticleLayer:Container;
@@ -590,43 +592,83 @@ class ViewModule {
 		return unlerpUnclamped( animData[0].start, animData[animData.length - 1].end, progress );
 	}
 
-	function upThenDown() {
-		
+	function upThenDown( t:Float ) {
+		return Math.min( 1, bell( t ) * 2 );
 	}
 
 	function resetEffects() {
+		for( effects in pool ) {
+			for( effect in effects ) {
+				effect.display.visible = false;
+				effect.busy = false;
+			}
+		}
+	}
+
+	function animateRotation( sprite:Sprite, rotation:Float ) {
+		if( sprite.rotation != rotation ) {
+			var eps = 0.02;
+			var r = lerpAngle(sprite.rotation, rotation, 0.133 );
+			if( angleDiff( r, rotation ) < eps ) {
+				r = rotation;
+			}
+			sprite.rotation = r;
+		}
+	}
+	
+	function animateScoreBar( delta:Float ) {
+		for( player in globalData.players ) {
+			var hud = huds[player.index];
+			var bar = hud.bar;
+			bar.x = flerp( bar.x, hud.targetBarX, 0.06 );
+		}
+	}
+	
+	public function animateScene( delta:Float ) {
+		time += delta;
+	
+		animateParticleGroups( delta );
+		animateConveyors( delta );
+		animateTiles( delta );
+		animateScoreBar( delta );
+	}
+	
+	function farFromOne( x:Float ) {
+		final eps = 0.025;
+		final xabs = Math.abs( x );
+		return ( xabs < ( 1 - eps ) || xabs > ( 1 + eps ));
+	}
+
+	function animateTiles( delta:Float ) {
+		for( hex in hexes ) {
+			if( hex.icon != null ) {
+				final iconBounceContainer = hex.iconBounceContainer;
+				if( hex.bouncing || this.farFromOne( iconBounceContainer.scaleX ) || this.farFromOne( iconBounceContainer.scaleY )) {
+					final relTime = this.time / 160;
+					final cos = Math.cos(relTime);
+					final factor = 0.1;
+					iconBounceContainer.scaleX = cos * factor + 1;
+					iconBounceContainer.scaleY = -cos * factor + 1;
+					// hex.foodText.pivot.y = cos * 10;
+					// hex.foodTextBackground.pivot.y = cos * 10;
+				} else {
+					iconBounceContainer.scaleX = iconBounceContainer.scaleY =  1;
+					// hex.foodText.pivot.y = 0;
+					// hex.foodTextBackground.pivot.y = 0;
+				}
+			}
+		}
+	}
+		  
+	function animateParticleGroups( delta:Float ) {
 		
 	}
 
-	function animateRotation() {
+	function animateConveyors( delta:Float ) {
 		
 	}
 
-	function animateScoreBar() {
-		
-	}
-
-	function animateScene( delta:Float ) {
-		
-	}
-
-	function farFromOne() {
-		
-	}
-
-	function animateTiles() {
-		
-	}
-
-	function animateParticleGroups() {
-		
-	}
-
-	function animateConveyors() {
-		
-	}
-
-	function animateAntParticles() {
+	function animateAntParticles( delta:Float ) {
 		
 	}
 
@@ -789,7 +831,6 @@ class ViewModule {
 	function initHud( layer:Container ) {
 		huds.splice( 0, huds.length );
 		final hudFrame = new Sprite( tileLibrary.HUD );
-		hudFrame.visible = false;
 
 		final backdrop = new Graphics();
 		backdrop.beginFill(0x454142);

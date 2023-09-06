@@ -50,7 +50,7 @@ function unlerpUnclamped( a:Float, b:Float, v:Float ) {
 /**
  * Gets the angle between start & end at percentage amount
 */
-function lerpAngle( start:Float, end:Float, amount:Int, maxDelta = 0 ) {
+function lerpAngle( start:Float, end:Float, amount:Float, maxDelta = 0 ) {
 	while( end > start + Math.PI ) { end -= Math.PI * 2; }
 	while( end < start - Math.PI ) { end += Math.PI * 2; }
 	var value = 0.0;

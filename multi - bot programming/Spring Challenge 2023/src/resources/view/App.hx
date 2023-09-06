@@ -124,10 +124,12 @@ class App extends hxd.App {
 
 		final subFrame = frame - currentFrame;
 		viewModule.updateScene( frameDatasets[currentFrame], frameDatasets[previousFrame], subFrame );
+		
 	}
 
 	override function update( dt:Float ) {
 		gameplayer.update( dt );
+		viewModule.animateScene( dt );
 		// if( s2d.mouseY < window.height - Gameplayer.HEIGHT ) {
 		// 	if( frameDatasets.length > 0 ) gameView.mouseOver( s2d.mouseX, s2d.mouseY, frameDatasets[currentFrame] );
 		// } else gameView.mouseOut();
