@@ -45,7 +45,6 @@ class CommandManager {
 				}
 				player.addAction( action );
 				found = true;
-				break;
 			}
 		} catch( e ) {
 			deactivatePlayer( player, e.message );

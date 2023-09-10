@@ -72,7 +72,7 @@ class Ai8 implements IAi {
 			var targetId = baseId;
 			var path:Array<Int> = [];
 			for( resourceCellId in resourceCellSet.keys()) {
-				final pathIndex = GetPaths.getPathIndex( baseId, resourceCellId, cells.length );
+				final pathIndex = getPathIndex( baseId, resourceCellId, cells.length );
 				final distance = paths[pathIndex].length;
 				if( distance < minDistance ) {
 					minDistance = distance;
@@ -93,4 +93,6 @@ class Ai8 implements IAi {
 
 		return outputs.join( ";" );
 	}
+
+	public static inline function getPathIndex( start:Int, end:Int, width:Int ) return start * width + end;
 }
