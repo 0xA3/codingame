@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../../incoming/codingame-game-engine"
+		},
+		{
+			"path": "../../incoming/SpringChallenge2023/strategies"
 		}
 	],
 	"settings": {

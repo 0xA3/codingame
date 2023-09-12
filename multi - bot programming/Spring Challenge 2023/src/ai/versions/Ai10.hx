@@ -8,7 +8,6 @@ import ai.data.CellType;
 import ai.data.FrameCellDataset;
 import ai.data.PathDataset;
 import ai.data.TPhase;
-import haxe.Timer;
 
 using Lambda;
 
