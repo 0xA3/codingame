@@ -2,13 +2,13 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 
+using StringTools;
 
 @:keep function findCorrectPath( instructions:String, target:Array<Int>, obstacles:Array<Array<Int>> ) {
-	
+	// printErr( 'instructions $instructions   ${instructions.length}' );
 	final commands = [ "1:0" => "FORWARD", "-1:0" => "BACK", "0:1" => "TURN LEFT", "0:-1" => "TURN RIGHT" ];
 	final types = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 	final obstaclesMap = [for( o in obstacles ) posToString( o[0], o[1] ) => true];
-	// printErr( 'instructions $instructions  target $target' );
 	final instructionsList = instructions.split( "" ).map( s -> switch s {
 		case "F": [1, 0];
 		case "B": [-1, 0];
@@ -40,6 +40,9 @@ import CodinGame.readline;
 	return "no solution found";
 }
 
+final sin = [-1, 0, 1, 0];
+final cos = [0, 1, 0, -1];
+
 function simulate( memPositions:Array<Array<Int>>, startId:Int, endId:Int, instructions:Array<Array<Int>>, target:Array<Int>, obstaclesMap:Map<String, Bool> ) {
 	var x = memPositions[startId][0];
 	var y = memPositions[startId][1];
@@ -50,15 +53,16 @@ function simulate( memPositions:Array<Array<Int>>, startId:Int, endId:Int, instr
 		final instruction = instructions[i];
 		x += dx * instruction[0];
 		y += dy * instruction[0];
-		final theta = instruction[1] * 0.5 * Math.PI;
-		final dx2 = Std.int( dx * Math.cos( theta ) - dy * Math.sin( theta ));
-		final dy2 = Std.int( dx * Math.sin( theta ) + dy * Math.cos( theta ));
+		final theta = instruction[1] + 1;
+		final dx2 = Std.int( dx * cos[theta] - dy * sin[theta] );
+		final dy2 = Std.int( dx * sin[theta] + dy * cos[theta] );
 		dx = dx2;
 		dy = dy2;
 		
 		final nextPosition = memPositions[i + 1];
 		if( x == nextPosition[0] && y == nextPosition[1] && dx == nextPosition[2] && dy == nextPosition[3] ) return false;
 		if( obstaclesMap.exists( posToString( x, y ))) return false;
+		if( manhattanDist( x, y, target[0], target[1] ) > instructions.length - i ) return false;
 		
 		nextPosition[0] = x;
 		nextPosition[1] = y;
@@ -71,6 +75,6 @@ function simulate( memPositions:Array<Array<Int>>, startId:Int, endId:Int, instr
 	return x == target[0] && y == target[1];
 }
 
-
+inline function manhattanDist( x1:Int, y1:Int, x2:Int, y2:Int ) return Math.abs( x2 - x1 ) + Math.abs( y2 - y1 );
 
 inline function posToString( x:Int, y:Int ) return '$x:$y';
