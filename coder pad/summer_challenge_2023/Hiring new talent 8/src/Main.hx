@@ -5,91 +5,72 @@ import CodinGame.readline;
 
 @:keep function findCorrectPath( instructions:String, target:Array<Int>, obstacles:Array<Array<Int>> ) {
 	
-	final commands = ["F" => "FORWARD", "B" => "BACK", "L" => "TURN LEFT", "R" => "TURN RIGHT"];
-	final types = ["F", "B", "L", "R"];
+	final commands = [ "1:0" => "FORWARD", "-1:0" => "BACK", "0:1" => "TURN LEFT", "0:-1" => "TURN RIGHT" ];
+	final types = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 	final obstaclesMap = [for( o in obstacles ) posToString( o[0], o[1] ) => true];
-
-	final instructionsList = instructions.split( "" );
+	// printErr( 'instructions $instructions  target $target' );
+	final instructionsList = instructions.split( "" ).map( s -> switch s {
+		case "F": [1, 0];
+		case "B": [-1, 0];
+		case "L": [0, 1];
+		case "R": [0, -1];
+		default: throw 'Error: wrong instruction $s';
+	});
 	var memPositions = [for( _ in 0...instructionsList.length + 1 ) [0, 0, 1, 0]];
 	var startId = 0;
+	final backup = [];
 	for( i in startId...instructions.length ) {
-		final backup = instructionsList[i];
+		
+		backup[0] = instructionsList[i][0];
+		backup[1] = instructionsList[i][1];
+		
 		for( type in types ) {
-			if( type != backup ) {
+			if( type[0] != backup[0] || type[1] != backup[1] ) {
 				instructionsList[i] = type;
-				// printErr( 'try replace instruction ${i + 1} with ${commands[type]}' );
-				if( simulate( memPositions, startId, instructionsList.length, instructionsList, target, obstaclesMap )) return 'Replace instruction ${i + 1} with ${commands[type]}';
+				// printErr( 'try replace instruction ${i + 1} with ${commands[posToString( type[0], type[1] )]}' );
+				if( simulate( memPositions, startId, instructionsList.length, instructionsList, target, obstaclesMap )) return 'Replace instruction ${i + 1} with ${commands[posToString( type[0], type[1] )]}';
 			}
 		}
-		instructionsList[i] = backup;
+		instructionsList[i][0] = backup[0];
+		instructionsList[i][1] = backup[1];
 		simulate( memPositions, startId, startId + 1, instructionsList, target, obstaclesMap );
-	startId++;
+		startId++;
 	}
 
-	return "";
+	return "no solution found";
 }
 
-function simulate( memPositions:Array<Array<Int>>, startId:Int, endId:Int, instructions:Array<String>, target:Array<Int>, obstaclesMap:Map<String, Bool> ) {
+function simulate( memPositions:Array<Array<Int>>, startId:Int, endId:Int, instructions:Array<Array<Int>>, target:Array<Int>, obstaclesMap:Map<String, Bool> ) {
 	var x = memPositions[startId][0];
 	var y = memPositions[startId][1];
 	var dx = memPositions[startId][2];
 	var dy = memPositions[startId][3];
 	// printErr( 'simulate from $startId-$endId $x:$y  ${instructions.slice( startId, endId )}' );
 	for( i in startId...endId ) {
-		switch instructions[i] {
-			case "F":
-				x += dx;
-				y += dy;
-			case "B":
-				x -= dx;
-				y -= dy;
-			case "L":
-				switch [dx, dy] {
-					case [1,0]:
-						dx = 0;
-						dy = 1;
-					case [-1,0]:
-						dx = 0;
-						dy = -1;
-					case [0,1]:
-						dx = -1;
-						dy = 0;
-					case [0,-1]:
-						dx = 1;
-						dy = 0;
-					default: // no-op
-				}
-			case "R":
-			switch [dx, dy] {
-				case [1,0]:
-					dx = 0;
-					dy = -1;
-				case [-1,0]:
-					dx = 0;
-					dy = 1;
-				case [0,1]:
-					dx = 1;
-					dy = 0;
-				case [0,-1]:
-					dx = -1;
-					dy = 0;
-				default: // no-op
-			}
-			default: // no-op
-		}
+		final instruction = instructions[i];
+		x += dx * instruction[0];
+		y += dy * instruction[0];
+		final theta = instruction[1] * 0.5 * Math.PI;
+		final dx2 = Std.int( dx * Math.cos( theta ) - dy * Math.sin( theta ));
+		final dy2 = Std.int( dx * Math.sin( theta ) + dy * Math.cos( theta ));
+		dx = dx2;
+		dy = dy2;
+		
 		final nextPosition = memPositions[i + 1];
-		if( x == nextPosition[0] && y == nextPosition[1] && dx == nextPosition[2] && dy == nextPosition[3] ) {
-			return false;
-		}
+		if( x == nextPosition[0] && y == nextPosition[1] && dx == nextPosition[2] && dy == nextPosition[3] ) return false;
 		if( obstaclesMap.exists( posToString( x, y ))) return false;
 		
 		nextPosition[0] = x;
 		nextPosition[1] = y;
 		nextPosition[2] = dx;
 		nextPosition[3] = dy;
+
+		// printErr( 'instruction $instruction  nextPosition $nextPosition' );
 	}
 
 	return x == target[0] && y == target[1];
 }
+
+
 
 inline function posToString( x:Int, y:Int ) return '$x:$y';
