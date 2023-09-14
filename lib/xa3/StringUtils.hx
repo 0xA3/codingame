@@ -143,7 +143,7 @@ class StringUtils {
 			final code = char.charCodeAt( 0 );
 			if( isLowercase( char )) buf.add( String.fromCharCode( ( code - "a".code + v + 26 ) % 26 + "a".code ));
 			else if( isUppercase( char )) buf.add( String.fromCharCode( ( code - "A".code + v + 26 ) % 26 + "A".code ));
-			else buf.add( s );
+			else buf.add( char );
 		}
 		return buf.toString();
 	}
