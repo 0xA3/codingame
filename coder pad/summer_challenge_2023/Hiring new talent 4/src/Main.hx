@@ -11,7 +11,7 @@ import CodinGame.readline;
 		for( type in types ) {
 			if( instructions[i] != type ) {
 				copy[i] = type;
-				printErr( 'try replace instruction ${i + 1} with $type' );
+				// printErr( 'try replace instruction ${i + 1} with $type' );
 				if( simulate( copy, target )) return 'Replace instruction ${i + 1} with $type';
 			}
 		}
