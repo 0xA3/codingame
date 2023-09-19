@@ -50,8 +50,8 @@ class TestFindCorrectPath extends buddy.BuddySuite{
 				final ip = parseInput( test9Input );
 				findCorrectPath( ip.instructions, ip.target ).should.be( "Replace instruction 38 with BACK" ); });
 			it( "Many solutions", {
-				final ip = parseInput( test9Input );
-				findCorrectPath( ip.instructions, ip.target ).should.be( "Replace instruction 38 with BACK" ); });
+				final ip = parseInput( test10Input );
+				findCorrectPath( ip.instructions, ip.target ).should.be( "Replace instruction 12 with BACK" ); });
 		});
 	}
 
