@@ -51,6 +51,6 @@ class SieveOfAtkin {
 		}
 	 
 		//primes values are the one which sieve[x] = true
-		return sieve;		
+		return sieve;
 	}
 }
