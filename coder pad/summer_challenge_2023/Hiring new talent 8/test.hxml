@@ -1,4 +1,5 @@
 -lib buddy
+-lib compiletime
 -cp ../../../codingame_extension/
 -cp src
 -D analyzer-optimize

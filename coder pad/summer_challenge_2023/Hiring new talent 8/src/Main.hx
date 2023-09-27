@@ -48,8 +48,9 @@ function simulate( memPositions:Array<Array<Int>>, startId:Int, endId:Int, instr
 	var y = memPositions[startId][1];
 	var dx = memPositions[startId][2];
 	var dy = memPositions[startId][3];
-	// printErr( 'simulate from $startId-$endId $x:$y  ${instructions.slice( startId, endId )}' );
+	// trace( 'simulate from $startId-$endId $x:$y  ${instructions.slice( startId, endId )}' );
 	for( i in startId...endId ) {
+		// trace( 'step $i' );
 		final instruction = instructions[i];
 		x += dx * instruction[0];
 		y += dy * instruction[0];
@@ -60,8 +61,11 @@ function simulate( memPositions:Array<Array<Int>>, startId:Int, endId:Int, instr
 		dy = dy2;
 		
 		final nextPosition = memPositions[i + 1];
+		// trace( 'x == nextPosition[0] ${x == nextPosition[0]}  y == nextPosition[1] ${y == nextPosition[1]} dx == nextPosition[2] ${dx == nextPosition[2]}  dy == nextPosition[3] ${dy == nextPosition[3]} --- ${x == nextPosition[0] && y == nextPosition[1] && dx == nextPosition[2] && dy == nextPosition[3]}' );
 		if( x == nextPosition[0] && y == nextPosition[1] && dx == nextPosition[2] && dy == nextPosition[3] ) return false;
+		// trace( 'obstaclesMap.exists( posToString( $x, $y )) --- ${obstaclesMap.exists( posToString( x, y ))}' );
 		if( obstaclesMap.exists( posToString( x, y ))) return false;
+		// trace( 'manhattanDist( $x, $y, ${target[0]}, ${target[1]} ) ${manhattanDist( x, y, target[0], target[1] )} > instructions.length - $i ${instructions.length - i} --- ${manhattanDist( x, y, target[0], target[1] ) > instructions.length - i}' );
 		if( manhattanDist( x, y, target[0], target[1] ) > instructions.length - i ) return false;
 		
 		nextPosition[0] = x;
@@ -69,7 +73,7 @@ function simulate( memPositions:Array<Array<Int>>, startId:Int, endId:Int, instr
 		nextPosition[2] = dx;
 		nextPosition[3] = dy;
 
-		// printErr( 'instruction $instruction  nextPosition $nextPosition' );
+		// trace( 'instruction $instruction  nextPosition $nextPosition' );
 	}
 
 	return x == target[0] && y == target[1];
