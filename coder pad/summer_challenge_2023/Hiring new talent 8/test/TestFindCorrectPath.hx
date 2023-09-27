@@ -52,17 +52,17 @@ class TestFindCorrectPath extends buddy.BuddySuite{
 
 			it( "No obstacles", {
 				final ip = parseInput( test6Input );
-				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 119 with BACK" );
 			});
 
 			it( "Bottleneck", {
 				final ip = parseInput( test7Input );
-				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 7490 with BACK" );
 			});
 			
 			it( "Stairs", {
 				final ip = parseInput( test8Input );
-				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 12638 with BACK" );
 			});
 			
 			it( "Corridor", {
@@ -77,7 +77,7 @@ class TestFindCorrectPath extends buddy.BuddySuite{
 			
 			it( "Powerful obstacles", {
 				final ip = parseInput( test11Input );
-				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 76922 with BACK" );
 			});
 		});
 	}
