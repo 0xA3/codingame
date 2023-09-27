@@ -12,7 +12,7 @@ class TestSimulateMove extends buddy.BuddySuite{
 		describe( "Test simulate move", {
 			it( "look right Move forward", {
 				memPositions = [[0, 0, 1, 0], [0, 0, 0, 0]];
-				Main.simulate( memPositions, 0, 1, [[1, 0]], [999, 999], [] );
+				Main.simulate( memPositions, 0, 1, [[1, 0]], [1, 0], [] );
 				final pos = memPositions[1];
 				pos[0].should.be( 1 );
 				pos[1].should.be( 0 );
@@ -22,7 +22,7 @@ class TestSimulateMove extends buddy.BuddySuite{
 			
 			it( "look right Move backward", {
 				memPositions = [[0, 0, 1, 0], [0, 0, 0, 0]];
-				Main.simulate( memPositions, 0, 1, [[-1, 0]], [999, 999], [] );
+				Main.simulate( memPositions, 0, 1, [[-1, 0]], [-1, 0], [] );
 				final pos = memPositions[1];
 				pos[0].should.be( -1 );
 				pos[1].should.be( 0 );
@@ -32,7 +32,7 @@ class TestSimulateMove extends buddy.BuddySuite{
 			
 			it( "look up Move forward", {
 				memPositions = [[0, 0, 0, 1], [0, 0, 0, 0]];
-				Main.simulate( memPositions, 0, 1, [[1, 0]], [999, 999], [] );
+				Main.simulate( memPositions, 0, 1, [[1, 0]], [0, 1], [] );
 				final pos = memPositions[1];
 				pos[0].should.be( 0 );
 				pos[1].should.be( 1 );
@@ -42,7 +42,7 @@ class TestSimulateMove extends buddy.BuddySuite{
 			
 			it( "look up Move backward", {
 				memPositions = [[0, 0, 0, 1], [0, 0, 0, 0]];
-				Main.simulate( memPositions, 0, 1, [[-1, 0]], [999, 999], [] );
+				Main.simulate( memPositions, 0, 1, [[-1, 0]], [0, -1], [] );
 				final pos = memPositions[1];
 				pos[0].should.be( 0 );
 				pos[1].should.be( -1 );
@@ -52,7 +52,7 @@ class TestSimulateMove extends buddy.BuddySuite{
 			
 			it( "look left Move forward", {
 				memPositions = [[0, 0, -1, 0], [0, 0, 0, 0]];
-				Main.simulate( memPositions, 0, 1, [[1, 0]], [999, 999], [] );
+				Main.simulate( memPositions, 0, 1, [[1, 0]], [-1, 0], [] );
 				final pos = memPositions[1];
 				pos[0].should.be( -1 );
 				pos[1].should.be( 0 );
@@ -62,7 +62,7 @@ class TestSimulateMove extends buddy.BuddySuite{
 			
 			it( "look left Move backward", {
 				memPositions = [[0, 0, -1, 0], [0, 0, 0, 0]];
-				Main.simulate( memPositions, 0, 1, [[-1, 0]], [999, 999], [] );
+				Main.simulate( memPositions, 0, 1, [[-1, 0]], [1, 0], [] );
 				final pos = memPositions[1];
 				pos[0].should.be( 1 );
 				pos[1].should.be( 0 );
@@ -72,7 +72,7 @@ class TestSimulateMove extends buddy.BuddySuite{
 			
 			it( "look down Move forward", {
 				memPositions = [[0, 0, 0, -1], [0, 0, 0, 0]];
-				Main.simulate( memPositions, 0, 1, [[1, 0]], [999, 999], [] );
+				Main.simulate( memPositions, 0, 1, [[1, 0]], [0, -1], [] );
 				final pos = memPositions[1];
 				pos[0].should.be( 0 );
 				pos[1].should.be( -1 );
@@ -82,7 +82,7 @@ class TestSimulateMove extends buddy.BuddySuite{
 			
 			it( "look down Move backward", {
 				memPositions = [[0, 0, 0, -1], [0, 0, 0, 0]];
-				Main.simulate( memPositions, 0, 1, [[-1, 0]], [999, 999], [] );
+				Main.simulate( memPositions, 0, 1, [[-1, 0]], [0, 1], [] );
 				final pos = memPositions[1];
 				pos[0].should.be( 0 );
 				pos[1].should.be( 1 );
