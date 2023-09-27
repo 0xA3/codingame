@@ -28,7 +28,11 @@ using StringTools;
 			if( type[0] != backup[0] || type[1] != backup[1] ) {
 				instructionsList[i] = type;
 				// printErr( 'try replace instruction ${i + 1} with ${commands[posToString( type[0], type[1] )]}' );
-				if( simulate( memPositions, startId, instructionsList.length, instructionsList, target, obstaclesMap )) return 'Replace instruction ${i + 1} with ${commands[posToString( type[0], type[1] )]}';
+				if( simulate( memPositions, startId, instructionsList.length, instructionsList, target, obstaclesMap )) {
+					final output = 'Replace instruction ${i + 1} with ${commands[posToString( type[0], type[1] )]}';
+					printErr( output );
+					return output;
+				}
 			}
 		}
 		instructionsList[i][0] = backup[0];

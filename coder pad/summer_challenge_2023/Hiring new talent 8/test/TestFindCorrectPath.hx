@@ -25,10 +25,60 @@ class TestFindCorrectPath extends buddy.BuddySuite{
 		var memPositions:Array<Array<Int>> = [];
 
 		describe( "Test findCorrectPath", {
-			it( "Example", {
+			@include it( "Example", {
 				final ip = parseInput( test1Input );
-				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );	});
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+			});
 
+			@include it( "Small", {
+				final ip = parseInput( test2Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 8 with BACK" );
+			});
+
+			@include it( "Multiple possibilities", {
+				final ip = parseInput( test3Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 14 with TURN LEFT" );
+			});
+
+			@include it( "Early fix", {
+				final ip = parseInput( test4Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 1 with BACK" );
+			});
+
+			@include it( "No fear", {
+				final ip = parseInput( test5Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 723 with TURN LEFT" );
+			});
+
+			it( "No obstacles", {
+				final ip = parseInput( test6Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+			});
+
+			it( "Bottleneck", {
+				final ip = parseInput( test7Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+			});
+			
+			it( "Stairs", {
+				final ip = parseInput( test8Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+			});
+			
+			it( "Corridor", {
+				final ip = parseInput( test9Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 10090 with TURN LEFT" );
+			});
+			
+			@include it( "Extreme", {
+				final ip = parseInput( test10Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 553 with BACK" );
+			});
+			
+			it( "Powerful obstacles", {
+				final ip = parseInput( test11Input );
+				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
+			});
 		});
 	}
 
