@@ -42,7 +42,7 @@ class TestProcess extends buddy.BuddySuite{
 		return input.replace( "\t", "" ).replace( "\r", "" );
 	}
 	
-	final polka  = parseInput(
+	final polka = parseInput(
 		"POLKA
 		4
 		QUICK
@@ -50,13 +50,13 @@ class TestProcess extends buddy.BuddySuite{
 		GLADY
 		POLKA" );
 	
-	final polkaResult  = parseResult(
+	final polkaResult = parseResult(
 		"XXXXO
 		XXOXX
 		XOOXX
 		#####" );
 		
-	final water  = parseInput(
+	final water = parseInput(
 		"WATER
 		5
 		MILKY
@@ -65,14 +65,14 @@ class TestProcess extends buddy.BuddySuite{
 		WATCH
 		WATER" );
 	
-	final waterResult  = parseResult(
+	final waterResult = parseResult(
 		"XXXXX
 		OOXXO
 		OOOXX
 		###XX
 		#####" );
 
-	final koala  = parseInput(
+	final koala = parseInput(
 		"KOALA
 		6
 		ALTAR
@@ -82,7 +82,7 @@ class TestProcess extends buddy.BuddySuite{
 		AAAAA
 		KOALA" );
 	
-	final koalaResult  = parseResult(
+	final koalaResult = parseResult(
 		"OOXOX
 		OX#XX
 		XX###
@@ -90,7 +90,7 @@ class TestProcess extends buddy.BuddySuite{
 		XX#X#
 		#####" );
 		
-	final nanny  = parseInput(
+	final nanny = parseInput(
 		"NANNY
 		6
 		XNXXN
@@ -100,7 +100,7 @@ class TestProcess extends buddy.BuddySuite{
 		NYNNA
 		NANNY" );
 	
-	final nannyResult  = parseResult(
+	final nannyResult = parseResult(
 		"XOXXO
 		#XXXO
 		#OXXO
@@ -108,14 +108,14 @@ class TestProcess extends buddy.BuddySuite{
 		#O##O
 		#####" );
 		
-	final bongo  = parseInput(
+	final bongo = parseInput(
 		"BONGO
 		3
 		OOOOO
 		ONGBA
 		NNOGO" );
 	
-	final bongoResult  = parseResult(
+	final bongoResult = parseResult(
 		"X#XX#
 		OOOOX
 		OXO##" );
