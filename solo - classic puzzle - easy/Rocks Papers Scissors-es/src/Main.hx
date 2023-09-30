@@ -11,6 +11,8 @@ enum Move {
 	Scissors;
 }
 
+final winMoves = [Scissors => Rock, Paper => Scissors, Rock => Paper];
+
 function main() {
 	final n = parseInt( readline());
 	final moves = [for( _ in 0...n ) parseMove( readline())];
@@ -38,21 +40,18 @@ function moveToString( m:Move ) {
 
 function process( oppMoves:Array<Move> ) {
 	
-	final myMoves = [Rock, Paper, Scissors];
-
 	var myBestMove = Rock;
 	var bestStart = 0;
 	var maxWins = 0;
-	for( myMove in myMoves ) {
-		for( start in 0...oppMoves.length ) {
-			final wins = getWins( start, myMove, oppMoves );
-			// trace( 'start $start  move $myMove  wins $wins\n' );
-			if( wins > maxWins ) {
-				myBestMove = myMove;
-				maxWins = wins;
-				bestStart = start;
-				// trace( 'changed myBestMove $myBestMove  bestStart $bestStart\n' );
-			}
+	for( start in 0...oppMoves.length ) {
+		final myMove = winMoves[oppMoves[start]];
+		final wins = getWins( start, myMove, oppMoves );
+		// trace( 'start $start  move $myMove  wins $wins\n' );
+		if( wins > maxWins ) {
+			myBestMove = myMove;
+			maxWins = wins;
+			bestStart = start;
+			// trace( 'changed myBestMove $myBestMove  bestStart $bestStart\n' );
 		}
 	}
 
@@ -63,7 +62,7 @@ function getWins( start:Int, myMove:Move, oppMoves:Array<Move> ) {
 	var wins = 0;
 	for( i in start...start + oppMoves.length ) {
 		final oppMove = oppMoves[i % oppMoves.length];
-		// trace( '${i % oppMoves.length}  play $myMove $oppMove  ${compareMove( myMove, oppMove )}' );
+		// trace( '${i % oppMoves.length}  play $myMove - $oppMove  ${compareMove( myMove, oppMove )}' );
 		final result = compareMove( myMove, oppMove );
 		if( i == start && result != 1 ) break;
 		else if( result == 1 ) wins++;
