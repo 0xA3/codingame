@@ -30,22 +30,22 @@ class TestFindCorrectPath extends buddy.BuddySuite{
 				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 2 with BACK" );
 			});
 
-			@include it( "Small", {
+			it( "Small", {
 				final ip = parseInput( test2Input );
 				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 8 with BACK" );
 			});
 
-			@include it( "Multiple possibilities", {
+			it( "Multiple possibilities", {
 				final ip = parseInput( test3Input );
 				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 14 with TURN LEFT" );
 			});
 
-			@include it( "Early fix", {
+			it( "Early fix", {
 				final ip = parseInput( test4Input );
 				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 1 with BACK" );
 			});
 
-			@include it( "No fear", {
+			it( "No fear", {
 				final ip = parseInput( test5Input );
 				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 723 with TURN LEFT" );
 			});
@@ -70,7 +70,7 @@ class TestFindCorrectPath extends buddy.BuddySuite{
 				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 10090 with TURN LEFT" );
 			});
 			
-			@include it( "Extreme", {
+			it( "Extreme", {
 				final ip = parseInput( test10Input );
 				findCorrectPath( ip.instructions, ip.target, ip.obstacles ).should.be( "Replace instruction 553 with BACK" );
 			});
