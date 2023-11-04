@@ -1,9 +1,8 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
+import Std.int;
 import Std.parseInt;
-
-using Lambda;
 
 function main() {
 	final inputs = readline().split(' ');
@@ -17,21 +16,34 @@ function main() {
 }
 
 function process( l:Int, c:Int, queue:Array<Int> ) {
-	trace( 'l $l  c $c  queue $queue' );
-	var earnings = 0.0;
-	for( i in 0...c ) {
-		final groupsInRollerCoaster = [];
+	// trace( 'l $l  c $c  queue $queue' );
+	
+	final earningsOfQueueStart = [];
+	final nextStarts = [];
+	// preprocess earnings
+	for( queueStart in 0...queue.length ) {
 		var peopleInRollerCoaster = 0;
-		while( queue.length > 0 && peopleInRollerCoaster + queue[0] <= l ) {
-			final group = queue.shift();
-			groupsInRollerCoaster.push( group );
-			peopleInRollerCoaster += group;
-			earnings += group;
+		var groupIndex = 0;
+		for( i in 0...queue.length ) {
+			groupIndex = ( queueStart + i ) % queue.length;
+			if( peopleInRollerCoaster + queue[groupIndex] <= l ) {
+				peopleInRollerCoaster += queue[groupIndex];
+			} else {
+				break;
+			}
 		}
-		trace( '$i groups $groupsInRollerCoaster  earnings $earnings' );
-		for( group in groupsInRollerCoaster ) queue.push( group );
+		earningsOfQueueStart[queueStart] = peopleInRollerCoaster;
+		nextStarts[queueStart] = groupIndex;
+	}
 
-		trace( 'queue after ride $queue' );
+	// trace( 'earningsOfQueueStart $earningsOfQueueStart' );
+	// trace( 'nextStarts $nextStarts' );
+
+	var queueStart = 0;
+	var earnings = 0.0;
+	for( _ in 0...c ) {
+		earnings += earningsOfQueueStart[queueStart];
+		queueStart = nextStarts[queueStart];
 	}
 
 	return earnings;

@@ -11,7 +11,7 @@ class TestProcess extends buddy.BuddySuite{
 	public function new() {
 
 		describe( "Test process", {
-			@include it( "Simple case", {
+			it( "Simple case", {
 				final ip = simpleCase;
 				Main.process( ip.l, ip.c, ip.queue ).should.be( 7 );
 			});
