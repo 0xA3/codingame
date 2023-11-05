@@ -13,27 +13,27 @@ class TestProcess extends buddy.BuddySuite{
 		describe( "Test process", {
 			it( "Simple case", {
 				final ip = simpleCase;
-				Main.process( ip.l, ip.c, ip.queue ).should.be( 7 );
+				Main.process( ip.l, ip.c, ip.queue ).should.be( 7i64 );
 			});
 			it( "1000 queue of a few people", {
 				final ip = _1000queueOfAFewPeople;
-				Main.process( ip.l, ip.c, ip.queue ).should.be( 3935 );
+				Main.process( ip.l, ip.c, ip.queue ).should.be( 3935i64 );
 			});
 			it( "The same queue go on the ride several times during the day", {
 				final ip = theSamequeueGoOnTheRideSeveralTimesDuringTheDay;
-				Main.process( ip.l, ip.c, ip.queue ).should.be( 15 );
+				Main.process( ip.l, ip.c, ip.queue ).should.be( 15i64 );
 			});
 			it( "All the people get on the roller coaster at least once", {
 				final ip = allThePeopleGetOnTheRollerCoasterAtLeastOnce;
-				Main.process( ip.l, ip.c, ip.queue ).should.be( 15000 );
+				Main.process( ip.l, ip.c, ip.queue ).should.be( 15000i64 );
 			});
 			it( "High earnings during the day (> 2^32)", {
 				final ip = highEarningsDuringTheDay;
-				Main.process( ip.l, ip.c, ip.queue ).should.be( 4999975000 );
+				Main.process( ip.l, ip.c, ip.queue ).should.be( 4999975000i64 );
 			});
 			it( "Works with a large dataset", {
 				final ip = worksWithALargeDataset;
-				Main.process( ip.l, ip.c, ip.queue ).should.be( 89744892565569 );
+				Main.process( ip.l, ip.c, ip.queue ).should.be( 89744892565569i64 );
 			});
 		});
 	}
