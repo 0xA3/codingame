@@ -53,11 +53,12 @@ function process( connections:Array<Array<Int>> ) {
 		}
 	}
 
-	var maxDistance = 0;
-	for( distance in nodeDistances ) if( distance > maxDistance ) maxDistance = distance;
+	final maxDistance = [for( d in nodeDistances ) d].fold(( d, m ) -> max( d, m ), 0 );
 
 	return maxDistance;
 }
+
+function max( v1:Int, v2:Int) return v1 > v2 ? v1 : v2;
 
 typedef Node = {
 	final parents:Array<Int>;
