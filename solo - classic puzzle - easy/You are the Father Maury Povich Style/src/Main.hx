@@ -21,11 +21,7 @@ function process( mother:String, child:String, possibleFathers:Array<String> ) {
 	final childDataset = parsePerson( child );
 
 	final possibleFatherDatasets = possibleFathers.map( possibleFather -> parsePerson( possibleFather ));
-
-	final fatherDatasets = possibleFatherDatasets.filter( possibleFather -> {
-		// trace( 'check ${possibleFather.name}' );
-		return compareChromosomePairs( possibleFather.chromosomePairs, motherDataset.chromosomePairs, childDataset.chromosomePairs );
-	});
+	final fatherDatasets = possibleFatherDatasets.filter( possibleFather -> compareChromosomePairs( possibleFather.chromosomePairs, motherDataset.chromosomePairs, childDataset.chromosomePairs ));
 
 	if( fatherDatasets.length == 0 ) throw 'Error: no father found';
 	if( fatherDatasets.length > 1 ) throw 'Error: multiple fatherDatasets found. ${fatherDatasets.map( p -> p.name )}';
@@ -46,12 +42,8 @@ function compareChromosomePair( cf:Array<String>, cm:Array<String>, cc:Array<Str
 
 	final combinations = [for( f in cf ) for( m in cm ) ['$f$m', '$m$f']].flatten();
 	final childChromosome = cc.join( "" );
-	// trace( 'father ${cf.join( "" )}  mother ${cm.join( "" )} combinations $combinations  child $childChromosome  ${combinations.contains( childChromosome )}' );
 	if( combinations.contains( childChromosome )) return true;
 	return false;
-
-	// trace( 'child ${cc.join( "" )}  father ${cf.join( "" )}  mother ${cm.join( "" )}  fc $fatherContribution  mc $motherContribution' );
-
 }
 
 function parsePerson( person:String ) {
