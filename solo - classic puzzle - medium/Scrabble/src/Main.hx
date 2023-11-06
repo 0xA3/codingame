@@ -28,7 +28,7 @@ function main() {
 function process( words:Array<String>, availableLetters:Array<String> ) {
 	final letterScores = [for( score in scores ) for( letter in score.letters ) letter => score.points];
 
-	final validWords = words.filter( word -> checkWord( word, availableLetters.copy() ));
+	final validWords = words.filter( word -> checkWord( word, availableLetters ));
 	if( validWords.length == 0 ) throw 'Error: no valid words';
 
 	final wordScores = validWords.map( word -> {
@@ -44,10 +44,11 @@ function process( words:Array<String>, availableLetters:Array<String> ) {
 
 function checkWord( word:String, availableLetters:Array<String> ) {
 	final lettersOfWord = word.split( "" );
+	final availableLettersCopy = availableLetters.copy();
 
 	for( requiredLetter in lettersOfWord ) {
-		if( availableLetters.contains( requiredLetter )) {
-			availableLetters.remove( requiredLetter );
+		if( availableLettersCopy.contains( requiredLetter )) {
+			availableLettersCopy.remove( requiredLetter );
 		} else return false;
 	}
 	// trace( 'word "$word" is possible' );
