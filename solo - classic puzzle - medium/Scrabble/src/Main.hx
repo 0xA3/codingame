@@ -26,57 +26,30 @@ function main() {
 }
 
 function process( words:Array<String>, availableLetters:Array<String> ) {
-
-	availableLetters.sort( sortLetters );
-	final validWords = words.filter( word -> checkValidity( word, availableLetters ));
-	if( validWords.length == 0 ) throw 'Error: no valid words';
-	
 	final letterScores = [for( score in scores ) for( letter in score.letters ) letter => score.points];
 
-	final wordScores = validWords.map( word -> { word: word, score: getWordScore( word, letterScores ) });
+	final validWords = words.filter( word -> checkWord( word, availableLetters.copy() ));
+	if( validWords.length == 0 ) throw 'Error: no valid words';
+
+	final wordScores = validWords.map( word -> {
+		word: word,
+		score: word.split( "" ).fold(( letter, sum ) -> sum + letterScores[letter], 0 )
+	});
+	
 	ArraySort.sort( wordScores, ( a, b ) -> b.score - a.score );
 	// for( ws in wordScores ) trace( '${ws.score}  ${ws.word}' );
 
 	return wordScores[0].word;
 }
 
-function getWordScore( word:String, letterScores:Map<String, Int> ) {
-	return word.split( "" ).fold(( letter, sum ) -> sum + letterScores[letter], 0 );
-}
-
-function checkValidity( word:String, availableLetters:Array<String> ) {
+function checkWord( word:String, availableLetters:Array<String> ) {
 	final lettersOfWord = word.split( "" );
-	lettersOfWord.sort( sortLetters );
 
-	// trace( 'word "$word"  available letters ${availableLetters.join( "" )}' );
-	var position = 0;
 	for( requiredLetter in lettersOfWord ) {
-		// trace( 'required letter $requiredLetter' );
-		while( true ) {
-			if( position == availableLetters.length ) {
-				// trace( 'no more letters' );
-				return false;
-			}
-			final availableLetter = availableLetters[position];
-			// trace( 'pos $position: $availableLetter' );
-			if( availableLetter < requiredLetter ) {
-				position++;
-			} else if( availableLetter > requiredLetter ) {
-				// trace( 'word "$word" is not possible' );
-				return false;
-			} else {
-				// trace( 'match' );
-				position++;
-				break;
-			}
-		}
+		if( availableLetters.contains( requiredLetter )) {
+			availableLetters.remove( requiredLetter );
+		} else return false;
 	}
 	// trace( 'word "$word" is possible' );
 	return true;
-}
-
-function sortLetters( a:String, b:String ) {
-	if( a < b ) return -1;
-	if( a > b ) return 1;
-	return 0;
 }
