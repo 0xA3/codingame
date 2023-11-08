@@ -1,9 +1,8 @@
 import CodinGame.printErr;
-
-import contexts.CreateBoard;
-import data.TestCases;
-import data.Bomb;
 import Std.parseInt;
+import contexts.CreateBoard;
+import data.Bomb;
+import data.TestCases;
 
 using StringTools;
 
@@ -15,8 +14,8 @@ class Sim {
 
 	public function new() {
 		
-		// final ip = TestCases.oneNodeOneBomb;
-		final ip = TestCases.threeNodesThreeBombs;
+		final ip = TestCases.oneNodeOneBomb;
+		// final ip = TestCases.threeNodesThreeBombs;
 		// final ip = TestCases.nineNodesNineBombs;
 		// final ip = TestCases.fourNodesOneBomb;
 		// final ip = TestCases.lotOfNodesViewBombs;
@@ -41,11 +40,11 @@ class Sim {
 			if( action != "WAIT" ) {
 				final positions = action.split(" ");
 				final bomb:Bomb = { x: parseInt( positions[0] ), y: parseInt( positions[1] ), time: 3 }
-				 if( board.grid[bomb.y][bomb.y] == Board.SURVELLANCE_NODE ) {
+				if( board.grid[bomb.y][bomb.x] == Board.SURVELLANCE_NODE ) {
 					trace( 'Error: Bomb ${bomb.x}:${bomb.y} can not be positioned on surveillance node' );
 					return;
 				}
-				if( board.grid[bomb.y][bomb.y] == Board.PASSIVE_NODE ) {
+				if( board.grid[bomb.y][bomb.x] == Board.PASSIVE_NODE ) {
 					trace( 'Error: Bomb ${bomb.x}:${bomb.y} can not be positioned on passive node' );
 					return;
 				}
@@ -54,7 +53,6 @@ class Sim {
 				numBombs--;
 			}
 			board.updateBombTime();
-			
 
 			if( board.numSurveillanceNodes == 0 ) {
 				printErr( '${i + 1} You win!' );

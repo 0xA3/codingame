@@ -9,7 +9,10 @@ class Board {
 
 	public final width:Int;
 	public final height:Int;
-	public final grid:Array<Array<Int>>;
+	final privateGrid:Array<Array<Int>>;
+	public var grid(get, null):haxe.ds.ReadOnlyArray<haxe.ds.ReadOnlyArray<Int>>;
+	function get_grid() return privateGrid;
+
 	public final outputGrid:Array<Array<String>>;
 	public var numSurveillanceNodes:Int;
 	public final bombs:Array<Bomb> = [];
@@ -17,7 +20,7 @@ class Board {
 	public function new( width:Int, height:Int, grid:Array<Array<Int>>, numSurveillanceNodes:Int ) {
 		this.width = width;
 		this.height = height;
-		this.grid = grid;
+		privateGrid = grid;
 		this.numSurveillanceNodes = numSurveillanceNodes;
 
 		outputGrid = [for( y in 0...height ) [for( x in 0...width ) ""]];
@@ -35,9 +38,9 @@ class Board {
 				for( distance in 1...3 ) {
 					final top = bomb.y - distance;
 					if( top >= 0 ) {
-						if( grid[top][bomb.x] == PASSIVE_NODE ) break;
-						if( grid[top][bomb.x] == SURVELLANCE_NODE ) {
-							grid[top][bomb.x] = EMPTY;
+						if( privateGrid[top][bomb.x] == PASSIVE_NODE ) break;
+						if( privateGrid[top][bomb.x] == SURVELLANCE_NODE ) {
+							privateGrid[top][bomb.x] = EMPTY;
 							numSurveillanceNodes--;
 						}
 					}
@@ -45,9 +48,9 @@ class Board {
 				for( distance in 1...3 ) {
 					final left = bomb.x - distance;
 					if( left >= 0 ) {
-						if( grid[bomb.y][left] == PASSIVE_NODE ) break;
-						if( grid[bomb.y][left] == SURVELLANCE_NODE ) {
-							grid[bomb.y][left] = EMPTY;
+						if( privateGrid[bomb.y][left] == PASSIVE_NODE ) break;
+						if( privateGrid[bomb.y][left] == SURVELLANCE_NODE ) {
+							privateGrid[bomb.y][left] = EMPTY;
 							numSurveillanceNodes--;
 						}
 					}
@@ -55,9 +58,9 @@ class Board {
 				for( distance in 1...3 ) {
 					final bottom = bomb.y + distance;
 					if( bottom < height ) {
-						if( grid[bottom][bomb.x] == PASSIVE_NODE ) break;
-						if( grid[bottom][bomb.x] == SURVELLANCE_NODE ) {
-							grid[bottom][bomb.x] = EMPTY;
+						if( privateGrid[bottom][bomb.x] == PASSIVE_NODE ) break;
+						if( privateGrid[bottom][bomb.x] == SURVELLANCE_NODE ) {
+							privateGrid[bottom][bomb.x] = EMPTY;
 							numSurveillanceNodes--;
 						}
 					}
@@ -65,9 +68,9 @@ class Board {
 				for( distance in 1...3 ) {
 					final right = bomb.x + distance;
 					if( right < width ) {
-						if( grid[bomb.y][right] == PASSIVE_NODE ) break;
-						if( grid[bomb.y][right] == SURVELLANCE_NODE ) {
-							grid[bomb.y][right] = EMPTY;
+						if( privateGrid[bomb.y][right] == PASSIVE_NODE ) break;
+						if( privateGrid[bomb.y][right] == SURVELLANCE_NODE ) {
+							privateGrid[bomb.y][right] = EMPTY;
 							numSurveillanceNodes--;
 						}
 					}
@@ -78,9 +81,9 @@ class Board {
 
 	public function draw() {
 		clearGrid();
-		for( y in 0...grid.length ) {
-			for( x in 0...grid[y].length ) {
-				outputGrid[y][x] = switch grid[y][x] {
+		for( y in 0...privateGrid.length ) {
+			for( x in 0...privateGrid[y].length ) {
+				outputGrid[y][x] = switch privateGrid[y][x] {
 					case EMPTY: "·";
 					case SURVELLANCE_NODE: "@";
 					case PASSIVE_NODE: "#";
@@ -94,28 +97,28 @@ class Board {
 				for( distance in 1...3 ) {
 					final top = bomb.y - distance;
 					if( top >= 0 ) {
-						if( grid[top][bomb.x] == PASSIVE_NODE ) break;
+						if( privateGrid[top][bomb.x] == PASSIVE_NODE ) break;
 						outputGrid[top][bomb.x] = "*";
 					}
 				}
 				for( distance in 1...3 ) {
 					final left = bomb.x - distance;
 					if( left >= 0 ) {
-						if( grid[bomb.y][left] == PASSIVE_NODE ) break;
+						if( privateGrid[bomb.y][left] == PASSIVE_NODE ) break;
 						outputGrid[bomb.y][left] = "*";
 					}
 				}
 				for( distance in 1...3 ) {
 					final bottom = bomb.y + distance;
 					if( bottom < height ) {
-						if( grid[bottom][bomb.x] == PASSIVE_NODE ) break;
+						if( privateGrid[bottom][bomb.x] == PASSIVE_NODE ) break;
 						outputGrid[bottom][bomb.x] = "*";
 					}
 				}
 				for( distance in 1...3 ) {
 					final right = bomb.x + distance;
 					if( right < width ) {
-						if( grid[bomb.y][right] == PASSIVE_NODE ) break;
+						if( privateGrid[bomb.y][right] == PASSIVE_NODE ) break;
 						outputGrid[bomb.y][right] = "*";
 					}
 				}

@@ -1,3 +1,4 @@
+import CodinGame.printErr;
 import data.Pos;
 
 class Ai {
@@ -14,7 +15,6 @@ class Ai {
 	}
 
 	function placeBomb() {
-
-		return "3 0";
+		return "0 1";
 	}
 }

@@ -23,13 +23,12 @@ function main() {
 
 	while( true ) {
 		final inputs = readline().split(" ");
-		printErr( '${inputs.join(" ")}' );
+		printErr( 'rounds ${inputs[0]}  bombs ${inputs[1]}' );
 		final rounds = parseInt( inputs[0] );
 		final bombs = parseInt( inputs[1] );
 
 		final action = ai.process( rounds, bombs );
 
 		print( action );
-		break;
 	}
 }
