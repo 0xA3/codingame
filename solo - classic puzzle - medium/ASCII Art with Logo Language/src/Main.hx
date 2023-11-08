@@ -7,6 +7,12 @@ import Std.parseInt;
 using Lambda;
 using StringTools;
 
+typedef Char = {
+	final x:Int;
+	final y:Int;
+	final symbol:String;
+}
+
 enum Direction {
 	North;
 	West;
@@ -20,7 +26,7 @@ var symbol:String;
 var backgroundSymbol:String;
 var isPenDown:Bool;
 
-var screen:Array<Array<String>>;
+var screen:Array<Char>;
 var screenLeft:Int;
 var screenRight:Int;
 var screenTop:Int;
@@ -42,7 +48,7 @@ function process( lines:Array<String> ) {
 	backgroundSymbol = " ";
 	isPenDown = true;
 
-	screen = [[" "]];
+	screen = [];
 	screenLeft = 0;
 	screenRight = 1;
 	screenTop = 0;
@@ -50,12 +56,12 @@ function process( lines:Array<String> ) {
 	x = 0;
 	y = 0;
 	
-	printScreen();
+	// trace( "[\n" + getOutput().replace( " ", "·" ) + "\n]" );
 
 	final commands = lines.map( line -> line.split( ";" )).flatten();
 
 	for( command in commands ) {
-		trace( command );
+		// trace( command );
 		final parts = command.split(" ");
 		final method = parts[0].toUpperCase();
 
@@ -68,16 +74,14 @@ function process( lines:Array<String> ) {
 			case "PD": isPenDown = true;
 			case "SETPC": symbol = parts[1];
 		}
-		printScreen();
+		// trace( "[\n" + getOutput().replace( " ", "·" ) + "\n]" );
 	}
 
-	final output = screen.map( row -> row.join( "" ).rtrim()).filter( line -> line != "" ).join( "\n" );
-	return output;
+	return getOutput();
 }
 
 function clearScreen( s:String ) {
 	backgroundSymbol = s;
-	for( y in 0...screen.length ) for( x in 0...screen[y].length ) screen[y][x] = backgroundSymbol;
 }
 
 function forward( times:Int ) {
@@ -93,65 +97,54 @@ function forward( times:Int ) {
 function goNorth() {
 	if( isPenDown ) drawAtPosition();
 	y -= 1;
-	if( y < screenTop ) {
-		final row = [for( _ in screenLeft...screenRight ) backgroundSymbol];
-		screen.unshift( row );
-		screenTop--;
-		trace( 'extend screen north  screenTop $screenTop' );
-	}
 }
 
 function goWest() {
 	if( isPenDown ) drawAtPosition();
 	x -= 1;
-	if( x < screenLeft ) {
-		for( y in 0...screen.length ) screen[y].unshift( backgroundSymbol );
-		screenLeft--;
-		trace( 'extend screen west  screenLeft $screenLeft' );
-	}
 }
 
 function goSouth() {
 	if( isPenDown ) drawAtPosition();
 	y += 1;
-	if( y >= screenBottom ) {
-		final row = [for( _ in screenLeft...screenRight) backgroundSymbol];
-		screen.push( row );
-		screenBottom++;
-		trace( 'extend screen south  screenBottom $screenBottom' );
-	}
 }
 
 function goEast() {
 	if( isPenDown ) drawAtPosition();
 	x += 1;
-	if( x >= screenRight ) {
-		for( y in 0...screen.length ) screen[y].push( backgroundSymbol );
-		screenRight++;
-		trace( 'extend screen east  screenRight $screenRight' );
-	}
 }
 
 function drawAtPosition() {
-	final screenX = x - screenLeft;
-	final screenY = y - screenTop;
-	trace( 'drawAtPosition $x:$y  coords $screenX:$screenY' );
-	screen[screenY][screenX] = symbol;
+	screenTop = min( screenTop, y );
+	screenLeft = min( screenLeft, x );
+	screenBottom = max( screenBottom, y + 1 );
+	screenRight = max( screenRight, x + 1 );
+	screen.push({ x: x, y: y, symbol: symbol });
 }
 
 function right( angle:Int ) {
 	final steps = -int( angle / 90 );
 	direction = ( directions.length + ( direction + steps )) % directions.length;
-	trace( 'turn $angle° right. $steps New direction $direction ${directions[direction]}' );
+	// trace( 'turn $angle° right. $steps New direction ${directions[direction]}' );
 }
 
 function left( angle:Int ) {
 	final steps = int( angle / 90 );
 	direction = ( direction + steps ) % directions.length;
-	trace( 'turn $angle° left. $steps New direction $direction ${directions[direction]}' );
+	// trace( 'turn $angle° left. $steps New direction ${directions[direction]}' );
 }
 
-function printScreen() {
-	final output = screen.map( row -> row.map( s -> s.replace( " ", "·" )).join( "" )).join( "\n" );
-	trace( "print screen\n[\n" + output + "\n]" );
+function getOutput() {
+	final screen2d = [for( y in screenTop...screenBottom ) [for( x in screenLeft...screenRight ) backgroundSymbol]];
+	for( char in screen ) {
+		final indexX = char.x - screenLeft;
+		final indexY = char.y - screenTop;
+		// trace( 'width ${screen2d[0].length}  height ${screen2d.length} indexX $indexX  indexY $indexY' );
+		screen2d[indexY][indexX] = char.symbol;
+	}
+	
+	return screen2d.map( row -> row.join( "" ).rtrim()).join( "\n" );
 }
+
+function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
+function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
