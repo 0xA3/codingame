@@ -37,7 +37,4 @@ class Main {
 
 		return result.number( 1 );
 	}
-
-
 }
-
