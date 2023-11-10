@@ -9,7 +9,7 @@ class CoordTuple {
 
 	public function new( a:Coord, b:Coord ) {
 		this.a = a;
-		this.b = b;		
+		this.b = b;
 	}
 
 	public function hashCode() {

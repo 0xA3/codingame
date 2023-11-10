@@ -1,5 +1,7 @@
 import data.Bomb;
 import data.Pos;
+import haxe.Int32;
+import haxe.ds.HashMap;
 
 class Board {
 	
@@ -26,6 +28,15 @@ class Board {
 		outputGrid = [for( y in 0...height ) [for( x in 0...width ) ""]];
 	}
 
+	public function getNodePositions( nodeType:Int ) {
+		final positions = [for( y in 0...grid.length ) for( x in 0...grid[y].length ) if( grid[y][x] == nodeType ) {
+			final pos:Pos = { x: x, y: y }
+			pos;
+		}];
+		
+		return positions;
+	}
+
 	public function updateBombTime() {
 		for( bomb in bombs ) bomb.time--;
 	}
@@ -35,7 +46,7 @@ class Board {
 			final bomb = bombs[-i];
 			if( bomb.time == 0 ) {
 				bombs.remove( bomb );
-				for( distance in 1...3 ) {
+				for( distance in 1...4 ) {
 					final top = bomb.y - distance;
 					if( top >= 0 ) {
 						if( privateGrid[top][bomb.x] == PASSIVE_NODE ) break;
@@ -45,7 +56,7 @@ class Board {
 						}
 					}
 				}
-				for( distance in 1...3 ) {
+				for( distance in 1...4 ) {
 					final left = bomb.x - distance;
 					if( left >= 0 ) {
 						if( privateGrid[bomb.y][left] == PASSIVE_NODE ) break;
@@ -55,7 +66,7 @@ class Board {
 						}
 					}
 				}
-				for( distance in 1...3 ) {
+				for( distance in 1...4 ) {
 					final bottom = bomb.y + distance;
 					if( bottom < height ) {
 						if( privateGrid[bottom][bomb.x] == PASSIVE_NODE ) break;
@@ -65,7 +76,7 @@ class Board {
 						}
 					}
 				}
-				for( distance in 1...3 ) {
+				for( distance in 1...4 ) {
 					final right = bomb.x + distance;
 					if( right < width ) {
 						if( privateGrid[bomb.y][right] == PASSIVE_NODE ) break;
@@ -94,28 +105,28 @@ class Board {
 		for( bomb in bombs ) {
 			outputGrid[bomb.y][bomb.x] = bomb.time == 0 ? "*" : '${bomb.time}';
 			if( bomb.time == 0 ) {
-				for( distance in 1...3 ) {
+				for( distance in 1...4 ) {
 					final top = bomb.y - distance;
 					if( top >= 0 ) {
 						if( privateGrid[top][bomb.x] == PASSIVE_NODE ) break;
 						outputGrid[top][bomb.x] = "*";
 					}
 				}
-				for( distance in 1...3 ) {
+				for( distance in 1...4 ) {
 					final left = bomb.x - distance;
 					if( left >= 0 ) {
 						if( privateGrid[bomb.y][left] == PASSIVE_NODE ) break;
 						outputGrid[bomb.y][left] = "*";
 					}
 				}
-				for( distance in 1...3 ) {
+				for( distance in 1...4 ) {
 					final bottom = bomb.y + distance;
 					if( bottom < height ) {
 						if( privateGrid[bottom][bomb.x] == PASSIVE_NODE ) break;
 						outputGrid[bottom][bomb.x] = "*";
 					}
 				}
-				for( distance in 1...3 ) {
+				for( distance in 1...4 ) {
 					final right = bomb.x + distance;
 					if( right < width ) {
 						if( privateGrid[bomb.y][right] == PASSIVE_NODE ) break;

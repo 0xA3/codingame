@@ -14,12 +14,12 @@ class Sim {
 
 	public function new() {
 		
-		final ip = TestCases.oneNodeOneBomb;
+		// final ip = TestCases.oneNodeOneBomb;
 		// final ip = TestCases.threeNodesThreeBombs;
 		// final ip = TestCases.nineNodesNineBombs;
 		// final ip = TestCases.fourNodesOneBomb;
 		// final ip = TestCases.lotOfNodesViewBombs;
-		// final ip = TestCases.fourScatteredNodesTwoBombs;
+		final ip = TestCases.fourScatteredNodesTwoBombs;
 		// final ip = TestCases.indestructibleNodes;
 		// final ip = TestCases.forseeTheFuture;
 		// final ip = TestCases.forseeTheFutureBetter;
@@ -61,7 +61,7 @@ class Sim {
 				printErr( '${i + 1}\nYou lose!' );
 				break;
 			} else {
-				printErr( '${i + 1}\n' + board.draw() );
+				printErr( '${i + 1}  $action\n' + board.draw() );
 			}
 			
 			board.cleanUp();
