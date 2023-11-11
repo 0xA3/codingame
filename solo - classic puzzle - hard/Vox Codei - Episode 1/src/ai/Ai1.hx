@@ -2,6 +2,7 @@ package ai;
 
 import CodinGame.printErr;
 import Constants;
+import board.GetNodePositions.getNodePositions;
 import data.Pos;
 import haxe.ds.HashMap;
 import sim.Board;
@@ -32,7 +33,7 @@ class Ai1 {
 	}
 
 	function getBombPositions( bombsNum:Int ) {
-		final surveillanceNodes = board.getNodePositions( SURVELLANCE_NODE );
+		final surveillanceNodes = getNodePositions( board.grid, SURVELLANCE_NODE );
 		final destroyPositions = getDestroyPositions( surveillanceNodes );
 		destroyPositions.sort(( a, b ) -> b.destroy.length - a.destroy.length );
 

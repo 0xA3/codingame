@@ -2,7 +2,6 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
-import factory.CreateBoard;
 
 using Lambda;
 using StringTools;
@@ -14,12 +13,12 @@ function main() {
 	final inputs = readline().split(" ");
 	final width = parseInt( inputs[0] );
 	final height = parseInt( inputs[1] );
-	final rows = [for( _ in 0...height ) readline()];
+	final grid = [for( _ in 0...height ) readline().split( "" )];
 	
-	final board = CreateBoard.create( width, height, rows );
+	final board = sim.Board.create( width, height, grid );
 	final ai = new ai.Ai1( board );
 	
-	printErr( inputs.join(" ") + "\n" + rows.join( "\n" ));
+	printErr( inputs.join(" ") + "\n" + grid.map( row -> row.join( "" )).join( "\n" ));
 
 	while( true ) {
 		final inputs = readline().split(" ");

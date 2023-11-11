@@ -1,161 +1,93 @@
 package sim;
 
 import Constants;
+import board.GetNodePositions.getNodePositions;
 import data.Bomb;
 import data.Pos;
+import haxe.ds.ReadOnlyArray;
 
 class Board {
 	
 	public final width:Int;
 	public final height:Int;
-	final privateGrid:Array<Array<Int>>;
-	public var grid(get, null):haxe.ds.ReadOnlyArray<haxe.ds.ReadOnlyArray<Int>>;
+	final privateGrid:Array<Array<String>>;
+	public var grid(get, null):ReadOnlyArray<ReadOnlyArray<String>>;
 	function get_grid() return privateGrid;
 
-	public final outputGrid:Array<Array<String>>;
-	public var numSurveillanceNodes:Int;
-	public final bombs:Array<Bomb> = [];
+	final privateSurveillanceNodes:Array<Pos>;
+	public var surveillanceNodes(get, null):ReadOnlyArray<Pos>;
+	function get_surveillanceNodes() return privateSurveillanceNodes;
 
-	public function new( width:Int, height:Int, grid:Array<Array<Int>>, numSurveillanceNodes:Int ) {
+	final privateBombs:Array<Bomb> = [];
+	public var bombs(get, null):ReadOnlyArray<Bomb>;
+	function get_bombs() return privateBombs;
+
+	public function new( width:Int, height:Int, grid:Array<Array<String>>, surveillanceNodes:Array<Pos>, bombs:Array<Bomb> ) {
 		this.width = width;
 		this.height = height;
 		privateGrid = grid;
-		this.numSurveillanceNodes = numSurveillanceNodes;
-
-		outputGrid = [for( y in 0...height ) [for( x in 0...width ) ""]];
+		this.privateSurveillanceNodes = surveillanceNodes;
+		this.privateBombs = bombs;
 	}
 
-	public static function create( width:Int, height:Int, rows:Array<String> ) {
-		final grid = [for( _ in 0...height ) [for( _ in 0...width ) 0]];
-		final inputGrid = rows.map( row -> row.split( "" ));
-		
-		var numSurveillanceNodes = 0;
-		for( y in 0...inputGrid.length ) {
-			final row = inputGrid[y];
-			for( x in 0...row.length ) {
-				final cell = row[x];
-				switch cell {
-					case "@":
-						grid[y][x] = SURVELLANCE_NODE;
-						numSurveillanceNodes++;
-					case "#": grid[y][x] = PASSIVE_NODE;
-					default: // no-op
-				}
-			}
-		}
-		
-		return new Board( width, height, grid, numSurveillanceNodes );
+	public static function create( width:Int, height:Int, grid:Array<Array<String>> ) {
+		var privateSurveillanceNodes:Array<Pos> = [for( y in 0...height ) for( x in 0...width ) if( grid[y][x] == SURVELLANCE_NODE ) {x: x, y: y} ];
+		return new Board( width, height, grid, privateSurveillanceNodes, [] );
 	}
 	
-	public function getNodePositions( nodeType:Int ) {
-		final positions = [for( y in 0...grid.length ) for( x in 0...grid[y].length ) if( grid[y][x] == nodeType ) {
-			final pos:Pos = { x: x, y: y }
-			pos;
-		}];
-		
-		return positions;
+	public function placeBomb( bomb:Bomb ) {
+		privateBombs.push( bomb );
+		privateGrid[bomb.y][bomb.x] = BOMB;
 	}
 
-	public function updateBombTime() {
-		for( bomb in bombs ) bomb.time--;
-	}
-
-	public function cleanUp() {
-		for( i in -bombs.length + 1...1 ) {
-			final bomb = bombs[-i];
-			if( bomb.time == 0 ) {
-				bombs.remove( bomb );
-				for( distance in 1...BOMB_RANGE + 1 ) {
-					final top = bomb.y - distance;
-					if( top >= 0 ) {
-						if( privateGrid[top][bomb.x] == PASSIVE_NODE ) break;
-						if( privateGrid[top][bomb.x] == SURVELLANCE_NODE ) {
-							privateGrid[top][bomb.x] = EMPTY;
-							numSurveillanceNodes--;
-						}
-					}
-				}
-				for( distance in 1...BOMB_RANGE + 1 ) {
-					final left = bomb.x - distance;
-					if( left >= 0 ) {
-						if( privateGrid[bomb.y][left] == PASSIVE_NODE ) break;
-						if( privateGrid[bomb.y][left] == SURVELLANCE_NODE ) {
-							privateGrid[bomb.y][left] = EMPTY;
-							numSurveillanceNodes--;
-						}
-					}
-				}
-				for( distance in 1...BOMB_RANGE + 1 ) {
-					final bottom = bomb.y + distance;
-					if( bottom < height ) {
-						if( privateGrid[bottom][bomb.x] == PASSIVE_NODE ) break;
-						if( privateGrid[bottom][bomb.x] == SURVELLANCE_NODE ) {
-							privateGrid[bottom][bomb.x] = EMPTY;
-							numSurveillanceNodes--;
-						}
-					}
-				}
-				for( distance in 1...BOMB_RANGE + 1 ) {
-					final right = bomb.x + distance;
-					if( right < width ) {
-						if( privateGrid[bomb.y][right] == PASSIVE_NODE ) break;
-						if( privateGrid[bomb.y][right] == SURVELLANCE_NODE ) {
-							privateGrid[bomb.y][right] = EMPTY;
-							numSurveillanceNodes--;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	public function draw() {
-		clearGrid();
-		for( y in 0...privateGrid.length ) {
-			for( x in 0...privateGrid[y].length ) {
-				outputGrid[y][x] = switch privateGrid[y][x] {
-					case EMPTY: "·";
-					case SURVELLANCE_NODE: "@";
-					case PASSIVE_NODE: "#";
-					default: "";
-				}
-			}
-		}
+	public function next() {
+		final nextGrid = privateGrid.map( row -> row.copy() );
+		final nextBombs:Array<Bomb> = [];
 		for( bomb in bombs ) {
-			outputGrid[bomb.y][bomb.x] = bomb.time == 0 ? "*" : '${bomb.time}';
-			if( bomb.time == 0 ) {
+			if( bomb.time > 0 ) {
+				nextBombs.push({ x: bomb.x, y: bomb.y, time: bomb.time - 1 });
+			} else {
 				for( distance in 1...BOMB_RANGE + 1 ) {
 					final top = bomb.y - distance;
 					if( top >= 0 ) {
-						if( privateGrid[top][bomb.x] == PASSIVE_NODE ) break;
-						outputGrid[top][bomb.x] = "*";
+						if( nextGrid[top][bomb.x] == PASSIVE_NODE ) break;
+						if( nextGrid[top][bomb.x] == SURVELLANCE_NODE ) {
+							nextGrid[top][bomb.x] = EMPTY;
+						}
 					}
 				}
 				for( distance in 1...BOMB_RANGE + 1 ) {
 					final left = bomb.x - distance;
 					if( left >= 0 ) {
-						if( privateGrid[bomb.y][left] == PASSIVE_NODE ) break;
-						outputGrid[bomb.y][left] = "*";
+						if( nextGrid[bomb.y][left] == PASSIVE_NODE ) break;
+						if( nextGrid[bomb.y][left] == SURVELLANCE_NODE ) {
+							nextGrid[bomb.y][left] = EMPTY;
+						}
 					}
 				}
 				for( distance in 1...BOMB_RANGE + 1 ) {
 					final bottom = bomb.y + distance;
 					if( bottom < height ) {
-						if( privateGrid[bottom][bomb.x] == PASSIVE_NODE ) break;
-						outputGrid[bottom][bomb.x] = "*";
+						if( nextGrid[bottom][bomb.x] == PASSIVE_NODE ) break;
+						if( nextGrid[bottom][bomb.x] == SURVELLANCE_NODE ) {
+							nextGrid[bottom][bomb.x] = EMPTY;
+						}
 					}
 				}
 				for( distance in 1...BOMB_RANGE + 1 ) {
 					final right = bomb.x + distance;
 					if( right < width ) {
-						if( privateGrid[bomb.y][right] == PASSIVE_NODE ) break;
-						outputGrid[bomb.y][right] = "*";
+						if( nextGrid[bomb.y][right] == PASSIVE_NODE ) break;
+						if( nextGrid[bomb.y][right] == SURVELLANCE_NODE ) {
+							nextGrid[bomb.y][right] = EMPTY;
+						}
 					}
 				}
 			}
 		}
-		return outputGrid.map( row -> row.join("")).join("\n" );
-	}
 
-	function clearGrid() for( y in 0...height ) for( x in 0...width ) outputGrid[y][x] = "·";
+		final nextSurveillanceNodes = getNodePositions( nextGrid, SURVELLANCE_NODE );
+
+		return new Board( width, height, nextGrid, nextSurveillanceNodes, nextBombs );
+	}
 }

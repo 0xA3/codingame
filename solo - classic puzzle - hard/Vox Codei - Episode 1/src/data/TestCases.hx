@@ -12,12 +12,12 @@ class TestCases {
 		final inputs = lines[0].split(" ");
 		final width = parseInt( inputs[0] );
 		final height = parseInt( inputs[1] );
-		final rows = [for( i in 0...height ) lines[i + 1]];
+		final grid = [for( i in 0...height ) lines[i + 1].split( "" )];
 		final gameTurnInputs = lines[height + 1].split(" ");
 		final rounds = parseInt( gameTurnInputs[0] );
 		final bombs = parseInt( gameTurnInputs[1] );
 
-		final dataset:TestCaseDataset = { width: width, height: height, rows: rows, rounds: rounds, bombs: bombs }
+		final dataset:TestCaseDataset = { width: width, height: height, grid: grid, rounds: rounds, bombs: bombs }
 
 		return dataset;
 	}

@@ -3,6 +3,7 @@ package sim;
 import CodinGame.printErr;
 import Constants;
 import Std.parseInt;
+import board.Visualize;
 import data.Bomb;
 import data.TestCaseDataset;
 import data.TestCases;
@@ -30,14 +31,20 @@ class Sim {
 		];
 
 		simulate( testCases[0] );
+		// for( i in 0...testCases.length ) {
+		// 	trace( '************** Run test case $i **************' );
+		// 	final isWin = simulate( testCases[i] );
+		// 	if( !isWin ) break;
+		// }
+		
 	}
 	
 	function simulate( dataset:TestCaseDataset ) {
-		final aiBoard = sim.Board.create( dataset.width, dataset.height, dataset.rows );
+		final aiBoard = sim.Board.create( dataset.width, dataset.height, dataset.grid );
 		final ai = new ai.Ai1( aiBoard );
 
-		final board = sim.Board.create( dataset.width, dataset.height, dataset.rows );
-		trace( "\n" + board.draw() );
+		var board = sim.Board.create( dataset.width, dataset.height, dataset.grid );
+		trace( "\n" + visualize( board ) );
 
 		var numBombs = dataset.bombs;
 		for( i in 0...dataset.rounds ) {
@@ -49,29 +56,30 @@ class Sim {
 				final bomb:Bomb = { x: parseInt( positions[0] ), y: parseInt( positions[1] ), time: 3 }
 				if( board.grid[bomb.y][bomb.x] == SURVELLANCE_NODE ) {
 					trace( 'Error: Bomb ${bomb.x}:${bomb.y} can not be positioned on surveillance node' );
-					return;
+					return false;
 				}
 				if( board.grid[bomb.y][bomb.x] == PASSIVE_NODE ) {
 					trace( 'Error: Bomb ${bomb.x}:${bomb.y} can not be positioned on passive node' );
-					return;
+					return false;
 				}
 
-				board.bombs.push( bomb );
+				board.placeBomb( bomb );
 				numBombs--;
 			}
-			board.updateBombTime();
-
-			if( board.numSurveillanceNodes == 0 ) {
+			final nextBoard = board.next();
+			if( nextBoard.surveillanceNodes.length == 0 ) {
 				printErr( '${i + 1} You win!' );
-				break;
-			} else if( board.bombs.length == 0 && board.numSurveillanceNodes > 0 ) {
+				return true;
+			} else if( board.bombs.length == 0 && nextBoard.surveillanceNodes.length > 0 ) {
 				printErr( '${i + 1}\nYou lose!' );
-				break;
+				return false;
 			} else {
-				printErr( '> $action\n' + board.draw() );
+				printErr( '> $action\n' + visualize( nextBoard ) );
 			}
 			
-			board.cleanUp();
+			board = nextBoard;
 		}
+
+		return false;
 	}
 }
