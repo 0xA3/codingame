@@ -17,7 +17,9 @@ class TestCases {
 		final rounds = parseInt( gameTurnInputs[0] );
 		final bombs = parseInt( gameTurnInputs[1] );
 
-		return { width: width, height: height, rows: rows, rounds: rounds, bombs: bombs }
+		final dataset:TestCaseDataset = { width: width, height: height, rows: rows, rounds: rounds, bombs: bombs }
+
+		return dataset;
 	}
 
 	public static final oneNodeOneBomb = parseInput(

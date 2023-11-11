@@ -1,14 +1,12 @@
-import Board.PASSIVE_NODE;
-import Board.SURVELLANCE_NODE;
+package ai;
+
 import CodinGame.printErr;
+import Constants;
 import data.Pos;
 import haxe.ds.HashMap;
 
-class Ai {
+class Ai1 {
 	
-	static final BOMB_RANGE = 3;
-	static final SAVE_DISTANCE = BOMB_RANGE + 2;
-
 	final board:Board;
 	var bombPositions:Array<Pos>;
 
@@ -47,7 +45,7 @@ class Ai {
 
 		#if sim
 		// trace( ids );
-		for( dp in destroyPositions ) trace( '${dp.pos}  ${dp.destroy}' );
+		// for( dp in destroyPositions ) trace( '${dp.pos}  ${dp.destroy}' );
 		#end
 		
 		var bombs = [];

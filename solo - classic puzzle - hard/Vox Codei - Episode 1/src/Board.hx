@@ -1,14 +1,9 @@
+import Constants;
 import data.Bomb;
 import data.Pos;
-import haxe.Int32;
-import haxe.ds.HashMap;
 
 class Board {
 	
-	public static inline var EMPTY = 0;
-	public static inline var SURVELLANCE_NODE = 1;
-	public static inline var PASSIVE_NODE = 2;
-
 	public final width:Int;
 	public final height:Int;
 	final privateGrid:Array<Array<Int>>;

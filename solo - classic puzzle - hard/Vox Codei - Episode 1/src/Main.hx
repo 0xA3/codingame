@@ -2,7 +2,7 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
-import contexts.CreateBoard;
+import factory.CreateBoard;
 
 using Lambda;
 using StringTools;
@@ -17,13 +17,12 @@ function main() {
 	final rows = [for( _ in 0...height ) readline()];
 	
 	final board = CreateBoard.create( width, height, rows );
-	final ai = new Ai( board );
+	final ai = new ai.Ai1( board );
 	
 	printErr( inputs.join(" ") + "\n" + rows.join( "\n" ));
 
 	while( true ) {
 		final inputs = readline().split(" ");
-		printErr( 'rounds ${inputs[0]}  bombs ${inputs[1]}' );
 		final rounds = parseInt( inputs[0] );
 		final bombs = parseInt( inputs[1] );
 

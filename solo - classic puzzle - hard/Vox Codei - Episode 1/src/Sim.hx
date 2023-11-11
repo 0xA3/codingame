@@ -1,41 +1,46 @@
 import CodinGame.printErr;
 import Std.parseInt;
-import contexts.CreateBoard;
 import data.Bomb;
+import data.TestCaseDataset;
 import data.TestCases;
+import factory.CreateBoard;
 
 using StringTools;
 
 class Sim {
 	
-	final board:Board;
-
 	static function main() { new Sim(); }
 
 	public function new() {
 		
-		// final ip = TestCases.oneNodeOneBomb;
-		// final ip = TestCases.threeNodesThreeBombs;
-		// final ip = TestCases.nineNodesNineBombs;
-		// final ip = TestCases.fourNodesOneBomb;
-		// final ip = TestCases.lotOfNodesViewBombs;
-		final ip = TestCases.fourScatteredNodesTwoBombs;
-		// final ip = TestCases.indestructibleNodes;
-		// final ip = TestCases.forseeTheFuture;
-		// final ip = TestCases.forseeTheFutureBetter;
-		// final ip = TestCases.destroyCodinGame;
-		// final ip = TestCases.notSoFast;
-		
-		final aiBoard = CreateBoard.create( ip.width, ip.height, ip.rows );
-		final ai = new Ai( aiBoard );
+		final testCases = [
+			TestCases.oneNodeOneBomb,
+			TestCases.threeNodesThreeBombs,
+			TestCases.nineNodesNineBombs,
+			TestCases.fourNodesOneBomb,
+			TestCases.lotOfNodesViewBombs,
+			TestCases.fourScatteredNodesTwoBombs,
+			TestCases.indestructibleNodes,
+			TestCases.forseeTheFuture,
+			TestCases.forseeTheFutureBetter,
+			TestCases.destroyCodinGame,
+			TestCases.notSoFast
+		];
 
-		board = CreateBoard.create( ip.width, ip.height, ip.rows );
+		simulate( testCases[0] );
+	}
+	
+	function simulate( dataset:TestCaseDataset ) {
+		final aiBoard = CreateBoard.create( dataset.width, dataset.height, dataset.rows );
+		final ai = new ai.Ai1( aiBoard );
+
+		final board = CreateBoard.create( dataset.width, dataset.height, dataset.rows );
 		trace( "\n" + board.draw() );
 
-		var numBombs = ip.bombs;
-		for( i in 0...ip.rounds ) {
+		var numBombs = dataset.bombs;
+		for( i in 0...dataset.rounds ) {
 			
-			final action = ai.process( i, numBombs );
+			final action = ai.process( dataset.rounds - i, numBombs );
 			
 			if( action != "WAIT" ) {
 				final positions = action.split(" ");
@@ -61,7 +66,7 @@ class Sim {
 				printErr( '${i + 1}\nYou lose!' );
 				break;
 			} else {
-				printErr( '${i + 1}  $action\n' + board.draw() );
+				printErr( '> $action\n' + board.draw() );
 			}
 			
 			board.cleanUp();
