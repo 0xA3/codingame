@@ -1,5 +1,7 @@
 package ai;
 
+import Constants;
+
 class Ai2 {
 	
 	final board:Board;

@@ -1,9 +1,11 @@
+package sim;
+
 import CodinGame.printErr;
+import Constants;
 import Std.parseInt;
 import data.Bomb;
 import data.TestCaseDataset;
 import data.TestCases;
-import factory.CreateBoard;
 
 using StringTools;
 
@@ -31,10 +33,10 @@ class Sim {
 	}
 	
 	function simulate( dataset:TestCaseDataset ) {
-		final aiBoard = CreateBoard.create( dataset.width, dataset.height, dataset.rows );
+		final aiBoard = sim.Board.create( dataset.width, dataset.height, dataset.rows );
 		final ai = new ai.Ai1( aiBoard );
 
-		final board = CreateBoard.create( dataset.width, dataset.height, dataset.rows );
+		final board = sim.Board.create( dataset.width, dataset.height, dataset.rows );
 		trace( "\n" + board.draw() );
 
 		var numBombs = dataset.bombs;
@@ -45,11 +47,11 @@ class Sim {
 			if( action != "WAIT" ) {
 				final positions = action.split(" ");
 				final bomb:Bomb = { x: parseInt( positions[0] ), y: parseInt( positions[1] ), time: 3 }
-				if( board.grid[bomb.y][bomb.x] == Board.SURVELLANCE_NODE ) {
+				if( board.grid[bomb.y][bomb.x] == SURVELLANCE_NODE ) {
 					trace( 'Error: Bomb ${bomb.x}:${bomb.y} can not be positioned on surveillance node' );
 					return;
 				}
-				if( board.grid[bomb.y][bomb.x] == Board.PASSIVE_NODE ) {
+				if( board.grid[bomb.y][bomb.x] == PASSIVE_NODE ) {
 					trace( 'Error: Bomb ${bomb.x}:${bomb.y} can not be positioned on passive node' );
 					return;
 				}
