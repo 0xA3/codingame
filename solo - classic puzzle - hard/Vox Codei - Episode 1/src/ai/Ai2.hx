@@ -1,6 +1,7 @@
 package ai;
 
 import Constants;
+import sim.Board;
 
 class Ai2 {
 	

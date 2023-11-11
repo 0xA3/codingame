@@ -1,4 +1,4 @@
-package sim;
+package board;
 
 import Constants;
 import board.GetNodePositions.getNodePositions;
@@ -47,6 +47,7 @@ class Board {
 			if( bomb.time > 0 ) {
 				nextBombs.push({ x: bomb.x, y: bomb.y, time: bomb.time - 1 });
 			} else {
+				nextGrid[bomb.y][bomb.x] = EMPTY;
 				for( distance in 1...BOMB_RANGE + 1 ) {
 					final top = bomb.y - distance;
 					if( top >= 0 ) {

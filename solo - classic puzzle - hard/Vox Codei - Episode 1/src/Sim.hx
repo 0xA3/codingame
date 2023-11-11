@@ -1,4 +1,4 @@
-package sim;
+package;
 
 import CodinGame.printErr;
 import Constants;
@@ -30,20 +30,20 @@ class Sim {
 			TestCases.notSoFast
 		];
 
-		simulate( testCases[0] );
-		// for( i in 0...testCases.length ) {
-		// 	trace( '************** Run test case $i **************' );
-		// 	final isWin = simulate( testCases[i] );
-		// 	if( !isWin ) break;
-		// }
+		// simulate( testCases[0] );
+		for( i in 0...testCases.length ) {
+			trace( '************** Run test case $i **************' );
+			final isWin = simulate( testCases[i] );
+			if( !isWin ) break;
+		}
 		
 	}
 	
 	function simulate( dataset:TestCaseDataset ) {
-		final aiBoard = sim.Board.create( dataset.width, dataset.height, dataset.grid );
+		final aiBoard = board.Board.create( dataset.width, dataset.height, dataset.grid );
 		final ai = new ai.Ai1( aiBoard );
 
-		var board = sim.Board.create( dataset.width, dataset.height, dataset.grid );
+		var board = board.Board.create( dataset.width, dataset.height, dataset.grid );
 		trace( "\n" + visualize( board ) );
 
 		var numBombs = dataset.bombs;
@@ -79,7 +79,7 @@ class Sim {
 			
 			board = nextBoard;
 		}
-
+		printErr( 'Time is up. You lose!' );
 		return false;
 	}
 }

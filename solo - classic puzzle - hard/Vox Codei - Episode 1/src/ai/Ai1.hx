@@ -2,10 +2,10 @@ package ai;
 
 import CodinGame.printErr;
 import Constants;
+import board.Board;
 import board.GetNodePositions.getNodePositions;
 import data.Pos;
 import haxe.ds.HashMap;
-import sim.Board;
 
 class Ai1 {
 	

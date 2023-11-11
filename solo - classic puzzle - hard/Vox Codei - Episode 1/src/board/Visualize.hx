@@ -1,7 +1,7 @@
 package board;
 
 import Constants;
-import sim.Board;
+import board.Board;
 
 function visualize( board:Board ) {
 	final grid = board.grid;
