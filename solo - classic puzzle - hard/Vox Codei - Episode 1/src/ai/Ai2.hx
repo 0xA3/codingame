@@ -35,16 +35,23 @@ class Ai2 {
 
 		frontier.add({ parent: null, action: "", rounds: rounds, bombsNum: bombsNum, board: startBoard });
 
+		var nodeCount = 0;
+
 		while( !frontier.isEmpty()) {
 			final current = frontier.pop();
-			// printErr( getStatus( current ));
+			nodeCount++;
+			// #if sim trace( getStatus( current )); #end
 			
-			if( current.board.surveillanceNodes.length == 0 ) return backtrack( current );
+			if( current.board.surveillanceNodes.length == 0 ) {
+				printErr( 'searched $nodeCount nodes' );
+				return backtrack( current );
+			}
 			if( current.rounds < 0 ) break;
 			
 			if( current.bombsNum > 0 ) {
 				final bestBombPositions = getBombPositions( current.board );
 				for( bestBombPosition in bestBombPositions ) {
+					// trace( 'position $bestBombPosition' );
 					final pos = bestBombPosition.pos;
 					final nextAction = '${pos.x} ${pos.y}';
 					final nextBoard = current.board.next( pos.x, pos.y );
@@ -59,15 +66,16 @@ class Ai2 {
 				}
 			}
 			
-			final waitNode:Node = {
-				parent: current,
-				action: WAIT,
-				rounds: current.rounds - 1,
-				bombsNum: current.bombsNum,
-				board: current.board.next(),
+			if( current.board.bombs.length > 0 ) {
+				final waitNode:Node = {
+					parent: current,
+					action: WAIT,
+					rounds: current.rounds - 1,
+					bombsNum: current.bombsNum,
+					board: current.board.next(),
+				}
+				frontier.add( waitNode );
 			}
-			frontier.add( waitNode );
-			
 		}
 
 		throw 'Error: no solution found';
@@ -85,16 +93,15 @@ class Ai2 {
 	}
 
 	function backtrack( node:Node ) {
-		var outputs = [];
+		// var outputs = [];
 		final actions = [];
 		var current = node;
 		while( current.parent != null ) {
-			outputs.push( getStatus( current ));
-
+			// outputs.push( getStatus( current ));
 			actions.push( current.action );
 			current = current.parent;
 		}
-		outputs.reverse();
+		// outputs.reverse();
 		// #if sim trace( outputs.join( "\n" )); #end
 		actions.reverse();
 

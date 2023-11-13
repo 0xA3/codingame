@@ -1,8 +1,5 @@
 package board;
 
-import data.Pos;
-import haxe.ds.HashMap;
-
 @:structInit class Node {
 	public final parent:Null<Node>;
 	public final action:String;

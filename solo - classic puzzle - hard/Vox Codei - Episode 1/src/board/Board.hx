@@ -2,7 +2,6 @@ package board;
 
 import CodinGame.printErr;
 import Constants;
-import board.GetNodePositions.getNodePositions;
 import data.Bomb;
 import data.Pos;
 import haxe.ds.ReadOnlyArray;
@@ -14,6 +13,10 @@ class Board {
 	final privateGrid:Array<Array<String>>;
 	public var grid(get, null):ReadOnlyArray<ReadOnlyArray<String>>;
 	function get_grid() return privateGrid;
+	
+	final privateBlastGrid:Array<Array<Bool>>;
+	public var blastGrid(get, null):ReadOnlyArray<ReadOnlyArray<Bool>>;
+	function get_blastGrid() return privateBlastGrid;
 
 	final privateSurveillanceNodes:Array<Pos>;
 	public var surveillanceNodes(get, null):ReadOnlyArray<Pos>;
@@ -23,26 +26,31 @@ class Board {
 	public var bombs(get, null):ReadOnlyArray<Bomb>;
 	function get_bombs() return privateBombs;
 
-	public function new( width:Int, height:Int, grid:Array<Array<String>>, surveillanceNodes:Array<Pos>, bombs:Array<Bomb> ) {
+
+	public function new( width:Int, height:Int, grid:Array<Array<String>>, blastGrid:Array<Array<Bool>>, surveillanceNodes:Array<Pos>, bombs:Array<Bomb> ) {
 		this.width = width;
 		this.height = height;
 		privateGrid = grid;
+		privateBlastGrid = blastGrid;
 		this.privateSurveillanceNodes = surveillanceNodes;
 		this.privateBombs = bombs;
 	}
 
 	public static function create( width:Int, height:Int, grid:Array<Array<String>> ) {
-		var privateSurveillanceNodes:Array<Pos> = [for( y in 0...height ) for( x in 0...width ) if( grid[y][x] == SURVELLANCE_NODE ) {x: x, y: y} ];
-		return new Board( width, height, grid, privateSurveillanceNodes, [] );
+		final surveillanceNodes:Array<Pos> = [for( y in 0...height ) for( x in 0...width ) if( grid[y][x] == SURVELLANCE_NODE ) {x: x, y: y} ];
+		final blastGrid = [for( _ in 0...height ) [for( _ in 0...width ) false]];
+		return new Board( width, height, grid, blastGrid, surveillanceNodes, [] );
 	}
 	
 	public function next( bombX = -1, bombY = -1 ) {
 		final nextGrid = privateGrid.map( row -> row.copy() );
+		final nextBlastGrid = privateBlastGrid.map( row -> row.copy());
 		final nextBombs:Array<Bomb> = [];
 		if( bombX != -1 ) {
 			final nextBomb:Bomb = { x: bombX, y: bombY, time: 2 }
 			nextBombs.push( nextBomb );
 			nextGrid[bombY][bombX] = BOMB;
+			updateBlastGrid( bombX, bombY, nextBlastGrid );
 		}
 
 		for( bomb in bombs ) {
@@ -53,10 +61,52 @@ class Board {
 				triggerBomb( bomb.x, bomb.y, nextGrid );
 			}
 		}
+		
+		final nextSurveillanceNodes:Array<Pos> = [
+			for( y in 0...height )
+				for( x in 0...width )
+					if( nextGrid[y][x] == SURVELLANCE_NODE && !nextBlastGrid[y][x] ) {
+					// if( nextGrid[y][x] == SURVELLANCE_NODE ) {
+						{ x: x, y: y }
+		}];
 
-		final nextSurveillanceNodes = getNodePositions( nextGrid, SURVELLANCE_NODE );
+		return new Board( width, height, nextGrid, nextBlastGrid, nextSurveillanceNodes, nextBombs );
+	}
 
-		return new Board( width, height, nextGrid, nextSurveillanceNodes, nextBombs );
+	function updateBlastGrid( x:Int, y:Int, nextBlastGrid:Array<Array<Bool>> ) {
+		nextBlastGrid[y][x] = true;
+		for( distance in 1...BOMB_RANGE + 1 ) {
+			final top = y - distance;
+			if( top >= 0 ) {
+				final cell = grid[top][x];
+				if( cell == PASSIVE_NODE ) break;
+				nextBlastGrid[top][x] = true;
+			}
+		}
+		for( distance in 1...BOMB_RANGE + 1 ) {
+			final left = x - distance;
+			if( left >= 0 ) {
+				final cell = grid[y][left];
+				if( cell == PASSIVE_NODE ) break;
+				nextBlastGrid[y][left] = true;
+			}
+		}
+		for( distance in 1...BOMB_RANGE + 1 ) {
+			final bottom = y + distance;
+			if( bottom < height ) {
+				final cell = grid[bottom][x];
+				if( cell == PASSIVE_NODE ) break;
+				nextBlastGrid[bottom][x] = true;
+			}
+		}
+		for( distance in 1...BOMB_RANGE + 1 ) {
+			final right = x + distance;
+			if( right < width ) {
+				final cell = grid[y][right];
+				if( cell == PASSIVE_NODE ) break;
+				nextBlastGrid[y][right] = true;
+			}
+		}
 	}
 
 	function triggerBomb( x:Int, y:Int, nextGrid:Array<Array<String>> ) {

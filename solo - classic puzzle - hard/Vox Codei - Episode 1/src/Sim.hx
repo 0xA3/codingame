@@ -7,6 +7,7 @@ import board.Visualize;
 import data.Bomb;
 import data.TestCaseDataset;
 import data.TestCases;
+import haxe.Timer;
 
 using StringTools;
 
@@ -30,14 +31,14 @@ class Sim {
 			TestCases.notSoFast						// 10
 		];
 
-		// simulate( testCases[9] );
-		simulate( testCases[5] );
 		for( i in 0...testCases.length ) {
 			trace( '************** Run test case $i **************' );
+			// final i = 9;
+			final startTime = Timer.stamp();
 			final isWin = simulate( testCases[i] );
+			trace( 'Time ${Timer.stamp() - startTime}' );
 			if( !isWin ) break;
 		}
-		
 	}
 	
 	function simulate( dataset:TestCaseDataset ) {
