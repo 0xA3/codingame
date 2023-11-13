@@ -15,13 +15,14 @@ function main() {
 	final height = parseInt( inputs[1] );
 	final grid = [for( _ in 0...height ) readline().split( "" )];
 	
-	final board = sim.Board.create( width, height, grid );
-	final ai = new ai.Ai1( board );
+	final board = board.Board.create( width, height, grid );
+	final ai = new ai.Ai2( board );
 	
 	printErr( inputs.join(" ") + "\n" + grid.map( row -> row.join( "" )).join( "\n" ));
 
 	while( true ) {
 		final inputs = readline().split(" ");
+		printErr( inputs.join(" "));
 		final rounds = parseInt( inputs[0] );
 		final bombs = parseInt( inputs[1] );
 

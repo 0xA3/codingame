@@ -1,5 +1,6 @@
 package board;
 
+import CodinGame.printErr;
 import Constants;
 import board.GetNodePositions.getNodePositions;
 import data.Bomb;
@@ -35,60 +36,66 @@ class Board {
 		return new Board( width, height, grid, privateSurveillanceNodes, [] );
 	}
 	
-	public function placeBomb( bomb:Bomb ) {
-		privateBombs.push( bomb );
-		privateGrid[bomb.y][bomb.x] = BOMB;
-	}
-
-	public function next() {
+	public function next( bombX = -1, bombY = -1 ) {
 		final nextGrid = privateGrid.map( row -> row.copy() );
 		final nextBombs:Array<Bomb> = [];
+		if( bombX != -1 ) {
+			final nextBomb:Bomb = { x: bombX, y: bombY, time: 2 }
+			nextBombs.push( nextBomb );
+			nextGrid[bombY][bombX] = BOMB;
+		}
+
 		for( bomb in bombs ) {
+			// trace( 'bomb ${bomb.x}:${bomb.y} time ${bomb.time}' );
 			if( bomb.time > 0 ) {
 				nextBombs.push({ x: bomb.x, y: bomb.y, time: bomb.time - 1 });
 			} else {
-				nextGrid[bomb.y][bomb.x] = EMPTY;
-				for( distance in 1...BOMB_RANGE + 1 ) {
-					final top = bomb.y - distance;
-					if( top >= 0 ) {
-						if( nextGrid[top][bomb.x] == PASSIVE_NODE ) break;
-						if( nextGrid[top][bomb.x] == SURVELLANCE_NODE ) {
-							nextGrid[top][bomb.x] = EMPTY;
-						}
-					}
-				}
-				for( distance in 1...BOMB_RANGE + 1 ) {
-					final left = bomb.x - distance;
-					if( left >= 0 ) {
-						if( nextGrid[bomb.y][left] == PASSIVE_NODE ) break;
-						if( nextGrid[bomb.y][left] == SURVELLANCE_NODE ) {
-							nextGrid[bomb.y][left] = EMPTY;
-						}
-					}
-				}
-				for( distance in 1...BOMB_RANGE + 1 ) {
-					final bottom = bomb.y + distance;
-					if( bottom < height ) {
-						if( nextGrid[bottom][bomb.x] == PASSIVE_NODE ) break;
-						if( nextGrid[bottom][bomb.x] == SURVELLANCE_NODE ) {
-							nextGrid[bottom][bomb.x] = EMPTY;
-						}
-					}
-				}
-				for( distance in 1...BOMB_RANGE + 1 ) {
-					final right = bomb.x + distance;
-					if( right < width ) {
-						if( nextGrid[bomb.y][right] == PASSIVE_NODE ) break;
-						if( nextGrid[bomb.y][right] == SURVELLANCE_NODE ) {
-							nextGrid[bomb.y][right] = EMPTY;
-						}
-					}
-				}
+				triggerBomb( bomb.x, bomb.y, nextGrid );
 			}
 		}
 
 		final nextSurveillanceNodes = getNodePositions( nextGrid, SURVELLANCE_NODE );
 
 		return new Board( width, height, nextGrid, nextSurveillanceNodes, nextBombs );
+	}
+
+	function triggerBomb( x:Int, y:Int, nextGrid:Array<Array<String>> ) {
+		nextGrid[y][x] = PREVIOUS_BOMB;
+		for( distance in 1...BOMB_RANGE + 1 ) {
+			final top = y - distance;
+			if( top >= 0 ) {
+				final cell = nextGrid[top][x];
+				if( cell == PASSIVE_NODE ) break;
+				if( cell == SURVELLANCE_NODE ) nextGrid[top][x] = EMPTY;
+				else if( cell == BOMB ) triggerBomb( x, top, nextGrid );
+			}
+		}
+		for( distance in 1...BOMB_RANGE + 1 ) {
+			final left = x - distance;
+			if( left >= 0 ) {
+				final cell = nextGrid[y][left];
+				if( cell == PASSIVE_NODE ) break;
+				if( cell == SURVELLANCE_NODE ) nextGrid[y][left] = EMPTY;
+				else if( cell == BOMB ) triggerBomb( left, y, nextGrid );
+			}
+		}
+		for( distance in 1...BOMB_RANGE + 1 ) {
+			final bottom = y + distance;
+			if( bottom < height ) {
+				final cell = nextGrid[bottom][x];
+				if( cell == PASSIVE_NODE ) break;
+				if( cell == SURVELLANCE_NODE ) nextGrid[bottom][x] = EMPTY;
+				else if( cell == BOMB ) triggerBomb( x, bottom, nextGrid );
+			}
+		}
+		for( distance in 1...BOMB_RANGE + 1 ) {
+			final right = x + distance;
+			if( right < width ) {
+				final cell = nextGrid[y][right];
+				if( cell == PASSIVE_NODE ) break;
+				if( cell == SURVELLANCE_NODE ) nextGrid[y][right] = EMPTY;
+				else if( cell == BOMB ) triggerBomb( right, y, nextGrid );
+			}
+		}
 	}
 }

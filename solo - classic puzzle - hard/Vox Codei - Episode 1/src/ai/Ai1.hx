@@ -6,6 +6,7 @@ import board.Board;
 import board.GetNodePositions.getNodePositions;
 import data.Pos;
 import haxe.ds.HashMap;
+import haxe.ds.ReadOnlyArray;
 
 class Ai1 {
 	
@@ -33,12 +34,11 @@ class Ai1 {
 	}
 
 	function getBombPositions( bombsNum:Int ) {
-		final surveillanceNodes = getNodePositions( board.grid, SURVELLANCE_NODE );
-		final destroyPositions = getDestroyPositions( surveillanceNodes );
+		final destroyPositions = getDestroyPositions( board.surveillanceNodes );
 		destroyPositions.sort(( a, b ) -> b.destroy.length - a.destroy.length );
 
 		final counts = [];
-		for( i in 0...surveillanceNodes.length ) {
+		for( i in 0...board.surveillanceNodes.length ) {
 			final count = [for( dp in destroyPositions ) for( d in dp.destroy ) if( i == d ) true].length;
 			counts.push({ id: i, count: count });
 		}
@@ -46,8 +46,8 @@ class Ai1 {
 		final ids = counts.map( c -> c.id );
 
 		#if sim
-		// trace( ids );
-		// for( dp in destroyPositions ) trace( '${dp.pos}  ${dp.destroy}' );
+		trace( ids );
+		for( dp in destroyPositions ) trace( '${dp.pos}  ${dp.destroy}' );
 		#end
 		
 		var bombs = [];
@@ -70,7 +70,7 @@ class Ai1 {
 		return bombs;
 	}
 
-	function getDestroyPositions( surveillanceNodes:Array<Pos> ) {
+	function getDestroyPositions( surveillanceNodes:ReadOnlyArray<Pos> ) {
 		final posMap = new HashMap<Pos, Array<Int>>();
 		for( i in 0...surveillanceNodes.length ) {
 			final node = surveillanceNodes[i];

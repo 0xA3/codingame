@@ -17,20 +17,21 @@ class Sim {
 	public function new() {
 		
 		final testCases = [
-			TestCases.oneNodeOneBomb,
-			TestCases.threeNodesThreeBombs,
-			TestCases.nineNodesNineBombs,
-			TestCases.fourNodesOneBomb,
-			TestCases.lotOfNodesViewBombs,
-			TestCases.fourScatteredNodesTwoBombs,
-			TestCases.indestructibleNodes,
-			TestCases.forseeTheFuture,
-			TestCases.forseeTheFutureBetter,
-			TestCases.destroyCodinGame,
-			TestCases.notSoFast
+			TestCases.oneNodeOneBomb, 				// 0
+			TestCases.threeNodesThreeBombs,			// 1
+			TestCases.nineNodesNineBombs,			// 2
+			TestCases.fourNodesOneBomb,				// 3
+			TestCases.lotOfNodesViewBombs,			// 4
+			TestCases.fourScatteredNodesTwoBombs,	// 5
+			TestCases.indestructibleNodes,			// 6
+			TestCases.forseeTheFuture,				// 7
+			TestCases.forseeTheFutureBetter,		// 8
+			TestCases.destroyCodinGame,				// 9
+			TestCases.notSoFast						// 10
 		];
 
-		// simulate( testCases[0] );
+		// simulate( testCases[9] );
+		simulate( testCases[5] );
 		for( i in 0...testCases.length ) {
 			trace( '************** Run test case $i **************' );
 			final isWin = simulate( testCases[i] );
@@ -41,40 +42,46 @@ class Sim {
 	
 	function simulate( dataset:TestCaseDataset ) {
 		final aiBoard = board.Board.create( dataset.width, dataset.height, dataset.grid );
-		final ai = new ai.Ai1( aiBoard );
+		final ai = new ai.Ai2( aiBoard );
 
 		var board = board.Board.create( dataset.width, dataset.height, dataset.grid );
-		trace( "\n" + visualize( board ) );
 
 		var numBombs = dataset.bombs;
 		for( i in 0...dataset.rounds ) {
-			
 			final action = ai.process( dataset.rounds - i, numBombs );
 			
+			var bombX = -1;
+			var bombY = -1;
 			if( action != "WAIT" ) {
 				final positions = action.split(" ");
-				final bomb:Bomb = { x: parseInt( positions[0] ), y: parseInt( positions[1] ), time: 3 }
-				if( board.grid[bomb.y][bomb.x] == SURVELLANCE_NODE ) {
-					trace( 'Error: Bomb ${bomb.x}:${bomb.y} can not be positioned on surveillance node' );
+				bombX = parseInt( positions[0] );
+				bombY = parseInt( positions[1] );
+				if( board.grid[bombY][bombX] == SURVELLANCE_NODE ) {
+					trace( 'Error: Bomb ${bombX}:${bombY} can not be positioned on surveillance node' );
 					return false;
 				}
-				if( board.grid[bomb.y][bomb.x] == PASSIVE_NODE ) {
-					trace( 'Error: Bomb ${bomb.x}:${bomb.y} can not be positioned on passive node' );
+				if( board.grid[bombY][bombX] == PASSIVE_NODE ) {
+					trace( 'Error: Bomb ${bombX}:${bombY} can not be positioned on passive node' );
 					return false;
 				}
 
-				board.placeBomb( bomb );
+				if( board.grid[bombY][bombX] == BOMB ) {
+					trace( 'Error: Bomb ${bombX}:${bombY} can not be positioned on another bomb' );
+					return false;
+				}
+
 				numBombs--;
 			}
-			final nextBoard = board.next();
+
+			final nextBoard = board.next( bombX, bombY );
+			printErr( '> $action\n' + visualize( nextBoard ));
+
 			if( nextBoard.surveillanceNodes.length == 0 ) {
 				printErr( '${i + 1} You win!' );
 				return true;
-			} else if( board.bombs.length == 0 && nextBoard.surveillanceNodes.length > 0 ) {
+			} else if( numBombs == 0 && nextBoard.bombs.length == 0 && nextBoard.surveillanceNodes.length > 0 ) {
 				printErr( '${i + 1}\nYou lose!' );
 				return false;
-			} else {
-				printErr( '> $action\n' + visualize( nextBoard ) );
 			}
 			
 			board = nextBoard;
