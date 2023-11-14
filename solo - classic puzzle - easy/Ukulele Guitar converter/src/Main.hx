@@ -25,7 +25,7 @@ final ukuleleNotes = [for( string in 0...ukuleleTuning.length ) [for( fret in 0.
 function main() {
 	final mode = readline();
 	final n = parseInt( readline());
-	final stringFrets = [for( i in 0...n ) {
+	final stringFrets:Array<StringFret> = [for( _ in 0...n ) {
 		final inputs = readline().split(" ");
 		{ string: parseInt( inputs[0] ), fret: parseInt( inputs[1] )}
 	}];
@@ -44,34 +44,22 @@ function process( mode:String, stringFrets:Array<StringFret> ) {
 
 function guitarToUkulele( stringFrets:Array<StringFret> ) {
 	final notes = stringFrets.map( sf -> guitarNotes[sf.string][sf.fret] );
-	final ukulelePositions = notes.map( note -> getPosition( note, ukuleleNotes ));
+	final ukulelePositions = notes.map( note -> getNotePosition( note, ukuleleNotes ));
 	return ukulelePositions.join( "\n" );
 }
 
 function ukuleleToGuitar( stringFrets:Array<StringFret> ) {
 	final notes = stringFrets.map( sf -> ukuleleNotes[sf.string][sf.fret] );
-	final guitarPositions = notes.map( note -> getPosition( note, guitarNotes ));
+	final guitarPositions = notes.map( note -> getNotePosition( note, guitarNotes ));
 	return guitarPositions.join( "\n" );
 }
 
-function getNote( tuning:Array<String>, string:Int, fret:Int ) {
-	final tune = tuning[string];
-	final noteId = notes.indexOf( tune.charAt( 0 ));
-	final octave = parseInt( tune.charAt( 1 ));
-
-	final noteResult = notes[( noteId + fret ) % notes.length];
-	final octaveResult = octave + int(( noteId + fret ) / notes.length );
-	
-	final noteOctave:NoteOctave = { note: noteResult, octave: octaveResult }
-
-	return noteOctave;
-}
-
-function getPosition( inputNote:NoteOctave, notes:Array<Array<NoteOctave>> ) {
-	final positions = [for( string in 0...notes.length )
-		for( fret in 0...notes[string].length )
-			if( notes[string][fret].compare( inputNote ))
-				{ string: string, fret: fret }
+function getNotePosition( note:NoteOctave, notes:Array<Array<NoteOctave>> ) {
+	final positions = [
+		for( string in 0...notes.length )
+			for( fret in 0...notes[string].length )
+				if( note.compare( notes[string][fret] ))
+					{ string: string, fret: fret }
 	];
 	
 	positions.sort(( a, b ) -> {
@@ -85,4 +73,17 @@ function getPosition( inputNote:NoteOctave, notes:Array<Array<NoteOctave>> ) {
 	});
 
 	return positions.length == 0 ? "no match" : positions.map( position -> '${position.string}/${position.fret}' ).join(" ");
+}
+
+function getNote( tuning:Array<String>, string:Int, fret:Int ) {
+	final tune = tuning[string];
+	final noteId = notes.indexOf( tune.charAt( 0 ));
+	final octave = parseInt( tune.charAt( 1 ));
+
+	final noteResult = notes[( noteId + fret ) % notes.length];
+	final octaveResult = octave + int(( noteId + fret ) / notes.length );
+	
+	final noteOctave:NoteOctave = { note: noteResult, octave: octaveResult }
+
+	return noteOctave;
 }
