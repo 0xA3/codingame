@@ -11,7 +11,7 @@ class TestProcess extends buddy.BuddySuite{
 	public function new() {
 
 		describe( "Test process", {
-			@include it( "No special mirrors Test 1", Main.process( parseInput( readFile( "test/test_01.txt" )) ).should.be( parseResult( readFile( "test/result_01.txt" )) ));
+			it( "No special mirrors Test 1", Main.process( parseInput( readFile( "test/test_01.txt" )) ).should.be( parseResult( readFile( "test/result_01.txt" )) ));
 			it( "WM Test 2", Main.process( parseInput( readFile( "test/test_02.txt" )) ).should.be( parseResult( readFile( "test/result_02.txt" )) ));
 			it( "<> Test 3", Main.process( parseInput( readFile( "test/test_03.txt" )) ).should.be( parseResult( readFile( "test/result_03.txt" )) ));
 			it( "Diags Test 4", Main.process( parseInput( readFile( "test/test_04.txt" )) ).should.be( parseResult( readFile( "test/result_04.txt" )) ));
