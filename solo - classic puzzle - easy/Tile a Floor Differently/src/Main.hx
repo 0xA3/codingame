@@ -8,23 +8,19 @@ using Lambda;
 using StringUtils;
 
 function main() {
-	final n = parseInt( readline() );
-	final rows = [for( _ in 0...n ) readline().split( "" )];
+	final quarterSize = parseInt( readline() );
+	final rows = [for( _ in 0...quarterSize ) readline().split( "" )];
 
-	final result = process( rows );
+	final result = process( quarterSize, rows );
 	print( result );
 }
 
-function process( pattern:Array<Array<String>> ) {
-	
-	final patternWidth = pattern[0].length;
-	final patternHeight = pattern.length;
+function process( quarterSize:Int, pattern:Array<Array<String>> ) {
+	final tileWidth = 2 * quarterSize + 1;
+	final tileHeight = 2 * quarterSize + 1;
 
-	final tileWidth = 2 * patternWidth + 1;
-	final tileHeight = 2 * patternHeight + 1;
-
-	final outputWidth = tileWidth * 2 - 1;
-	final outputHeight = tileHeight * 2 - 1;
+	final outputWidth = tileWidth * 2 + 1;
+	final outputHeight = tileHeight * 2 + 1;
 
 	final tileBorder = GridUtils.fromString( "+" + "-".repeat( tileWidth ) + "+\n" + "|\n".repeat( tileHeight ));
 	
@@ -34,13 +30,13 @@ function process( pattern:Array<Array<String>> ) {
 
 	final tileGrid = GridUtils.fromDimensions( tileWidth, tileHeight );
 	tileGrid.paste( pattern );
-	tileGrid.paste( topRight, patternWidth - 1 );
-	tileGrid.paste( bottomLeft, 0, patternHeight - 1 );
-	tileGrid.paste( bottomRight, patternWidth - 1, patternHeight - 1 );
+	tileGrid.paste( topRight, quarterSize );
+	tileGrid.paste( bottomLeft, 0, quarterSize );
+	tileGrid.paste( bottomRight, quarterSize, quarterSize );
 
 	final outputGrid = [for( _ in 0...outputHeight ) [for( _ in 0...outputWidth ) " "]];
-	for( y in [0, tileHeight - 1, outputHeight - 1] ) {
-		for( x in [0, tileWidth - 1, outputWidth - 1] ) {
+	for( y in [0, tileHeight, outputHeight - 1] ) {
+		for( x in [0, tileWidth, outputWidth - 1] ) {
 			outputGrid.paste( tileBorder, x, y );
 			outputGrid.paste( tileGrid, x + 1, y + 1 );
 		}
