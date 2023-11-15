@@ -60,6 +60,7 @@ class TestProcess extends buddy.BuddySuite{
 		1
 		1 18"
 	);
+	
 	final test1Result = parseResult(
 		"0/8 1/13 3/10"
 	);
