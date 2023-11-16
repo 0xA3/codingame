@@ -36,13 +36,50 @@ class SpiralGenerator {
 		gridSize = min( sideSize, MAX_SIZE );
 		init( start, spin );
 	}
+	
+	function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
 
 	function init( start:String, spin:String ) {
 		grid = [for( _ in 0...gridSize ) [for( _ in 0...gridSize ) " "]];
 		currentSideSize = sideSize;
 
-		setStartXY( start, sideSize );
-		setDirectionSequence( start, spin );
+		initXY( start, sideSize );
+		initDirectionSequence( start, spin );
+	}
+
+	function initXY( start:String, sideSize:Int ) {
+		switch start {
+			case "topLeft":
+				x = 0;
+				y = 0;
+			case "bottomLeft":
+				x = 0;
+				y = sideSize - 1;
+			case "bottomRight":
+				x = sideSize - 1;
+				y = sideSize - 1;
+			case "topRight":
+				x = sideSize - 1;
+				y = 0;
+			default: throw 'Error: unknown startPosition $start';
+		}
+	}
+	
+	function initDirectionSequence( start:String, spin:String ) {
+		final startDirection = switch [start, spin] {
+			case ["topLeft", "clockwise"]: Right;
+			case ["topLeft", "counter-clockwise"]: Down;
+			case ["bottomLeft", "clockwise"]: Up;
+			case ["bottomLeft", "counter-clockwise"]: Right;
+			case ["bottomRight", "clockwise"]: Left;
+			case ["bottomRight", "counter-clockwise"]: Up;
+			case ["topRight", "clockwise"]: Down;
+			case ["topRight", "counter-clockwise"]: Left;
+			default: throw 'Error: unknown startPosition $start or spin $spin';
+		}
+
+		directionSequence = spin == "clockwise" ? clockwiseDirections : conterClockwiseDirections;
+		directionStartIndex = directionSequence.indexOf( startDirection );
 	}
 
 	public function generate( charGenerator:CharGenerator ) {
@@ -74,41 +111,4 @@ class SpiralGenerator {
 	}
 
 	public function getOutput() return grid.map( row -> row.join( "" )).join( "\n" );
-
-	function setStartXY( start:String, sideSize:Int ) {
-		switch start {
-			case "topLeft":
-				x = 0;
-				y = 0;
-			case "bottomLeft":
-				x = 0;
-				y = sideSize - 1;
-			case "bottomRight":
-				x = sideSize - 1;
-				y = sideSize - 1;
-			case "topRight":
-				x = sideSize - 1;
-				y = 0;
-			default: throw 'Error: unknown startPosition $start';
-		}
-	}
-	
-	function setDirectionSequence( start:String, spin:String ) {
-		final startDirection = switch [start, spin] {
-			case ["topLeft", "clockwise"]: Right;
-			case ["topLeft", "counter-clockwise"]: Down;
-			case ["bottomLeft", "clockwise"]: Up;
-			case ["bottomLeft", "counter-clockwise"]: Right;
-			case ["bottomRight", "clockwise"]: Left;
-			case ["bottomRight", "counter-clockwise"]: Up;
-			case ["topRight", "clockwise"]: Down;
-			case ["topRight", "counter-clockwise"]: Left;
-			default: throw 'Error: unknown startPosition $start or spin $spin';
-		}
-
-		directionSequence = spin == "clockwise" ? clockwiseDirections : conterClockwiseDirections;
-		directionStartIndex = directionSequence.indexOf( startDirection );
-	}
-	
-	function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
 }
