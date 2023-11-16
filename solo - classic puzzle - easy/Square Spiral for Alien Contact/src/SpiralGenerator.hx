@@ -61,6 +61,7 @@ class SpiralGenerator {
 			case "topRight":
 				x = sideSize - 1;
 				y = 0;
+			
 			default: throw 'Error: unknown startPosition $start';
 		}
 	}
@@ -75,6 +76,7 @@ class SpiralGenerator {
 			case ["bottomRight", "counter-clockwise"]: Up;
 			case ["topRight", "clockwise"]: Down;
 			case ["topRight", "counter-clockwise"]: Left;
+			
 			default: throw 'Error: unknown startPosition $start or spin $spin';
 		}
 
@@ -106,8 +108,6 @@ class SpiralGenerator {
 
 			if( currentSideSize < 1 ) break;
 		}
-		
-		isComplete = true;
 	}
 
 	public function getOutput() return grid.map( row -> row.join( "" )).join( "\n" );

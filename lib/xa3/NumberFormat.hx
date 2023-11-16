@@ -20,7 +20,7 @@ class NumberFormat {
 	/**
 	 * Returns number formated to double digits
 	 */
-	 public static function double( v:Int ) {
+	public static function double( v:Int ) {
 		return v < 10 ? '0$v' : '$v';
 	}
 
