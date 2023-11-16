@@ -44,16 +44,12 @@ function process( points:Array<String> ) {
 }
 
 function parse( s:String ) {
-	final ereg = ~/([\w\d$&!@%]+)\((.+)\)/g;
-	if( ereg.match( s )) {
-		final name = ereg.matched( 1 );
-		final components = ereg.matched( 2 ).split( "," ).map( s -> parseInt( s ));
-		final vector:Vector = { name: name, components: components }
+	final parts = s.split( "(" );
+	final name = parts[0];
+	final components = parts[1].substring( 0, parts[1].length - 1 ).split( "," ).map( s -> parseInt( s ));
+	final vector:Vector = { name: name, components: components }
 
-		return vector;
-	}
-
-	throw 'Error: no match for $s';
+	return vector;
 }
 
 function getDistance( v1:Vector, v2:Vector ) {
