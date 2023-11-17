@@ -58,6 +58,7 @@ class TestProcess extends buddy.BuddySuite{
 		20 1
 		45 3"
 	);
+	
 	final moreLeaks = parseInput(
 		"10000
 		100
