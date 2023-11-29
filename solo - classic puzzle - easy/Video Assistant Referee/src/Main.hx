@@ -1,13 +1,11 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Std.int;
-import Std.parseInt;
 
 using Lambda;
 
 typedef GameState = {
-	final attackingTeam:String;
+	final ballTeam:String;
 	final activePlayerPositions:Array<Int>;
 	final playerPositionsInOpponentHalf:Array<Int>;
 	final secondLastOpponentPosition:Int;
@@ -32,11 +30,11 @@ function main() {
 
 function process( grid:Array<Array<String>> ) {
 	final gameState = getGameState( grid );
-
+	// trace( gameState );
 	if( gameState.playerPositionsInOpponentHalf.length == 0 || gameState.isThrowIn ) return '$noPlayer $onside';
 	
 	final offsidePlayers = gameState.playerPositionsInOpponentHalf.filter( pos -> {
-		gameState.attackingTeam == A
+		gameState.ballTeam == A
 		? pos < gameState.ballPosition && pos < gameState.secondLastOpponentPosition
 		: pos > gameState.ballPosition && pos > gameState.secondLastOpponentPosition;
 	});
@@ -94,18 +92,17 @@ function getGameState( grid:Array<Array<String>> ) {
 	// trace( 'ball $ballX:$ballY' );
 	// trace( 'ballTeam $ballTeam' );
 	
-	final attackingTeam = activePlayersA.length > 0 ? A : B;
-	final playerPositionsInOpponentHalf = switch attackingTeam {
+	final playerPositionsInOpponentHalf = switch ballTeam {
 		case A: playersA.filter( pos -> pos < 25 );
 		case B: playersB.filter( pos -> pos > 25 );
-		default: throw 'Error: attacking team is $attackingTeam';
+		default: throw 'Error: attacking team is $ballTeam';
 	}
 
 	final gameState:GameState = {
-		attackingTeam: attackingTeam,
-		activePlayerPositions: attackingTeam == A ? activePlayersA : activePlayersB,
+		ballTeam: ballTeam,
+		activePlayerPositions: ballTeam == A ? activePlayersA : activePlayersB,
 		playerPositionsInOpponentHalf: playerPositionsInOpponentHalf,
-		secondLastOpponentPosition: attackingTeam == A ? playersB[1] : playersA[1],
+		secondLastOpponentPosition: ballTeam == A ? playersB[1] : playersA[1],
 		ballPosition: ballX,
 		isThrowIn: ballY == 0 || ballY == 14
 	}
