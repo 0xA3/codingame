@@ -40,7 +40,7 @@ function processDeal( deal:String ) {
 
 	if( isGameWon ) {
 		final tricksSingleScore = contract.suit == "N"
-		? contract.pass * 30 + 10
+		? contract.pass * tricksWorths[contract.suit] + 10
 		: contract.pass * tricksWorths[contract.suit];
 
 		final tricksScore = switch contract.doubles {
@@ -87,17 +87,17 @@ function processDeal( deal:String ) {
 
 		final underticksScore =
 		switch [contract.doubles, isVulnerable] {
-			case [0, false]: overtricks * 50;
-			case [0, true]:  overtricks * 100;
-			case [1, false]: -sumNOfArray( underticks, nonVulnerableDoubled );
-			case [1, true]: -sumNOfArray( underticks, vulnerableDoubled );
-			case [2, false]: -sumNOfArray( underticks, nonVulnerableDoubled ) * 2;
-			case [2, true]: -sumNOfArray( underticks, vulnerableDoubled ) * 2;
+			case [0, false]: underticks * 50;
+			case [0, true]:  underticks * 100;
+			case [1, false]: sumNOfArray( underticks, nonVulnerableDoubled );
+			case [1, true]: sumNOfArray( underticks, vulnerableDoubled );
+			case [2, false]: sumNOfArray( underticks, nonVulnerableDoubled ) * 2;
+			case [2, true]: sumNOfArray( underticks, vulnerableDoubled ) * 2;
 			default: throw 'Error: contract doubles can not be ${contract.doubles}';
 		}
 
 		// trace( 'underticksScore $underticksScore' );
-		return underticksScore;
+		return -underticksScore;
 	}
 
 	return 0;
