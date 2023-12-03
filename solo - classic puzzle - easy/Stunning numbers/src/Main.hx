@@ -70,52 +70,41 @@ function findNextStunning( v:Int64 ) {
 	final isEven = digits.length % 2 == 0;
 	final leftLength = Math.ceil( digits.length / 2 );
 	final leftSide = digits.slice( 0, leftLength );
-
-	final exceptionDigits = ["3", "4", "7"];
-	final hasExceptionDigits = leftSide.filter( s -> exceptionDigits.contains( s )).length > 0;
-	if( hasExceptionDigits ) {
-		for( i in 0...leftSide.length ) {
-			if( exceptionDigits.contains( leftSide[i] )) {
-				increase( leftSide, i );
-			}
+	// trace( 'leftSide $leftSide' );
+	final exceptionDigits = ["3" => true, "4" => true, "7" => true];
+	for( i in 0...leftSide.length ) {
+		if( exceptionDigits.exists( leftSide[i] )) {
+			final increased = increase( leftSide, i );
+			final mirrored = mirror( increased, isEven );
+			return mirrored.join( "" );
 		}
 	}
-	// var center = int( a.length / 2 );
-	// var offset = a.length % 2 == 0 ? 1 : 0;
-
-	// var left = Int64.parseString( a.slice( 0, center + 1 - offset ).join( "" ));
-	// trace( left );
-	// while( true ) {
-	// for( _ in 0...10 ) {
-	// 	final leftStr = Int64.toStr( left );
-	// 	final lastChar = leftStr.charAt( leftStr.length - 1 );
-	// 	final flippedLastChar = flipped[lastChar];
-	// 	if( flippedLastChar != "x" ) {
-		
-	// 		final leftArray = leftStr.split( "" );
-	// 		final rightArray = leftArray.copy();
-	// 		rightArray.reverse();
-	// 		final flippedRightArray = rightArray.map( s -> flipped[s] );
-
-	// 		final rightStr = flippedRightArray.join( "" );
-
-	// 		final combined = leftStr + rightStr;
-
-	// 		trace( 'combined $combined' );
-	// 	}
-		
-	// 	left++;
-	// }
 	
-	return Int64.toStr( next );
+	final mirrored = Int64.parseString( mirror( leftSide, isEven ).join( "" ));
+	// trace( 'mirrored $mirrored > $next  ${mirrored > next}' );
+	if( mirrored > next ) return Int64.toStr( mirrored );
+
+	var increased = leftSide.copy();
+	while( true ) {
+		increased = increase( increased, increased.length - 1 );
+		final isEven2 = increased.length == leftLength ? isEven : !isEven;
+		// trace( 'increase value at position ${leftSide.length - 1} ${leftSide.join( "" )} ${increased.join( "" )}' );
+		final mirrored = mirror( increased, isEven2 );
+		// trace( 'mirrored $mirrored' );
+		if( checkStunning( Int64.parseString( mirrored.join( "" )))) {
+			return mirrored.join( "" );
+		}
+	}
+
+	return "";
 }
 
 function mirror( leftSide:Array<String>, isEven:Bool ) {
 	if( leftSide.length == 0 ) return [];
-	if( leftSide.length == 1 && !isEven ) return leftSide.copy();
+	if( leftSide.length == 1 && !isEven ) return [flipped[leftSide[0]]];
 	
 	final start = isEven ? leftSide.length - 1 : leftSide.length - 2;
-	final rightSide = [for( i in -start...1 ) leftSide[-i]];
+	final rightSide = [for( i in -start...1 ) flipped[leftSide[-i]]];
 	
 	return [leftSide, rightSide].flatten();
 }

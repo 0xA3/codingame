@@ -30,22 +30,33 @@ class TestProcess extends buddy.BuddySuite{
 			it( "Test 1 even", mirror( ["1"], true ).join( "" ).should.be( "11" ));
 			it( "Test 10 odd", mirror( ["1", "0"], false ).join( "" ).should.be( "101" ));
 			it( "Test 10 even", mirror( ["1", "0"], true ).join( "" ).should.be( "1001" ));
+			it( "Test 9 odd", mirror( ["9"], false ).join( "" ).should.be( "6" ));
+			it( "Test 9 even", mirror( ["9"], true ).join( "" ).should.be( "96" ));
 		});
 
-		@include describe( "Test increase", {
+		describe( "Test increase", {
 			it( "Test 0", increase( ["0"], 0 ).join( "" ).should.be( "1" ));
 			it( "Test 2", increase( ["2"], 0 ).join( "" ).should.be( "5" ));
 			it( "Test 9", increase( ["9"], 0 ).join( "" ).should.be( "10" ));
 			it( "Test 20", increase( ["2","0"], 1 ).join( "" ).should.be( "21" ));
 			it( "Test 21", increase( ["2","1"], 0 ).join( "" ).should.be( "50" ));
 			it( "Test 99", increase( ["9","9"], 1 ).join( "" ).should.be( "100" ));
+			it( "Test 999", increase( ["9","9","9"], 1 ).join( "" ).should.be( "1000" ));
 		});
 		
 		describe( "Test findNextStunning", {
 			it( "Test 69", findNextStunning( 70 ).should.be( "88" ));
 			it( "Test 122", findNextStunning( 122 ).should.be( "151" ));
 			it( "Test 1234", findNextStunning( 1234 ).should.be( "1551" ));
-			it( "Test 12", findNextStunning( 12 ).should.be( "1551" ));
+			it( "Test 161", findNextStunning( 161 ).should.be( "181" ));
+			it( "Test 9987", findNextStunning( 9987 ).should.be( "10001" ));
+			it( "Test 654321", findNextStunning( 654321 ).should.be( "655559" ));
+			it( "Test 1260921", findNextStunning( 1260921 ).should.be( "1261921" ));
+			it( "Test 88888888", findNextStunning( 88888888 ).should.be( "88896888" ));
+			it( "Test 123456789", findNextStunning( 123456789 ).should.be( "125000521" ));
+			it( "Test 314159265359", findNextStunning( 314159265359i64 ).should.be( "500000000005" ));
+			it( "Test 6920158510269", findNextStunning( 6920158510269i64 ).should.be( "6920160910269" ));
+			it( "Test 12688109960188921", findNextStunning( 12688109960188921i64 ).should.be( "12688110001188921" ));
 		});
 
 		describe( "Test process", {
