@@ -16,13 +16,14 @@ function main() {
 function process( crazyList:String ) {
 	final s = crazyList.split(" ").map( s -> parseInt( s ));
 
-	if( s[0] == s[1] ) return s[0];
-
 	final u1 = s[0];
 	final u2 = s[1];
 	final u3 = s[2];
 
+	if( u1 == u2 ) return u1;
+
 	/*
+
 	u2 = a * u1 + b
 	u3 = a * u2 + b
 
