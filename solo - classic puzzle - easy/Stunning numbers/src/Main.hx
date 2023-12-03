@@ -70,7 +70,7 @@ function findNextStunning( v:Int64 ) {
 	final isEven = digits.length % 2 == 0;
 	final leftLength = Math.ceil( digits.length / 2 );
 	final leftSide = digits.slice( 0, leftLength );
-	// trace( 'leftSide $leftSide' );
+
 	final exceptionDigits = ["3" => true, "4" => true, "7" => true];
 	for( i in 0...leftSide.length ) {
 		if( exceptionDigits.exists( leftSide[i] )) {
@@ -81,16 +81,17 @@ function findNextStunning( v:Int64 ) {
 	}
 	
 	final mirrored = Int64.parseString( mirror( leftSide, isEven ).join( "" ));
-	// trace( 'mirrored $mirrored > $next  ${mirrored > next}' );
 	if( mirrored > next ) return Int64.toStr( mirrored );
 
 	var increased = leftSide.copy();
 	while( true ) {
+		final previousLength = increased.length;
 		increased = increase( increased, increased.length - 1 );
-		final isEven2 = increased.length == leftLength ? isEven : !isEven;
-		// trace( 'increase value at position ${leftSide.length - 1} ${leftSide.join( "" )} ${increased.join( "" )}' );
+		
+		final isEven2 = increased.length == previousLength ? isEven : !isEven;
+		if( increased.length > previousLength && !isEven ) increased.pop(); // remove last char of left side because mirroring adds it again
+		
 		final mirrored = mirror( increased, isEven2 );
-		// trace( 'mirrored $mirrored' );
 		if( checkStunning( Int64.parseString( mirrored.join( "" )))) {
 			return mirrored.join( "" );
 		}
@@ -119,17 +120,3 @@ function increase( leftSide:Array<String>, position:Int ) {
 
 	return copy;
 }
-
-/*
-12
-flip left
-11  check smaller true
-
-first char + 1
-right char flip left
-22
-
-checkSmaller false
-found
-
-*/

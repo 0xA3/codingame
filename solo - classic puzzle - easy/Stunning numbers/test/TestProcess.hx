@@ -50,6 +50,7 @@ class TestProcess extends buddy.BuddySuite{
 			it( "Test 1234", findNextStunning( 1234 ).should.be( "1551" ));
 			it( "Test 161", findNextStunning( 161 ).should.be( "181" ));
 			it( "Test 9987", findNextStunning( 9987 ).should.be( "10001" ));
+			it( "Test 99987", findNextStunning( 99987 ).should.be( "100001" ));
 			it( "Test 654321", findNextStunning( 654321 ).should.be( "655559" ));
 			it( "Test 1260921", findNextStunning( 1260921 ).should.be( "1261921" ));
 			it( "Test 88888888", findNextStunning( 88888888 ).should.be( "88896888" ));
