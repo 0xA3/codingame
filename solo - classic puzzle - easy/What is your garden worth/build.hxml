@@ -1,0 +1,7 @@
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D message-reporting=pretty
+--dce full
+-main Main
+--python dest/app.py
