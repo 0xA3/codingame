@@ -4,6 +4,7 @@ import CodinGame.readline;
 import Std.int;
 import Std.parseFloat;
 import Std.parseInt;
+import haxe.ds.ArraySort;
 
 using Lambda;
 
@@ -22,7 +23,7 @@ function main() {
 }
 
 function process( worktime:Int, efficiencies:Array<Float>, helptimes:Array<Int> ) {
-	trace( 'worktime $worktime  efficiencies $efficiencies  helptimes $helptimes' );
+	// trace( 'worktime $worktime  efficiencies $efficiencies  helptimes $helptimes' );
 	final workers = efficiencies.mapi(( i, efficiency ) -> new Worker( i, efficiency, worktime ));
 
 	var visitorId = 0;
@@ -30,13 +31,13 @@ function process( worktime:Int, efficiencies:Array<Float>, helptimes:Array<Int> 
 		final visitorDuration = helptimes[visitorId];
 
 		final nextWorker = getNextWorker( workers );
-		trace( 'nextWorker: ${nextWorker.id}  free from ${nextWorker.getEndtime()}  visitor $visitorId  helptime $visitorDuration  ' );
+		// trace( 'nextWorker: ${nextWorker.id}  free from ${nextWorker.getEndtime()}  visitor $visitorId  helptime $visitorDuration  ' );
 		if( nextWorker.checkForBreak() ) nextWorker.takeABreak();
 		else {
 			nextWorker.work( visitorId, visitorDuration );
 			visitorId++;
 		}
-		display( workers );
+		// display( workers );
 	}
 	
 	final outputs = [for( worker in workers ) worker.getNumCustomers()].join(" ")
@@ -51,16 +52,14 @@ function display( workers:Array<Worker> ) {
 }
 
 function getNextWorker( workers:Array<Worker> ) {
-	var bestStarttime = workers[0].getEndtime();
-	var nextWorker = workers[0];
-	for( i in 1...workers.length ) {
-		final worker = workers[i];
-		final starttime = worker.getEndtime();
-		if( starttime < bestStarttime ) {
-			bestStarttime = starttime;
-			nextWorker = worker;
-		}
-	}
+	final sortedWorkers = workers.copy();
+	ArraySort.sort( sortedWorkers, ( a, b ) -> {
+		if( a.getEndtime() < b.getEndtime()) return -1;
+		if( a.getEndtime() > b.getEndtime()) return 1;
+		if( a.hasJustTakenABreak() && !b.hasJustTakenABreak()) return -1;
+		if( !a.hasJustTakenABreak() && b.hasJustTakenABreak()) return 1;
+		return 0;
+	});
 	
-	return nextWorker;
+	return sortedWorkers[0];
 }

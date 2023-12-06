@@ -32,7 +32,7 @@ class TestProcess extends buddy.BuddySuite{
 				final ip = justHomeBeforeTheBreak;
 				Main.process( ip.worktime, ip.efficiencies, ip.helptimes ).should.be( justHomeBeforeTheBreakResult );
 			});
-			@include it( "Why do they keep taking breaks?!", {
+			it( "Why do they keep taking breaks?!", {
 				final ip = whyDoTheyKeepTakingBreaks;
 				Main.process( ip.worktime, ip.efficiencies, ip.helptimes ).should.be( whyDoTheyKeepTakingBreaksResult );
 			});

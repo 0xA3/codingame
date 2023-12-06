@@ -33,7 +33,8 @@ class Worker {
 	public function getNumBreaks() return timeSegments.filter( timeSegment -> timeSegment.type == Break ).length;
 
 	public function checkForBreak() return getTimeWithoutBreaks() < worktime ? false : true;
-	
+	public function hasJustTakenABreak() return timeSegments.length == 0 ? false : timeSegments[timeSegments.length -1].type == Break;
+
 	function getTimeWithoutBreaks() {
 		var time = 0.0;
 		for( i in -timeSegments.length + 1...1 ) {
@@ -57,7 +58,7 @@ class Worker {
 		}
 
 		timeSegments.push( breakTime );
-		trace( '$id takes a break.' );
+		// trace( '$id takes a break.' );
 	}
 
 	public function work( visitorId:Int, helptime:Int ) {
@@ -72,7 +73,7 @@ class Worker {
 		}
 		
 		timeSegments.push( worktime );
-		trace( 'worker $id works $workTime until ${worktime.to}' );
+		// trace( 'worker $id works $workTime until ${worktime.to}' );
 	}
 
 	public function toString() {
