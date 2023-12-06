@@ -25,34 +25,42 @@ function process( worktime:Int, efficiencies:Array<Float>, helptimes:Array<Int> 
 	trace( 'worktime $worktime  efficiencies $efficiencies  helptimes $helptimes' );
 	final workers = efficiencies.mapi(( i, efficiency ) -> new Worker( i, efficiency, worktime ));
 
-	for( customer in helptimes ) {
-		final currentWorker = workers[0];
-		var nextEndTime = currentWorker.getEndtime();
-		var nextWorkerId = 0;
-		for( i in 0...workers.length ) {
-			final workerId = i % workers.length;
-			final worker = workers[workerId];
-			final workerEndtime = worker.getEndtime();
-			if( workerEndtime < nextEndTime ) {
-				nextEndTime = workerEndtime;
-				nextWorkerId = workerId;
-			}
-		}
-		final workerEndtimes = workers.mapi(( i, worker ) -> '$i: ${worker.getEndtime()}' ).join("  ");
-		if( nextWorkerId == 4 ) {
-			trace( 'workerEndtimes $workerEndtimes' );
-			trace( 'nextWorkerId $nextWorkerId' );
+	var visitorId = 0;
+	while( visitorId < helptimes.length ) {
+		final visitorDuration = helptimes[visitorId];
 
+		final nextWorker = getNextWorker( workers );
+		trace( 'nextWorker: ${nextWorker.id}  free from ${nextWorker.getEndtime()}  visitor $visitorId  helptime $visitorDuration  ' );
+		if( nextWorker.checkForBreak() ) nextWorker.takeABreak();
+		else {
+			nextWorker.work( visitorId, visitorDuration );
+			visitorId++;
 		}
-		final nextWorker = workers[nextWorkerId];
-		nextWorker.assignCustomer( customer );
+		display( workers );
 	}
 	
-	for( i in 0...workers.length ) trace( '$i  ${workers[i]}' );
-
-	final outputs = [for( worker in workers ) worker.customers].join(" ")
+	final outputs = [for( worker in workers ) worker.getNumCustomers()].join(" ")
 	+ "\n" +
-	[for( worker in workers ) worker.breaks].join(" ");
+	[for( worker in workers ) worker.getNumBreaks()].join(" ");
 
 	return outputs;
+}
+
+function display( workers:Array<Worker> ) {
+	for( worker in workers ) trace( worker.toString());
+}
+
+function getNextWorker( workers:Array<Worker> ) {
+	var bestStarttime = workers[0].getEndtime();
+	var nextWorker = workers[0];
+	for( i in 1...workers.length ) {
+		final worker = workers[i];
+		final starttime = worker.getEndtime();
+		if( starttime < bestStarttime ) {
+			bestStarttime = starttime;
+			nextWorker = worker;
+		}
+	}
+	
+	return nextWorker;
 }
