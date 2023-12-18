@@ -21,11 +21,14 @@ class MainAi {
 		final creatureCount = parseInt( readline() );
 		final creatures = [for( _ in 0...creatureCount ) {
 			final inputs = readline().split(' ');
-			final creature:Creature = { id: parseInt( inputs[0] ), color:  parseInt( inputs[1] ), type: parseInt( inputs[2] ) }
+			final id = parseInt( inputs[0] );
+			final creature:Creature = { id: id, color:  parseInt( inputs[1] ), type: parseInt( inputs[2] ) }
 			creature;
 		}];
+
+		final creaturesMap = [for( creature in creatures ) creature.id => creature];
 				
-		ai.setGlobalInputs( creatures );
+		ai.setGlobalInputs( creaturesMap, creatures );
 		
 		// game loop
 		while( true ) {

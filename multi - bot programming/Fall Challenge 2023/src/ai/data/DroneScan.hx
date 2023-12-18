@@ -1,6 +1,8 @@
 package ai.data;
 
 @:structInit class DroneScan {
-	final droneId:Int;
-	final creatureId:Int;
+	public final droneId:Int;
+	public final creatureId:Int;
+
+	public function toString() 'droneId: $droneId, creatureId $creatureId';
 }

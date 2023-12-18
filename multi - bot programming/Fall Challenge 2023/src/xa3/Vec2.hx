@@ -3,8 +3,8 @@ package xa3;
 @:structInit class Vec2 {
 	public static inline var EPSILON = 1e-10;
 	
-	public var x = 0;
-	public var y = 0;
+	public var x:Int;
+	public var y:Int;
 
 	public function toString() return '$x:$y';
 	

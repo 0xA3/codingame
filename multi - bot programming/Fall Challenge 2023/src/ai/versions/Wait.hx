@@ -15,12 +15,9 @@ using Lambda;
 class Wait implements IAi {
 	public var aiId = "Wait";
 	
-	var creatures:Array<Creature>;
-
 	public function new() { }
 	
-	public function setGlobalInputs( creatures:Array<Creature> ) {
-		this.creatures = creatures;
+	public function setGlobalInputs( ccreaturesMap:Map<Int, Creature>, creatures:Array<Creature> ) {
 	}
 	
 	public function setInputs(
