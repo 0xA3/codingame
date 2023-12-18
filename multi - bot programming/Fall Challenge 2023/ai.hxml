@@ -1,0 +1,12 @@
+# -D source-header=Build 2020-12-11
+-lib xa3.format
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D message-reporting=pretty
+-D js-es=6
+-D js-classic;
+-D no-traces
+--dce full
+-main ai.MainAi
+--js dest/app.js

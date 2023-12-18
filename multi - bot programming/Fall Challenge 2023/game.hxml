@@ -1,0 +1,22 @@
+-lib heaps
+-lib tink_core
+-lib xa3.format
+-cp ../../lib/
+-cp ../../codingame_extension/
+-cp ../../codingame_game_engine/
+-cp ../../tools/gameplayer/src
+-cp src
+-D analyzer-optimize
+-D localGame
+-D debug
+-D windowSize=960x587
+# -D windowSize=1920x1127
+-D no-deprecation-warnings
+-main main.game.GameMain
+
+# hl
+-lib hldx
+--hl bin/app.hl
+
+# js
+# --js bin/app.js
