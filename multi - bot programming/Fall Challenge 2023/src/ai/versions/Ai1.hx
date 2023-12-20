@@ -19,13 +19,18 @@ class Ai1 implements IAi {
 	
 	var creaturesMap:Map<Int, Creature>;
 	var creatures:Array<Creature>;
-	var myDrones:Array<Drone>;
-	
+	var myDronesMap:Map<Int, Drone> = [];
+	final visibleCreatures:Array<Creature> = [];
+
+	var turn = 0;
+
 	public function new() { }
 	
 	public function setGlobalInputs( creaturesMap:Map<Int, Creature>, creatures:Array<Creature> ) {
 		this.creaturesMap = creaturesMap;
 		this.creatures = creatures;
+		// printErr( 'creatures $creatures' );
+		turn = 0;
 	}
 	
 	public function setInputs(
@@ -39,10 +44,24 @@ class Ai1 implements IAi {
 		visibleCreatureDatasets:Array<CreatureDataset>,
 		radarBlips:Array<RadarBlip>
 	) {
-		this.myDrones = myDrones;
+		for( inputDrone in myDrones ) {
+			if( !myDronesMap.exists( inputDrone.id )) {
+				myDronesMap.set( inputDrone.id, inputDrone );
+			} else {
+				final myDrone = myDronesMap[inputDrone.id];
+				myDrone.pos.x = inputDrone.pos.x;
+				myDrone.pos.y = inputDrone.pos.y;
+				myDrone.emergency = inputDrone.emergency;
+				myDrone.battery = inputDrone.emergency;
+			}
+		}
 		
+		// if( turn == 0 ) printErr( 'myScore $myScore\nfoeScore: $foeScore\nmyScannedCreatureIds $myScannedCreatureIds\nfoeIds $foeIds\nmyDrones $myDrones\nfoeDrones $foeDrones\ndroneScans $droneScans\nvisibleCreatureDatasets $visibleCreatureDatasets\nradarBlips $radarBlips' );
+
+		// printErr( 'myScannedCreatureIds $myScannedCreatureIds' );
 		for( id in myScannedCreatureIds ) creaturesMap[id].isScannedByMe = true;
 
+		visibleCreatures.splice( 0, visibleCreatures.length );
 		for( creatureDataset in visibleCreatureDatasets ) {
 			final creature = creaturesMap[creatureDataset.id];
 			// printErr( 'creatureId ${creatureDataset.id}  creature $creature' );
@@ -50,6 +69,8 @@ class Ai1 implements IAi {
 			creature.pos.y = creatureDataset.y;
 			creature.vel.x = creatureDataset.vx;
 			creature.vel.y = creatureDataset.vy;
+
+			visibleCreatures.push( creature );
 		}
 	}
 
@@ -58,24 +79,52 @@ class Ai1 implements IAi {
 	// MOVE <x> <y> <light (1|0)> | WAIT <light (1|0)>
 	public function process() {
 		final actions = [];
-		for( myDrone in myDrones ) {
-			final unscannedCreatures = creatures.filter( creature -> !creature.isScannedByMe );
-			if( unscannedCreatures.length > 0 ) {
-				unscannedCreatures.sort(( a, b ) -> {
-					final distA = myDrone.pos.distanceSq( a.pos );
-					final distB = myDrone.pos.distanceSq( b.pos );
-					if( distA < distB ) return -1;
-					if( distA > distB ) return 1;
-					return 0;
-				});
-				final closestCreature = unscannedCreatures[0];
-				actions.push( 'MOVE ${closestCreature.pos.x} ${closestCreature.pos.y} 1' );
-	
-			} else {
-				actions.push( 'WAIT 0' );
+		for( myDrone in myDronesMap ) {
+			// printErr( 'drone ${myDrone.id} state ${myDrone.state}' );
+			switch myDrone.state {
+				case Search: actions.push( doSearch( myDrone ));
+				case Save: actions.push( doSave( myDrone ));
 			}
 		}
 
+		turn++;
+
 		return actions.join( ";" );
+	}
+
+	function doSearch( myDrone:Drone ) {
+		final lightDist = myDrone.light == 0 ? 800 : 2000;
+		// printErr( 'visibleCreatures ' + visibleCreatures.map( c -> c.id ));
+		final unscannedCreatures = visibleCreatures.filter( creature -> !creature.isScannedByMe );
+		
+		final nextLight = turn % 3 == 0 ? 1 : 0;
+		if( unscannedCreatures.length > 0 ) {
+			unscannedCreatures.sort(( a, b ) -> {
+				final distA = myDrone.pos.distanceSq( a.pos );
+				final distB = myDrone.pos.distanceSq( b.pos );
+				if( distA < distB ) return -1;
+				if( distA > distB ) return 1;
+				return 0;
+			});
+			final closestCreature = unscannedCreatures[0];
+			final dist = myDrone.pos.distance( closestCreature.pos );
+			// printErr( 'closest creature ${closestCreature.id} dist $dist  light ${myDrone.light}' );
+			if( dist < lightDist ) {
+				myDrone.state = Save;
+				// printErr( 'scanned closestCreature ${closestCreature.id}' );
+			}
+			myDrone.light = nextLight;
+			return 'MOVE ${closestCreature.pos.x} ${closestCreature.pos.y} $nextLight';
+		} else {
+			myDrone.light = nextLight;
+			return 'WAIT $nextLight';
+		}
+	}
+
+
+
+	function doSave( myDrone:Drone) {
+		if( myDrone.pos.y < 500 + 600 ) myDrone.state = Search;
+		return 'MOVE ${myDrone.pos.x} 0 0';
 	}
 }

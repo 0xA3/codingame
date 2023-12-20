@@ -43,24 +43,24 @@ class MainAi {
 			final myDroneCount = parseInt( readline() );
 			final myDrones = [for( _ in 0...myDroneCount ) {
 				var inputs = readline().split(' ');
-				final drone:Drone = {
-					id: parseInt( inputs[0] ),
-					pos: { x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
-					emergency: parseInt( inputs[3] ),
-					battery: parseInt( inputs[4] )
-				}
+				final drone = new Drone(
+					parseInt( inputs[0] ),
+					{ x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
+					parseInt( inputs[3] ),
+					parseInt( inputs[4] )
+				);
 				drone;
 			}];
-			
+
 			final foeDroneCount = parseInt( readline() );
 			final foeDrones = [for( _ in 0...foeDroneCount ) {
 				var inputs = readline().split(' ');
-				final drone:Drone = {
-					id: parseInt( inputs[0] ),
-					pos: { x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
-					emergency: parseInt( inputs[3] ),
-					battery: parseInt( inputs[4] )
-				}
+				final drone = new Drone(
+					parseInt( inputs[0] ),
+					{ x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
+					parseInt( inputs[3] ),
+					parseInt( inputs[4] )
+				);
 				drone;
 			}];
 
