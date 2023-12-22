@@ -17,19 +17,30 @@ using Lambda;
 class Ai1 implements IAi {
 	public var aiId = "Ai1";
 	
+	final scannedCreatures:Map<Int, Bool> = [];
+	final escapedCreatures:Map<Int, Bool> = [];
+	
 	var creaturesMap:Map<Int, Creature>;
 	var creatures:Array<Creature>;
-	var myDronesMap:Map<Int, Drone> = [];
-	final visibleCreatures:Array<Creature> = [];
-
+	var myDrones:Array<Drone>;
+	
+	var visibleCreatureDatasets:Array<CreatureDataset>;
+	var radarBlips:Array<RadarBlip>;
+	
 	var turn = 0;
+	var nextCreatures = [-1, -1];
 
 	public function new() { }
 	
-	public function setGlobalInputs( creaturesMap:Map<Int, Creature>, creatures:Array<Creature> ) {
+	public function setGlobalInputs( myDrones:Array<Drone>, creaturesMap:Map<Int, Creature>, creatures:Array<Creature> ) {
+		this.myDrones = myDrones;
 		this.creaturesMap = creaturesMap;
 		this.creatures = creatures;
 		// printErr( 'creatures $creatures' );
+		for( creature in creatures ) {
+			scannedCreatures.set( creature.id, false );
+			escapedCreatures.set( creature.id, false );
+		}
 		turn = 0;
 	}
 	
@@ -38,40 +49,36 @@ class Ai1 implements IAi {
 		foeScore:Int,
 		myScannedCreatureIds:Array<Int>,
 		foeIds:Array<Int>,
-		myDrones:Array<Drone>,
 		foeDrones:Array<Drone>,
 		droneScans:Array<DroneScan>,
 		visibleCreatureDatasets:Array<CreatureDataset>,
 		radarBlips:Array<RadarBlip>
 	) {
-		for( inputDrone in myDrones ) {
-			if( !myDronesMap.exists( inputDrone.id )) {
-				myDronesMap.set( inputDrone.id, inputDrone );
-			} else {
-				final myDrone = myDronesMap[inputDrone.id];
-				myDrone.pos.x = inputDrone.pos.x;
-				myDrone.pos.y = inputDrone.pos.y;
-				myDrone.emergency = inputDrone.emergency;
-				myDrone.battery = inputDrone.emergency;
-			}
-		}
+		
+		this.visibleCreatureDatasets = visibleCreatureDatasets;
+		this.radarBlips = radarBlips;
+		
+		for( id in escapedCreatures.keys()) escapedCreatures.set( id, true );
+		for( radarBlip in radarBlips ) escapedCreatures.set( radarBlip.creatureId, false );
 		
 		// if( turn == 0 ) printErr( 'myScore $myScore\nfoeScore: $foeScore\nmyScannedCreatureIds $myScannedCreatureIds\nfoeIds $foeIds\nmyDrones $myDrones\nfoeDrones $foeDrones\ndroneScans $droneScans\nvisibleCreatureDatasets $visibleCreatureDatasets\nradarBlips $radarBlips' );
-
-		// printErr( 'myScannedCreatureIds $myScannedCreatureIds' );
-		for( id in myScannedCreatureIds ) creaturesMap[id].isScannedByMe = true;
-
-		visibleCreatures.splice( 0, visibleCreatures.length );
-		for( creatureDataset in visibleCreatureDatasets ) {
-			final creature = creaturesMap[creatureDataset.id];
-			// printErr( 'creatureId ${creatureDataset.id}  creature $creature' );
-			creature.pos.x = creatureDataset.x;
-			creature.pos.y = creatureDataset.y;
-			creature.vel.x = creatureDataset.vx;
-			creature.vel.y = creatureDataset.vy;
-
-			visibleCreatures.push( creature );
+		nextCreatures[0] = -1;
+		nextCreatures[1] = -1;
+		var foundFirst = false;
+		for( creature in creatures ) {
+			if( escapedCreatures[creature.id] ) continue;
+			
+			if( !scannedCreatures[creature.id] ) {
+				if( !foundFirst ) {
+					nextCreatures[0] = creature.id;
+					foundFirst = true;
+				} else {
+					nextCreatures[1] = creature.id;
+					break;
+				}
+			}
 		}
+		printErr( 'nextCreatures $nextCreatures' );
 	}
 
 	public function init() { }
@@ -79,49 +86,75 @@ class Ai1 implements IAi {
 	// MOVE <x> <y> <light (1|0)> | WAIT <light (1|0)>
 	public function process() {
 		final actions = [];
-		for( myDrone in myDronesMap ) {
+		for( i in 0...myDrones.length ) {
+			final myDrone = myDrones[i];
+			if( nextCreatures[i] == -1 ) myDrone.state = Save;
 			// printErr( 'drone ${myDrone.id} state ${myDrone.state}' );
 			switch myDrone.state {
-				case Search: actions.push( doSearch( myDrone ));
+				case Search: actions.push( doSearch( myDrone, nextCreatures[i] ));
 				case Save: actions.push( doSave( myDrone ));
 			}
 		}
 
 		turn++;
 
-		return actions.join( ";" );
+		return actions.join( "\n" );
 	}
 
-	function doSearch( myDrone:Drone ) {
+	function doSearch( myDrone:Drone, nextCreature:Int ) {
 		final lightDist = myDrone.light == 0 ? 800 : 2000;
-		// printErr( 'visibleCreatures ' + visibleCreatures.map( c -> c.id ));
-		final unscannedCreatures = visibleCreatures.filter( creature -> !creature.isScannedByMe );
-		
 		final nextLight = turn % 3 == 0 ? 1 : 0;
-		if( unscannedCreatures.length > 0 ) {
-			unscannedCreatures.sort(( a, b ) -> {
+		myDrone.light = nextLight;
+		
+		final directionOfNext = radarBlips.filter( radarBlip -> radarBlip.creatureId == nextCreature );
+		if( directionOfNext.length == 0 ) {
+			myDrone.state = Save;
+			doSave( myDrone );
+		}
+		
+		final radarOfNext = directionOfNext[0].radar;
+
+		if( myDrone.pos.x < 2100 && radarOfNext == "BL" ) return 'WAIT $nextLight';
+		if( myDrone.pos.x > 10000 - 2100 && radarOfNext == "BR" ) return 'WAIT $nextLight';
+
+		var dx = 0;
+		var dy = 0;
+		switch directionOfNext[0].radar {
+			case "TL":
+				dx = -500;
+				dy = -500;
+			case "TR":
+				dx = 500;
+				dy = -500;
+			case "BR":
+				dx = 500;
+				dy = 500;
+			case "BL":
+				dx = -500;
+				dy = 500;
+			default:
+		}
+		
+		if( visibleCreatureDatasets.length > 0 ) {
+			visibleCreatureDatasets.sort(( a, b ) -> {
 				final distA = myDrone.pos.distanceSq( a.pos );
 				final distB = myDrone.pos.distanceSq( b.pos );
 				if( distA < distB ) return -1;
 				if( distA > distB ) return 1;
 				return 0;
 			});
-			final closestCreature = unscannedCreatures[0];
-			final dist = myDrone.pos.distance( closestCreature.pos );
-			// printErr( 'closest creature ${closestCreature.id} dist $dist  light ${myDrone.light}' );
-			if( dist < lightDist ) {
-				myDrone.state = Save;
-				// printErr( 'scanned closestCreature ${closestCreature.id}' );
+			
+			for( creature in visibleCreatureDatasets ) {
+				final dist = myDrone.pos.distance( creature.pos );
+				if( dist < lightDist ) {
+					scannedCreatures.set( creature.id, true );
+					// printErr( 'scanned creature ${creature.id}' );
+				}
 			}
-			myDrone.light = nextLight;
-			return 'MOVE ${closestCreature.pos.x} ${closestCreature.pos.y} $nextLight';
-		} else {
-			myDrone.light = nextLight;
-			return 'WAIT $nextLight';
 		}
+
+		return 'MOVE ${myDrone.pos.x + dx} ${myDrone.pos.y + dy} $nextLight';
 	}
-
-
 
 	function doSave( myDrone:Drone) {
 		if( myDrone.pos.y < 500 + 600 ) myDrone.state = Search;

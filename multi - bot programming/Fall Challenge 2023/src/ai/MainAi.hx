@@ -12,6 +12,7 @@ import ai.data.DroneScan;
 import ai.data.RadarBlip;
 
 class MainAi {
+	static final dronesNum = 2;
 
 	static final inputLines:Array<String> = [];
 
@@ -27,8 +28,10 @@ class MainAi {
 		}];
 
 		final creaturesMap = [for( creature in creatures ) creature.id => creature];
-				
-		ai.setGlobalInputs( creaturesMap, creatures );
+		
+		final myDrones = [for( i in 0...dronesNum ) new Drone()];
+		final foeDrones = [for( i in 0...dronesNum ) new Drone()];
+		ai.setGlobalInputs( myDrones, creaturesMap, creatures );
 		
 		// game loop
 		while( true ) {
@@ -41,28 +44,26 @@ class MainAi {
 			final foeIds = [for( _ in 0...foeScanCount ) parseInt( readline() )];
 
 			final myDroneCount = parseInt( readline() );
-			final myDrones = [for( _ in 0...myDroneCount ) {
+			for( i in 0...myDroneCount ) {
 				var inputs = readline().split(' ');
-				final drone = new Drone(
-					parseInt( inputs[0] ),
-					{ x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
-					parseInt( inputs[3] ),
-					parseInt( inputs[4] )
-				);
-				drone;
-			}];
+				final currentDrone = myDrones[i];
+				currentDrone.id = parseInt( inputs[0] );
+				currentDrone.pos.x = parseInt( inputs[1] );
+				currentDrone.pos.y = parseInt( inputs[2] );
+				currentDrone.emergency = parseInt( inputs[3] );
+				currentDrone.battery = parseInt( inputs[4] );
+			}
 
 			final foeDroneCount = parseInt( readline() );
-			final foeDrones = [for( _ in 0...foeDroneCount ) {
+			for( i in 0...foeDroneCount ) {
 				var inputs = readline().split(' ');
-				final drone = new Drone(
-					parseInt( inputs[0] ),
-					{ x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
-					parseInt( inputs[3] ),
-					parseInt( inputs[4] )
-				);
-				drone;
-			}];
+				final currentDrone = foeDrones[i];
+				currentDrone.id = parseInt( inputs[0] );
+				currentDrone.pos.x = parseInt( inputs[1] );
+				currentDrone.pos.y = parseInt( inputs[2] );
+				currentDrone.emergency = parseInt( inputs[3] );
+				currentDrone.battery = parseInt( inputs[4] );
+			}
 
 			final droneScanCount = parseInt( readline() );
 			final droneScans = [for( _ in 0...droneScanCount ) {
@@ -79,10 +80,8 @@ class MainAi {
 				var inputs = readline().split(' ');
 				final creatureDataset:CreatureDataset = {
 					id: parseInt( inputs[0] ),
-					x: parseInt( inputs[1] ),
-					y: parseInt( inputs[2] ),
-					vx: parseInt( inputs[3] ),
-					vy: parseInt( inputs[4] )
+					pos: { x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
+					vel: { x: parseInt( inputs[3] ), y: parseInt( inputs[4] )},
 				}
 				creatureDataset;
 			}];
@@ -103,7 +102,6 @@ class MainAi {
 				foeScore,
 				myScannedCreatureIds,
 				foeIds,
-				myDrones,
 				foeDrones,
 				droneScans,
 				visibleCreatureDatasets,

@@ -7,13 +7,12 @@ import ai.data.DroneScan;
 import ai.data.RadarBlip;
 
 interface IAi {
-	function setGlobalInputs( creaturesMap:Map<Int, Creature>, creatures:Array<Creature> ):Void;
+	function setGlobalInputs( myDrones:Array<Drone>, creaturesMap:Map<Int, Creature>, creatures:Array<Creature> ):Void;
 	function setInputs(
 		myScore:Int,
 		foeScore:Int,
 		myScannedCreatureIds:Array<Int>,
 		foeIds:Array<Int>,
-		myDrones:Array<Drone>,
 		foeDrones:Array<Drone>,
 		droneScans:Array<DroneScan>,
 		visibleCreatureDatasets:Array<CreatureDataset>,

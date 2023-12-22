@@ -17,7 +17,7 @@ class Wait implements IAi {
 	
 	public function new() { }
 	
-	public function setGlobalInputs( ccreaturesMap:Map<Int, Creature>, creatures:Array<Creature> ) {
+	public function setGlobalInputs( myDrones:Array<Drone>, creaturesMap:Map<Int, Creature>, creatures:Array<Creature> ) {
 	}
 	
 	public function setInputs(
@@ -25,7 +25,6 @@ class Wait implements IAi {
 		foeScore:Int,
 		myScannedCreatureIds:Array<Int>,
 		foeIds:Array<Int>,
-		myDrones:Array<Drone>,
 		foeDrones:Array<Drone>,
 		droneScans:Array<DroneScan>,
 		visibleCreatureDatasets:Array<CreatureDataset>,
