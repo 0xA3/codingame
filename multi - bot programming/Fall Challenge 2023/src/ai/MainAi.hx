@@ -17,7 +17,6 @@ class MainAi {
 	static final inputLines:Array<String> = [];
 
 	static function main() {
-		
 		final ai = CurrentAis.aiMe;
 		final creatureCount = parseInt( readline() );
 		final creatures = [for( _ in 0...creatureCount ) {
