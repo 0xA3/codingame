@@ -26,11 +26,9 @@ class MainAi {
 			creature;
 		}];
 
-		final creaturesMap = [for( creature in creatures ) creature.id => creature];
-		
 		final myDrones = [for( i in 0...dronesNum ) new Drone()];
 		final foeDrones = [for( i in 0...dronesNum ) new Drone()];
-		ai.setGlobalInputs( myDrones, creaturesMap, creatures );
+		ai.setGlobalInputs( myDrones, creatures );
 		
 		// game loop
 		while( true ) {

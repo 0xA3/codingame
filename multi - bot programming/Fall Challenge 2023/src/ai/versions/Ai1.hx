@@ -20,7 +20,6 @@ class Ai1 implements IAi {
 	final scannedCreatures:Map<Int, Bool> = [];
 	final escapedCreatures:Map<Int, Bool> = [];
 	
-	var creaturesMap:Map<Int, Creature>;
 	var creatures:Array<Creature>;
 	var myDrones:Array<Drone>;
 	
@@ -32,9 +31,8 @@ class Ai1 implements IAi {
 
 	public function new() { }
 	
-	public function setGlobalInputs( myDrones:Array<Drone>, creaturesMap:Map<Int, Creature>, creatures:Array<Creature> ) {
+	public function setGlobalInputs( myDrones:Array<Drone>, creatures:Array<Creature> ) {
 		this.myDrones = myDrones;
-		this.creaturesMap = creaturesMap;
 		this.creatures = creatures;
 		// printErr( 'creatures $creatures' );
 		for( creature in creatures ) {
