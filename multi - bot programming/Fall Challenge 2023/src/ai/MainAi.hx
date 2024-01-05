@@ -5,6 +5,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.CurrentAis;
+import ai.data.Constants.ZONES;
 import ai.data.Creature;
 import ai.data.CreatureDataset;
 import ai.data.Drone;
@@ -17,23 +18,23 @@ class MainAi {
 	static final inputLines:Array<String> = [];
 
 	static function main() {
-		var visibleCreatureDatasets:Array<CreatureDataset> = [];
-		var radarBlips:Array<RadarBlip> = [];
-
 		final ai = CurrentAis.aiMe;
 		final creatureCount = parseInt( readline() );
 		final creatures = [for( _ in 0...creatureCount ) {
 			final inputs = readline().split(' ');
-			final id = parseInt( inputs[0] );
-			final creature:Creature = { id: id, color:  parseInt( inputs[1] ), type: parseInt( inputs[2] ) }
+			final type = parseInt( inputs[2] );
+			final creature = new Creature( parseInt( inputs[0] ), parseInt( inputs[1] ), type, ZONES[type][0], ZONES[type][1] );
 			creature;
 		}];
 
 		final myDrones = [for( _ in 0...dronesNum ) new Drone()];
 		final foeDrones = [for( _ in 0...dronesNum ) new Drone()];
 		
-		ai.setGlobalInputs( myDrones, creatures, visibleCreatureDatasets, radarBlips );
+		ai.setGlobalInputs( creatures );
 		
+		var visibleCreatureDatasets:Array<CreatureDataset> = [];
+		var radarBlips:Array<RadarBlip> = [];
+
 		// game loop
 		while( true ) {
 			final myScore = parseInt( readline() );
@@ -78,7 +79,7 @@ class MainAi {
 
 			final visibleCreatureCount = parseInt( readline() );
 			visibleCreatureDatasets.splice( 0, visibleCreatureDatasets.length );
-			for( i in 0...visibleCreatureCount ) {
+			for( _ in 0...visibleCreatureCount ) {
 				var inputs = readline().split(' ');
 				final creatureDataset:CreatureDataset = {
 					id: parseInt( inputs[0] ),
@@ -105,8 +106,11 @@ class MainAi {
 				foeScore,
 				myScannedCreatureIds,
 				foeIds,
+				myDrones,
 				foeDrones,
-				droneScans
+				droneScans,
+				visibleCreatureDatasets,
+				radarBlips
 			);
 
 			final outputs = ai.process();

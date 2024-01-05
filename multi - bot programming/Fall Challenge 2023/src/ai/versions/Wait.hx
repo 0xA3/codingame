@@ -17,15 +17,18 @@ class Wait implements IAi {
 	
 	public function new() { }
 	
-	public function setGlobalInputs( myDrones:Array<Drone>, creatures:Array<Creature>, visibleCreatureDatasets:Array<CreatureDataset>, radarBlips:Array<RadarBlip> ) { }
+	public function setGlobalInputs( creatures:Array<Creature> ) { }
 	
 	public function setInputs(
 		myScore:Int,
 		foeScore:Int,
 		myScannedCreatureIds:Array<Int>,
 		foeIds:Array<Int>,
+		myDrones:Array<Drone>,
 		foeDrones:Array<Drone>,
-		droneScans:Array<DroneScan>
+		droneScans:Array<DroneScan>,
+		visibleCreatureDatasets:Array<CreatureDataset>,
+		radarBlips:Array<RadarBlip>
 	) {	}
 
 	public function init() { }
