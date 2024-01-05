@@ -17,6 +17,9 @@ class MainAi {
 	static final inputLines:Array<String> = [];
 
 	static function main() {
+		var visibleCreatureDatasets:Array<CreatureDataset> = [];
+		var radarBlips:Array<RadarBlip> = [];
+
 		final ai = CurrentAis.aiMe;
 		final creatureCount = parseInt( readline() );
 		final creatures = [for( _ in 0...creatureCount ) {
@@ -26,9 +29,10 @@ class MainAi {
 			creature;
 		}];
 
-		final myDrones = [for( i in 0...dronesNum ) new Drone()];
-		final foeDrones = [for( i in 0...dronesNum ) new Drone()];
-		ai.setGlobalInputs( myDrones, creatures );
+		final myDrones = [for( _ in 0...dronesNum ) new Drone()];
+		final foeDrones = [for( _ in 0...dronesNum ) new Drone()];
+		
+		ai.setGlobalInputs( myDrones, creatures, visibleCreatureDatasets, radarBlips );
 		
 		// game loop
 		while( true ) {
@@ -73,26 +77,28 @@ class MainAi {
 			}];
 
 			final visibleCreatureCount = parseInt( readline() );
-			final visibleCreatureDatasets = [for( i in 0...visibleCreatureCount ) {
+			visibleCreatureDatasets.splice( 0, visibleCreatureDatasets.length );
+			for( i in 0...visibleCreatureCount ) {
 				var inputs = readline().split(' ');
 				final creatureDataset:CreatureDataset = {
 					id: parseInt( inputs[0] ),
 					pos: { x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
 					vel: { x: parseInt( inputs[3] ), y: parseInt( inputs[4] )},
 				}
-				creatureDataset;
-			}];
+				visibleCreatureDatasets.push( creatureDataset );
+			};
 			
 			final radarBlipCount = parseInt( readline() );
-			final radarBlips = [for( _ in 0...radarBlipCount ) {
+			radarBlips.splice( 0, radarBlips.length );
+			for( _ in 0...radarBlipCount ) {
 				var inputs = readline().split(' ');
 				final radarBlip:RadarBlip = {
 					droneId: parseInt( inputs[0] ),
 					creatureId: parseInt( inputs[1] ),
 					radar: inputs[2]
 				}
-				radarBlip;
-			}];
+				radarBlips.push( radarBlip );
+			};
 			
 			ai.setInputs(
 				myScore,
@@ -100,9 +106,7 @@ class MainAi {
 				myScannedCreatureIds,
 				foeIds,
 				foeDrones,
-				droneScans,
-				visibleCreatureDatasets,
-				radarBlips
+				droneScans
 			);
 
 			final outputs = ai.process();

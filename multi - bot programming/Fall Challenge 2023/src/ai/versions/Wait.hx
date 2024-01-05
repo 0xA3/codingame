@@ -17,7 +17,7 @@ class Wait implements IAi {
 	
 	public function new() { }
 	
-	public function setGlobalInputs( myDrones:Array<Drone>, creatures:Array<Creature> ) { }
+	public function setGlobalInputs( myDrones:Array<Drone>, creatures:Array<Creature>, visibleCreatureDatasets:Array<CreatureDataset>, radarBlips:Array<RadarBlip> ) { }
 	
 	public function setInputs(
 		myScore:Int,
@@ -25,9 +25,7 @@ class Wait implements IAi {
 		myScannedCreatureIds:Array<Int>,
 		foeIds:Array<Int>,
 		foeDrones:Array<Drone>,
-		droneScans:Array<DroneScan>,
-		visibleCreatureDatasets:Array<CreatureDataset>,
-		radarBlips:Array<RadarBlip>
+		droneScans:Array<DroneScan>
 	) {	}
 
 	public function init() { }

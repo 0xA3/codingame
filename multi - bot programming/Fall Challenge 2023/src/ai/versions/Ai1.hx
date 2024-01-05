@@ -31,9 +31,11 @@ class Ai1 implements IAi {
 
 	public function new() { }
 	
-	public function setGlobalInputs( myDrones:Array<Drone>, creatures:Array<Creature> ) {
+	public function setGlobalInputs( myDrones:Array<Drone>, creatures:Array<Creature>, visibleCreatureDatasets:Array<CreatureDataset>, radarBlips:Array<RadarBlip> ) {
 		this.myDrones = myDrones;
 		this.creatures = creatures;
+		this.visibleCreatureDatasets = visibleCreatureDatasets;
+		this.radarBlips = radarBlips;
 		// printErr( 'creatures $creatures' );
 		for( creature in creatures ) {
 			scannedCreatures.set( creature.id, false );
@@ -48,13 +50,8 @@ class Ai1 implements IAi {
 		myScannedCreatureIds:Array<Int>,
 		foeIds:Array<Int>,
 		foeDrones:Array<Drone>,
-		droneScans:Array<DroneScan>,
-		visibleCreatureDatasets:Array<CreatureDataset>,
-		radarBlips:Array<RadarBlip>
+		droneScans:Array<DroneScan>
 	) {
-		
-		this.visibleCreatureDatasets = visibleCreatureDatasets;
-		this.radarBlips = radarBlips;
 		
 		for( id in escapedCreatures.keys()) escapedCreatures.set( id, true );
 		for( radarBlip in radarBlips ) escapedCreatures.set( radarBlip.creatureId, false );
