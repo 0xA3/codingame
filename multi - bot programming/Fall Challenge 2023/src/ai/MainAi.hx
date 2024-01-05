@@ -5,6 +5,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.CurrentAis;
+import ai.data.Constants.MONSTER_MIN_Y;
 import ai.data.Constants.ZONES;
 import ai.data.Creature;
 import ai.data.CreatureDataset;
@@ -23,7 +24,9 @@ class MainAi {
 		final creatures = [for( _ in 0...creatureCount ) {
 			final inputs = readline().split(' ');
 			final type = parseInt( inputs[2] );
-			final creature = new Creature( parseInt( inputs[0] ), parseInt( inputs[1] ), type, ZONES[type][0], ZONES[type][1] );
+			final minY = ZONES[type][0];
+			final minPossibleY = type == -1 ? MONSTER_MIN_Y : minY;
+			final creature = new Creature( parseInt( inputs[0] ), parseInt( inputs[1] ), type, minY, minPossibleY, ZONES[type][1] );
 			creature;
 		}];
 

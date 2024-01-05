@@ -9,10 +9,12 @@ package xa3;
 	public function toString() return '$x:$y';
 	
 	public inline function distance( v:Vec2 ) return Math.sqrt(distanceSq(v));
+	public inline function distanceXY( otherX:Int, otherY:Int ) return Math.sqrt(distanceSqXY( otherX, otherY ));
 
-	public inline function distanceSq( v:Vec2 ) {
-		var dx = v.x - x;
-		var dy = v.y - y;
+	public inline function distanceSq( v:Vec2 ) return distanceSqXY( v.x, v.y );
+	public inline function distanceSqXY( otherX:Int, otherY:Int ) {
+		var dx = otherX - x;
+		var dy = otherY - y;
 		return dx * dx + dy * dy;
 	}
 

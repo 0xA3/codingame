@@ -12,7 +12,11 @@ class Drone {
 	public var state = Search;
 	public var light = 0;
 
+	public var targetId = -1;
+
 	public function new() {}
+
+	public function resetTarget() targetId = -1;
 
 	public function toString() return 'id: $id, : $pos, emergency: $emergency, battery: $battery';
 }
