@@ -13,15 +13,12 @@ import Math.sqrt;
 	public function toString() return '$x:$y';
 	
 	public inline function distance( v:Vec2 ) return Math.sqrt(distanceSq(v));
-	public inline function distanceXY( otherX:Float, otherY:Float ) return Math.sqrt(distanceSqXY( otherX, otherY ));
-
-	public inline function distanceSq( v:Vec2 ) return distanceSqXY( v.x, v.y );
-	public inline function distanceSqXY( otherX:Float, otherY:Float ) {
-		var dx = otherX - x;
-		var dy = otherY - y;
+	public inline function distanceSq( v:Vec2 ) {
+		var dx = v.x - x;
+		var dy = v.y - y;
 		return dx * dx + dy * dy;
 	}
-	public inline function inRange( v:Vec2, range:Float ) return Math.sqrt(( v.x - x ) * ( v.x - x ) + ( v.y - y ) * ( v.y - y ));
+	public inline function inRange( v:Vec2, range:Float ) return distanceSq( v ) <= range * range;
 	public static inline function invSqrt( f:Float ) return 1. / sqrt( f );
 	public inline function isZero() return x == 0 && y == 0;
 

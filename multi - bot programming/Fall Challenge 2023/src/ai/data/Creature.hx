@@ -28,6 +28,7 @@ class Creature {
 	public var movement:Int;
 
 	public var pos:Vec2 = { x: 0, y: 0 }
+	public var vel:Vec2 = { x: 0, y: 0 }
 
 	public function new( id:Int, color:Int, type:Int, minY:Int, minPossibleY:Int, maxPossibleY:Int, movement:Int ) {
 		this.id = id;
@@ -48,11 +49,13 @@ class Creature {
 		maxY = min( maxPossibleY, maxY + movement );
 	}
 
-	public function updatePosition( x:Float, y:Float ) {
-		pos.x = x;
-		pos.y = y;
-		minX = maxX = round( x );
-		minY = maxY = round( y );
+	public function updatePosition( pos:Vec2, vel:Vec2 ) {
+		this.pos.x = pos.x;
+		this.pos.y = pos.y;
+		minX = maxX = round( pos.x );
+		minY = maxY = round( pos.y );
+		this.vel.x = vel.x;
+		this.vel.y = vel.y;
 	}
 
 	public function curtailPossiblePositions( droneX:Float, droneY:Float, radar:String ) {

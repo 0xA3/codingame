@@ -2,9 +2,11 @@ package ai.versions;
 
 import CodinGame.printErr;
 import CodinGame.readline;
+import Math.round;
 import Std.parseInt;
 import ai.IAi;
 import ai.data.Constants.DRONE_HIT_RANGE;
+import ai.data.Constants.DRONE_SPEED;
 import ai.data.Constants.LIGHT_SCAN_RADIUS;
 import ai.data.Constants.MAX_POS;
 import ai.data.Constants.MONSTER_EAT_RANGE;
@@ -15,6 +17,7 @@ import ai.data.DroneScan;
 import ai.data.RadarBlip;
 import xa3.Math.max;
 import xa3.Math.min;
+import xa3.Vec2;
 
 using Lambda;
 
@@ -36,7 +39,7 @@ class Ai2 implements IAi {
 	var monstersMap:Map<Int, Creature> = [];
 
 	var visibleCreatureDatasets:Map<Int, CreatureDataset>;
-	var visibleMonsterIds:Array<Int> = [];
+	var visibleMonsters:Array<Creature> = [];
 	var radarBlips:Array<RadarBlip>;
 	
 	var turn = 0;
@@ -89,9 +92,13 @@ class Ai2 implements IAi {
 			setScannedCreatures( myDrone );
 			myDrone.updateLightCooldown();
 		}
-		
-		visibleMonsterIds.splice( 0, visibleMonsterIds.length );
-		for( creature in creatures ) if( creature.type == -1 ) visibleMonsterIds.push( creature.id );
+
+		visibleMonsters.splice( 0, visibleMonsters.length );
+		for( visibleCreature in visibleCreatureDatasets ) {
+			if( monstersMap.exists( visibleCreature.id )) {
+				visibleMonsters.push( monstersMap[visibleCreature.id] );
+			}
+		}
 	}
 	
 	function setScannedCreatures( myDrone:Drone ) {
@@ -102,7 +109,7 @@ class Ai2 implements IAi {
 			final dist = myDrone.pos.distance( creature.pos );
 			if( dist < lightDist ) {
 				scannedCreatures.set( creature.id, true );
-				printErr( 'drone ${myDrone.id} scanned creature ${creature.id}' );
+				// printErr( 'drone ${myDrone.id} scanned creature ${creature.id}' );
 			}
 		}
 	}
@@ -113,12 +120,12 @@ class Ai2 implements IAi {
 		for( creature in creatures ) {
 			if( visibleCreatureDatasets.exists( creature.id )) {
 				final visibleCreature = visibleCreatureDatasets[creature.id];
-				creature.updatePosition( visibleCreature.pos.x, visibleCreature.pos.y );
+				creature.updatePosition( visibleCreature.pos, visibleCreature.vel );
 			} else {
 				creature.increaseRanges();
 			}
 		}
-		for( creatureDataset in visibleCreatureDatasets ) if( monstersMap.exists( creatureDataset.id )) printErr( monstersMap[creatureDataset.id] );
+		// for( creatureDataset in visibleCreatureDatasets ) if( monstersMap.exists( creatureDataset.id )) printErr( monstersMap[creatureDataset.id] );
 
 		curtailCreaturePositions();
 		findTargetCreatures();
@@ -176,7 +183,7 @@ class Ai2 implements IAi {
 				drone.targetId = creature.id;
 				prevTargetId = creature.id;
 				assignedDronesNum++;
-				printErr( 'move drone ${drone.id} to creature ${creature.id} in ${creature.minX}:${creature.minY} - ${creature.maxX}:${creature.maxY}' );
+				printErr( 'move drone ${drone.id} to creature ${creature.id} ${creature.pos.x}:${creature.pos.y} range ${creature.minX}:${creature.minY} - ${creature.maxX}:${creature.maxY}' );
 			}
 			if( assignedDronesNum == myDrones.length ) break;
 		}
@@ -192,24 +199,77 @@ class Ai2 implements IAi {
 			myDrone.light = 0;
 		}
 		
-		final targetX = max( LIGHT_SCAN_RADIUS, min( MAX_POS - LIGHT_SCAN_RADIUS, targetCreature.pos.x ));
+		final targetX = max( LIGHT_SCAN_RADIUS, min( MAX_POS - LIGHT_SCAN_RADIUS, round( targetCreature.pos.x )));
+		final targetY = targetCreature.pos.y;
 
-		return 'MOVE ${targetX} ${targetCreature.pos.y} ${myDrone.light}';
+		final destination:Vec2 = { x: targetX, y: targetY }
+
+		final target = visibleMonsters.length == 0 ? destination : avoidMonsters( myDrone, destination );
+
+		return 'MOVE ${round( target.x )} ${round( target.y )} ${myDrone.light}';
+	}
+
+	// function avoidMonsters( dronePos:Vec2, destination:Vec2 ) {
+	function avoidMonsters( myDrone:Drone, destination:Vec2 ) {
+		final dronePos = myDrone.pos;
+
+		final bestVel:Vec2 = { x: destination.x - myDrone.pos.x, y: destination.y - myDrone.pos.y }
+		var bestDistance = Math.POSITIVE_INFINITY;
+
+		final testVel:Vec2 = { x: 0, y: 0 }
+		var isSavePosition = true;
+		for( _ in 0...100 ) {
+			final angle = Math.random() * 2 * Math.PI;
+			final distance = Math.random() * DRONE_SPEED;
+			testVel.x = Math.cos( angle ) * distance;
+			testVel.y = Math.sin( angle ) * distance;
+
+			isSavePosition = true;
+			for( monster in visibleMonsters ) {
+				// printErr( 'drone ${myDrone.id} testPos ${dronePos.add( testVel )} with monster ${monster.id}' );
+				if( getCollision( dronePos, testVel, monster.pos, monster.vel )) {
+					isSavePosition = false;
+					break;
+				}
+			}
+			// printErr( 'drone ${myDrone.id} testPos ${dronePos.add( testVel )} isSave $isSavePosition' );
+			if( !isSavePosition ) continue;
+			
+			final distanceSq = dronePos.add( testVel ).distanceSq( destination );
+			if( distanceSq < bestDistance ) {
+				bestDistance = distanceSq;
+				bestVel.x = testVel.x;
+				bestVel.y = testVel.y;
+				// printErr( 'testPos ${dronePos.add( testVel )} is better' );
+			}
+		}
+		
+		final bestPos = dronePos.add( bestVel );
+		// printErr( 'myDrone ${myDrone.id} bestPos ${bestPos.x}:${bestPos.y}  isSave $isSavePosition' );
+		return bestPos;
 	}
 
 	function doSave( myDrone:Drone) {
 		if( myDrone.pos.y < 500 + 600 ) myDrone.state = Search;
-		return 'MOVE ${myDrone.pos.x} 0 0';
+
+		final destination:Vec2 = { x: myDrone.pos.x, y: 0 }
+		final target = visibleMonsters.length == 0 ? destination : avoidMonsters( myDrone, destination );
+
+		return 'MOVE ${round( target.x )} ${round( target.y )} 0';
 	}
 
 	function getCollision( dronePos:Vec2, droneVel:Vec2, monsterPos:Vec2, monsterVel:Vec2 ) {
 		// Check instant collision
-		if( monsterPos.inRange( drone.pos, DRONE_HIT_RANGE + MONSTER_EAT_RANGE )) {
+		if( monsterPos.inRange( dronePos, DRONE_HIT_RANGE + MONSTER_EAT_RANGE )) {
+			// printErr( 'instant collision' );
 			return true;
 		}
 
 		// Both units are motionless
-		if( droneVel.isZero() && monsterVel.isZero() ) return false;
+		if( droneVel.isZero() && monsterVel.isZero() ) {
+			// printErr( 'Both units are motionless' );
+			return false;
+		}
 
 		final x = monsterPos.x;
 		final y = monsterPos.y;
@@ -230,17 +290,26 @@ class Ai2 implements IAi {
 
 		final a = vx2 * vx2 + vy2 * vy2;
 
-		if( a < 0 ) return false;
+		if( a < 0 ) {
+			// printErr( 'a < 0  $a' );
+			return false;
+		}
 
 		final b = 2.0 * ( x2 * vx2 + y2 * vy2 );
 		final c = x2 * x2 + y2 * y2 - r2 * r2;
 		final delta = b * b - 4.0 * a * c;
 
-		if( delta < 0 ) return false;
+		if( delta < 0 ) {
+			// printErr( 'delta < 0  $delta' );
+			return false;
+		}
 
 		final t = ( -b - Math.sqrt( delta )) / ( 2.0 * a );
 
-		if( t <= 0 || t > 1 ) return false;
+		if( t <= 0 || t > 1 ) {
+			// printErr( ' <= 0 || t > 1  $t' );
+			return false;
+		}
 
 		return true;
 	}
