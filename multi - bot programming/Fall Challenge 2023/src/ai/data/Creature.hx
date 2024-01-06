@@ -1,6 +1,7 @@
 package ai.data;
 
 import CodinGame.printErr;
+import Math.round;
 import Std.int;
 import ai.data.Constants.BL;
 import ai.data.Constants.BR;
@@ -10,9 +11,9 @@ import ai.data.Constants.TR;
 import xa3.Math.center;
 import xa3.Math.max;
 import xa3.Math.min;
+import xa3.Vec2;
 
 class Creature {
-	public static inline var MOVEMENT = 200;
 	
 	public final id:Int;
 	public final color:Int;
@@ -24,33 +25,37 @@ class Creature {
 	public var maxX = MAX_POS;
 	public var minY = 0;
 	public var maxY = MAX_POS;
+	public var movement:Int;
 
-	public var centerX = int( MAX_POS / 2 );
-	public var centerY = 0;
+	public var pos:Vec2 = { x: 0, y: 0 }
 
-	public function new( id:Int, color:Int, type:Int, minY:Int, minPossibleY:Int, maxPossibleY:Int ) {
+	public function new( id:Int, color:Int, type:Int, minY:Int, minPossibleY:Int, maxPossibleY:Int, movement:Int ) {
 		this.id = id;
 		this.color = color;
 		this.type = type;
 		this.minY = minY;
 		this.minPossibleY = minPossibleY;
 		this.maxY = this.maxPossibleY = maxPossibleY;
-		centerY = center( minY, maxY );
+		this.movement = movement;
+		pos.x = center( minX, maxX );
+		pos.y = center( minY, maxY );
 	}
 
 	public function increaseRanges() {
-		minX = max( 0, minX - MOVEMENT );
-		maxX = min( MAX_POS, maxX + MOVEMENT );
-		minY = max( minPossibleY, minY - MOVEMENT );
-		maxY = min( maxPossibleY, maxY + MOVEMENT );
+		minX = max( 0, minX - movement );
+		maxX = min( MAX_POS, maxX + movement );
+		minY = max( minPossibleY, minY - movement );
+		maxY = min( maxPossibleY, maxY + movement );
 	}
 
-	public function updatePosition( x:Int, y:Int ) {
-		minX = maxX = centerX = x;
-		minY = maxY = centerY = y;
+	public function updatePosition( x:Float, y:Float ) {
+		pos.x = x;
+		pos.y = y;
+		minX = maxX = round( x );
+		minY = maxY = round( y );
 	}
 
-	public function curtailPossiblePositions( droneX:Int, droneY:Int, radar:String ) {
+	public function curtailPossiblePositions( droneX:Float, droneY:Float, radar:String ) {
 		switch radar {
 			case TL:
 				curtailToTop( droneY );
@@ -65,31 +70,31 @@ class Creature {
 				curtailToBottom( droneY );
 				curtailToLeft( droneX );
 		}
-		centerX = center( minX, maxX );
-		centerY = center( minY, maxY );
+		pos.x = center( minX, maxX );
+		pos.y = center( minY, maxY );
 	}
 	
-	function curtailToTop( droneY:Int ) {
+	function curtailToTop( droneY:Float ) {
 		// if( id == 5 ) printErr( 'creature ${id } curtailToTop' );
-		maxY = min( maxY, droneY );
+		maxY = min( maxY, round( droneY ));
 		minY = min( minY, maxY );
 	}
 	
-	function curtailToLeft( droneX:Int ) {
+	function curtailToLeft( droneX:Float ) {
 		// if( id == 5 ) printErr( 'creature ${id } curtailToLeft' );
-		maxX = min( maxX, droneX );
+		maxX = min( maxX, round( droneX ));
 		minX = min( minX, maxX );
 	}
 	
-	function curtailToBottom( droneY:Int ) {
+	function curtailToBottom( droneY:Float ) {
 		// if( id == 5 ) printErr( 'creature ${id } curtailToBottom' );
-		minY = max( minY, droneY );
+		minY = max( minY, round( droneY ));
 		minY = min( minY, maxY );
 	}
 
-	function curtailToRight( droneX:Int ) {
+	function curtailToRight( droneX:Float ) {
 		// if( id == 5 ) printErr( 'creature ${id } curtailToRight' );
-		minX = max( minX, droneX );
+		minX = max( minX, round( droneX ));
 		minX = min( minX, maxX );
 	}
 
