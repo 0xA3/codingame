@@ -16,7 +16,7 @@ interface IAi {
 		myDrones:Array<Drone>,
 		foeDrones:Array<Drone>,
 		droneScans:Array<DroneScan>,
-		visibleCreatureDatasets:Array<CreatureDataset>,
+		visibleCreatureDatasets:Map<Int, CreatureDataset>,
 		radarBlips:Array<RadarBlip>
 	):Void;
 	function process():String;

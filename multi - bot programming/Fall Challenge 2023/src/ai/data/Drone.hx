@@ -11,12 +11,20 @@ class Drone {
 
 	public var state = Search;
 	public var light = 0;
+	
+	public static inline var MIN_LIGHT_COOLDOWN_DURATION = 3;
+	public var cooldownCounter = 0;
 
 	public var targetId = -1;
 
 	public function new() {}
 
 	public function resetTarget() targetId = -1;
+	public function resetLightCooldown() cooldownCounter = 0;
+
+	public function updateLightCooldown() {
+		cooldownCounter++;
+	}
 
 	public function toString() return 'id: $id, : $pos, emergency: $emergency, battery: $battery';
 }

@@ -35,7 +35,7 @@ class MainAi {
 		
 		ai.setGlobalInputs( creatures );
 		
-		var visibleCreatureDatasets:Array<CreatureDataset> = [];
+		var visibleCreatureDatasets:Map<Int, CreatureDataset> = [];
 		var radarBlips:Array<RadarBlip> = [];
 
 		// game loop
@@ -81,15 +81,16 @@ class MainAi {
 			}];
 
 			final visibleCreatureCount = parseInt( readline() );
-			visibleCreatureDatasets.splice( 0, visibleCreatureDatasets.length );
+			visibleCreatureDatasets.clear();
 			for( _ in 0...visibleCreatureCount ) {
 				var inputs = readline().split(' ');
+				final id = parseInt( inputs[0] );
 				final creatureDataset:CreatureDataset = {
-					id: parseInt( inputs[0] ),
+					id: id,
 					pos: { x: parseInt( inputs[1] ), y: parseInt( inputs[2] )},
 					vel: { x: parseInt( inputs[3] ), y: parseInt( inputs[4] )},
 				}
-				visibleCreatureDatasets.push( creatureDataset );
+				visibleCreatureDatasets.set( id, creatureDataset );
 			};
 			
 			final radarBlipCount = parseInt( readline() );

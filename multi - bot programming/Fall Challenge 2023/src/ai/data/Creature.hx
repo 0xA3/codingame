@@ -42,7 +42,7 @@ class Creature {
 		minX = max( 0, minX - MOVEMENT );
 		maxX = min( MAX_POS, maxX + MOVEMENT );
 		minY = max( minPossibleY, minY - MOVEMENT );
-		maxY = min( maxPossibleY, maxY - MOVEMENT );
+		maxY = min( maxPossibleY, maxY + MOVEMENT );
 	}
 
 	public function updatePosition( x:Int, y:Int ) {

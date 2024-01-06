@@ -6,6 +6,7 @@ import Std.parseInt;
 import ai.IAi;
 import ai.data.Constants.BL;
 import ai.data.Constants.BR;
+import ai.data.Constants.LIGHT_SCAN_RADIUS;
 import ai.data.Constants.MAX_POS;
 import ai.data.Constants.TL;
 import ai.data.Constants.TR;
@@ -33,7 +34,7 @@ class Ai1 implements IAi {
 	var creatures:Array<Creature>;
 	var creaturesMap:Map<Int, Creature> = [];
 	
-	var visibleCreatureDatasets:Array<CreatureDataset>;
+	var visibleCreatureDatasets:Map<Int, CreatureDataset>;
 	var radarBlips:Array<RadarBlip>;
 	
 	var turn = 0;
@@ -66,7 +67,7 @@ class Ai1 implements IAi {
 		myDrones:Array<Drone>,
 		foeDrones:Array<Drone>,
 		droneScans:Array<DroneScan>,
-		visibleCreatureDatasets:Array<CreatureDataset>,
+		visibleCreatureDatasets:Map<Int, CreatureDataset>,
 		radarBlips:Array<RadarBlip>
 	) {
 		this.myDrones = myDrones;
@@ -78,6 +79,21 @@ class Ai1 implements IAi {
 
 		for( id in escapedCreatures.keys()) escapedCreatures.set( id, true );
 		for( radarBlip in radarBlips ) escapedCreatures.set( radarBlip.creatureId, false );
+		for( myDrone in myDrones ) {
+			setScannedCreatures( myDrone );
+			myDrone.updateLightCooldown();
+		}
+	}
+	
+	function setScannedCreatures( myDrone:Drone ) {
+		final lightDist = myDrone.light == 0 ? 800 : 2000;
+		for( creature in visibleCreatureDatasets ) {
+			final dist = myDrone.pos.distance( creature.pos );
+			if( dist < lightDist ) {
+				scannedCreatures.set( creature.id, true );
+				// printErr( 'drone ${myDrone.id} scanned creature ${creature.id}' );
+			}
+		}
 	}
 
 	// MOVE <x> <y> <light (1|0)> | WAIT <light (1|0)>
@@ -104,12 +120,12 @@ class Ai1 implements IAi {
 	}
 
 	function curtailCreaturePositions() {
-		// if( turn == 0 ) for( radarBlip in radarBlips ) printErr( radarBlip );
+		// for( radarBlip in radarBlips ) printErr( radarBlip );
 		for( radarBlip in radarBlips ) {
 			final drone = myDronesMap[radarBlip.droneId];
 			final creature = creaturesMap[radarBlip.creatureId];
 			creature.curtailPossiblePositions( drone.pos.x, drone.pos.y, radarBlip.radar );
-			// if( creature.id == 5 ) printErr( 'creature $creature' );
+			// if( radarBlip.creatureId == 6 ) printErr( 'radarBlip of drone ${drone.id} for creature 6 ${radarBlip.radar}' );
 		}
 	}
 
@@ -128,47 +144,38 @@ class Ai1 implements IAi {
 		droneCreatureDistances.sort(( a, b ) -> a.distance - b.distance );
 
 		var assignedDronesNum = 0;
+		var prevTargetId = -1;
 		for( droneCreatureDistance in droneCreatureDistances ) {
 			final drone = droneCreatureDistance.drone;
 			final creature = droneCreatureDistance.creature;
-			if( drone.targetId == -1 ) {
+			if( drone.targetId == -1 && creature.id != prevTargetId ) {
 				drone.targetId = creature.id;
+				prevTargetId = creature.id;
 				assignedDronesNum++;
-				printErr( 'move drone ${drone.id} to creature ${creature.id}' );
+				// printErr( 'move drone ${drone.id} to creature ${creature.id} in ${creature.minX}:${creature.minY} - ${creature.maxX}:${creature.maxY}' );
 			}
 			if( assignedDronesNum == myDrones.length ) break;
 		}
 	}
 
 	function doSearch( myDrone:Drone ) {
-		final lightDist = myDrone.light == 0 ? 800 : 2000;
-		final nextLight = turn % 3 == 0 ? 1 : 0;
-		myDrone.light = nextLight;
-		
 		final targetCreature = creaturesMap[myDrone.targetId];
-
-		if( myDrone.pos.x < 2100 && targetCreature.centerX < myDrone.pos.x ) return 'WAIT $nextLight';
-		if( myDrone.pos.x > 10000 - 2100 && targetCreature.centerX > myDrone.pos.x ) return 'WAIT $nextLight';
-
-		if( visibleCreatureDatasets.length > 0 ) {
-			visibleCreatureDatasets.sort(( a, b ) -> {
-				final distA = myDrone.pos.distanceSq( a.pos );
-				final distB = myDrone.pos.distanceSq( b.pos );
-				if( distA < distB ) return -1;
-				if( distA > distB ) return 1;
-				return 0;
-			});
-			
-			for( creature in visibleCreatureDatasets ) {
-				final dist = myDrone.pos.distance( creature.pos );
-				if( dist < lightDist ) {
-					scannedCreatures.set( creature.id, true );
-					// printErr( 'scanned creature ${creature.id}' );
-				}
-			}
+		final distanceToCenter = myDrone.pos.distanceXY( targetCreature.centerX, targetCreature.centerY );
+		if( distanceToCenter < LIGHT_SCAN_RADIUS && myDrone.cooldownCounter > Drone.MIN_LIGHT_COOLDOWN_DURATION ) {
+			myDrone.light = 1;
+			myDrone.resetLightCooldown();
+		} else {
+			myDrone.light = 0;
 		}
+		// final nextLight = turn % 3 == 0 ? 1 : 0;
+		// myDrone.light = nextLight;
+		
 
-		return 'MOVE ${targetCreature.centerX} ${targetCreature.centerY} $nextLight';
+		// if( myDrone.pos.x < 2100 && targetCreature.centerX < myDrone.pos.x ) return 'WAIT $nextLight';
+		// if( myDrone.pos.x > 10000 - 2100 && targetCreature.centerX > myDrone.pos.x ) return 'WAIT $nextLight';
+		final targetX = max( LIGHT_SCAN_RADIUS, min( MAX_POS - LIGHT_SCAN_RADIUS, targetCreature.centerX ));
+
+		return 'MOVE ${targetX} ${targetCreature.centerY} ${myDrone.light}';
 	}
 
 	function doSave( myDrone:Drone) {
