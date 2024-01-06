@@ -17,10 +17,11 @@ import xa3.Math.min;
 using Lambda;
 
 // go to closest creature
+// evade monsters
 
-class Ai1 implements IAi {
+class Ai2 implements IAi {
 	
-	public var aiId = "Ai1";
+	public var aiId = "Ai2";
 	
 	final scannedCreatures:Map<Int, Bool> = [];
 	final escapedCreatures:Map<Int, Bool> = [];
@@ -84,10 +85,12 @@ class Ai1 implements IAi {
 	function setScannedCreatures( myDrone:Drone ) {
 		final lightDist = myDrone.light == 0 ? 800 : 2000;
 		for( creature in visibleCreatureDatasets ) {
+			if( scannedCreatures[creature.id] ) continue;
+
 			final dist = myDrone.pos.distance( creature.pos );
 			if( dist < lightDist ) {
 				scannedCreatures.set( creature.id, true );
-				// printErr( 'drone ${myDrone.id} scanned creature ${creature.id}' );
+				printErr( 'drone ${myDrone.id} scanned creature ${creature.id}' );
 			}
 		}
 	}
@@ -148,7 +151,7 @@ class Ai1 implements IAi {
 				drone.targetId = creature.id;
 				prevTargetId = creature.id;
 				assignedDronesNum++;
-				// printErr( 'move drone ${drone.id} to creature ${creature.id} in ${creature.minX}:${creature.minY} - ${creature.maxX}:${creature.maxY}' );
+				printErr( 'move drone ${drone.id} to creature ${creature.id} in ${creature.minX}:${creature.minY} - ${creature.maxX}:${creature.maxY}' );
 			}
 			if( assignedDronesNum == myDrones.length ) break;
 		}
