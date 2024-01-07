@@ -11,6 +11,7 @@ class Constants {
 	public static inline var MONSTER_RANGE = 500;
     public static inline var MONSTER_SPEED = 540;
 	public static inline var MONSTER_EAT_RANGE = 300;
+	public static inline var MONSTER_ADDITIONAL_DETACTABLE_RANGE = 300;
 	
 	public static inline var DRONE_SPEED = 600;
 	public static inline var DRONE_HIT_RANGE = 200;

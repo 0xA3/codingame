@@ -45,8 +45,7 @@ class MainAi {
 			final myScore = parseInt( readline() );
 			final foeScore = parseInt( readline() );
 			final myScanCount = parseInt( readline() );
-			final myScannedCreatureIds = [for( _ in 0...myScanCount ) parseInt( readline() )];
-
+			final myScannedCreatureIds = [for( _ in 0...myScanCount ) parseInt( readline() ) => true];
 			final foeScanCount = parseInt( readline() );
 			final foeIds = [for( _ in 0...foeScanCount ) parseInt( readline() )];
 
@@ -81,7 +80,6 @@ class MainAi {
 				}
 				droneScan;
 			}];
-
 			final visibleCreatureCount = parseInt( readline() );
 			visibleCreatureDatasets.clear();
 			for( _ in 0...visibleCreatureCount ) {

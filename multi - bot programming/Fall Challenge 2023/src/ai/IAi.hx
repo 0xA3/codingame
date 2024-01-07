@@ -11,7 +11,7 @@ interface IAi {
 	function setInputs(
 		myScore:Int,
 		foeScore:Int,
-		myScannedCreatureIds:Array<Int>,
+		myScannedCreatureIds:Map<Int, Bool>,
 		foeIds:Array<Int>,
 		myDrones:Array<Drone>,
 		foeDrones:Array<Drone>,
