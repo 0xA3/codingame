@@ -34,6 +34,7 @@ class Ai5 implements IAi {
 	var myScore = 0;
 	var foeScore = 0;
 	var myScannedCreatureIds:Map<Int, Bool> = [];
+	var foeIds:Array<Int> = [];
 	var myDrones:Array<Drone> = [];
 	var myDronesMap:Map<Int, Drone> = [];
 	var creatures:Array<Creature>;
@@ -65,6 +66,7 @@ class Ai5 implements IAi {
 
 		// final creatureOutputs = [for( creature in creatures ) creature.toString()].join( "\n" );
 		// printErr( 'creatures $creatureOutputs' );
+		
 		for( creature in creatures ) {
 			escapedCreatures.set( creature.id, false );
 		}
@@ -85,6 +87,7 @@ class Ai5 implements IAi {
 		this.myScore = myScore;
 		this.foeScore = foeScore;
 		this.myScannedCreatureIds = myScannedCreatureIds;
+		this.foeIds = foeIds;
 		this.myDrones = myDrones;
 		if( turn == 0 ) for( myDrone in myDrones ) myDronesMap.set( myDrone.id, myDrone );
 		
@@ -128,15 +131,23 @@ class Ai5 implements IAi {
 				}
 			}
 		}
-
-		// for( myDrone in myDrones ) {
-		// 	final visibleMonsterIds = myDrone.visibleMonsters.map( monster -> monster.id );
-		// 	printErr( 'drone ${myDrone.id} sees monsters $visibleMonsterIds' );
-		// }
 	}
+	
+	function curtailCreaturePositions() {
+		// for( radarBlip in radarBlips ) printErr( radarBlip );
+		for( radarBlip in radarBlips ) {
+			final drone = myDronesMap[radarBlip.droneId];
+			final creature = creaturesMap[radarBlip.creatureId];
+			creature.curtailPossiblePositions( drone.pos.x, drone.pos.y, radarBlip.radar );
+			// if( radarBlip.creatureId == 6 ) printErr( 'radarBlip of drone ${drone.id} for creature 6 ${radarBlip.radar}' );
+		}
+	}
+
 	
 	// MOVE <x> <y> <light (1|0)> | WAIT <light (1|0)>
 	public function process() {
+		final resurfaceScore = calculateResurfaceScore();
+		if( myScore == 0 && resurfaceScore >= 64 ) for( myDrone in myDrones ) myDrone.state = Up;
 		// if( turn == 0 ) printErr( 'myScore $myScore\nfoeScore: $foeScore\nmyScannedCreatureIds $myScannedCreatureIds\nfoeIds $foeIds\nmyDrones $myDrones\nfoeDrones $foeDrones\ndroneScans $droneScans\nvisibleCreatureDatasets $visibleCreatureDatasets\nradarBlips $radarBlips' );
 		findTargetCreatures();
 
@@ -156,14 +167,70 @@ class Ai5 implements IAi {
 		return actions.join( "\n" );
 	}
 
-	function curtailCreaturePositions() {
-		// for( radarBlip in radarBlips ) printErr( radarBlip );
-		for( radarBlip in radarBlips ) {
-			final drone = myDronesMap[radarBlip.droneId];
-			final creature = creaturesMap[radarBlip.creatureId];
-			creature.curtailPossiblePositions( drone.pos.x, drone.pos.y, radarBlip.radar );
-			// if( radarBlip.creatureId == 6 ) printErr( 'radarBlip of drone ${drone.id} for creature 6 ${radarBlip.radar}' );
+	function calculateResurfaceScore() {
+		final foeCreatureScans = foeIds.map( id -> creaturesMap[id] );
+		final foeCreatureScansMap = [for( id in foeIds ) id => creaturesMap[id]];
+
+		final foeScansOfType = [0, 0, 0];
+		final foeScansOfColor = [0, 0, 0];
+
+		for( creature in foeCreatureScans ) {
+			foeScansOfType[creature.type]++;
+			foeScansOfColor[creature.color]++;
 		}
+		
+
+		final creatureScans = [];
+		for( id in myScannedCreatureIds.keys() ) creatureScans.push( creaturesMap[id] );
+		for( id in myDroneScans.keys() ) creatureScans.push( creaturesMap[id] );
+
+		final scansOfType = [0, 0, 0];
+		final scansOfColor = [0, 0, 0, 0];
+
+		for( creature in creatureScans ) {
+			scansOfType[creature.type]++;
+			scansOfColor[creature.color]++;
+		}
+		
+		final singleScores = creatureScans.map( creature -> {
+			if( foeCreatureScansMap.exists( creature.id )) {
+				return switch creature.type {
+					case 0:	1;
+					case 1: 2;
+					case 2: 3;
+					default: throw 'Error type ${creature.type} is not possible';
+				}
+			} else {
+				return switch creature.type {
+					case 0:	2;
+					case 1: 4;
+					case 2: 6;
+					default: throw 'Error type ${creature.type} is not possible';
+				}
+			}
+		});
+
+		final allOfColorScores = [for( color in 0...scansOfColor.length ) {
+			// printErr( 'scansOfColor[$color] = ${scansOfColor[color]}' );
+			if( scansOfColor[color] < 3 ) 0
+			else if( foeScansOfColor[color] < 3 ) 6
+			else 3;
+		}];
+
+		final allOfTypeScores = [for( type in 0...scansOfType.length ) {
+			if( scansOfType[type] < 4 ) 0
+			else if( foeScansOfType[type] < 4 ) 8
+			else 4;
+		}];
+
+		final singleScore = singleScores.fold(( score, sum ) -> sum + score, 0 );
+		final allOfColorScore = allOfColorScores.fold(( score, sum ) -> sum + score, 0 );
+		final allOfTypeScore = allOfTypeScores.fold(( score, sum ) -> sum + score, 0 );
+
+		final resurfaceScore = singleScore + allOfColorScore + allOfTypeScore;
+
+		printErr( 'resurfaceScore  single $singleScore  allOfColor $allOfColorScore  allOfType $allOfTypeScore  total $resurfaceScore' );
+		return resurfaceScore;
 	}
 
 	function findTargetCreatures() {
