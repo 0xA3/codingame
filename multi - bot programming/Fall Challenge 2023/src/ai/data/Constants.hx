@@ -15,6 +15,7 @@ class Constants {
 	
 	public static inline var DRONE_SPEED = 600;
 	public static inline var DRONE_HIT_RANGE = 200;
+	public static inline var DRONE_NOISE_RANGE = 1400;
 	public static inline var SCAN_RADIUS = 800;
 	public static inline var LIGHT_SCAN_RADIUS = 2000;
 	

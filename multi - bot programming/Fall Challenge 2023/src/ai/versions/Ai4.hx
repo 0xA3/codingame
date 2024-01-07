@@ -44,7 +44,6 @@ class Ai4 implements IAi {
 	var monstersMap:Map<Int, Creature> = [];
 
 	var visibleCreatureDatasets:Map<Int, CreatureDataset>;
-	var visibleMonsters:Array<Creature> = [];
 	var radarBlips:Array<RadarBlip>;
 	
 	var turn = 0;
@@ -97,36 +96,11 @@ class Ai4 implements IAi {
 
 		for( id in escapedCreatures.keys()) escapedCreatures.set( id, true );
 		for( radarBlip in radarBlips ) escapedCreatures.set( radarBlip.creatureId, false );
-		for( i in 0...myDrones.length ) {
-			// setScannedCreatures( myDrones[i], myDrones[1 - i] );
-			myDrones[i].updateLightCooldown();
+		for( myDrone in myDrones ) {
+			myDrone.resetTarget();
+			myDrone.resetVisibleMonsters();
 		}
 
-		visibleMonsters.splice( 0, visibleMonsters.length );
-		for( visibleCreature in visibleCreatureDatasets ) {
-			if( monstersMap.exists( visibleCreature.id )) {
-				visibleMonsters.push( monstersMap[visibleCreature.id] );
-			}
-		}
-	}
-	
-	// function setScannedCreatures( myDrone:Drone, otherDrone:Drone ) {
-	// 	final lightDist = myDrone.light == 0 ? 800 : 2000;
-	// 	for( creature in visibleCreatureDatasets ) {
-	// 		if( myDrone.scans[creature.id] ) continue;
-	// 		if( otherDrone.scans[creature.id] ) continue;
-
-	// 		final dist = myDrone.pos.distance( creature.pos );
-	// 		if( dist < lightDist ) {
-	// 			myDrone.scans.set( creature.id, true );
-	// 			// printErr( 'drone ${myDrone.id} scanned creature ${creature.id}' );
-	// 		}
-	// 	}
-	// }
-
-	// MOVE <x> <y> <light (1|0)> | WAIT <light (1|0)>
-	public function process() {
-		// if( turn == 0 ) printErr( 'myScore $myScore\nfoeScore: $foeScore\nmyScannedCreatureIds $myScannedCreatureIds\nfoeIds $foeIds\nmyDrones $myDrones\nfoeDrones $foeDrones\ndroneScans $droneScans\nvisibleCreatureDatasets $visibleCreatureDatasets\nradarBlips $radarBlips' );
 		for( creature in creatures ) {
 			if( visibleCreatureDatasets.exists( creature.id )) {
 				final visibleCreature = visibleCreatureDatasets[creature.id];
@@ -138,16 +112,42 @@ class Ai4 implements IAi {
 		// for( creatureDataset in visibleCreatureDatasets ) if( monstersMap.exists( creatureDataset.id )) printErr( monstersMap[creatureDataset.id] );
 
 		curtailCreaturePositions();
+		
+		for( visibleCreature in visibleCreatureDatasets ) {
+			if( monstersMap.exists( visibleCreature.id )) {
+				final monster = monstersMap[visibleCreature.id];
+				for( myDrone in myDrones ) {
+					final monsterDetectRange = myDrone.lightRadius + MONSTER_ADDITIONAL_DETACTABLE_RANGE;
+					final monsterDetectRangeSQ = monsterDetectRange * monsterDetectRange;
+					
+					final monsterDistance = myDrone.pos.distanceSq( monster.pos );
+					// printErr( 'drone ${myDrone.id} light ${myDrone.light} monster ${monster.id} pos ${monster.pos.x}:${monster.pos.y} distance ${Math.sqrt( monsterDistance )} sees ${monsterDistance <= monsterDetectRangeSQ}' );
+					if( monsterDistance <= monsterDetectRangeSQ ) {
+						myDrone.visibleMonsters.push( monstersMap[visibleCreature.id] );
+					}
+				}
+			}
+		}
+
+		// for( myDrone in myDrones ) {
+		// 	final visibleMonsterIds = myDrone.visibleMonsters.map( monster -> monster.id );
+		// 	printErr( 'drone ${myDrone.id} sees monsters $visibleMonsterIds' );
+		// }
+	}
+	
+	// MOVE <x> <y> <light (1|0)> | WAIT <light (1|0)>
+	public function process() {
+		// if( turn == 0 ) printErr( 'myScore $myScore\nfoeScore: $foeScore\nmyScannedCreatureIds $myScannedCreatureIds\nfoeIds $foeIds\nmyDrones $myDrones\nfoeDrones $foeDrones\ndroneScans $droneScans\nvisibleCreatureDatasets $visibleCreatureDatasets\nradarBlips $radarBlips' );
 		findTargetCreatures();
 
 		final actions = [];
 		for( i in 0...myDrones.length ) {
 			final myDrone = myDrones[i];
-			if( myDrone.targetId == -1 ) myDrone.state = Save;
+			if( myDrone.targetId == -1 ) myDrone.state = Up;
 			// printErr( 'drone ${myDrone.id} state ${myDrone.state}' );
 			switch myDrone.state {
-				case Search: actions.push( doSearch( myDrone ));
-				case Save: actions.push( doSave( myDrone ));
+				case Down: actions.push( doSearch( myDrone ));
+				case Up: actions.push( doSave( myDrone ));
 			}
 		}
 
@@ -170,8 +170,6 @@ class Ai4 implements IAi {
 		final droneCreatureDistances = [];
 		for( i in 0...myDrones.length ) {
 			final myDrone = myDrones[i];
-			final otherDrone = myDrones[1-i];
-			myDrone.resetTarget();
 			
 			for( creature in creatures ) {
 				if( creature.type == -1
@@ -207,14 +205,10 @@ class Ai4 implements IAi {
 
 	function doSearch( myDrone:Drone ) {
 		final targetCreature = creaturesMap[myDrone.targetId];
-		final monsterDetectRange = myDrone.lightRadius + MONSTER_ADDITIONAL_DETACTABLE_RANGE;
-		final monsterDetectRangeSQ = monsterDetectRange * monsterDetectRange;
-		final monstersNearDrone = visibleMonsters.filter( monster -> myDrone.pos.distanceSq( monster.pos ) <= monsterDetectRangeSQ );
 
 		final distanceToCenter = myDrone.pos.distance( targetCreature.pos );
-		if( distanceToCenter < LIGHT_SCAN_RADIUS && myDrone.cooldownCounter > Drone.MIN_LIGHT_COOLDOWN_DURATION ) {
+		if( distanceToCenter < LIGHT_SCAN_RADIUS ) {
 			myDrone.light = 1;
-			myDrone.resetLightCooldown();
 		} else {
 			myDrone.light = 0;
 		}
@@ -223,18 +217,12 @@ class Ai4 implements IAi {
 		final targetY = targetCreature.pos.y;
 
 		final destination:Vec2 = { x: targetX, y: targetY }
-
-
-		final target = monstersNearDrone.length == 0 ? destination : avoidMonsters( myDrone, destination, monstersNearDrone );
+		final target = myDrone.visibleMonsters.length == 0 ? destination : avoidMonsters( myDrone, destination );
 
 		return 'MOVE ${round( target.x )} ${round( target.y )} ${myDrone.light}';
 	}
 
-	// function avoidMonsters( dronePos:Vec2, destination:Vec2 ) {
-	function avoidMonsters( myDrone:Drone, destination:Vec2, monstersNearDrone:Array<Creature> ) {
-		// final monstersNearDroneIds = monstersNearDrone.map( creature -> creature.id );
-		// printErr( 'drone ${myDrone.id} avoid monsters $monstersNearDroneIds' );
-		
+	function avoidMonsters( myDrone:Drone, destination:Vec2 ) {
 		final dronePos = myDrone.pos;
 
 		final bestVel:Vec2 = { x: destination.x - myDrone.pos.x, y: destination.y - myDrone.pos.y }
@@ -242,9 +230,9 @@ class Ai4 implements IAi {
 
 		final testVel:Vec2 = { x: 0, y: 0 }
 		var isSavePosition = true;
-		for( _ in 0...200 ) {
+		for( _ in 0...100 ) {
 			final angle = Math.random() * 2 * Math.PI;
-			final distance = Math.random() * DRONE_SPEED;
+			final distance = DRONE_SPEED;
 			testVel.x = Math.cos( angle ) * distance;
 			testVel.y = Math.sin( angle ) * distance;
 
@@ -252,7 +240,7 @@ class Ai4 implements IAi {
 			if( testPosition.x < 0 || testPosition.x >= MAX_POS || testPosition.y >= MAX_POS ) continue;
 
 			isSavePosition = true;
-			for( monster in monstersNearDrone ) {
+			for( monster in myDrone.visibleMonsters ) {
 				// printErr( 'drone ${myDrone.id} testPos ${dronePos.add( testVel )} with monster ${monster.id}' );
 				if( getCollision( dronePos, testVel, monster.pos, monster.vel )) {
 					isSavePosition = false;
@@ -277,12 +265,10 @@ class Ai4 implements IAi {
 	}
 
 	function doSave( myDrone:Drone) {
-		if( myDrone.pos.y < 500 + 600 ) myDrone.state = Search;
-
-		final monstersNearDrone = visibleMonsters.filter( monster -> myDrone.pos.distanceSq( monster.pos ) <= myDrone.lightRadius * myDrone.lightRadius );
+		if( myDrone.pos.y < 500 + DRONE_SPEED ) myDrone.state = Down;
 
 		final destination:Vec2 = { x: myDrone.pos.x, y: 0 }
-		final target = monstersNearDrone.length == 0 ? destination : avoidMonsters( myDrone, destination, monstersNearDrone );
+		final target = myDrone.visibleMonsters.length == 0 ? destination : avoidMonsters( myDrone, destination );
 
 		return 'MOVE ${round( target.x )} ${round( target.y )} 0';
 	}
