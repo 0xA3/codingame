@@ -5,7 +5,6 @@ import Std.int;
 import Std.parseInt;
 
 using Lambda;
-using StringUtils;
 
 typedef Triangle = Array<Point>;
 
@@ -24,6 +23,7 @@ function main() {
 		];
 		triangle;
 	}];
+	
 	final result = process( hi, wi, style, triangles );
 	print( result );
 }
