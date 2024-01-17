@@ -24,7 +24,7 @@ function process( grid:Array<Array<String>> ) {
 }
 
 function getPathToRightSide( startY:Int, grid:Array<Array<String>> ) {
-	final visited = [for( y in 0...grid.length ) [for( x in 0...grid[y].length ) false]];
+	final visited = [for( y in 0...grid.length ) [for( _ in 0...grid[y].length ) false]];
 	final xRight = grid[0].length - 1;
 	final frontier = new List<Pos>();
 
@@ -37,8 +37,7 @@ function getPathToRightSide( startY:Int, grid:Array<Array<String>> ) {
 
 		if( current.x == xRight ) return true;
 		
-		final neighbors = getNeighbors( current.x, current.y, grid, visited );
-		for( neighbor in neighbors ) frontier.add( neighbor );
+		for( neighbor in getNeighbors( current.x, current.y, grid, visited )) frontier.add( neighbor );
 	}
 
 	return false;
