@@ -6,8 +6,6 @@ import Std.parseInt;
 
 using StringTools;
 
-var lines:Array<String>;
-
 function main() {
 
 	final inputs = readline().split(" ");
@@ -19,16 +17,17 @@ function main() {
 }
 
 function process( a:Int, b:Int ) {
-	lines = [];
-	lines.push( 'GCD($a,$b)=${gcd( a, b )}' );
+	final lines = [];
+	final gcd = gcd( lines, a, b );
+	lines.push( 'GCD($a,$b)=${gcd}' );
 	
 	final output = lines.join( "\n" );
 	return output;
 }
 
-function gcd( a:Int, b:Int ) {
+function gcd( lines:Array<String>, a:Int, b:Int ) {
 	final r = a % b;
 	lines.push( '$a=$b*${int( a / b )}+$r' );
 	if( r == 0 ) return b;
-	else return gcd( b, r );
+	else return gcd( lines, b, r );
 }
