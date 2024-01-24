@@ -1,7 +1,6 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Std.int;
 import Std.parseInt;
 
 using StringTools;

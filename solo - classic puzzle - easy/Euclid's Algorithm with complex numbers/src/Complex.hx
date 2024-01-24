@@ -75,12 +75,6 @@ abstract Complex(ComplexType) from ComplexType to ComplexType
 	inline function div(z:Complex):Complex {
 		var d = z.real * z.real + z.imag * z.imag;
 		return new Complex((this.real * z.real + this.imag * z.imag) / d, (this.imag * z.real - this.real * z.imag) / d);
-
-		// var det = z.real * z.real + z.imag * z.imag;
-		// return new Complex(
-		//   (this.real * z.real + this.imag * z.imag)/det,
-		//   (this.imag * z.real - this.real * z.imag)/det
-		// );
 	}
 
 	@:op(A / B)
