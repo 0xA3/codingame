@@ -2,7 +2,7 @@ package resources.view.pixi;
 
 import h2d.Bitmap;
 import h2d.Tile;
-import h3d.Vector;
+import h3d.Vector4;
 
 class Sprite extends Bitmap {
 	
@@ -20,7 +20,7 @@ class Sprite extends Bitmap {
 		return rgb.toColor();
 	}
 	function set_tint( c:Int ) {
-		final rgb = Vector.fromColor( c );
+		final rgb = Vector4.fromColor( c );
 		rgb.a = 1;
 		this.color = rgb;
 		return c;
