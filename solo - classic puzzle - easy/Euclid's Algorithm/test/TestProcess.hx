@@ -11,23 +11,23 @@ class TestProcess extends buddy.BuddySuite{
 	public function new() {
 
 		describe( "Test process", {
-			it( "21 / 3", {	
+			it( "21 / 3", {
 				final ip = parseInput( "21 3" );
 				Main.process( ip.a, ip.b ).should.be( result21_3 );
 			});
-			it( "25 / 3", {	
+			it( "25 / 3", {
 				final ip = parseInput( "25 3" );
 				Main.process( ip.a, ip.b ).should.be( result25_3 );
 			});
-			it( "50 / 14", {	
+			it( "50 / 14", {
 				final ip = parseInput( "50 14" );
 				Main.process( ip.a, ip.b ).should.be( result50_14 );
 			});
-			it( "115 / 47", {	
+			it( "115 / 47", {
 				final ip = parseInput( "115 47" );
 				Main.process( ip.a, ip.b ).should.be( result115_47 );
 			});
-			it( "4857 / 147", {	
+			it( "4857 / 147", {
 				final ip = parseInput( "4857 147" );
 				Main.process( ip.a, ip.b ).should.be( result4857_147 );
 			});
