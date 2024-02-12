@@ -17,16 +17,17 @@ function main() {
 
 function process( time:String ) {
 	final bin = time.split( ":" )
-		.map( s -> s.split("")).flatten()
-		.map( s -> parseInt( s ))
-		.map( v -> v.toBin() )
-		.map( s -> s.extend( 4 ))
-		.slice( 1 );
+	.map( s -> s.split( "" )).flatten()
+	.map( s -> parseInt( s ))
+	.map( v -> v.toBin() )
+	.map( s -> s.extend( 4 ))
+	.slice( 1 );
 	
-	final rows = [for( i in 0...4 ) [for( column in bin ) column.charAt( i )]];
+	final rows = [for( i in 0...4 ) [for( column in bin ) parseInt( column.charAt( i ))]];
+	
 	final output = rows.map( row ->
 		"|" +
-		row.map( s -> ( s == "0" ? "_" : "#" ).repeat( 5 )).join( "|" ) +
+		row.map( s -> ["_____", "#####"][s] ).join( "|" ) +
 		"|"
 	).join( "\n" );
 
