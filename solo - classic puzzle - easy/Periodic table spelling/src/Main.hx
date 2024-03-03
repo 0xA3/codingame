@@ -20,17 +20,17 @@ function process( word:String ) {
 	lowElements = elements.map( e -> e.toLowerCase());
 	
 	solutions = [];
-	find( word, [] );
+	find( word.toLowerCase(), [] );
 	
 	return solutions.length == 0 ? "none" : solutions.join( "\n" );
 }
 
 function find( wordPart:String, foundElements:Array<String> ) {
 	if( wordPart == "" ) solutions.push( foundElements.join( "" ));
-	final lowWordPart = wordPart.toLowerCase();
+
 	for( i in 0...elements.length ) {
 		// trace( '$wordPart  element: ${lowElements[i]} index: ${lowWordPart.indexOf( lowElements[i] )}' );
-		if( lowWordPart.indexOf( lowElements[i] ) == 0 ) {
+		if( wordPart.indexOf( lowElements[i] ) == 0 ) {
 			final element = elements[i];
 			find( wordPart.substr( element.length ), foundElements.concat( [element] ));
 		}
