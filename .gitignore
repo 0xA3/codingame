@@ -39,3 +39,5 @@ compete - bot programming/Spring Challenge 2022/res/spider_attack/main.json
 *.h
 _GeneratedFiles.txt
 cg-local-app-1.3.0.jar
+*.ffs_gui
+*.ffs_db
