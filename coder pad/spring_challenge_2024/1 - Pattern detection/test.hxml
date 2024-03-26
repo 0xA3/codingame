@@ -1,0 +1,8 @@
+-lib buddy
+-lib compiletime
+-cp ../../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D message-reporting=pretty
+-main test.Tests
+--interp
