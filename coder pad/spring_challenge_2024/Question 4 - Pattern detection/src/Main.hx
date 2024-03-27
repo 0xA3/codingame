@@ -1,46 +1,61 @@
 import Std.int;
 
-var radWidths:Map<Int, Array<Int>> = [];
-var grid:Array<Array<String>> = [];
-var largestCircle = [0, 0, 0];
+var circleCoordinates:Array<Array<Array<Int>>> = [];
 
 @:native("findLargestCircle")
 @:keep function findLargestCircle( nRows:Int, nCols:Int, image:Array<String> ) {
-	radWidths = initRadWidths();
-	largestCircle = [0, 0, 0];
+	final maxRadius = min( int( nRows / 2 ), int( nCols / 2 ));
+	// trace( maxRadius );
 	
+	circleCoordinates = createCircleCoordinates( maxRadius );
+	// for( r in 0...circleCoordinates.length ) trace( '$r: ${circleCoordinates[r]}' );
+
 	// split lines
-	grid = image.map( line -> line.split( "" ));
+	final grid = image.map( line -> line.split( "" ));
 	
-	// count chars in line
-	for( y in 0...grid.length ) {
-		final row = grid[y];
-		var char = row[0];
-		var left = 0;
-		var right = 0;
-		var col = 1;
-		while( col < row.length ) {
-			if( row[col] == char ) {
-				right = col;
-				final circle = findCircle( y, left, right, char );
-				for( i in 0...circle.length ) largestCircle[i] = circle[i];
-			} else {
-				char = row[col];
-				left = col;
-				right = col;
-	
+	for( i in -maxRadius...0 ) {
+		final radius = -i;
+		final centerStartX = radius;
+		final centerEndX = nCols - radius;
+		final centerStartY = radius;
+		final centerEndY = nRows - radius;
+		final coordinatesOfRadius = circleCoordinates[radius];
+
+		// trace( 'radius $radius  centerStartX $centerStartX centerEndX $centerEndX centerStartY $centerStartY centerEndY $centerEndY' );
+
+		for( centerY in centerStartY...centerEndY ) {
+			for( centerX in centerStartX...centerEndX ) {
+				final firstCoordinate = coordinatesOfRadius[0];
+				final firstX = centerX + firstCoordinate[0];
+				final firstY = centerY + firstCoordinate[1];
+				final firstChar = grid[firstY][firstX];
+
+				// trace( 'firstCoordinate $firstCoordinate  firstX $firstX firstY $firstY firstChar $firstChar' );
+
+				var isCircle = true;
+				for( coord in 1...coordinatesOfRadius.length ) {
+					final x = centerX + coordinatesOfRadius[coord][0];
+					final y = centerY + coordinatesOfRadius[coord][1];
+					final char = grid[y][x];
+					// trace( 'x $x  y $y  char $char' );
+					if( char != firstChar ) {
+						isCircle = false;
+						break;
+					}
+				}
+
+				if( isCircle ) {
+					return [centerY, centerX, radius];
+				}
 			}
-			col++;
-		}
-		if( right > left ) {
-			final circle = findCircle( y, left, right, char );
-			for( i in 0...circle.length ) largestCircle[i] = circle[i];
 		}
 	}
-
-	return largestCircle;
+	
+	throw 'Error: no circle found.';
 }
 
+function min( a:Int, b:Int ) return a < b ? a : b;
+/*
 function findCircle( y:Int, left:Int, right:Int, char:String ) {
 	// get possible radiuses
 	// filter in radiuses that are bigger than current biggest circle
@@ -104,30 +119,29 @@ function findCircle( y:Int, left:Int, right:Int, char:String ) {
 				}
 			}
 			if( !isCircle ) continue;
-			trace( 'circle found center $centerX:$centerY  radius $r' );
+			// trace( 'circle found center $centerX:$centerY  radius $r' );
 			return [centerY, centerX, r];
 		}
 	}
 	return [];
 }
-
-function initRadWidths() {
-	final radWidths:Map<Int, Array<Int>> = [];
-
-	for( i in -100...0 ) {
-		final r = -i;
+*/
+function createCircleCoordinates( max:Int ) {
+	final circleCoords = [];
+	for( r in 0...max + 1 ) {
 		final length = r * 2 + 1;
 		final center = r;
-		var numChars = 0;
-		for( x in 0...length ) {
-			final dist = distance( x, 0, center, center );
-			if( int( dist ) == r ) numChars++;
+		final coords = [];
+		for( y in 0...length ) {
+			for( x in 0...length ) {
+				final dist = distance( x, y, center, center );
+				if( int( dist ) == r ) coords.push([x - r, y - r]);
+			}
 		}
-		if( !radWidths.exists( numChars )) radWidths.set( numChars, [] );
-		radWidths[numChars].push( r );
+		circleCoords.push( coords );
 	}
 	
-	return radWidths;
+	return circleCoords;
 }
 
 function distance( x1:Int, y1:Int, x2:Int, y2:Int ) {
