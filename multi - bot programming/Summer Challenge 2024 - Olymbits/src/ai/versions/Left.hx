@@ -25,8 +25,6 @@ class Left implements IAi {
 		reg6:Int
 	) {	}
 
-	public function init() { }
-
 	// MOVE <x> <y> <light (1|0)> | WAIT <light (1|0)>
 	public function process() {
 		return "LEFT";
