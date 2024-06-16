@@ -4,10 +4,12 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import ai.IAi;
 import ai.data.Constants;
+import ai.data.RegisterDataset;
 import xa3.MathUtils.min;
 
 using Lambda;
 
+// go to next hurdle
 class Ai1 implements IAi {
 	public var aiId = "Ai1";
 
@@ -15,51 +17,69 @@ class Ai1 implements IAi {
 	var nbGames:Int;
 
 	var scoreInfos:Array<String> = [];
-	var raceTrack:Array<String> = [];
-	var positions:Array<Int> = [];
-	var stunTimers:Array<Int> = [];
+	var raceTracks:Array<Array<String>> = [];
+	var positions:Array<Array<Int>> = [];
+	var stunTimers:Array<Array<Int>> = [];
+
+	var turn = 1;
 
 	public function new() { }
 	
 	public function setGlobalInputs( playerIdx:Int, nbGames:Int ) {
 		this.playerIdx = playerIdx;
 		this.nbGames = nbGames;
+		for( g in 0...nbGames ) {
+			raceTracks[g] = [];
+			positions[g] = [];
+			stunTimers[g] = [];
+		}
+		
+		turn = 1;
 	}
 	
-	public function setInputs(
-		scoreInfos:Array<String>,
-		gpu:String,
-		reg0:Int,
-		reg1:Int,
-		reg2:Int,
-		reg3:Int,
-		reg4:Int,
-		reg5:Int,
-		reg6:Int
-	) {
+	public function setInputs( scoreInfos:Array<String>, registerDatasets:Array<RegisterDataset>	) {
 		this.scoreInfos = scoreInfos;
-		final splitGpu = gpu.split( "" );
-		for( i in 0...splitGpu.length ) raceTrack[i] = splitGpu[i];
-		this.positions[0] = reg0;
-		this.positions[1] = reg1;
-		this.positions[2] = reg2;
-		this.stunTimers[0] = reg3;
-		this.stunTimers[1] = reg4;
-		this.stunTimers[2] = reg5;
+		for( g in 0...registerDatasets.length ) {
+			final registerDataset = registerDatasets[g];
+			final splitGpu = registerDataset.gpu.split( "" );
+			for( i in 0...splitGpu.length ) raceTracks[g][i] = splitGpu[i];
+			this.positions[g][0] = registerDataset.reg0;
+			this.positions[g][1] = registerDataset.reg1;
+			this.positions[g][2] = registerDataset.reg2;
+			this.stunTimers[g][0] = registerDataset.reg3;
+			this.stunTimers[g][1] = registerDataset.reg4;
+			this.stunTimers[g][2] = registerDataset.reg5;
+		}
 	}
 
 	public function process() {
-		final myPosition = positions[playerIdx];
-		return getHurdleRaceResponse( myPosition );
+		final hurdleDistances = [for( g in 0...nbGames ) { game: g, distance: getHurdleDistance( raceTracks[g], positions[g][playerIdx] ), stunTimer: stunTimers[g][playerIdx] }];
+		final noStunDistances = hurdleDistances.filter( d -> d.stunTimer == 0 );
+		noStunDistances.sort(( a, b ) -> a.distance - b.distance );
+		// final output = [for( h in noStunDistances ) 'game: ${h.game}, dist: ${h.distance}'];
+		// printErr( output.join( "  " ) );
+
+		final lowestDistance = noStunDistances.length > 0 ? noStunDistances[0].distance : noStunDistances[0].distance;
+		final raceResponse = getHurdleRaceResponse( lowestDistance );
+		// printErr( 'lowestDistance: $lowestDistance, response $raceResponse' );
+
+		turn++;
+		return raceResponse;
 	}
 
-	function getHurdleRaceResponse( position:Int ) {
-		final max = 100 - position;
-		final nextSlots = [for( i in 1...min( 4, max )) raceTrack[position + i]];
-		
-		if( nextSlots[0] == HURDLE ) return UP;
-		if( nextSlots[1] == HURDLE ) return LEFT;
-		if( nextSlots[2] == HURDLE ) return DOWN;
+	function getHurdleDistance( raceTrack:Array<String>, position:Int ) {
+		for( i in position + 1...raceTrack.length ) {
+			if( raceTrack[i] == HURDLE ) {
+				return i - position;
+			}
+		}
+		return raceTrack.length;
+	}
+
+	function getHurdleRaceResponse( lowestDistance:Int ) {
+		if( lowestDistance == 1 ) return UP;
+		if( lowestDistance == 2 ) return LEFT;
+		if( lowestDistance == 3 ) return DOWN;
 		
 		return RIGHT;
 	}
