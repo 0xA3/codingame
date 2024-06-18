@@ -1,8 +1,13 @@
 package ai.data;
 
-final HURDLE = "#";
+class Constants {
+	
+	public static inline var NUM_PLAYERS = 3;
 
-final LEFT = "LEFT";
-final RIGHT = "RIGHT";
-final UP = "UP";
-final DOWN = "DOWN";
+	public static inline var HURDLE = "#";
+	
+	public static inline var LEFT = "LEFT";
+	public static inline var RIGHT = "RIGHT";
+	public static inline var UP = "UP";
+	public static inline var DOWN = "DOWN";
+}

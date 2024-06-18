@@ -5,11 +5,9 @@ import CodinGame.readline;
 import ai.IAi;
 import ai.data.Constants;
 import ai.data.RegisterDataset;
-import xa3.MathUtils.min;
 
 using Lambda;
 
-// go to next hurdle
 class Ai1 implements IAi {
 	public var aiId = "Ai1";
 

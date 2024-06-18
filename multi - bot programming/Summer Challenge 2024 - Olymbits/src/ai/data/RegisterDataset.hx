@@ -1,17 +1,19 @@
 package ai.data;
 
 class RegisterDataset {
-	public final gpu:String;
-	public final reg0:Int;
-	public final reg1:Int;
-	public final reg2:Int;
-	public final reg3:Int;
-	public final reg4:Int;
-	public final reg5:Int;
-	public final reg6:Int;
+	public var gpu:Array<String>;
+	public var reg0:Int;
+	public var reg1:Int;
+	public var reg2:Int;
+	public var reg3:Int;
+	public var reg4:Int;
+	public var reg5:Int;
+	public var reg6:Int;
 
-	public function new(
-		gpu:String,
+	public function new() {}
+
+	public function set(
+		gpu:Array<String>,
 		reg0:Int,
 		reg1:Int,
 		reg2:Int,
