@@ -10,6 +10,7 @@ import ai.data.Constants.LEFT;
 import ai.data.Constants.NUM_PLAYERS;
 import ai.data.Constants.RIGHT;
 import ai.data.Constants.UP;
+import ai.data.Constants.directionMap;
 import ai.data.DivingDataset;
 import ai.data.HurdleDataset;
 import ai.data.RegisterDataset;
@@ -54,9 +55,11 @@ class Ai2 implements IAi {
 	public function process() {
 		final hurdleResponse = processHurdleGame( hurdleDataset );
 		final archeryResponse = processArcheryGame( archeryDataset );
-		
+		final skatingResponse = processSkatingGame( skatingDataset );
+		final divingResponse = processDivingGame( divingDataset );
+
 		turn++;
-		return archeryResponse;
+		return divingResponse;
 	}
 
 	function processHurdleGame( hurdleDataset:HurdleDataset ) {
@@ -101,6 +104,31 @@ class Ai2 implements IAi {
 		];
 
 		dists.sort(( a, b ) -> a.dist - b.dist );
+		
 		return dists[0].direction;
+	}
+
+	function processSkatingGame( skatingDataset:SkatingDataset ) {
+		final position = skatingDataset.spacesTravelled[playerIdx];
+		final riskOrStun = skatingDataset.riskOrStun[playerIdx];
+		if( riskOrStun < 0 ) return LEFT;
+
+		final risk = riskOrStun;
+
+		if( risk == 5 ) return directionMap[skatingDataset.actions[0]];
+		if( risk == 4 ) return directionMap[skatingDataset.actions[1]];
+		if( risk == 3 ) return directionMap[skatingDataset.actions[1]];
+
+		return directionMap[skatingDataset.actions[3]];
+	}
+
+	function processDivingGame( divingDataset:DivingDataset ) {
+		final action = divingDataset.divingGoal[0];
+		
+		final points = divingDataset.points[playerIdx];
+		final combo = divingDataset.combos[playerIdx];
+		printErr( '${divingDataset.divingGoal.join("")}  action: $action  points: $points  combo: $combo' );
+
+		return directionMap[action];
 	}
 }
