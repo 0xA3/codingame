@@ -14,4 +14,6 @@ class Pos {
 		this.x = x;
 		this.y = y;
 	}
+
+	public function toString() return '$x:$y';
 }

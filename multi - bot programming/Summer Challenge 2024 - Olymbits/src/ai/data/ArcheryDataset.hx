@@ -1,24 +1,25 @@
 package ai.data;
 
 import CodinGame.printErr;
-import Std.parseInt;
 
 class ArcheryDataset {
 	
-	public var winds:Array<Int> = [];
-	public final positions:Array<Pos> = [];
+	public final position = new Pos();
 
-	public function new() {
-		for( _ in 0...ai.data.Constants.NUM_PLAYERS ) positions.push( new Pos() );
+	public function new() { }
+
+	public function set( x:Int, y:Int ) {
+		position.x = x;
+		position.y = y;
 	}
 
-	public function set( registerDataset:RegisterDataset ) {
-		winds = registerDataset.gpu.map( s -> parseInt( s ));
-		positions[0].x = registerDataset.reg0;
-		positions[0].y = registerDataset.reg1;
-		positions[1].x = registerDataset.reg2;
-		positions[1].y = registerDataset.reg3;
-		positions[2].x = registerDataset.reg4;
-		positions[2].y = registerDataset.reg5;
+	public function copy( other:ArcheryDataset ) {
+		this.position.x = other.position.x;
+		this.position.y = other.position.y;
+	}
+
+	public function reset() {
+		position.x = 0;
+		position.y = 0;
 	}
 }

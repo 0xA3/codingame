@@ -2,19 +2,23 @@ package ai.data;
 
 class HurdleDataset {
 	
-	public var racetrack:Array<String> = [];
-	public final positions:Array<Int> = [];
-	public final stunTimers:Array<Int> = [];
+	public var position = 0;
+	public var stunTimer = 0;
 
 	public function new() {}
 
-	public function set( registerDataset:RegisterDataset ) {
-		racetrack = registerDataset.gpu;
-		positions[0] = registerDataset.reg0;
-		positions[1] = registerDataset.reg1;
-		positions[2] = registerDataset.reg2;
-		stunTimers[0] = registerDataset.reg3;
-		stunTimers[1] = registerDataset.reg4;
-		stunTimers[2] = registerDataset.reg5;
+	public function set( position:Int, stunTimer:Int ) {
+		this.position = position;
+		this.stunTimer = stunTimer;
+	}
+
+	public function copy( other:HurdleDataset ) {
+		this.position = other.position;
+		this.stunTimer = other.stunTimer;
+	}
+	
+	public function reset() {
+		position = 0;
+		stunTimer = 0;
 	}
 }

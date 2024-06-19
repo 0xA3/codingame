@@ -23,6 +23,7 @@ import xa3.MathUtils.min;
 using Lambda;
 
 class Ai2 implements IAi {
+	
 	public var aiId = "Ai2";
 
 	var playerIdx:Int;

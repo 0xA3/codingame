@@ -8,7 +8,8 @@ import ai.data.RegisterDataset;
 using Lambda;
 
 class Left implements IAi {
-	public var aiId = "Wait";
+	
+	public var aiId = "Left";
 	
 	public function new() { }
 	
