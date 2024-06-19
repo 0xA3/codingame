@@ -10,7 +10,7 @@ import ai.data.Constants.LEFT;
 import ai.data.Constants.NUM_PLAYERS;
 import ai.data.Constants.RIGHT;
 import ai.data.Constants.UP;
-import ai.data.Constants.directionMap;
+import ai.data.Constants.direction;
 import ai.data.DivingDataset;
 import ai.data.HurdleDataset;
 import ai.data.RegisterDataset;
@@ -116,11 +116,11 @@ class Ai2 implements IAi {
 
 		final risk = riskOrStun;
 
-		if( risk == 5 ) return directionMap[skatingDataset.actions[0]];
-		if( risk == 4 ) return directionMap[skatingDataset.actions[1]];
-		if( risk == 3 ) return directionMap[skatingDataset.actions[1]];
+		if( risk == 5 ) return direction[skatingDataset.actions[0]];
+		if( risk == 4 ) return direction[skatingDataset.actions[1]];
+		if( risk == 3 ) return direction[skatingDataset.actions[1]];
 
-		return directionMap[skatingDataset.actions[3]];
+		return direction[skatingDataset.actions[3]];
 	}
 
 	function processDivingGame( divingDataset:DivingDataset ) {
@@ -130,6 +130,6 @@ class Ai2 implements IAi {
 		final combo = divingDataset.combos[playerIdx];
 		printErr( '${divingDataset.divingGoal.join("")}  action: $action  points: $points  combo: $combo' );
 
-		return directionMap[action];
+		return direction[action];
 	}
 }

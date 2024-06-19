@@ -18,7 +18,7 @@ class Constants {
 	public static inline var DOWN = "DOWN";
 	public static inline var RIGHT = "RIGHT";
 
-	public static final directionMap = [
+	public static final direction = [
 		U => UP,
 		L => LEFT,
 		D => DOWN,

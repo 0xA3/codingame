@@ -11,7 +11,7 @@ import ai.data.Constants.LEFT;
 import ai.data.Constants.NUM_PLAYERS;
 import ai.data.Constants.R;
 import ai.data.Constants.U;
-import ai.data.Constants.directionMap;
+import ai.data.Constants.direction;
 import ai.data.Constants;
 import ai.data.DivingDataset;
 import ai.data.DivingInputDataset;
@@ -32,6 +32,7 @@ import xa3.MathUtils.dist2;
 
 using Lambda;
 
+// Select game with lowest score
 class Ai3 implements IAi {
 	
 	public var aiId = "Ai3";
@@ -87,7 +88,7 @@ class Ai3 implements IAi {
 		
 		while( nodes.length > 0 ) {
 			final node = nodes.pop();
-			nodePool.dispose( node );
+			nodePool.dump( node );
 		}
 		/*
 		final frontier = new List<Node>();
@@ -148,7 +149,7 @@ class Ai3 implements IAi {
 			// 	printErr( '${node.action} ${getVisualRacetrack( hurdleInputDataset.racetrack, hurdleDataset.position )}  position: ${hurdleDataset.position}  stun: ${hurdleDataset.stunTimer}' );
 			// }
 			
-			return directionMap[nodes[0].action];
+			return direction[nodes[0].action];
 			
 			case Archery:
 			// [L, D, U, R]
@@ -170,7 +171,7 @@ class Ai3 implements IAi {
 			// 	printErr( '${node.action} ${node.archeryDataset.position}  dist ${Math.sqrt( dist2( 0, 0, node.archeryDataset.position.x, node.archeryDataset.position.y ))}' );
 			// }
 			
-			return directionMap[dists[0].action];
+			return direction[dists[0].action];
 			
 			case Skating:
 			ArraySort.sort( nodes, ( a, b ) -> b.skatingDataset.spacesTravelled - a.skatingDataset.spacesTravelled );
@@ -180,7 +181,7 @@ class Ai3 implements IAi {
 			// 	printErr( '${node.action}  spacesTravelled: ${node.skatingDataset.spacesTravelled}  riskOrStun: ${node.skatingDataset.riskOrStun}' );
 			// }
 			
-			return directionMap[nodes[0].action];
+			return direction[nodes[0].action];
 
 			case Diving:
 			ArraySort.sort( nodes, ( a, b ) -> b.divingDataset.points - a.divingDataset.points );
@@ -190,7 +191,7 @@ class Ai3 implements IAi {
 			// 	printErr( '${node.action}  points: ${node.divingDataset.points}  combos: ${node.divingDataset.combos}' );
 			// }
 			
-			return directionMap[nodes[0].action];
+			return direction[nodes[0].action];
 		}
 	}
 

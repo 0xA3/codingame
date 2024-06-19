@@ -14,7 +14,7 @@ class NodePool {
 		return nodes.pop();
 	}
 
-	public function dispose( node:Node ) {
+	public function dump( node:Node ) {
 		node.reset();
 		nodes.add( node );
 	}
