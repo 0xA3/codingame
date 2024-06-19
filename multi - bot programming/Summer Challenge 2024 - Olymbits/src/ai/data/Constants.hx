@@ -1,5 +1,7 @@
 package ai.data;
 
+import ai.data.TMiniGame;
+
 class Constants {
 	
 	public static inline var NUM_PLAYERS = 3;
@@ -27,4 +29,7 @@ class Constants {
 		"M" => LEFT,
 		"E" => LEFT,
 	];
+
+	public static final id2Game = [Hurdle, Archery, Skating, Diving];
+	public static final game2Id = [for( i in 0...id2Game.length) id2Game[i] => i];
 }
