@@ -1,6 +1,9 @@
 package xa3;
 
 class MathUtils {
+	public static inline var INTEGER_MAX_VALUE = 2147483647;
+	public static inline var INTEGER_MIN_VALUE = -2147483648;
+	
 	public static function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
 	public static function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 

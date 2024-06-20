@@ -11,6 +11,7 @@ import ai.data.Constants.NUM_PLAYERS;
 import ai.data.Constants.R;
 import ai.data.Constants.U;
 import ai.data.Constants.direction;
+import ai.data.Constants;
 import ai.data.DivingDataset;
 import ai.data.DivingInputDataset;
 import ai.data.HurdleDataset;
@@ -29,10 +30,11 @@ import sim.SkatingGame;
 import xa3.MathUtils.dist2;
 
 using Lambda;
+using xa3.ArrayUtils;
 
-class Ai4 implements IAi {
+class Ai5 implements IAi {
 	
-	public var aiId = "Ai4";
+	public var aiId = "Ai5";
 
 	var playerIdx:Int;
 	var nbGames:Int;
@@ -50,6 +52,13 @@ class Ai4 implements IAi {
 	final rootSkatingDataset:SkatingDataset;
 	final rootDivingDataset:DivingDataset;
 	final nodes:Array<Node> = [];
+	final valuations = [for( _ in 0...4 ) { action: "", sum: 0.0 }];
+	final hurdleValuations = [0, 0, 0, 0];
+	final archeryValuations = [0, 0, 0, 0];
+	final skatingValuations = [0, 0, 0, 0];
+	final divingValuations = [0, 0, 0, 0];
+
+	final scoreWeights = [1.0, 1.0, 1.0, 1.0];
 
 	var turn = 1;
 
@@ -87,8 +96,16 @@ class Ai4 implements IAi {
 			final node = nodes.pop();
 			nodePool.dump( node );
 		}
+
+		final gameScores = [for( i in 0...Constants.id2Game.length ) scoreInfos[playerIdx].getMinigameScore( i )];
+
+		final maxScore = gameScores.max();
+		if( maxScore > 0 ) for( i in 0...4 ) scoreWeights[i] = maxScore / ( gameScores[i] + 1 );
 		
-		printErr( '        U L D R' );
+		// final output = [for( i in 0...4 ) '${Constants.id2Game[i]} s: ${gameScores[i]} w: ${scoreWeights[i]}'].join( ", " );
+		// printErr( output );
+
+		// printErr( '        U L D R' );
 		for( action in actions ) {
 			final next = nodePool.get();
 			nodes.push( next );
@@ -100,11 +117,16 @@ class Ai4 implements IAi {
 			DivingGame.process( action, rootDivingDataset, next.divingDataset, divingInputDataset.divingGoal[0] );
 		}
 
-		final valuations = evaluate( nodes );
-		final output = [for( valuation in valuations ) '${valuation.sum}'].join(" ");
-		printErr( 'Sum     $output' );
+		final valuations = evaluate( nodes, scoreWeights );
 		
-		ArraySort.sort( valuations, ( a, b ) -> b.sum - a.sum );
+		// final output = [for( valuation in valuations ) '${valuation.sum}'].join(" ");
+		// printErr( 'Sum     $output' );
+		
+		ArraySort.sort( valuations, ( a, b ) -> {
+			if( b.sum < a.sum ) return -1;
+			if( b.sum > a.sum ) return 1;
+			return 0;
+		});
 
 		final bestAction = valuations[0].action;
 		turn++;
@@ -127,21 +149,30 @@ class Ai4 implements IAi {
 	//           + ==========
 	// 			   1  4  1  2
 
-	function evaluate( nodes:Array<Node> ) {
-		
-		final hurdleEvaluations = evaluateHurdleActions( nodes );
-		final archeryEvaluations = evaluateArcheryActions( nodes );
-		final skatingEvaluations = evaluateSkatingActions( nodes );
-		final divingEvaluations = evaluateDivingActions( nodes );
-		
-		final valuations = [for( i in 0...nodes.length ) { action: nodes[i].action, sum: hurdleEvaluations[i] + archeryEvaluations[i] + skatingEvaluations[i] + divingEvaluations[i] }];
+	function evaluate( nodes:Array<Node>, scoreWeights:Array<Float> ) {
+		final hurdleEvaluations = evaluateHurdleActions( nodes ).map( v -> v * scoreWeights[0] );
+		final archeryEvaluations = evaluateArcheryActions( nodes ).map( v -> v * scoreWeights[1] );
+		final skatingEvaluations = evaluateSkatingActions( nodes ).map( v -> v * scoreWeights[2] );
+		final divingEvaluations = evaluateDivingActions( nodes ).map( v -> v * scoreWeights[3] );
+
+		// final hurdleOutput = [for( i in 0...nodes.length ) '${hurdleEvaluations[i]}'].join(" ");
+		// printErr( 'Hurdle  $hurdleOutput' );
+		// final archeryOutput = [for( i in 0...nodes.length ) '${archeryEvaluations[i]}'].join(" ");
+		// printErr( 'Archery $archeryOutput' );
+		// final skatingOutput = [for( i in 0...nodes.length ) '${skatingEvaluations[i]}'].join(" ");
+		// printErr( 'Skating $skatingOutput' );
+		// final divingOutput = [for( i in 0...nodes.length ) '${divingEvaluations[i]}'].join(" ");
+		// printErr( 'Diving  $divingOutput' );
+
+		for( i in 0...nodes.length ) {
+			valuations[i].action = nodes[i].action;
+			valuations[i].sum = hurdleEvaluations[i] + archeryEvaluations[i] + skatingEvaluations[i] + divingEvaluations[i];
+		}
 
 		return valuations;
 	}
 
 	function evaluateHurdleActions( nodes:Array<Node> ) {
-		final hurdleValuations = [0, 0, 0, 0];
-		
 		if( rootHurdleDataset.stunTimer == 0 ) {
 			final previousPosition = rootHurdleDataset.position;
 			for( i in 0...nodes.length ) {
@@ -154,9 +185,6 @@ class Ai4 implements IAi {
 			}
 		}
 
-		final output = [for( i in 0...nodes.length ) '${hurdleValuations[i]}'].join(" ");
-		printErr( 'Hurdle  $output' );
-
 		return hurdleValuations;
 	}
 
@@ -164,17 +192,12 @@ class Ai4 implements IAi {
 		final previousDist = dist2( 0, 0, rootArcheryDataset.position.x, rootArcheryDataset.position.y );
 		// [U, L, D, R]
 		final nextDists = [for( i in 0...nodes.length ) dist2( 0, 0, nodes[i].archeryDataset.position.x, nodes[i].archeryDataset.position.y )];
-		final archeryValuations = [for( i in 0...nextDists.length ) nextDists[i] < previousDist ? 1 : 0];
+		for( i in 0...nextDists.length ) archeryValuations[i] = nextDists[i] < previousDist ? 1 : 0;
 		
-		final output = [for( i in 0...nodes.length ) '${archeryValuations[i]}'].join(" ");
-		printErr( 'Archery $output' );
-
 		return archeryValuations;
 	}
 
 	function evaluateSkatingActions( nodes:Array<Node> ) {
-		final skatingValuations = [0, 0, 0, 0];
-		
 		if( rootSkatingDataset.riskOrStun >= 0 ) {
 			final previousPosition = rootSkatingDataset.spacesTravelled;
 			for( i in 0...nodes.length ) {
@@ -187,19 +210,13 @@ class Ai4 implements IAi {
 			}
 		}
 		
-		final output = [for( i in 0...nodes.length ) '${skatingValuations[i]}'].join(" ");
-		printErr( 'Skating $output' );
-
 		return skatingValuations;
 	}
 
 	function evaluateDivingActions( nodes:Array<Node> ) {
 		final previousPoints = rootDivingDataset.points;
-		final divingValuations = [for( i in 0...nodes.length ) nodes[i].divingDataset.points > previousPoints ? 4 : 0];
+		for( i in 0...nodes.length ) divingValuations[i] = nodes[i].divingDataset.points > previousPoints ? 4 : 0;
 
-		final output = [for( i in 0...nodes.length ) '${divingValuations[i]}'].join(" ");
-		printErr( 'Diving  $output' );
-		
 		return divingValuations;
 	}
 }
