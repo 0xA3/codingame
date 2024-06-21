@@ -65,13 +65,13 @@ class Ai1 implements IAi {
 		return raceResponse;
 	}
 
-	function getHurdleDistance( raceTrack:Array<String>, position:Int ) {
-		for( i in position + 1...raceTrack.length ) {
-			if( raceTrack[i] == HURDLE ) {
+	function getHurdleDistance( racetrack:Array<String>, position:Int ) {
+		for( i in position + 1...racetrack.length ) {
+			if( racetrack[i] == HURDLE ) {
 				return i - position;
 			}
 		}
-		return raceTrack.length;
+		return racetrack.length;
 	}
 
 	function getHurdleRaceResponse( lowestDistance:Int ) {

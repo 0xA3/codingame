@@ -13,7 +13,7 @@ class ArcheryDataset {
 		position.y = y;
 	}
 
-	public function copy( other:ArcheryDataset ) {
+	public function copyFrom( other:ArcheryDataset ) {
 		this.position.x = other.position.x;
 		this.position.y = other.position.y;
 	}

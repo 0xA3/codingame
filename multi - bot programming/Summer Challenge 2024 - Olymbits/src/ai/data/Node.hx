@@ -10,6 +10,10 @@ class Node {
 	public final skatingDataset = new SkatingDataset();
 	public final divingDataset = new DivingDataset();
 	public var parent:Node = NO_NODE;
+	
+	public var priority = 0.0;
+
+	public var depth = 0;
 
 	public function new() {	}
 

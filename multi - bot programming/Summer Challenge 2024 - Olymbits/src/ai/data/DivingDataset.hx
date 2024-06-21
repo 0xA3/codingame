@@ -12,7 +12,7 @@ class DivingDataset {
 		this.combos = combos;
 	}
 
-	public function copy( other:DivingDataset ) {
+	public function copyFrom( other:DivingDataset ) {
 		this.points = other.points;
 		this.combos = other.combos;
 	}

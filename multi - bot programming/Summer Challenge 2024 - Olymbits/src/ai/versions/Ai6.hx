@@ -3,9 +3,12 @@ package ai.versions;
 import CodinGame.printErr;
 import CodinGame.readline;
 import ai.IAi;
+import ai.contexts.GetBestHurdleActions;
+import ai.contexts.GetWorstHurdleActions;
 import ai.data.ArcheryDataset;
 import ai.data.ArcheryInputDataset;
 import ai.data.Constants.D;
+import ai.data.Constants.HURDLE;
 import ai.data.Constants.L;
 import ai.data.Constants.NUM_PLAYERS;
 import ai.data.Constants.R;
@@ -31,10 +34,11 @@ import xa3.MathUtils.dist2;
 
 using Lambda;
 using xa3.ArrayUtils;
+using xa3.MathUtils;
 
-class Ai5 implements IAi {
+class Ai6 implements IAi {
 	
-	public var aiId = "Ai5";
+	public var aiId = "Ai6";
 
 	var playerIdx:Int;
 	var nbGames:Int;
@@ -91,17 +95,8 @@ class Ai5 implements IAi {
 	}
 
 	public function process() {
-		
 		nodePool.reset();
 		nodes.splice( 0, nodes.length );
-
-		final gameScores = [for( i in 0...Constants.id2Game.length ) scoreInfos[playerIdx].getMinigameScore( i )];
-
-		final maxScore = gameScores.max();
-		if( maxScore > 0 ) for( i in 0...4 ) scoreWeights[i] = maxScore / ( gameScores[i] + 1 );
-		
-		// final output = [for( i in 0...4 ) '${Constants.id2Game[i]} s: ${gameScores[i]} w: ${scoreWeights[i]}'].join( ", " );
-		// printErr( output );
 
 		// printErr( '        U L D R' );
 		for( action in actions ) {
@@ -115,6 +110,14 @@ class Ai5 implements IAi {
 			DivingGame.process( action, rootDivingDataset, next.divingDataset, divingInputDataset.divingGoal[0] );
 		}
 
+		final gameScores = [for( i in 0...Constants.id2Game.length ) scoreInfos[playerIdx].getMinigameScore( i )];
+		final maxScore = gameScores.max();
+		if( maxScore > 0 ) for( i in 0...4 ) scoreWeights[i] = maxScore / ( gameScores[i] + 1 );
+		
+		// final output = [for( i in 0...4 ) '${Constants.id2Game[i]} s: ${gameScores[i]} w: ${scoreWeights[i]}'].join( ", " );
+		// printErr( output );
+		getHurdleOdds();
+		
 		final valuations = evaluate( nodes, scoreWeights );
 		
 		// final output = [for( valuation in valuations ) '${valuation.sum}'].join(" ");
@@ -137,6 +140,47 @@ class Ai5 implements IAi {
 		copy[position] = '@';
 
 		return copy.join( "" ) ;
+	}
+
+	function getHurdleOdds() {
+		// final bestHurdleActions = hurdleInputDataset.playerDatasets.map( playerDataset -> GetBestHurdleActions.get( playerDataset, hurdleInputDataset.racetrack ));
+		// final worstHurdleActions = hurdleInputDataset.playerDatasets.map( playerDataset -> GetWorstHurdleActions.get( playerDataset, hurdleInputDataset.racetrack ));
+
+		// final myBestHurdleActions = bestHurdleActions[playerIdx].length;
+		// final myWorstHurdleActions = worstHurdleActions[playerIdx].length;
+
+		// final othersBestHurdleActions = [for( i in 0...bestHurdleActions.length ) if( i != playerIdx ) bestHurdleActions[i]];
+		// final othersWorstHurdleActions = [for( i in 0...worstHurdleActions.length ) if( i != playerIdx ) worstHurdleActions[i]];
+
+		// final othersShortestBestHurdleActions = othersBestHurdleActions.map( actions -> actions.length ).min();
+		// final othersLongestBestHurdleActions = othersBestHurdleActions.map( actions -> actions.length ).max();
+		// final othersShortestWorstHurdleActions = othersWorstHurdleActions.map( actions -> actions.length ).min();
+		// final othersLongestWorstHurdleActions = othersWorstHurdleActions.map( actions -> actions.length ).max();
+
+		// printErr( 'my range ${myBestHurdleActions} - ${myWorstHurdleActions}' );
+
+		// printErr( 'others $othersShortestBestHurdleActions - $othersShortestWorstHurdleActions' );
+		// if( myBestHurdleActions > othersShortestWorstHurdleActions ) return 0;
+
+		final otherPositions = [for( i in 0...hurdleInputDataset.playerDatasets.length ) if( i != playerIdx ) hurdleInputDataset.playerDatasets[i].position];
+		final bestOtherPosition = otherPositions.max();
+		final myLead = rootHurdleDataset.position - bestOtherPosition;
+		printErr( 'myLead $myLead' );
+
+		return 1;
+	}
+
+	function checkIgnoreHurdle() {
+		final myPosition = rootHurdleDataset.position;
+		final otherPositions = [for( i in 0...hurdleInputDataset.playerDatasets.length ) if( i != playerIdx ) hurdleInputDataset.playerDatasets[i].position];
+		final distanceToOtherPlayers = otherPositions.map( p -> myPosition - p );
+		final distance1 = distanceToOtherPlayers.min();
+		final distance2 = distanceToOtherPlayers.max();
+		final lastHurdlePosition = hurdleInputDataset.racetrack.lastIndexOf( HURDLE );
+		final isAfterLastHurdle = myPosition > lastHurdlePosition;
+		final distanceToGoal = hurdleInputDataset.racetrack.length - myPosition;
+
+		printErr( 'myPosition: ${myPosition} distance1: ${distance1} distance2: ${distance2} lastHurdlePosition: ${lastHurdlePosition} isAfterLastHurdle: ${isAfterLastHurdle} distanceToGoal: ${distanceToGoal}' );
 	}
 
 	//             U  L  D  R

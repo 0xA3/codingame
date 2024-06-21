@@ -12,7 +12,7 @@ class SkatingDataset {
 		this.riskOrStun = riskOrStun;
 	}
 
-	public function copy( other:SkatingDataset ) {
+	public function copyFrom( other:SkatingDataset ) {
 		this.spacesTravelled = other.spacesTravelled;
 		this.riskOrStun = other.riskOrStun;
 	}

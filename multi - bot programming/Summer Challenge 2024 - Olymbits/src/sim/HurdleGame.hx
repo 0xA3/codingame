@@ -1,5 +1,6 @@
 package sim;
 
+import CodinGame.printErr;
 import ai.data.Constants.D;
 import ai.data.Constants.HURDLE;
 import ai.data.Constants.L;
@@ -10,8 +11,14 @@ import xa3.MathUtils.min;
 
 class HurdleGame {
 	
-	public static function process( action:String, inputDataset:HurdleDataset, outputDataset:HurdleDataset, raceTrack:Array<String> ) {
-		if( raceTrack[0] == "G" ) {
+	public static function process( action:String, inputDataset:HurdleDataset, outputDataset:HurdleDataset, racetrack:Array<String> ) {
+		if( inputDataset.position >= racetrack.length ) {
+			outputDataset.position = racetrack.length;
+			outputDataset.stunTimer = 0;
+			return;
+		}
+		
+		if( racetrack[0] == "G" ) {
 			outputDataset.position = 0;
 			outputDataset.stunTimer = 0;
 			return;
@@ -25,23 +32,25 @@ class HurdleGame {
 
 		switch action {
 			case U:
-				outputDataset.position = min( inputDataset.position + 2, raceTrack.length );
+				outputDataset.position = min( inputDataset.position + 2, racetrack.length );
 			case L:
-				outputDataset.position = min( inputDataset.position + 1, raceTrack.length );
+				outputDataset.position = min( inputDataset.position + 1, racetrack.length );
 			case D:
-				final endPos = min( inputDataset.position + 3, raceTrack.length );
-				for( pos in inputDataset.position + 1...endPos ) {
+				final endPos = min( inputDataset.position + 2, racetrack.length );
+				for( pos in inputDataset.position + 1...endPos + 1 ) {
 					outputDataset.position = pos;
-					if( raceTrack[pos] == HURDLE ) break;
+					if( racetrack[pos] == HURDLE ) break;
 				}
 			case R:
-				final endPos = min( inputDataset.position + 4, raceTrack.length );
-				for( pos in inputDataset.position + 1...endPos ) {
+				final endPos = min( inputDataset.position + 3, racetrack.length );
+				for( pos in inputDataset.position + 1...endPos + 1 ) {
 					outputDataset.position = pos;
-					if( raceTrack[pos] == HURDLE ) break;
+					if( racetrack[pos] == HURDLE ) break;
 				}
 			default: throw 'Invalid action: $action';
 		}
-		if( raceTrack[outputDataset.position] == HURDLE ) outputDataset.stunTimer = 3;
+		if( racetrack[outputDataset.position] == HURDLE ) outputDataset.stunTimer = 3;
+		// printErr( '$action input ${inputDataset.position}, output ${outputDataset.position}' );
+
 	}
 }
