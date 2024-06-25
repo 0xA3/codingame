@@ -162,6 +162,13 @@ class Ai6 implements IAi {
 		// printErr( 'others $othersShortestBestHurdleActions - $othersShortestWorstHurdleActions' );
 		// if( myBestHurdleActions > othersShortestWorstHurdleActions ) return 0;
 
+		/*
+
+		other player 1  (player_id + 1)%3
+		other player 2  (player_id + 2)%3
+
+		*/
+
 		final otherPositions = [for( i in 0...hurdleInputDataset.playerDatasets.length ) if( i != playerIdx ) hurdleInputDataset.playerDatasets[i].position];
 		final bestOtherPosition = otherPositions.max();
 		final myLead = rootHurdleDataset.position - bestOtherPosition;
