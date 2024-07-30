@@ -9,7 +9,7 @@ class Word {
 		word = chars.map( c -> c.s ).join( "" );
 	}
 
-	public function getScore(  width:Int, tiles:Map<String, Int>, tileMultipliers:Array<Int>, wordMultipliers:Array<Int> ) {
+	public function getScore( width:Int, tiles:Map<String, Int>, tileMultipliers:Array<Int>, wordMultipliers:Array<Int> ) {
 		var sum = 0;
 		var wordMultiplier = 1;
 		for( char in chars ) {

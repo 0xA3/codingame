@@ -47,10 +47,11 @@ function process( tiles:Map<String, Int>, width:Int, height:Int, emptyBoardRows:
 	});
 
 	final scores = words.map( word -> word.getScore( width, tiles, tileMultipliers, wordMultipliers ));
-	final total = scores.sum() + ( numTilesPlayed == 7 ? 50 : 0 );
+	final bonus = numTilesPlayed == 7 ? 50 : 0;
+	final total = scores.sum() + bonus;
 	
 	final outputs = [for( i in 0...words.length ) '${words[i].word} ${scores[i]}'];
-	if( numTilesPlayed == 7 ) outputs.push( "Bonus 50" );
+	if( bonus > 0 ) outputs.push( 'Bonus $bonus' );
 	outputs.push( 'Total ${total}' );
 	
 	return outputs.join( "\n" );
