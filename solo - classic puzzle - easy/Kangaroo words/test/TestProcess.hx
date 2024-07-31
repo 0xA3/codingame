@@ -1,7 +1,5 @@
 package test;
 
-import Std.parseInt;
-
 using StringTools;
 using buddy.Should;
 

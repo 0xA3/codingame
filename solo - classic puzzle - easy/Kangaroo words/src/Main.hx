@@ -7,7 +7,7 @@ using Lambda;
 
 function main() {
 	final n = parseInt( readline() );
-	final lines = [for( i in 0...n ) readline()];
+	final lines = [for( _ in 0...n ) readline()];
 		
 	final result = process( lines );
 	print( result );
@@ -28,19 +28,19 @@ function process( lines:Array<String> ) {
 	return outputs.length > 0 ? outputs.join( "\n" ) : "NONE";
 }
 
-function findJoeyWords( inputWord:String, inputWords:Array<String> ) {
-	// trace( 'inputWord $inputWord' );
+function findJoeyWords( kangarooWord:String, testWords:Array<String> ) {
+	// trace( 'kangarooWord $kangarooWord' );
 	var joeyWords = [];
-	for( testWord in inputWords ) {
-		if( testWord == inputWord ) continue;
-		if( testWord.length > inputWord.length ) continue;
+	for( testWord in testWords ) {
+		if( testWord == kangarooWord ) continue;
+		if( testWord.length > kangarooWord.length ) continue;
 		// trace( 'check $testWord' );
 
 		var isJoeyWord = true;
 		var c1 = 0;
 		for( i in 0...testWord.length ) {
 			final char = testWord.charAt( i );
-			final index = inputWord.indexOf( char, c1 );
+			final index = kangarooWord.indexOf( char, c1 );
 			// trace( 'char $char  index $index' );
 			if( index == -1 ) {
 				isJoeyWord = false;
@@ -48,20 +48,8 @@ function findJoeyWords( inputWord:String, inputWords:Array<String> ) {
 			}
 			c1 = index + 1;
 		}
-
 		if( isJoeyWord ) joeyWords.push( testWord );
 	}
 
 	return joeyWords;
 }
-
-/*
-action act
-
-a
-a
-
-
-
-
-*/
