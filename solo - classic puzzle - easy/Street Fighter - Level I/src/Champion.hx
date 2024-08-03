@@ -1,19 +1,20 @@
 import CodinGame.printErr;
-import Main.ChampionStats;
+import Constants.ChampionStats;
 
 class Champion {
 	
 	public final name:String;
 	public final stats:ChampionStats;
-	public final state:State;
 
+	public var life:Int;
+	public var rage = 0;
 	public var numberOfHitsMade = 0;
 	public var damageReceived = 0;
 
-	public function new( name:String, stats:ChampionStats, state:State ) {
+	public function new( name:String, stats:ChampionStats, life:Int ) {
 		this.name = name;
 		this.stats = stats;
-		this.state = state;
+		this.life = life;
 	}
 
 	public function punch( opp:Champion ) {
@@ -30,14 +31,14 @@ class Champion {
 
 	public function special( opp:Champion ) {
 		stats.special( this, opp );
-		state.rage = 0;
+		rage = 0;
 		numberOfHitsMade++;
 	}
 
 	public function getHit( damage:Int ) {
-		state.life -= damage;
+		life -= damage;
 		damageReceived += damage;
 	}
 
-	public function toString() return '$name: $state';
+	public function toString() return '$name: life $life  rage $rage';
 }
