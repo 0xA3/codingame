@@ -26,7 +26,7 @@ class TestProcess extends buddy.BuddySuite{
 	static function parseInput( input:String ) {
 		final lines = input.replace( "\t", "" ).replace( "\r", "" ).split( "\n" );
 
-		return lines.slice( 1 ).map( s -> s.split( "" ));
+		return lines.slice( 1 );
 	}
 
 	static function parseResult( input:String ) {

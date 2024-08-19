@@ -77,45 +77,45 @@ var i = 0;
 function main() {
 
 	final n = parseInt( readline() );
-	final rnaLines = [for( i in 0...n ) readline().split( "" )];
+	final rnaLines = [for( i in 0...n ) readline()];
 
 	final result = process( rnaLines );
 	print( result );
 }
 
-function process( rnaLines:Array<Array<String>> ) {
+function process( rnaLines:Array<String> ) {
 	final outputLines = [];
 	for( rnaLine in rnaLines ) {
-		final aminoAcidSets:Array<String> = [];
-		for( offset in 0...3 ) aminoAcidSets.push( getAminoAcidsWithOffset( rnaLine, offset ));
-		aminoAcidSets.sort(( a, b ) -> b.replace("-", "").length - a.replace("-", "").length );
+		final aminoAcidSets:Array<Array<String>> = [];
+		for( offset in 0...3 ) aminoAcidSets.push( getAminoAcidsOfOffset( rnaLine.substr( offset ) ));
+		aminoAcidSets.sort(( a, b ) -> b.join( "" ).length - a.join( "" ).length );
 		// trace( 'aminoAcidSets:\n' + aminoAcidSets.join( "\n" ));
-		outputLines.push( aminoAcidSets[0] );
+		outputLines.push( aminoAcidSets[0].join( "-" ) );
 	}
 	return outputLines.join( "\n" );
 }
 
-function getAminoAcidsWithOffset( rnaLine:Array<String>, offset:Int ) {
+function getAminoAcidsOfOffset( rnaLine:String ) {
 	// trace( '$offset ${rnaLine.slice( offset ).join( "" )}' );
-	final outputLine = [];
-	i = offset + 2;
-	while( i < rnaLine.length ) {
-		final triplet = rnaLine[i-2] + rnaLine[i-1] + rnaLine[i];
+	final aminoAcids = [];
+	i = 0;
+	while( i < rnaLine.length - 2 ) {
+		final triplet = rnaLine.substr( i, 3 );
 		// trace( '${i - 2} triplet: $triplet' );
 		if( triplet == "AUG" ) {
 			// trace( 'startCodon' );
 			final aminoAcid = processOpened( rnaLine );
-			if( aminoAcid != "" ) outputLine.push( aminoAcid );
+			if( aminoAcid != "" ) aminoAcids.push( aminoAcid );
 		}
 		i += 3;
 	}
-	return outputLine.join( "-" );
+	return aminoAcids;
 }
 
-function processOpened( rnaLine:Array<String> ) {
+function processOpened( rnaLine:String ) {
 	final sequences = [];
-	while( i < rnaLine.length ) {
-		final triplet = rnaLine[i-2] + rnaLine[i-1] + rnaLine[i];
+	while( i < rnaLine.length - 2 ) {
+		final triplet = rnaLine.substr( i, 3 );
 		
 		if( !codonTable.exists( triplet )) throw 'Invalid triplet: $triplet';
 		
