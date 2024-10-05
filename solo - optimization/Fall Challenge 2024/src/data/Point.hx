@@ -12,7 +12,10 @@ class Point {
 		this.y = y;
 	}
 
-	public function equals( other:Point ) return this.x == other.x && this.y == other.y;
+	public function equals( other:Point ) {
+		if( this == other ) return true;
+		return this.x == other.x && this.y == other.y;
+	}
 
 	public function toString() return '$x:$y';
 

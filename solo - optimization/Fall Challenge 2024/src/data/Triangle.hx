@@ -13,13 +13,9 @@ class Triangle {
 	}
 
 	public function getEdges() {
-		final dist1 = p1.x * p1.x + p1.y * p1.y;
-		final dist2 = p2.x * p2.x + p2.y * p2.y;
-		final dist3 = p3.x * p3.x + p3.y * p3.y;
-		
-		final e1 = dist1 < dist2 ? new Edge( p1, p2 ) : new Edge( p2, p1 );
-		final e2 = dist2 < dist3 ? new Edge( p2, p3 ) : new Edge( p3, p2 );
-		final e3 = dist3 < dist1 ? new Edge( p3, p1 ) : new Edge( p1, p3 );
+		final e1 = Edge.fromPoints( p1, p2 );
+		final e2 = Edge.fromPoints( p2, p3 );
+		final e3 = Edge.fromPoints( p3, p1 );
 
 		return [e1, e2, e3];
 	}

@@ -29,7 +29,7 @@ class TestProcess extends buddy.BuddySuite{
 			it( "Example 1", {
 				final ai = new Ai1();
 				ai.setInput( example1 );
-				ai.process().should.be( "WAIT" );
+				ai.process().should.be( "TUBE 0 1;TUBE 0 2" );
 			});
 		});
 	}
