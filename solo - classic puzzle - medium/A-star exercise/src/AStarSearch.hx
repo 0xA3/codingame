@@ -34,7 +34,7 @@ class AStarSearch {
 					nextNode.costFromStart = nextCost;
 					nextNode.priority = nextPriority;
 					
-					if( !nextNode.visited ) { 
+					if( !nextNode.visited ) {
 						frontier.add( nextNode );
 					} else {
 						frontier.sort();
