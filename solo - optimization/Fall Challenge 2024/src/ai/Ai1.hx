@@ -30,12 +30,18 @@ class Ai1 {
 	var tubesNum = 0;
 	
 	var hasNewBuildings = false;
+	final outputs:Array<String> = [];
+	final edgesMap:Map<String, Edge> = [];
+	final edges:Array<Edge> = [];
 
 	public function new() {	}
 
-	public function setInput( programInput:ProgramInput ) {
+	public function reset() {
+		outputs.splice( 0, outputs.length );
 		hasNewBuildings = false;
+	}
 
+	public function setInput( programInput:ProgramInput ) {
 		resources = programInput.resources;
 
 		if( programInput.buildings.length > 0 ) {
@@ -55,45 +61,66 @@ class Ai1 {
 	}
 
 	public function process() {
-		var currentResources = resources;
-		final outputs = [];
 		if( hasNewBuildings ) {
+			edges.splice( 0, edges.length );
+			edgesMap.clear();
+
 			final points = buildings.map( b -> b.pos );
 			final triangles = triangulate( points );
-			final edgesMap = [for( t in triangles ) for( e in t.getEdges() ) e.id => e];
-			final validEdges = [];
+			for( t in triangles ) for( e in t.getEdges() ) edgesMap.set( e.id, e );
 			for( edge in edgesMap ) {
 				var isIntersect = false;
 				for( tube in tubes ) {
 					if( edge.intersects( tube )) {
-						printErr( 'edge $edge intersects tube $tube' );
+						printErr( 'intersect of edge ${getEdgeDescription( edge )} with tube ${getEdgeDescription( tube )}' );
 						isIntersect = true;
 						break;
 					}
 				}
-				if( !isIntersect ) printErr( 'add edge $edge' );
-				if( !isIntersect ) validEdges.push( edge );
-			}
-			
-			// printErr( 'Edges\n' + validEdges.map( e -> e.id ).join( "\n" ));
-
-			final neighborsMap:Map<Building, Array<Edge>> = [];
-			for( building in buildings ) {
-				neighborsMap.set( building, [] );
-				for( edge in validEdges ) {
-					if( edge.p1.equals( building.pos ) || edge.p2.equals( building.pos )) {
-						neighborsMap[building].push( edge );
-					}
+				if( !isIntersect ) {
+					printErr( 'add edge ${getEdgeDescription( edge )}' );
+					edges.push( edge );
 				}
 			}
-			// for( building => neighbors in neighborsMap ) {
-			// 	trace( '${building.id} $neighbors' );
-			// }
+			
+			addTubes();
+			// printErr( 'Edges\n' + validEdges.map( e -> e.id ).join( "\n" ));
+
+		}
 		
-			for( landingPad in landingPads ) {
-				for( astronautType in landingPad.astronautTypesMap.keys()) {
-					// find path to building
-					final moduleForAstronaut = lunarModulesByType[astronautType][0] ?? throw 'No lunar module for astronaut type: $astronautType';
+		step++;
+		if( outputs.length == 0 ) return "WAIT";
+		return outputs.join( ";" );
+	}
+
+	function getEdgeDescription( edge:Edge ) {
+		final startBuilding = buildingsByPos[edge.p1];
+		final endBuilding = buildingsByPos[edge.p2];
+		final startBuildingString = startBuilding.type == 0 ? 'LandingPad' : 'LunarModule type ${startBuilding.type}';
+		final endBuildingString = endBuilding.type == 0 ? 'LandingPad' : 'LunarModule type ${endBuilding.type}';
+		return 'from $startBuildingString id ${startBuilding.id} to $endBuildingString id ${endBuilding.id}';
+	}
+
+	function addTubes() {
+		final neighborsMap:Map<Building, Array<Edge>> = [];
+		for( building in buildings ) {
+			neighborsMap.set( building, [] );
+			for( edge in edges ) {
+				if( edge.p1.equals( building.pos ) || edge.p2.equals( building.pos )) {
+					neighborsMap[building].push( edge );
+				}
+			}
+		}
+		// for( building => neighbors in neighborsMap ) {
+		// 	trace( '${building.id} $neighbors' );
+		// }
+	
+		for( landingPad in landingPads ) {
+			for( astronautType in landingPad.astronautTypesMap.keys()) {
+				// find path to building
+				final modulesForAstronaut = lunarModulesByType[astronautType];
+				for( moduleForAstronaut in modulesForAstronaut ) {
+					// final moduleForAstronaut = lunarModulesByType[astronautType][0] ?? throw 'No lunar module for astronaut type: $astronautType';
 					final pathNodes = createPathNodes( landingPad, moduleForAstronaut, neighborsMap );
 
 					final path = AStarSearch.getPath( pathNodes, landingPad.id, moduleForAstronaut.id );
@@ -107,22 +134,18 @@ class Ai1 {
 						final edge = edgesMap[edgeId];
 						if( !tubes.exists( edgeId )) {
 							final cost = Math.floor( edge.length );
-							if( currentResources > cost ) {
+							if( resources > cost ) {
 								outputs.push( 'TUBE $tubeStartId $tubeEndId' );
 								tubes.set( edgeId, edge );
 								tubesNum++;
-								currentResources -= cost;
+								resources -= cost;
 							}
 						}
 					}
-					
 				}
 			}
 		}
-		
-		step++;
-		if( outputs.length == 0 ) return "WAIT";
-		return outputs.join( ";" );
+	
 	}
 
 	function createPathNodes( from:Building, to:Building, neighborsMap:Map<Building, Array<Edge>> ) {

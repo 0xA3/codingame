@@ -17,8 +17,8 @@ class Triangulate {
 		for( p in points ) {
 			final badTriangles:Array<Triangle> = [];
 	
-			for( t in triangulation ) {
-				if( t.pointInCircumcircle( p )) badTriangles.push( t );
+			for( triangle in triangulation ) {
+				if( triangle.pointInCircumcircle( p )) badTriangles.push( triangle );
 			}
 	
 			final polygon:Array<Point> = [];

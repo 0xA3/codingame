@@ -16,6 +16,7 @@ class Main {
 	function new() {
 		while( true ) {
 			final programInput = getProgramInput();
+			ai.reset();
 			ai.setInput( programInput );
 			final result = ai.process();
 
@@ -50,13 +51,13 @@ class Main {
 			buildings: buildings
 		};
 		
-		printErr( 'resources: $resources' );
-		printErr( 'numTravelRoutes: $numTravelRoutes' );
-		printErr( 'travelRoutes: $travelRoutes' );
-		printErr( 'numPods: $numPods' );
-		printErr( 'podProperties:\n${podPropertiesLines.join( "\n" )}' );
-		printErr( 'numNewBuildings: $numNewBuildings' );
-		printErr( 'newBuildingProperties:\n${newBuildingPropertiesLines.join( "\n" )}' );
+		// printErr( 'resources: $resources' );
+		// printErr( 'numTravelRoutes: $numTravelRoutes' );
+		// printErr( 'travelRoutes: $travelRoutes' );
+		// printErr( 'numPods: $numPods' );
+		// printErr( 'podProperties:\n${podPropertiesLines.join( "\n" )}' );
+		// printErr( 'numNewBuildings: $numNewBuildings' );
+		// printErr( 'newBuildingProperties:\n${newBuildingPropertiesLines.join( "\n" )}' );
 		
 		return programInput;
 	}
