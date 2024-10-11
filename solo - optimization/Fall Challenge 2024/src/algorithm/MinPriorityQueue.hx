@@ -14,7 +14,7 @@ class MinPriorityQueue<T> {
 	* @param  initCapacity the initial capacity of this priority queue
 	*/
 	public function new( compare:( a:T, b:T ) -> Bool ) {
-		this.compare = compare; 
+		this.compare = compare;
 		pq = new Vector<T>( 1 );
 		n = 0;
 	}
