@@ -14,17 +14,29 @@ function main() {
 }
 
 function process( n:Int, k:Int ) {
-	var nn = 0;
-	final sk = '$k';
-	for( i in 0...n + 1 ) {
-		if( '$i'.indexOf( sk ) != -1 ) trace( i );
-		final digits = '$i'.split( "" );
-		for( digit in digits ) if( digit == sk ) nn++;
+	// printErr( 'number: ' + n + ' digit: ' + k );
+	var count = 0;
+	var f = 1;
+	while( f <= n ) {
+		final high = int( n / ( f * 10 ));
+		final cur = int( n / f ) % 10;
+		final low = n % f;
+		// printErr( '\n---------- f: $f ----------' );
+		// printErr( 'n//(f*10): $n // ${f * 10} = $high' );
+		// printErr( 'count = $count + $high * $f = ${count + high * f}\n' );
+		count += high * f;
+		
+		// printErr( '(n//f)%10: ${int( n / f )} % 10 = $cur' );
+		// printErr( '    n % f: $n % $f = ${n % f}' );
+		// if( cur == k ) printErr( '$cur == $k   count = $count + $low + 1 = ${count + low + 1}' );
+		// else printErr( '$cur != $k' );
+		if( cur == k ) count += low + 1;
+		
+		// if( cur > k ) printErr( '$cur > $k   count = $count + $f = ${count + f}' );
+		// else if( cur != k ) printErr( '$cur < $k' );
+		if( cur > k ) count += f;
+		f *= 10;
 	}
-
-	final nDiv = int( n / 10 );
-	final lastNum = n % 10;
-	trace( 'nDiv $nDiv, lastNum $lastNum' );
-
-	return nn;
+	// printErr( 'final count = $count' );
+	return count;
 }

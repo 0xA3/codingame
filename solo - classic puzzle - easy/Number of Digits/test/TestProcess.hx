@@ -19,7 +19,7 @@ class TestProcess extends buddy.BuddySuite{
 				final ip = n2;
 				Main.process( ip.n, ip.k ).should.be( 1 );
 			});
-			@include it( "n = 12", {
+			it( "n = 12", {
 				final ip = n12;
 				Main.process( ip.n, ip.k ).should.be( 2 );
 			});
@@ -35,27 +35,27 @@ class TestProcess extends buddy.BuddySuite{
 				final ip = n219;
 				Main.process( ip.n, ip.k ).should.be( 42 );
 			});
-			@exclude it( "n = 4218", {
+			it( "n = 4218", {
 				final ip = n4218;
 				Main.process( ip.n, ip.k ).should.be( 1461 );
 			});
-			@exclude it( "n = 10000", {
+			it( "n = 10000", {
 				final ip = n10000;
 				Main.process( ip.n, ip.k ).should.be( 4000 );
 			});
-			@exclude it( "n = 248919", {
+			it( "n = 248919", {
 				final ip = n248919;
 				Main.process( ip.n, ip.k ).should.be( 119682 );
 			});
-			@exclude it( "n = 841772", {
-				final ip = n824883294;
+			it( "n = 841772", {
+				final ip = n841772;
 				Main.process( ip.n, ip.k ).should.be( 458220 );
 			});
-			@exclude it( "n = 1283048", {
+			it( "n = 1283048", {
 				final ip = n1283048;
 				Main.process( ip.n, ip.k ).should.be( 732904 );
 			});
-			@exclude it( "n = 824883294", {
+			it( "n = 824883294", {
 				final ip = n824883294;
 				Main.process( ip.n, ip.k ).should.be( 767944060 );
 			});
