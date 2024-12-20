@@ -4,6 +4,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import ai.IAi;
 import ai.data.Entity;
+import ai.data.Pos;
 
 using Lambda;
 
@@ -23,12 +24,12 @@ class Wait implements IAi {
 
 	public function new() { }
 	
-	public function setGlobalInputs( width:Int, height:Int ) {
+	public function setGlobalInputs( grid:Array<Array<Int>>, width:Int, height:Int, positions:Array<Array<Pos>> ) {
 		this.width = width;
 		this.height = height;
 	}
 	
-	public function setInputs( requiredActionsCount:Int, entities:Array<Entity>, a:Int, b:Int, c:Int, d:Int  ) {
+	public function setInputs( requiredActionsCount:Int, entities:Array<Entity>, myEntities:Array<Entity>, a:Int, b:Int, c:Int, d:Int  ) {
 		this.requiredActionsCount = requiredActionsCount;
 		this.entities = entities;
 		this.a = a;

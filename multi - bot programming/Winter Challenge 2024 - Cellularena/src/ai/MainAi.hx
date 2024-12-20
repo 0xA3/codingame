@@ -5,25 +5,32 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.data.Entity;
+import ai.data.Pos;
 
 class MainAi {
 	
 	static function main() {
-		final ai = new ai.versions.Wait();
+		final ai = new ai.versions.Ai1();
 		final inputs = readline().split(' ');
 		final width = parseInt( inputs[0] );
 		final height = parseInt( inputs[1] );
+		final grid = [for( _ in 0...height ) [for( _ in 0...width ) -1]];
+		final positions = [for( y in 0...height ) [for( x in 0...width ) new Pos( x, y )]];
 		// printErr( 'width: $width' );
 		// printErr( 'height: $height' );
-		ai.setGlobalInputs( width, height );
+		ai.setGlobalInputs( grid, width, height, positions );
 		
+		final entities = [];
+		final myEntities = [];
+		// final oppEntities = [];
+		// final neitherEntities = [];
+	
 		// game loop
 		while( true ) {
+			entities.splice( 0, entities.length );
+			myEntities.splice( 0, myEntities.length );
 			final entityCount = parseInt( readline() );
 			// printErr( 'entityCount: $entityCount' );
-			final myEntities = [];
-			final oppEntities = [];
-			final neitherEntities = [];
 			for ( i in 0...entityCount ) {
 				final inputs = readline().split(' ');
 				// printErr( 'Entity: ${inputs.join(" ")}' );
@@ -36,11 +43,21 @@ class MainAi {
 				final organParentId = parseInt( inputs[6] );
 				final organRootId = parseInt( inputs[7] );
 
-				final entity = new Entity( x, y, type, owner, organId, organDir, organParentId, organRootId );
+				// if( grid[y][x] == -1 ) {
+					// final gridEntityId = grid[y][x];
+					// final gridEntity = entities[gridEntityId];
+					// if( !checkEntityMatch( gridEntity, type, owner, organId, organDir, organParentId, organRootId ) ) {
+					// 	printErr( "Grid entity mismatch: $gridEntityId" );
+					// }
+					final entity = new Entity( positions[y][x], type, owner, organId, organDir, organParentId, organRootId );
 
-				if( owner == 1 ) myEntities.push( entity );
-				else if( owner == 0 ) oppEntities.push( entity );
-				else neitherEntities.push( entity );
+					entities.push( entity );
+					grid[y][x] = entities.length - 1;
+
+					if( owner == 1 ) myEntities.push( entity );
+					// else if( owner == 0 ) oppEntities.push( entity );
+					// else neitherEntities.push( entity );
+				// }
 			}
 			final inputs = readline().split(' ');
 			// printErr( 'my inputs: ${inputs.join(" ")}' );
@@ -57,11 +74,21 @@ class MainAi {
 			final requiredActionsCount = parseInt( readline() ); // your number of organisms, output an action for each one in any order
 			// printErr( 'requiredActionsCount: $requiredActionsCount' );
 			
-			ai.setInputs( requiredActionsCount, myEntities, myA, myB, myC, myD );
+			ai.setInputs( requiredActionsCount, entities, myEntities, myA, myB, myC, myD );
 
 			final outputs = ai.process();
-			printErr( outputs );
+			// printErr( outputs );
 			print( outputs );
 		}
+	}
+
+	static function checkEntityMatch( entity:Entity, type:String, owner:Int, organId:Int, organDir:String, organParentId:Int, organRootId:Int ) {
+		if( entity.type != type ) return false;
+		if( entity.owner != owner ) return false;
+		if( entity.organId != organId ) return false;
+		if( entity.organDir != organDir ) return false;
+		if( entity.organParentId != organParentId ) return false;
+		if( entity.organRootId != organRootId ) return false;
+		return true;
 	}
 }
