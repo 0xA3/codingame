@@ -2,6 +2,8 @@ package ai.data;
 
 class Pos {
 	
+	public static final NO_POS = new Pos( -1, -1 );
+
 	public var x:Int;
 	public var y:Int;
 

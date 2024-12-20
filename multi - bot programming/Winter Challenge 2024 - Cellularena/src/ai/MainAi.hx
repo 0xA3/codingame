@@ -7,9 +7,11 @@ import Std.parseInt;
 import ai.data.Entity;
 import ai.data.Pos;
 
+using StringTools;
+
 class MainAi {
-	
 	static function main() {
+		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		final ai = new ai.versions.Ai1();
 		final inputs = readline().split(' ');
 		final width = parseInt( inputs[0] );
@@ -21,14 +23,14 @@ class MainAi {
 		ai.setGlobalInputs( grid, width, height, positions );
 		
 		final entities = [];
-		final myEntities = [];
+		final myEntities:Map<Int, Entity> = [];
 		// final oppEntities = [];
 		// final neitherEntities = [];
 	
 		// game loop
 		while( true ) {
 			entities.splice( 0, entities.length );
-			myEntities.splice( 0, myEntities.length );
+			myEntities.clear();
 			final entityCount = parseInt( readline() );
 			// printErr( 'entityCount: $entityCount' );
 			for ( i in 0...entityCount ) {
@@ -54,7 +56,7 @@ class MainAi {
 					entities.push( entity );
 					grid[y][x] = entities.length - 1;
 
-					if( owner == 1 ) myEntities.push( entity );
+					if( owner == 1 ) myEntities.set( organId, entity );
 					// else if( owner == 0 ) oppEntities.push( entity );
 					// else neitherEntities.push( entity );
 				// }
