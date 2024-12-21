@@ -1,13 +1,21 @@
 package xa3;
 
+import Math.abs;
+
+using Lambda;
+
 class MathUtils {
 	public static inline var INTEGER_MAX_VALUE = 2147483647;
 	public static inline var INTEGER_MIN_VALUE = -2147483648;
 	
+	extern public static inline function abs( v:Int ) return v < 0 ? -v : v;
+	extern public static inline function avg( a:Array<Int> ) return sum( a ) / a.length;
 	public static function dist2( x1:Int, y1:Int, x2:Int, y2:Int ) return ( x1 - x2 ) * ( x1 - x2 ) + ( y1 - y2 ) * ( y1 - y2 );
 
 	public static function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
+	extern public static inline function manhattanDist( v1:Int, v2:Int ) return abs( v2 - v1 );
 	public static function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
+	extern public static inline function sum( a:Array<Int> ) return a.fold(( v, sum ) -> sum + v, 0 );
 
 	/**
 	 * Returns the linear interpolation of two numbers if `ratio`

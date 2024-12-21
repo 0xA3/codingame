@@ -2,7 +2,7 @@ package ai.data;
 
 class Entity {
 	
-	public static final NO_ENTITY = new Entity( new Pos( -1, -1 ), "NONE", 0, 0, "", 0, 0 );
+	public static final NO_ENTITY = new Entity( new Pos( -1, -1 ), "NONE", -999, 0, "", 0, 0 );
 
 	public final pos:Pos; // grid coordinate
 	public final type:String; // WALL, ROOT, BASIC, TENTACLE, HARVESTER, SPORER, A, B, C, D

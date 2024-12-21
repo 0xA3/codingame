@@ -2,11 +2,14 @@ package ai.versions;
 
 import CodinGame.printErr;
 import CodinGame.readline;
+import Math.round;
+import Std.int;
 import ai.IAi;
 import ai.data.Entity;
 import ai.data.Node.NO_NODE;
 import ai.data.Node;
 import ai.data.Pos;
+import xa3.MathUtils;
 
 using Lambda;
 
@@ -16,7 +19,7 @@ class Ai1 implements IAi {
 
 	public var aiId = "Ai1";
 
-	var playerIdx:Int;
+	var playerIdx = 1;
 
 	var grid:Array<Array<Int>>;
 	var width:Int;
@@ -28,6 +31,7 @@ class Ai1 implements IAi {
 	var requiredActionsCount:Int;
 	var entities:Array<Entity>;
 	var myEntities:Map<Int, Entity>;
+	var oppEntities:Array<Entity>;
 	var a:Int;
 	var b:Int;
 	var c:Int;
@@ -47,10 +51,11 @@ class Ai1 implements IAi {
 		turn = 0;
 	}
 	
-	public function setInputs( requiredActionsCount:Int, entities:Array<Entity>, myEntities:Map<Int, Entity>, a:Int, b:Int, c:Int, d:Int	) {
+	public function setInputs( requiredActionsCount:Int, entities:Array<Entity>, myEntities:Map<Int, Entity>, oppEntities:Array<Entity>, a:Int, b:Int, c:Int, d:Int ) {
 		this.requiredActionsCount = requiredActionsCount;
 		this.entities = entities;
 		this.myEntities = myEntities;
+		this.oppEntities = oppEntities;
 		
 		this.a = a;
 		this.b = b;
@@ -77,8 +82,54 @@ class Ai1 implements IAi {
 		} else if( closestProteinNode.distance > 2 ) {
 			return 'GROW ${closestOrgan.organId} ${closestProteinNode.pos.x} ${closestProteinNode.pos.y} BASIC N';
 		} else {
-			final emptyNode = getEmptyNode();
-			return 'GROW ${emptyNode.closestOrganId} ${emptyNode.pos.x} ${emptyNode.pos.y} BASIC N';
+			final goToOppNode = getGoToOppNode();
+			if( goToOppNode != NO_NODE ) {
+				// check for opponent entities nearby
+				final x = goToOppNode.pos.x;
+				final y = goToOppNode.pos.y;
+				var dir = "N";
+				var isOppNearby = false;
+				for( i in [1, 2] ) {
+					final yUp = y - i;
+					final xLeft = x - i;
+					final yDown = y + i;
+					final xRight = x + i;
+					if( checkValidCoord( x, yUp )) {
+						final entity = getEntity( positions[yUp][x] );
+						if( entity.owner == 0 ) {
+							isOppNearby = true;
+							dir = "N";
+						}
+					}
+					if( checkValidCoord( xLeft, y )) {
+						final entity = getEntity( positions[y][xLeft] );
+						if( entity.owner == 0 ) {
+							isOppNearby = true;
+							dir = "W";
+						}
+					}
+					if( checkValidCoord( x, yDown )) {
+						final entity = getEntity( positions[yDown][x] );
+						if( entity.owner == 0 ) {
+							isOppNearby = true;
+							dir = "S";
+						}
+					}
+					if( checkValidCoord( xRight, y )) {
+						final entity = getEntity( positions[y][xRight] );
+						if( entity.owner == 0 ) {
+							isOppNearby = true;
+							dir = "E";
+						}
+					}
+				}
+
+				if( isOppNearby ) return 'GROW ${goToOppNode.closestOrganId} ${x} ${y} TENTACLE $dir';
+				else return 'GROW ${goToOppNode.closestOrganId} ${x} ${y} BASIC N';
+				
+			} else {
+				return "WAIT";
+			}
 		}
 	}
 
@@ -113,7 +164,7 @@ class Ai1 implements IAi {
 	}
 
 	inline function getEntity( pos:Pos ) return grid[pos.y][pos.x] == -1 ? Entity.NO_ENTITY : entities[grid[pos.y][pos.x]];
-	inline function manhattanDistance( p1:Pos, p2:Pos ) return Math.abs( p1.x - p2.x ) + Math.abs( p1.y - p2.y );
+	inline function manhattanDistance( p1:Pos, p2:Pos ) return MathUtils.abs( p1.x - p2.x ) + MathUtils.abs( p1.y - p2.y );
 	inline function getDirection( p1:Pos, p2:Pos ) {
 		if( p1.y < p2.y ) return "S";
 		if( p1.x < p2.x ) return "E";
@@ -132,19 +183,19 @@ class Ai1 implements IAi {
 		final y4 = pos.y + 1;
 	
 		final neighbors = new List<Pos>();
-		if( x1 >= 0 && !visited[y2][x2] && checkValidCoord( x1, y1 ) && !harvestedProteins.exists( positions[y1][x1] )) {
+		if( x1 >= 0 && !visited[y2][x2] && checkProteinOrEmpty( x1, y1 ) && !harvestedProteins.exists( positions[y1][x1] )) {
 			neighbors.add( positions[y1][x1] );
 			visited[y1][x1] = true;
 		}
-		if( x2 < width && !visited[y2][x2] && checkValidCoord( x2, y2 ) && !harvestedProteins.exists( positions[y2][x2] )) {
+		if( x2 < width && !visited[y2][x2] && checkProteinOrEmpty( x2, y2 ) && !harvestedProteins.exists( positions[y2][x2] )) {
 			neighbors.add( positions[y2][x2] );
 			visited[y2][x2] = true;
 		}
-		if( y3 >= 0 && !visited[y3][x3] && checkValidCoord( x3, y3 ) && !harvestedProteins.exists( positions[y3][x3] )) {
+		if( y3 >= 0 && !visited[y3][x3] && checkProteinOrEmpty( x3, y3 ) && !harvestedProteins.exists( positions[y3][x3] )) {
 			neighbors.add( positions[y3][x3] );
 			visited[y3][x3] = true;
 		}
-		if( y4 < height && !visited[y4][x4] && checkValidCoord( x4, y4 ) && !harvestedProteins.exists( positions[y4][x4] )) {
+		if( y4 < height && !visited[y4][x4] && checkProteinOrEmpty( x4, y4 ) && !harvestedProteins.exists( positions[y4][x4] )) {
 			neighbors.add( positions[y4][x4] );
 			visited[y4][x4] = true;
 		}
@@ -163,25 +214,59 @@ class Ai1 implements IAi {
 	}
 
 	function checkValidCoord( x:Int, y:Int ) {
+		if( x < 0 || x >= width || y < 0 || y >= height ) return false;
+		return true;
+	}
+
+	function checkProteinOrEmpty( x:Int, y:Int ) {
+		if( x < 0 || x >= width || y < 0 || y >= height ) return false;
 		final entity = getEntity( positions[y][x] );
 		if( entity == Entity.NO_ENTITY ) return true;
 		if( proteinTypes.exists( entity.type )) return true;
 		return false;
 	}
 
-	function getEmptyNode() {
+	function getGoToOppNode() {
 		for( y in 0...grid.length ) for( x in 0...grid[y].length ) visited[y][x] = false;
-		
+		final oppCenter = getCenter( [for( entity in oppEntities ) entity.pos] );
+
+		final entityDistances:Array<{ entity:Entity, distance:Int }> = [];
 		for( entity in myEntities ) {
-			final neighbors = getNeighborPositions( entity.pos, visited );
-			for( neighbor in neighbors ) {
-				if( grid[neighbor.y][neighbor.x] == -1 ) {
-					final node = new Node( entity.organId, neighbor, 1 );
-					return node;
-				};
+			final distance = manhattanDistance( entity.pos, oppCenter );
+			entityDistances.push( { entity:entity, distance:distance } );
+		}
+		entityDistances.sort(( a, b ) -> a.distance - b.distance );
+		for( ed in entityDistances ) {
+			// printErr( 'entity: ${ed.entity.pos} distance: ${ed.distance}' );
+			final neighbors = getNeighborPositions( ed.entity.pos, visited );
+			if( neighbors.length > 0 ) {
+				final closestNeighborPos = getClosestPos( oppCenter, neighbors );
+				// printErr( 'closestNeighborPos: $closestNeighborPos' );
+				return new Node( ed.entity.organId, closestNeighborPos, 1 );
 			}
 		}
-		return NO_NODE;
+
+		return Node.NO_NODE;
 	}
 	
+	function getCenter( inputPositions:Array<Pos> ) {
+		final avgX = inputPositions.fold(( pos, sum ) -> sum + pos.x, 0 ) / inputPositions.length;
+		final avgY = inputPositions.fold(( pos, sum ) -> sum + pos.y, 0 ) / inputPositions.length;
+
+		return positions[int(avgY)][int(avgX)];
+	}
+
+	function getClosestPos( pos:Pos, inputPositions:List<Pos> ) {
+		// find closest position
+		var minDistance = width * height;
+		var closestPos = inputPositions.first();
+		for( p in inputPositions ) {
+			final distance = manhattanDistance( pos, p );
+			if( distance < minDistance ) {
+				minDistance = distance;
+				closestPos = p;
+			}
+		}
+		return closestPos;
+	}
 }

@@ -24,7 +24,7 @@ class MainAi {
 		
 		final entities = [];
 		final myEntities:Map<Int, Entity> = [];
-		// final oppEntities = [];
+		final oppEntities = [];
 		// final neitherEntities = [];
 	
 		// game loop
@@ -57,7 +57,7 @@ class MainAi {
 					grid[y][x] = entities.length - 1;
 
 					if( owner == 1 ) myEntities.set( organId, entity );
-					// else if( owner == 0 ) oppEntities.push( entity );
+					else if( owner == 0 ) oppEntities.push( entity );
 					// else neitherEntities.push( entity );
 				// }
 			}
@@ -76,7 +76,7 @@ class MainAi {
 			final requiredActionsCount = parseInt( readline() ); // your number of organisms, output an action for each one in any order
 			// printErr( 'requiredActionsCount: $requiredActionsCount' );
 			
-			ai.setInputs( requiredActionsCount, entities, myEntities, myA, myB, myC, myD );
+			ai.setInputs( requiredActionsCount, entities, myEntities, oppEntities, myA, myB, myC, myD );
 
 			final outputs = ai.process();
 			// printErr( outputs );

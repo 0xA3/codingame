@@ -29,7 +29,7 @@ class Wait implements IAi {
 		this.height = height;
 	}
 	
-	public function setInputs( requiredActionsCount:Int, entities:Array<Entity>, myEntities:Map<Int, Entity>, a:Int, b:Int, c:Int, d:Int  ) {
+	public function setInputs( requiredActionsCount:Int, entities:Array<Entity>, myEntities:Map<Int, Entity>, oppEntities:Array<Entity>, a:Int, b:Int, c:Int, d:Int  ) {
 		this.requiredActionsCount = requiredActionsCount;
 		this.entities = entities;
 		this.a = a;
