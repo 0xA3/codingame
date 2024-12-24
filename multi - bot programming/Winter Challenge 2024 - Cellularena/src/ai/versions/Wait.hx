@@ -8,7 +8,7 @@ import ai.data.Pos;
 
 using Lambda;
 
-class Wait implements IAi {
+class Wait {
 	
 	public var aiId = "Wait";
 	

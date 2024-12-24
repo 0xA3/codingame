@@ -12,7 +12,7 @@ using StringTools;
 class MainAi {
 	static function main() {
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
-		final ai = new ai.versions.Ai1();
+		final ai = new ai.versions.Ai2();
 		final inputs = readline().split(' ');
 		final width = parseInt( inputs[0] );
 		final height = parseInt( inputs[1] );

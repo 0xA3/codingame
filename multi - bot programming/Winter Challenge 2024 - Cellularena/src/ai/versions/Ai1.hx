@@ -13,7 +13,7 @@ import xa3.MathUtils;
 
 using Lambda;
 
-class Ai1 implements IAi {
+class Ai1 {
 	
 	static final proteinTypes = ["A" => true, "B" => true, "C" => true, "D" => true];
 
