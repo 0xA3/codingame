@@ -95,28 +95,28 @@ class Ai1 {
 					final yDown = y + i;
 					final xRight = x + i;
 					if( checkValidCoord( x, yUp )) {
-						final entity = getEntity( positions[yUp][x] );
+						final entity = geTCell( positions[yUp][x] );
 						if( entity.owner == 0 ) {
 							isOppNearby = true;
 							dir = "N";
 						}
 					}
 					if( checkValidCoord( xLeft, y )) {
-						final entity = getEntity( positions[y][xLeft] );
+						final entity = geTCell( positions[y][xLeft] );
 						if( entity.owner == 0 ) {
 							isOppNearby = true;
 							dir = "W";
 						}
 					}
 					if( checkValidCoord( x, yDown )) {
-						final entity = getEntity( positions[yDown][x] );
+						final entity = geTCell( positions[yDown][x] );
 						if( entity.owner == 0 ) {
 							isOppNearby = true;
 							dir = "S";
 						}
 					}
 					if( checkValidCoord( xRight, y )) {
-						final entity = getEntity( positions[y][xRight] );
+						final entity = geTCell( positions[y][xRight] );
 						if( entity.owner == 0 ) {
 							isOppNearby = true;
 							dir = "E";
@@ -147,7 +147,7 @@ class Ai1 {
 			final currentNode = frontier.pop();
 			final currentClosestOrganId = currentNode.closestOrganId;
 			final currentPos = currentNode.pos;
-			final entity = getEntity( currentPos );
+			final entity = geTCell( currentPos );
 			
 			if( entity != Entity.NO_ENTITY && proteinTypes.exists( entity.type )) {
 				printErr( 'found protein type ${entity.type} at $currentPos with distance ${currentNode.distance}' );
@@ -163,7 +163,7 @@ class Ai1 {
 		return Node.NO_NODE;
 	}
 
-	inline function getEntity( pos:Pos ) return grid[pos.y][pos.x] == -1 ? Entity.NO_ENTITY : entities[grid[pos.y][pos.x]];
+	inline function geTCell( pos:Pos ) return grid[pos.y][pos.x] == -1 ? Entity.NO_ENTITY : entities[grid[pos.y][pos.x]];
 	inline function manhattanDistance( p1:Pos, p2:Pos ) return MathUtils.abs( p1.x - p2.x ) + MathUtils.abs( p1.y - p2.y );
 	inline function getDirection( p1:Pos, p2:Pos ) {
 		if( p1.y < p2.y ) return "S";
@@ -220,7 +220,7 @@ class Ai1 {
 
 	function checkProteinOrEmpty( x:Int, y:Int ) {
 		if( x < 0 || x >= width || y < 0 || y >= height ) return false;
-		final entity = getEntity( positions[y][x] );
+		final entity = geTCell( positions[y][x] );
 		if( entity == Entity.NO_ENTITY ) return true;
 		if( proteinTypes.exists( entity.type )) return true;
 		return false;

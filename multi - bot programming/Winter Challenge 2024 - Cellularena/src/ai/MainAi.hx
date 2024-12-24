@@ -4,8 +4,10 @@ import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
-import ai.data.Entity;
+import ai.data.Cell;
 import ai.data.Pos;
+import ai.data.TCell;
+import ai.data.TDir;
 
 using StringTools;
 
@@ -16,20 +18,19 @@ class MainAi {
 		final inputs = readline().split(' ');
 		final width = parseInt( inputs[0] );
 		final height = parseInt( inputs[1] );
-		final grid = [for( _ in 0...height ) [for( _ in 0...width ) -1]];
 		final positions = [for( y in 0...height ) [for( x in 0...width ) new Pos( x, y )]];
+		final cells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => Cell.createEmptyCell( positions[y][x] )];
+		initNeighbors( positions, cells, width, height );
 		// printErr( 'width: $width' );
 		// printErr( 'height: $height' );
-		ai.setGlobalInputs( grid, width, height, positions );
+		ai.setGlobalInputs( positions, cells, width, height );
 		
-		final entities = [];
-		final myEntities:Map<Int, Entity> = [];
+		final myEntities:Map<Int, Cell> = [];
 		final oppEntities = [];
 		// final neitherEntities = [];
 	
 		// game loop
 		while( true ) {
-			entities.splice( 0, entities.length );
 			myEntities.clear();
 			final entityCount = parseInt( readline() );
 			// printErr( 'entityCount: $entityCount' );
@@ -38,28 +39,46 @@ class MainAi {
 				// printErr( 'Entity: ${inputs.join(" ")}' );
 				final x = parseInt( inputs[0] );
 				final y = parseInt( inputs[1] ); // grid coordinate
-				final type = inputs[2]; // WALL, ROOT, BASIC, TENTACLE, HARVESTER, SPORER, A, B, C, D
+				final type = switch inputs[2] {
+					case "WALL": TCell.Wall;
+					case "ROOT": TCell.Root;
+					case "BASIC": TCell.Basic;
+					case "TENTACLE": TCell.Tentacle;
+					case "HARVESTER": TCell.Harvester;
+					case "SPORER": TCell.Sporer;
+					case "A": TCell.A;
+					case "B": TCell.B;
+					case "C": TCell.C;
+					case "D": TCell.D;
+					default: throw 'Error: unknown type: ${inputs[2]}';
+				} // WALL, ROOT, BASIC, TENTACLE, HARVESTER, SPORER, A, B, C, D
 				final owner = parseInt( inputs[3] ); // 1 if your organ, 0 if enemy organ, -1 if neither
 				final organId = parseInt( inputs[4] ); // id of this entity if it's an organ, 0 otherwise
-				final organDir = inputs[5]; // N,E,S,W or X if not an organ
+				final organDir = switch inputs[5] {
+					case "N": TDir.N;
+					case "E": TDir.E;
+					case "S": TDir.S;
+					case "W": TDir.W;
+					case "X": TDir.X;
+					default: throw 'Error: unknown direction: ${inputs[5]}';
+				} // N,E,S,W or X if not an organ
 				final organParentId = parseInt( inputs[6] );
 				final organRootId = parseInt( inputs[7] );
 
-				// if( grid[y][x] == -1 ) {
-					// final gridEntityId = grid[y][x];
-					// final gridEntity = entities[gridEntityId];
-					// if( !checkEntityMatch( gridEntity, type, owner, organId, organDir, organParentId, organRootId ) ) {
-					// 	printErr( "Grid entity mismatch: $gridEntityId" );
-					// }
-					final entity = new Entity( positions[y][x], type, owner, organId, organDir, organParentId, organRootId );
+				final pos = positions[y][x];
+				final cell = cells[pos];
 
-					entities.push( entity );
-					grid[y][x] = entities.length - 1;
+				cell.type = type;
+				cell.owner = owner;
+				cell.organId = organId;
+				cell.organDir = organDir;
+				cell.organParentId = organParentId;
+				cell.organRootId = organRootId;
 
-					if( owner == 1 ) myEntities.set( organId, entity );
-					else if( owner == 0 ) oppEntities.push( entity );
-					// else neitherEntities.push( entity );
-				// }
+				if( cell.type == Wall ) isolate( cell );
+
+				if( owner == 1 ) myEntities.set( organId, cell );
+				else if( owner == 0 ) oppEntities.push( cell );
 			}
 			final inputs = readline().split(' ');
 			// printErr( 'my inputs: ${inputs.join(" ")}' );
@@ -76,7 +95,7 @@ class MainAi {
 			final requiredActionsCount = parseInt( readline() ); // your number of organisms, output an action for each one in any order
 			// printErr( 'requiredActionsCount: $requiredActionsCount' );
 			
-			ai.setInputs( requiredActionsCount, entities, myEntities, oppEntities, myA, myB, myC, myD );
+			ai.setInputs( requiredActionsCount, myEntities, oppEntities, myA, myB, myC, myD );
 
 			final outputs = ai.process();
 			// printErr( outputs );
@@ -84,13 +103,31 @@ class MainAi {
 		}
 	}
 
-	static function checkEntityMatch( entity:Entity, type:String, owner:Int, organId:Int, organDir:String, organParentId:Int, organRootId:Int ) {
-		if( entity.type != type ) return false;
-		if( entity.owner != owner ) return false;
-		if( entity.organId != organId ) return false;
-		if( entity.organDir != organDir ) return false;
-		if( entity.organParentId != organParentId ) return false;
-		if( entity.organRootId != organRootId ) return false;
-		return true;
+	static function initNeighbors( positions:Array<Array<Pos>>, cells:Map<Pos, Cell>, width:Int, height:Int ) {
+		for( cell in cells ) {
+			final pos = cell.pos;
+
+			final x1 = pos.x - 1;
+			final y1 = pos.y;
+			final x2 = pos.x + 1;
+			final y2 = pos.y;
+			final x3 = pos.x;
+			final y3 = pos.y - 1;
+			final x4 = pos.x;
+			final y4 = pos.y + 1;
+
+			if( x1 >= 0 ) cell.neighbors.push( cells[positions[y1][x1]] );
+			if( x2 < width ) cell.neighbors.push( cells[positions[y2][x2]] );
+			if( y3 >= 0 ) cell.neighbors.push( cells[positions[y3][x3]] );
+			if( y4 < height ) cell.neighbors.push( cells[positions[y4][x4]] );
+		}
 	}
+
+	static function isolate( cell:Cell ) {
+		for( neighborCell in cell.neighbors ) {
+			neighborCell.removeNeighbor( cell );
+		}
+		cell.neighbors.splice( 0, cell.neighbors.length );
+	}
+
 }

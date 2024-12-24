@@ -1,25 +1,26 @@
 package ai.versions;
 
-import ai.data.Entity;
+import CodinGame.printErr;
+import ai.contexts.OutputTCell.output;
+import ai.data.Cell;
 import ai.data.Pos;
 
 class Ai2 {
 	
-	public var aiId = "Ai1";
+	public var aiId = "Wood 1 solver";
 
 	var playerIdx = 1;
 
-	var grid:Array<Array<Int>>;
+	var positions:Array<Array<Pos>>;
+	var cells:Map<Pos, Cell>;
 	var width:Int;
 	var height:Int;
-	var positions:Array<Array<Pos>>;
-	var visited:Array<Array<Bool>>;
 	final harvestedProteins:Map<Pos, Bool> = [];
 
 	var requiredActionsCount:Int;
-	var entities:Array<Entity>;
-	var myEntities:Map<Int, Entity>;
-	var oppEntities:Array<Entity>;
+	var entities:Array<Cell>;
+	var myEntities:Map<Int, Cell>;
+	var oppEntities:Array<Cell>;
 	var a:Int;
 	var b:Int;
 	var c:Int;
@@ -29,19 +30,17 @@ class Ai2 {
 
 	public function new() {	}
 
-	public function setGlobalInputs( grid:Array<Array<Int>>, width:Int, height:Int, positions:Array<Array<Pos>> ) {
-		this.grid = grid;
+	public function setGlobalInputs( positions:Array<Array<Pos>>, cells:Map<Pos, Cell>, width:Int, height:Int ) {
+		this.positions = positions;
+		this.cells = cells;
 		this.width = width;
 		this.height = height;
-		this.positions = positions;
-		visited = [for( _ in 0...height ) [for( _ in 0...width ) false]];
 		
 		turn = 0;
 	}
 	
-	public function setInputs( requiredActionsCount:Int, entities:Array<Entity>, myEntities:Map<Int, Entity>, oppEntities:Array<Entity>, a:Int, b:Int, c:Int, d:Int ) {
+	public function setInputs( requiredActionsCount:Int, myEntities:Map<Int, Cell>, oppEntities:Array<Cell>, a:Int, b:Int, c:Int, d:Int ) {
 		this.requiredActionsCount = requiredActionsCount;
-		this.entities = entities;
 		this.myEntities = myEntities;
 		this.oppEntities = oppEntities;
 		
@@ -52,6 +51,12 @@ class Ai2 {
 	}
 
 	public function process() {
-		
+		turn++;
+
+		if( turn == 1 ) {
+			for( cell in cells ) printErr( 'pos: ${cell.pos}, type: ${output( cell.type )}, neighbors: ${cell.neighborsToString()}' );
+		}
+
+		return "WAIT";
 	}
 }
