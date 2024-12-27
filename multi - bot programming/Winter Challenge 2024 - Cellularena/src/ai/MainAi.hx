@@ -14,7 +14,7 @@ using StringTools;
 class MainAi {
 	static function main() {
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
-		final ai = new ai.versions.Ai2();
+		final ai = new ai.versions.Ai3();
 		final inputs = readline().split(' ');
 		final width = parseInt( inputs[0] );
 		final height = parseInt( inputs[1] );
@@ -26,12 +26,16 @@ class MainAi {
 		ai.setGlobalInputs( positions, cells, width, height );
 		
 		final myCells:Map<Int, Cell> = [];
+		final myRoots:Array<Cell> = [];
 		final oppCells = [];
 		// final neitherEntities = [];
 	
 		// game loop
 		while( true ) {
 			myCells.clear();
+			myRoots.splice( 0, myRoots.length );
+			oppCells.splice( 0, oppCells.length );
+
 			final entityCount = parseInt( readline() );
 			// printErr( 'entityCount: $entityCount' );
 			for ( i in 0...entityCount ) {
@@ -77,7 +81,10 @@ class MainAi {
 
 				if( cell.type == Wall ) isolate( cell );
 
-				if( owner == 1 ) myCells.set( organId, cell );
+				if( owner == 1 ) {
+					myCells.set( organId, cell );
+					if( cell.type == TCell.Root ) myRoots.push( cell );
+				}
 				else if( owner == 0 ) oppCells.push( cell );
 			}
 			final inputs = readline().split(' ');
@@ -95,7 +102,7 @@ class MainAi {
 			final requiredActionsCount = parseInt( readline() ); // your number of organisms, output an action for each one in any order
 			// printErr( 'requiredActionsCount: $requiredActionsCount' );
 			
-			ai.setInputs( requiredActionsCount, myCells, oppCells, myA, myB, myC, myD );
+			ai.setInputs( requiredActionsCount, myRoots, myCells, oppCells, myA, myB, myC, myD );
 
 			final outputs = ai.process();
 			// printErr( outputs );
