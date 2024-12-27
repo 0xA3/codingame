@@ -5,9 +5,9 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.data.Cell;
-import ai.data.Pos;
 import ai.data.TCell;
 import ai.data.TDir;
+import xa3.math.Pos;
 
 using StringTools;
 
@@ -25,13 +25,13 @@ class MainAi {
 		// printErr( 'height: $height' );
 		ai.setGlobalInputs( positions, cells, width, height );
 		
-		final myEntities:Map<Int, Cell> = [];
-		final oppEntities = [];
+		final myCells:Map<Int, Cell> = [];
+		final oppCells = [];
 		// final neitherEntities = [];
 	
 		// game loop
 		while( true ) {
-			myEntities.clear();
+			myCells.clear();
 			final entityCount = parseInt( readline() );
 			// printErr( 'entityCount: $entityCount' );
 			for ( i in 0...entityCount ) {
@@ -77,8 +77,8 @@ class MainAi {
 
 				if( cell.type == Wall ) isolate( cell );
 
-				if( owner == 1 ) myEntities.set( organId, cell );
-				else if( owner == 0 ) oppEntities.push( cell );
+				if( owner == 1 ) myCells.set( organId, cell );
+				else if( owner == 0 ) oppCells.push( cell );
 			}
 			final inputs = readline().split(' ');
 			// printErr( 'my inputs: ${inputs.join(" ")}' );
@@ -95,7 +95,7 @@ class MainAi {
 			final requiredActionsCount = parseInt( readline() ); // your number of organisms, output an action for each one in any order
 			// printErr( 'requiredActionsCount: $requiredActionsCount' );
 			
-			ai.setInputs( requiredActionsCount, myEntities, oppEntities, myA, myB, myC, myD );
+			ai.setInputs( requiredActionsCount, myCells, oppCells, myA, myB, myC, myD );
 
 			final outputs = ai.process();
 			// printErr( outputs );

@@ -2,6 +2,7 @@ package ai.data;
 
 import ai.data.TCell;
 import ai.data.TDir;
+import xa3.math.Pos;
 
 class Cell {
 	

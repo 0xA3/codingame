@@ -1,6 +1,7 @@
 package xa3;
 
 import Math.abs;
+import xa3.math.Pos;
 
 using Lambda;
 
@@ -13,7 +14,7 @@ class MathUtils {
 	public static function dist2( x1:Int, y1:Int, x2:Int, y2:Int ) return ( x1 - x2 ) * ( x1 - x2 ) + ( y1 - y2 ) * ( y1 - y2 );
 
 	public static function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
-	extern public static inline function manhattanDist( v1:Int, v2:Int ) return abs( v2 - v1 );
+	extern public static inline function manhattanDistance( pos1:Pos, pos2:Pos ) return abs( pos1.x - pos2.x ) + abs( pos1.y - pos2.y );
 	public static function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 	extern public static inline function sum( a:Array<Int> ) return a.fold(( v, sum ) -> sum + v, 0 );
 

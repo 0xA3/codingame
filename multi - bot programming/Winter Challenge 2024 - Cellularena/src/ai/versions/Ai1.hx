@@ -5,11 +5,11 @@ import CodinGame.readline;
 import Math.round;
 import Std.int;
 import ai.IAi;
-import ai.data.Entity;
+import ai.data.Cell;
 import ai.data.Node.NO_NODE;
 import ai.data.Node;
-import ai.data.Pos;
 import xa3.MathUtils;
+import xa3.math.Pos;
 
 using Lambda;
 

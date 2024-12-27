@@ -1,4 +1,4 @@
-package ai.data;
+package xa3.math;
 
 class Pos {
 	
