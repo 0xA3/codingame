@@ -14,7 +14,7 @@ using StringTools;
 class MainAi {
 	static function main() {
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
-		final ai = new ai.versions.Ai3();
+		final ai = new ai.versions.Ai4();
 		final inputs = readline().split(' ');
 		final width = parseInt( inputs[0] );
 		final height = parseInt( inputs[1] );
@@ -28,6 +28,7 @@ class MainAi {
 		final myCells:Map<Int, Cell> = [];
 		final myRoots:Array<Cell> = [];
 		final oppCells = [];
+		final harvestedProteins:Map<Pos, Bool> = [];
 		// final neitherEntities = [];
 	
 		// game loop
@@ -35,6 +36,7 @@ class MainAi {
 			myCells.clear();
 			myRoots.splice( 0, myRoots.length );
 			oppCells.splice( 0, oppCells.length );
+			harvestedProteins.clear();
 
 			final entityCount = parseInt( readline() );
 			// printErr( 'entityCount: $entityCount' );
@@ -84,6 +86,10 @@ class MainAi {
 				if( owner == 1 ) {
 					myCells.set( organId, cell );
 					if( cell.type == TCell.Root ) myRoots.push( cell );
+					if( cell.type == TCell.Harvester ) {
+						final proteinPos = getNeighborPosition( positions, cell.pos, cell.organDir );
+						harvestedProteins.set( proteinPos, true );
+					}
 				}
 				else if( owner == 0 ) oppCells.push( cell );
 			}
@@ -102,7 +108,7 @@ class MainAi {
 			final requiredActionsCount = parseInt( readline() ); // your number of organisms, output an action for each one in any order
 			// printErr( 'requiredActionsCount: $requiredActionsCount' );
 			
-			ai.setInputs( requiredActionsCount, myRoots, myCells, oppCells, myA, myB, myC, myD );
+			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRoots, myCells, harvestedProteins, oppCells );
 
 			final outputs = ai.process();
 			// printErr( outputs );
@@ -137,4 +143,13 @@ class MainAi {
 		cell.neighbors.splice( 0, cell.neighbors.length );
 	}
 
+	static function getNeighborPosition( positions:Array<Array<Pos>>, pos:Pos, direction:TDir ) {
+		switch direction {
+			case TDir.N: return positions[pos.y - 1][pos.x];
+			case TDir.W: return positions[pos.y][pos.x - 1];
+			case TDir.S: return positions[pos.y + 1][pos.x];
+			case TDir.E: return positions[pos.y][pos.x + 1];
+			case TDir.X: throw 'ERROR: invalid direction $direction';
+		}
+	}
 }

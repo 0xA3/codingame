@@ -4,19 +4,28 @@ import xa3.math.Pos;
 
 class Node {
 	
-	public static final NO_NODE = new Node( 0, new Pos( -1, -1 ), 0 );
+	public static final NO_NODE = new Node( 0, Cell.NO_CELL, 0 );
 
-	public final startCellId:Int;
-	public final pos:Pos;
-	public final distance:Int;
-	public final parent:Node;
+	public var startCellId:Int;
+	public var cell:Cell;
+	public var distance:Int;
+	public var parent:Node;
 
-	public function new( startCellId:Int, pos:Pos, distance = 1, ?parent:Node ) {
+	public function new( startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
 		this.startCellId = startCellId;
-		this.pos = pos;
+		this.cell = cell;
 		this.distance = distance;
 		this.parent = parent == null ? Node.NO_NODE : parent;
 	}
 
-	public function toString() return 'parent: ${parent.pos}, pos: $pos, distance: $distance';
+	public function init( startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
+		this.startCellId = startCellId;
+		this.cell = cell;
+		this.distance = distance;
+		this.parent = parent == null ? Node.NO_NODE : parent;
+	}
+
+	public static function sortByDistance( a:Node, b:Node ) return a.distance - b.distance;
+
+	public function toString() return 'startCellId: $startCellId, pos: ${cell.pos}, distance: $distance, parent: ${parent.cell.pos}';
 }

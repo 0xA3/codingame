@@ -64,7 +64,7 @@ class Ai3 {
 		for( i in 0...requiredActionsCount ) {
 			final node = getEmptyNeighborNode( myRoots[i] );
 			if( node != Node.NO_NODE && a > 0 ) {
-				outputs.push( 'GROW ${node.startCellId} ${node.pos.x} ${node.pos.y} BASIC' );
+				outputs.push( 'GROW ${node.startCellId} ${node.cell.pos.x} ${node.cell.pos.y} BASIC' );
 			} else {
 				outputs.push( 'WAIT' );
 			}
@@ -79,7 +79,7 @@ class Ai3 {
 			if( cell.organRootId == root.organId ) {
 				final neighbors = cell.neighbors;
 				for( neighbor in neighbors ) {
-					if( neighbor.type == TCell.Empty ) return new Node( cell.organId, neighbor.pos );
+					if( neighbor.type == TCell.Empty ) return new Node( cell.organId, neighbor );
 				}
 			}
 		}
