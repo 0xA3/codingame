@@ -25,7 +25,7 @@ class MainAi {
 		// printErr( 'height: $height' );
 		ai.setGlobalInputs( positions, cells, width, height );
 		
-		final myCells:Map<Int, Cell> = [];
+		final myCells:Map<Int, Array<Cell>> = [];
 		final myRoots:Array<Cell> = [];
 		final oppCells = [];
 		final harvestedProteins:Map<Pos, Bool> = [];
@@ -33,7 +33,7 @@ class MainAi {
 	
 		// game loop
 		while( true ) {
-			myCells.clear();
+			for( id => cells in myCells ) cells.splice( 0, cells.length );
 			myRoots.splice( 0, myRoots.length );
 			oppCells.splice( 0, oppCells.length );
 			harvestedProteins.clear();
@@ -84,7 +84,8 @@ class MainAi {
 				if( cell.type == Wall ) isolate( cell );
 
 				if( owner == 1 ) {
-					myCells.set( organId, cell );
+					if( !myCells.exists( organRootId ) ) myCells[organRootId] = [];
+					myCells[organRootId].push( cell );
 					if( cell.type == TCell.Root ) myRoots.push( cell );
 					if( cell.type == TCell.Harvester ) {
 						final proteinPos = getNeighborPosition( positions, cell.pos, cell.organDir );

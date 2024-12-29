@@ -19,8 +19,8 @@ class Ai4 {
 
 	public var aiId = "Ai4 harvest A proteins";
 
-	final proteinCellTypes = [ TCell.A => true, TCell.B => true, TCell.C => true, TCell.D => true ];
-
+	final proteinCellTypes = [TCell.A => true, TCell.B => true, TCell.C => true, TCell.D => true];
+	final borderCellNeighborTypes = [ TCell.Empty => true, TCell.A => true, TCell.B => true, TCell.C => true, TCell.D => true];
 	var playerIdx = 1;
 
 	var positions:Array<Array<Pos>>;
@@ -30,9 +30,9 @@ class Ai4 {
 
 	var requiredActionsCount:Int;
 	var entities:Array<Cell>;
-	var myCells:Map<Int, Cell>;
+	var myCells:Map<Int, Array<Cell>>;
 	var myRoots:Array<Cell>;
-	var harvestedProteins:Map<Pos, Bool> = [];
+	var harvestedProteins:Map<Pos, Bool>;
 	var oppCells:Array<Cell>;
 	var a:Int;
 	var b:Int;
@@ -43,7 +43,8 @@ class Ai4 {
 
 	final nodePool = new NodePool();
 	final visited:Array<Array<Bool>> = [];
-	final myBorderCells:Array<Cell> = [];
+	final myBorderCells:Map<Int, Array<Cell>> = [];
+	final harvestedProteinTypes = [TCell.A => 0, TCell.B => 0, TCell.C => 0, TCell.D => 0];
 
 	public function new() {	}
 
@@ -57,7 +58,17 @@ class Ai4 {
 		turn = 0;
 	}
 	
-	public function setInputs( a:Int, b:Int, c:Int, d:Int, requiredActionsCount:Int, myRoots:Array<Cell>, myCells:Map<Int, Cell>, harvestedProteins:Map<Pos, Bool>, oppCells:Array<Cell> ) {
+	public function setInputs(
+		a:Int,
+		b:Int,
+		c:Int,
+		d:Int,
+		requiredActionsCount:Int,
+		myRoots:Array<Cell>,
+		myCells:Map<Int, Array<Cell>>,
+		harvestedProteins:Map<Pos, Bool>,
+		oppCells:Array<Cell>
+	) {
 		this.requiredActionsCount = requiredActionsCount;
 		this.myRoots = myRoots;
 		this.myCells = myCells;
@@ -72,17 +83,34 @@ class Ai4 {
 
 	public function process() {
 		turn++;
-		if( turn == 1 ) {
-			// for( cell in cells ) printErr( 'pos: ${cell.pos}, type: ${output( cell.type )}, neighbors: ${cell.neighborsToString()}' );
-		}
-		initBorderCells();
 
+		initBorderCells();
+		initHarvestedProteinTypes();
+		// for( cell in oppCells ) printErr( 'opp cells: pos: ${cell.pos}, type: ${output( cell.type )}' );
 		// for( cell in myBorderCells ) printErr( 'border cells: pos: ${cell.pos}, type: ${output( cell.type )}' );
 
 		final outputs = [];
-		for( i in 0...requiredActionsCount ) {
-			final root = myRoots[i];
-			final node = findCellNode( root, TCell.A );
+		// for( i in 0...requiredActionsCount ) {
+		for( root in myRoots ) {
+			final borderCells = myBorderCells[root.organId];
+			if( borderCells == null ) throw 'ERROR: myBorderCells[${root.organId}] == null';
+			
+			var harvestType = TCell.NoCell;
+			if( harvestedProteinTypes[TCell.A] == 0 ) {
+				harvestType = TCell.A;
+				printErr( 'harvest Protein A' );
+			} else if( harvestedProteinTypes[TCell.B] == 0 ) {
+				harvestType = TCell.B;
+				printErr( 'harvest Protein B' );
+			} else if( harvestedProteinTypes[TCell.C] == 0 ) {
+				harvestType = TCell.C;
+				printErr( 'harvest Protein C' );
+			} else if( harvestedProteinTypes[TCell.D] == 0 ) {
+				harvestType = TCell.D;
+				printErr( 'harvest Protein D' );
+			}
+
+			final node = findCellNode( root, borderCells, harvestType );
 			if( node == Node.NO_NODE ) {
 				outputs.push( 'WAIT' );
 			} else {
@@ -93,7 +121,6 @@ class Ai4 {
 					outputs.push( 'GROW ${harvesterNode.startCellId} ${harvesterPos.x} ${harvesterPos.y} HARVESTER $havesterDirection' );
 				} else {
 					final neighborNode = backtrack( node );
-					// printErr( 'neighborNode: $neighborNode' );
 					outputs.push( 'GROW ${neighborNode.startCellId} ${neighborNode.cell.pos.x} ${neighborNode.cell.pos.y} BASIC' );
 				}
 			}
@@ -102,24 +129,40 @@ class Ai4 {
 		return outputs.join( "\n" );
 	}
 	
-	function initBorderCells() {
-		myBorderCells.splice( 0, myBorderCells.length );
-		for( cell in myCells ) {
-			final neighbors = cell.neighbors;
-			for( neighbor in neighbors ) {
-				if( neighbor.type == TCell.Empty ) {
-					myBorderCells.push( cell );
-					break;
+	inline function initBorderCells() {
+		for( rootId => cellsOfRoot in myCells ) {
+			if( !myBorderCells.exists( rootId )) myBorderCells[rootId] = [];
+			final borderCells = myBorderCells[rootId];
+			borderCells.splice( 0, borderCells.length );
+	
+			for( i in -cellsOfRoot.length + 1...1 ) {
+				final cell = cellsOfRoot[-i];
+				final neighbors = cell.neighbors;
+				for( neighbor in neighbors ) {
+					if( borderCellNeighborTypes.exists( neighbor.type )) {
+						borderCells.push( cell );
+						break;
+					}
 				}
 			}
 		}
 	}
 
-	function findCellNode( start:Cell, type:TCell, owner = NO_OWNER ) {
+	inline function initHarvestedProteinTypes() {
+		for( type => count in harvestedProteinTypes ) harvestedProteinTypes[type] = 0;
+		
+		for( pos in harvestedProteins.keys() ) {
+			final proteinCell = cells[pos];
+			harvestedProteinTypes[proteinCell.type]++;
+		}
+		for( type => count in harvestedProteinTypes ) printErr( 'type: $type, count: $count' );
+	}
+
+	function findCellNode( start:Cell, borderCells:Array<Cell>, type:TCell, owner = NO_OWNER ) {
 		resetVisited();
 
 		final frontier = new List<Node>();
-		for( cell in myBorderCells ) {
+		for( cell in borderCells ) {
 			final startNode = nodePool.get( cell.organId, cell, 0 );
 			frontier.add( startNode );
 		}
@@ -127,7 +170,6 @@ class Ai4 {
 		while( !frontier.isEmpty() ) {
 			final currentNode = frontier.pop();
 			final currentCell = currentNode.cell;
-			
 			if( currentCell.type == type && currentCell.owner == owner ) {
 				nodePool.addNodes( frontier );
 				return currentNode;
@@ -143,15 +185,15 @@ class Ai4 {
 				visited[y][x] = true;
 			}
 		}
-		
+		printErr( 'no node found' );
 		return Node.NO_NODE;
 	}
 	
-	function findCellNodes( start:Cell, type:TCell, owner = NO_OWNER ) {
+	function findCellNodes( borderCells:Array<Cell>, start:Cell, type:TCell, owner = NO_OWNER ) {
 		resetVisited();
 		final nodes = [];
 		final frontier = new List<Node>();
-		for( cell in myBorderCells ) {
+		for( cell in borderCells ) {
 			final startNode = nodePool.get( cell.organId, cell, 0 );
 			frontier.add( startNode );
 		}
@@ -177,7 +219,7 @@ class Ai4 {
 				visited[y][x] = true;
 			}
 		}
-
+		
 		return nodes;
 	}
 	
