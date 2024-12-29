@@ -6,7 +6,7 @@ import xa3.math.Pos;
 
 class Cell {
 	
-	public static final NO_CELL = new Cell( new Pos( -1, -1 ), NoCell, -999, -1, TDir.X, -1, -1 );
+	public static final NO_CELL = new Cell( new Pos( -1, -1 ), TCell.NoCell, -999, -1, TDir.X, -1, -1 );
 
 	public final pos:Pos; // grid coordinate
 	public var type:TCell; // WALL, ROOT, BASIC, TENTACLE, HARVESTER, SPORER, A, B, C, D

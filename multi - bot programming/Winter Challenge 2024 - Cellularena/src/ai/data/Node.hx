@@ -1,5 +1,6 @@
 package ai.data;
 
+import CodinGame.printErr;
 import xa3.math.Pos;
 
 class Node {
@@ -15,17 +16,20 @@ class Node {
 		this.startCellId = startCellId;
 		this.cell = cell;
 		this.distance = distance;
-		this.parent = parent == null ? Node.NO_NODE : parent;
+		this.parent = parent;
 	}
 
 	public function init( startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
 		this.startCellId = startCellId;
 		this.cell = cell;
 		this.distance = distance;
-		this.parent = parent == null ? Node.NO_NODE : parent;
+		this.parent = parent;
 	}
 
 	public static function sortByDistance( a:Node, b:Node ) return a.distance - b.distance;
 
-	public function toString() return 'startCellId: $startCellId, pos: ${cell.pos}, distance: $distance, parent: ${parent.cell.pos}';
+	public function toString() {
+		return 'startCellId: $startCellId, pos: ${cell.pos}, distance: $distance' +
+		( parent == null ? '' : ', parent: ${parent.cell.pos}' );
+	}
 }

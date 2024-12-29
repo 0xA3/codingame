@@ -72,7 +72,6 @@ class Ai4 {
 
 	public function process() {
 		turn++;
-		
 		if( turn == 1 ) {
 			// for( cell in cells ) printErr( 'pos: ${cell.pos}, type: ${output( cell.type )}, neighbors: ${cell.neighborsToString()}' );
 		}
@@ -84,7 +83,6 @@ class Ai4 {
 		for( i in 0...requiredActionsCount ) {
 			final root = myRoots[i];
 			final node = findCellNode( root, TCell.A );
-			printErr( '$node' );
 			if( node == Node.NO_NODE ) {
 				outputs.push( 'WAIT' );
 			} else {
@@ -145,7 +143,7 @@ class Ai4 {
 				visited[y][x] = true;
 			}
 		}
-		printErr( 'no node found' );
+		
 		return Node.NO_NODE;
 	}
 	
