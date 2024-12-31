@@ -11,17 +11,18 @@ import ai.data.TCell;
 import ai.data.TDir;
 import ai.data.TGrow;
 import ai.data.TState;
+import haxe.ds.ArraySort;
 import xa3.math.Pos;
 
 using xa3.MathUtils;
 
-class Ai4 {
+class Ai5 {
 	
 	static inline var ME = 1;
 	static inline var OPP = 0;
 	static inline var NO_OWNER = -1;
 
-	public var aiId = "Ai4 harvest all proteins then grow";
+	public var aiId = "Ai5 harvest, grow and attack";
 
 	final proteinCellTypes = [TCell.A => true, TCell.B => true, TCell.C => true, TCell.D => true];
 	final borderCellNeighborTypes = [ TCell.Empty => true, TCell.A => true, TCell.B => true, TCell.C => true, TCell.D => true];
@@ -219,8 +220,10 @@ class Ai4 {
 			for( neighbor in currentCell.neighbors ) {
 				final x = neighbor.pos.x;
 				final y = neighbor.pos.y;
+				// printErr( 'neighbor type: ${neighbor.type}, pos: ${neighbor.pos}, nextDistance: $nextDistance' );
 				if( visited[y][x] || harvestedProteins[neighbor.pos] || neighbor.owner != NO_OWNER ) continue;
-				
+				if( neighbor.type == type && nextDistance == 1 ) continue;
+
 				frontier.add( nodePool.get( currentCell.organId, neighbor, nextDistance, currentNode ));
 				visited[y][x] = true;
 			}
