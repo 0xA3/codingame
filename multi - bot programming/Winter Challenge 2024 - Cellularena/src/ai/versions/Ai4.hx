@@ -147,11 +147,9 @@ class Ai4 {
 				final harvesterPos = harvesterNode.cell.pos;
 				final havesterDirection = getDirection( harvesterPos, node.cell.pos );
 				return TAction.Grow( harvesterNode.startCellId, harvesterPos.x, harvesterPos.y, TGrow.Harvester, havesterDirection );
-				// outputs.push( 'GROW ${harvesterNode.startCellId} ${harvesterPos.x} ${harvesterPos.y} HARVESTER $havesterDirection' );
 			} else {
 				final neighborNode = backtrack( node );
 				return TAction.Grow( neighborNode.startCellId, neighborNode.cell.pos.x, neighborNode.cell.pos.y, TGrow.Basic, TDir.X );
-				// outputs.push( 'GROW ${neighborNode.startCellId} ${neighborNode.cell.pos.x} ${neighborNode.cell.pos.y} BASIC' );
 			}
 		}
 	}
@@ -227,40 +225,6 @@ class Ai4 {
 		}
 		printErr( 'no node found' );
 		return Node.NO_NODE;
-	}
-	
-	function findCellNodes( borderCells:Array<Cell>, start:Cell, type:TCell, owner = NO_OWNER ) {
-		resetVisited();
-		final nodes = [];
-		final frontier = new List<Node>();
-		for( cell in borderCells ) {
-			final startNode = nodePool.get( cell.organId, cell, 0 );
-			frontier.add( startNode );
-		}
-
-		while( !frontier.isEmpty() ) {
-			final currentNode = frontier.pop();
-			final currentCell = currentNode.cell;
-			nodePool.add( currentNode );
-			
-			if( currentCell.type == type && currentCell.owner == owner ) {
-			// if( currentCell.type == type ) {
-				nodes.push( currentNode );
-				// printErr( 'found node, type: ${currentCell.type} owner: ${owner}' );
-			}
-			
-			final nextDistance = currentNode.distance + 1;
-			for( neighbor in currentCell.neighbors ) {
-				final x = neighbor.pos.x;
-				final y = neighbor.pos.y;
-				if( visited[y][x] || harvestedProteins[neighbor.pos] || neighbor.owner != NO_OWNER ) continue;
-				
-				frontier.add( nodePool.get( currentNode.startCellId, neighbor, nextDistance, currentNode ));
-				visited[y][x] = true;
-			}
-		}
-		
-		return nodes;
 	}
 	
 	function backtrack( node:Node, to = 1 ) {

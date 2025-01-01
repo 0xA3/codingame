@@ -26,10 +26,25 @@ class NodePool {
 		length++;
 	}
 
-	public function addNodes( node:List<Node> ) {
+	public function addNodeList( node:List<Node> ) {
 		while( !node.isEmpty()) {
 			pool.add( node.pop() );
 			length++;
+		}
+	}
+
+	public function addNodesHierarchy( nodes:Array<Node> ) {
+		for( i in -nodes.length + 1...1 ) {
+			addNodeHerarchy( nodes[i] );
+		}
+		nodes.splice( 0, nodes.length );
+	}
+
+	public function addNodeHerarchy( node:Node ) {
+		while( node != null ) {
+			pool.add( node );
+			length++;
+			node = node.parent;
 		}
 	}
 }

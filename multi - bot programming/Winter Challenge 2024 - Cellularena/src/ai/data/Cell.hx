@@ -36,6 +36,15 @@ class Cell {
 		neighbors.remove( cell );
 	}
 
+	public function reset() {
+		type = TCell.Empty;
+		owner = -1;
+		organId = 0;
+		organDir = TDir.X;
+		organParentId = 0;
+		organRootId = 0;
+	}
+
 	public function toString() return 'pos: $pos, type: $type, owner: $owner, organId: $organId, organDir: $organDir, organParentId: $organParentId, organRootId: $organRootId, neighbor positions: [${neighborsToString()}]';
 
 	public function neighborsToString() return [for( neighbor in neighbors ) '${neighbor.pos}' ].join(", ");

@@ -8,15 +8,14 @@ class Action {
 	
 	static final dirs = [N => "N", E => "E", S => "S", W => "W", X => "X"];
 	
-	public static function toOutput( action:TAction ) {
+	public static function toString( action:TAction ) {
 		switch action {
 			case NotPossible: return "WAIT";
-			case Grow( id, x, y, type, direction ):
+			case Grow( id, x, y, type, direction, text ):
 				return type == TGrow.Basic
-					? 'GROW $id $x $y $type'
-					: 'GROW $id $x $y $type ${dirs[direction]}';
+					? 'GROW $id $x $y $type $text'
+					: 'GROW $id $x $y $type ${dirs[direction]} $text';
 			case Wait: return "WAIT";
 		}
 	}
-
 }

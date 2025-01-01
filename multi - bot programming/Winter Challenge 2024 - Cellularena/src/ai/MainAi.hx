@@ -3,15 +3,18 @@ package ai;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
+import Std.int;
 import Std.parseInt;
 import ai.data.Cell;
 import ai.data.TCell;
 import ai.data.TDir;
+import haxe.Timer;
 import xa3.math.Pos;
 
 using StringTools;
 
 class MainAi {
+	
 	static function main() {
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		final ai = new ai.versions.Ai5();
@@ -27,15 +30,18 @@ class MainAi {
 		
 		final myCells:Map<Int, Array<Cell>> = [];
 		final myRoots:Array<Cell> = [];
-		final oppCells = [];
+		// final oppCells = [];
 		final harvestedProteins:Map<Pos, Bool> = [];
 		// final neitherEntities = [];
 	
 		// game loop
 		while( true ) {
+			final startTime = Timer.stamp();
+			
+			for( cell in cells ) cell.reset();
 			for( id => cells in myCells ) cells.splice( 0, cells.length );
 			myRoots.splice( 0, myRoots.length );
-			oppCells.splice( 0, oppCells.length );
+			// oppCells.splice( 0, oppCells.length );
 			harvestedProteins.clear();
 
 			final entityCount = parseInt( readline() );
@@ -92,7 +98,7 @@ class MainAi {
 						harvestedProteins.set( proteinPos, true );
 					}
 				}
-				else if( owner == 0 ) oppCells.push( cell );
+				// else if( owner == 0 ) oppCells.push( cell );
 			}
 			final inputs = readline().split(' ');
 			// printErr( 'my inputs: ${inputs.join(" ")}' );
@@ -108,11 +114,14 @@ class MainAi {
 			final oppD = parseInt( inputs[3] ); // opponent's protein stock
 			final requiredActionsCount = parseInt( readline() ); // your number of organisms, output an action for each one in any order
 			// printErr( 'requiredActionsCount: $requiredActionsCount' );
-			
-			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRoots, myCells, harvestedProteins, oppCells );
+			// final oppCellPositions = oppCells.map( cell -> cell.pos );
+			// printErr( 'oppCellPositions: ${oppCellPositions.join(" ")}' );
+
+			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRoots, myCells, harvestedProteins );
 
 			final outputs = ai.process();
 			// printErr( outputs );
+			printErr( '${int(( Timer.stamp() - startTime ) * 1000)} ms' );
 			print( outputs );
 		}
 	}
