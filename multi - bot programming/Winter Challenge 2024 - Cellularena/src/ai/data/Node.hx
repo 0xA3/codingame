@@ -1,7 +1,6 @@
 package ai.data;
 
 import CodinGame.printErr;
-import xa3.math.Pos;
 
 class Node {
 	

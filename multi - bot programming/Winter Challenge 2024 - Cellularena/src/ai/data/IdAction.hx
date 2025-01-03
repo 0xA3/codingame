@@ -2,7 +2,7 @@ package ai.data;
 
 class IdAction {
 	
-	public static final NO_ID_ACTION = new IdAction( -1, TAction.NotPossible );
+	public static final NOT_POSSIBLE = new IdAction( -1, TAction.NotPossible );
 	
 	public var rootId:Int;
 	public var action:TAction;

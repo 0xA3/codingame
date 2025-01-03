@@ -39,6 +39,7 @@ class MainAi {
 		final myCells:Array<Cell> = [];
 		final myRootIds:Array<Int> = [];
 		final oppMoves = [];
+		final myMoves = [];
 		final harvestedProteins:Map<Pos, Bool> = [];
 		// final neitherEntities = [];
 	
@@ -60,6 +61,7 @@ class MainAi {
 			myCells.splice( 0, myCells.length );
 			myRootIds.splice( 0, myRootIds.length );
 			oppMoves.splice( 0, oppMoves.length );
+			myMoves.splice( 0, myMoves.length );
 			harvestedProteins.clear();
 
 			final entityCount = parseInt( readline() );
@@ -106,6 +108,7 @@ class MainAi {
 				cell.organRootId = organRootId;
 
 				if( owner == OPP && !cell.compareTo( prevCells[pos] )) oppMoves.push( cell );
+				if( owner == ME && !cell.compareTo( prevCells[pos] )) myMoves.push( cell );
 
 				if( cell.type == Wall ) isolate( cell );
 
@@ -139,11 +142,10 @@ class MainAi {
 			// final oppCellPositions = oppCells.map( cell -> cell.pos );
 			// printErr( 'oppCellPositions: ${oppCellPositions.join(" ")}' );
 
-			for( change in oppMoves ) {
-				printErr( 'opp changed cell ${change.pos} to ${Type.toString( change.type )}' );
-			}
+			// for( oppCell in oppMoves ) printErr( 'opp changed cell ${oppCell.pos} to ${Type.toString( oppCell.type )}' );
+			// for( myCell in myMoves ) printErr( 'my changed cell ${myCell.pos} to ${Type.toString( myCell.type )}' );
 
-			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRootIds, myCells, harvestedProteins, oppMoves );
+			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRootIds, myCells, harvestedProteins, myMoves, oppMoves );
 
 			final outputs = ai.process();
 			// printErr( outputs );

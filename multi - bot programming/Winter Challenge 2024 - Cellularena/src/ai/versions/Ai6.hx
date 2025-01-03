@@ -24,7 +24,7 @@ class Ai6 {
 	static inline var OPP = 0;
 	static inline var NO_OWNER = -1;
 
-	public var aiId = "Ai5 harvest, grow and attack";
+	public var aiId = "Ai6 defend, attack, harvest and grow";
 
 	final states = [Defend, HarvestA, HarvestB, HarvestC, Attack, HarvestD, Grow, TState.Wait];
 	
@@ -41,6 +41,7 @@ class Ai6 {
 	var myCells:Array<Cell>;
 	var myRootIds:Array<Int>;
 	var harvestedProteins:Map<Pos, Bool>;
+	var myMoves:Array<Cell>;
 	var oppMoves:Array<Cell>;
 	var a:Int;
 	var b:Int;
@@ -80,11 +81,13 @@ class Ai6 {
 		myRootIds:Array<Int>,
 		myCells:Array<Cell>,
 		harvestedProteins:Map<Pos, Bool>,
+		myMoves:Array<Cell>,
 		oppMoves:Array<Cell>
 	) {
 		this.requiredActionsCount = requiredActionsCount;
 		this.myRootIds = myRootIds;
 		this.myCells = myCells;
+		this.myMoves = myMoves;
 		this.oppMoves = oppMoves;
 		this.harvestedProteins = harvestedProteins;
 		
@@ -108,23 +111,15 @@ class Ai6 {
 		while( stateId < states.length ) {
 			final state = states[stateId];
 			// printErr( 'state: $state' );
-			var idAction = IdAction.NO_ID_ACTION;
+			var idAction = IdAction.NOT_POSSIBLE;
 			switch( state ) {
 				case Attack: idAction = getAttackCommand();
 				case Defend: idAction = getDefendCommand();
 				case Grow: idAction = getGrowCommand();
-				case HarvestA: if( harvestedProteinTypes[TCell.A] == 0 ) {
-					idAction = getHarvestCommand( TCell.A);
-				}
-				case HarvestB: if( harvestedProteinTypes[TCell.B] == 0 ) {
-					idAction = getHarvestCommand( TCell.B );
-				}
-				case HarvestC: if( harvestedProteinTypes[TCell.C] == 0 ) {
-					idAction = getHarvestCommand( TCell.C );
-				}
-				case HarvestD: if( harvestedProteinTypes[TCell.D] == 0 ) {
-					idAction = getHarvestCommand( TCell.D );
-				}
+				case HarvestA: if( harvestedProteinTypes[TCell.A] == 0 ) idAction = getHarvestCommand( TCell.A);
+				case HarvestB: if( harvestedProteinTypes[TCell.B] == 0 ) idAction = getHarvestCommand( TCell.B );
+				case HarvestC: if( harvestedProteinTypes[TCell.C] == 0 ) idAction = getHarvestCommand( TCell.C );
+				case HarvestD: if( harvestedProteinTypes[TCell.D] == 0 ) idAction = getHarvestCommand( TCell.D );
 				case Wait: // no-op
 			}
 			// printErr( 'idAction $idAction' );
@@ -151,10 +146,12 @@ class Ai6 {
 	}
 	
 	function getAttackCommand() {
+		if( !canGrowTentacle()) return IdAction.NOT_POSSIBLE;
+		
 		final nodes = findOppCellNodes();
 		// printErr( 'nodes positions:\n${getNodesPositions( nodes )}' );
 		if( nodes.length == 0 ) {
-			return new IdAction( -1, TAction.NotPossible );
+			return return IdAction.NOT_POSSIBLE;
 		} else {
 			ArraySort.sort( nodes, ( a, b ) -> {
 				if( a.distance < b.distance ) return -1;
@@ -187,28 +184,56 @@ class Ai6 {
 	}
 
 	function getDefendCommand() {
+		if( !canGrowTentacle()) return IdAction.NOT_POSSIBLE;
+		resetVisited();
+		for( oppCell in oppMoves ) {
+			// printErr( 'check oppCell ${oppCell.pos} with neighbors ' + [for( neighbor in oppCell.neighbors ) '${neighbor.pos}'].join( " " ));
+			for( neighbor in oppCell.neighbors ) {
+				if( visited[neighbor.pos.y][neighbor.pos.x] || neighbor.owner == OPP || neighbor.type == TCell.Wall ) continue;
+				// printErr( 'check neighbor ${neighbor.pos}' );
+				
+				visited[neighbor.pos.y][neighbor.pos.x] = true;
+				for( neighborsNeighbor in neighbor.neighbors ) {
+					if( visited[neighborsNeighbor.pos.y][neighborsNeighbor.pos.x] || neighborsNeighbor.owner == OPP || neighborsNeighbor.type == TCell.Wall ) continue;
+					// printErr( 'check neighbors neighbor ${neighborsNeighbor.pos}, owner: ${neighborsNeighbor.owner}' );
+					
+					visited[neighborsNeighbor.pos.y][neighborsNeighbor.pos.x] = true;
+					if( neighborsNeighbor.owner == ME ) {
+						// printErr( 'attack ${oppCell.pos} from my cell ${neighborsNeighbor.pos}' );
+						final pathNode = findPath( neighborsNeighbor, oppCell );
+						if( pathNode == Node.NO_NODE ) return IdAction.NOT_POSSIBLE;
+						
+						final attackNode = pathNode.parent;
+						final attackPos = attackNode.cell.pos;
+						final attackDirection = getDirection( attackPos, oppCell.pos );
+						return new IdAction( attackNode.rootId, TAction.Grow( attackNode.startCellId, attackPos.x, attackPos.y, TGrow.Tentacle, attackDirection, '' ));
+					}
+				}
+			}
+		}
 
-		return new IdAction( -1, TAction.NotPossible );
+		return IdAction.NOT_POSSIBLE;
 	}
 
 	function getGrowCommand() {
 		for( i in -myBorderCells.length + 1...1 ) {
 			final cell = myBorderCells[-i];
 			for( neighbor in cell.neighbors ) {
-				if( borderCellNeighborTypes.exists( neighbor.type ) && !harvestedProteins[neighbor.pos] ) {
+				if( borderCellNeighborTypes.exists( neighbor.type ) && !harvestedProteins[neighbor.pos] && !checkForFrontOfOppTentacle( neighbor )) {
 					return new IdAction( cell.organRootId, TAction.Grow( cell.organId, neighbor.pos.x, neighbor.pos.y, TGrow.Basic, TDir.X, "" ));
 				}
 			}
 		}
 		
-		return new IdAction( -1, TAction.NotPossible );
+		return return IdAction.NOT_POSSIBLE;
 	}
 
 	function getHarvestCommand( harvestType:TCell ) {
+		if( !canGrowHarvester()) return IdAction.NOT_POSSIBLE;
 		final node = findCellNode( harvestType );
 		// printErr( 'getHarvestCommand ${Type.toString( harvestType )}, node: ${node.cell.pos}, distance: ${node.distance}' );
 		if( node == Node.NO_NODE ) {
-			return new IdAction( -1, TAction.NotPossible );
+			return return IdAction.NOT_POSSIBLE;
 		} else {
 			if( node.distance == 2 ) {
 				final harvesterNode = node.parent;
@@ -325,6 +350,34 @@ class Ai6 {
 		return nodes;
 	}
 	
+	function findPath( start:Cell, end:Cell ) {
+		resetVisited();
+
+		final frontier = new List<Node>();
+		final startNode = nodePool.get( start.organRootId, start.organId, start, 0 );
+		frontier.add( startNode );
+		
+		while( !frontier.isEmpty() ) {
+			final currentNode = frontier.pop();
+			final currentCell = currentNode.cell;
+			// printErr( 'currentNode pos: ${currentNode.cell.pos}' );
+			if( currentCell == end ) return currentNode;
+			
+			final nextDistance = currentNode.distance + 1;
+			for( neighbor in currentCell.neighbors ) {
+				final x = neighbor.pos.x;
+				final y = neighbor.pos.y;
+				if( visited[y][x] || harvestedProteins[neighbor.pos] || neighbor.owner == ME ) continue;
+				if( checkForFrontOfOppTentacle( neighbor )) continue;
+				
+				frontier.add( nodePool.get( currentNode.rootId, currentNode.startCellId, neighbor, nextDistance, currentNode ));
+				visited[y][x] = true;
+			}
+		}
+		printErr( 'Path from ${start.pos} to ${end.pos} not found' );
+		return Node.NO_NODE;
+	}
+
 	function checkForFrontOfOppTentacle( cell:Cell ) {
 		for( neighbor in cell.neighbors ) {
 			if( neighbor.owner == OPP && neighbor.type == TCell.Tentacle ) {
@@ -369,5 +422,11 @@ class Ai6 {
 		}
 		return positions.map( posRow -> posRow.join( "," )).join( "\n" );
 	}
+
+	inline function canGrowBasic() return a > 0 ? true : false;
+	inline function canGrowHarvester() return c > 0 && d > 0 ? true : false;
+	inline function canGrowTentacle() return b > 0 && c > 0 ? true : false;
+	inline function canGrowSporer() return b > 0 && d > 0 ? true : false;
+	inline function canGrowRoot() return a > 0 && b > 0 && c > 0 && d > 0 ? true : false;
 
 }
