@@ -5,6 +5,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
+import ai.contexts.Type;
 import ai.data.Cell;
 import ai.data.TCell;
 import ai.data.TDir;
@@ -14,15 +15,22 @@ import xa3.math.Pos;
 using StringTools;
 
 class MainAi {
-	
+
+	static inline var ME = 1;
+	static inline var OPP = 0;
+	static inline var NO_OWNER = -1;
+
 	static function main() {
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
-		final ai = new ai.versions.Ai5();
+		
+		final ai = new ai.versions.Ai6();
+		
 		final inputs = readline().split(' ');
 		final width = parseInt( inputs[0] );
 		final height = parseInt( inputs[1] );
 		final positions = [for( y in 0...height ) [for( x in 0...width ) new Pos( x, y )]];
-		final cells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => Cell.createEmptyCell( positions[y][x] )];
+		var prevCells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => Cell.createEmptyCell( positions[y][x] )];
+		var cells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => Cell.createEmptyCell( positions[y][x] )];
 		initNeighbors( positions, cells, width, height );
 		// printErr( 'width: $width' );
 		// printErr( 'height: $height' );
@@ -30,18 +38,28 @@ class MainAi {
 		
 		final myCells:Map<Int, Array<Cell>> = [];
 		final myRoots:Array<Cell> = [];
-		// final oppCells = [];
+		final oppMoves = [];
 		final harvestedProteins:Map<Pos, Bool> = [];
 		// final neitherEntities = [];
 	
 		// game loop
 		while( true ) {
 			final startTime = Timer.stamp();
-			
-			for( cell in cells ) cell.reset();
+
+			for( cell in cells ) {
+				final prevCell = prevCells[cell.pos];
+				prevCell.type = cell.type;
+				prevCell.owner = cell.owner;
+				prevCell.organId = cell.organId;
+				prevCell.organDir = cell.organDir;
+				prevCell.organParentId = cell.organParentId;
+				prevCell.organRootId = cell.organRootId;
+
+				cell.reset();
+			}
 			for( id => cells in myCells ) cells.splice( 0, cells.length );
 			myRoots.splice( 0, myRoots.length );
-			// oppCells.splice( 0, oppCells.length );
+			oppMoves.splice( 0, oppMoves.length );
 			harvestedProteins.clear();
 
 			final entityCount = parseInt( readline() );
@@ -79,13 +97,15 @@ class MainAi {
 
 				final pos = positions[y][x];
 				final cell = cells[pos];
-
+				
 				cell.type = type;
 				cell.owner = owner;
 				cell.organId = organId;
 				cell.organDir = organDir;
 				cell.organParentId = organParentId;
 				cell.organRootId = organRootId;
+
+				if( owner == OPP && !cell.compareTo( prevCells[pos] )) oppMoves.push( cell );
 
 				if( cell.type == Wall ) isolate( cell );
 
@@ -117,7 +137,11 @@ class MainAi {
 			// final oppCellPositions = oppCells.map( cell -> cell.pos );
 			// printErr( 'oppCellPositions: ${oppCellPositions.join(" ")}' );
 
-			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRoots, myCells, harvestedProteins );
+			for( change in oppMoves ) {
+				printErr( 'opp changed cell ${change.pos} to ${Type.toString( change.type )}' );
+			}
+
+			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRoots, myCells, harvestedProteins, oppMoves );
 
 			final outputs = ai.process();
 			// printErr( outputs );

@@ -45,6 +45,16 @@ class Cell {
 		organRootId = 0;
 	}
 
+	public function compareTo( other:Cell ) {
+		if( type != other.type ) return false;
+		if( owner != other.owner ) return false;
+		if( organId != other.organId ) return false;
+		if( organDir != other.organDir ) return false;
+		if( organParentId != other.organParentId ) return false;
+		if( organRootId != other.organRootId ) return false;
+		return true;
+	}
+
 	public function toString() return 'pos: $pos, type: $type, owner: $owner, organId: $organId, organDir: $organDir, organParentId: $organParentId, organRootId: $organRootId, neighbor positions: [${neighborsToString()}]';
 
 	public function neighborsToString() return [for( neighbor in neighbors ) '${neighbor.pos}' ].join(", ");
