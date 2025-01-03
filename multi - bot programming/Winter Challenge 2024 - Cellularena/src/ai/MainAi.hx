@@ -36,8 +36,8 @@ class MainAi {
 		// printErr( 'height: $height' );
 		ai.setGlobalInputs( positions, cells, width, height );
 		
-		final myCells:Map<Int, Array<Cell>> = [];
-		final myRoots:Array<Cell> = [];
+		final myCells:Array<Cell> = [];
+		final myRootIds:Array<Int> = [];
 		final oppMoves = [];
 		final harvestedProteins:Map<Pos, Bool> = [];
 		// final neitherEntities = [];
@@ -57,8 +57,8 @@ class MainAi {
 
 				cell.reset();
 			}
-			for( id => cells in myCells ) cells.splice( 0, cells.length );
-			myRoots.splice( 0, myRoots.length );
+			myCells.splice( 0, myCells.length );
+			myRootIds.splice( 0, myRootIds.length );
 			oppMoves.splice( 0, oppMoves.length );
 			harvestedProteins.clear();
 
@@ -109,10 +109,12 @@ class MainAi {
 
 				if( cell.type == Wall ) isolate( cell );
 
-				if( owner == 1 ) {
-					if( !myCells.exists( organRootId ) ) myCells[organRootId] = [];
-					myCells[organRootId].push( cell );
-					if( cell.type == TCell.Root ) myRoots.push( cell );
+				if( owner == ME ) {
+					myCells.push( cell );
+					if( cell.type == TCell.Root ) {
+						// printErr( 'my root id: ${cell.organId}' );
+						myRootIds.push( cell.organId );
+					}
 					if( cell.type == TCell.Harvester ) {
 						final proteinPos = getNeighborPosition( positions, cell.pos, cell.organDir );
 						harvestedProteins.set( proteinPos, true );
@@ -141,7 +143,7 @@ class MainAi {
 				printErr( 'opp changed cell ${change.pos} to ${Type.toString( change.type )}' );
 			}
 
-			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRoots, myCells, harvestedProteins, oppMoves );
+			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRootIds, myCells, harvestedProteins, oppMoves );
 
 			final outputs = ai.process();
 			// printErr( outputs );

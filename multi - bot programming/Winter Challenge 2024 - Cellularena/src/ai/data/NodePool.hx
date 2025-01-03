@@ -10,12 +10,12 @@ class NodePool {
 
 	public function new() {	}
 
-	public function get( startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
-		if( pool.isEmpty() ) return new Node( startCellId, cell, distance, parent );
+	public function get( rootId:Int, startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
+		if( pool.isEmpty() ) return new Node( rootId, startCellId, cell, distance, parent );
 		else {
 			final node = pool.pop();
 			length--;
-			node.init( startCellId, cell, distance, parent );
+			node.init( rootId, startCellId, cell, distance, parent );
 			
 			return node;
 		}

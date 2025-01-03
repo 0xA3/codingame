@@ -5,21 +5,24 @@ import xa3.math.Pos;
 
 class Node {
 	
-	public static final NO_NODE = new Node( 0, Cell.NO_CELL, 0 );
+	public static final NO_NODE = new Node( -1, -1, Cell.NO_CELL, 0 );
 
+	public var rootId:Int;
 	public var startCellId:Int;
 	public var cell:Cell;
 	public var distance:Int;
 	public var parent:Node;
 
-	public function new( startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
+	public function new( rootId:Int, startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
+		this.rootId = rootId;
 		this.startCellId = startCellId;
 		this.cell = cell;
 		this.distance = distance;
 		this.parent = parent;
 	}
 
-	public function init( startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
+	public function init( rootId:Int, startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
+		this.rootId = rootId;
 		this.startCellId = startCellId;
 		this.cell = cell;
 		this.distance = distance;
