@@ -6,8 +6,10 @@ class Node {
 	
 	public static final NO_NODE = new Node();
 
+	public var isInPool = false;
+
 	public var rootId = -1;
-	public var startCellId = -1; // TODO remove
+	public var startCellId = -1;
 	public var cell = Cell.NO_CELL;
 	public var tCell:TCell;
 	public var direction:TDir;

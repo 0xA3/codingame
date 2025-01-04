@@ -1,8 +1,8 @@
 package ai.data;
 
+import CodinGame.printErr;
 import algorithm.MinPriorityQueue;
 import haxe.ds.GenericStack;
-import xa3.math.Pos;
 
 class NodePool {
 	
@@ -32,6 +32,8 @@ class NodePool {
 		
 		} else {
 			final node = pool.pop();
+			node.isInPool = false;
+
 			length--;
 			node.init( rootId, startCellId, cell, tCell, direction, a, b, c, d, distance, parent );
 			
@@ -40,21 +42,44 @@ class NodePool {
 	}
 
 	public function add( node:Node ) {
+		if( node.isInPool ) {
+			printErr( 'Node ${node.cell.pos} already in pool' );
+			return;
+		}
+		node.isInPool = true;
 		pool.add( node );
 		length++;
 	}
 
 	public function addNodeList( nodes:List<Node> ) {
 		while( !nodes.isEmpty()) {
-			pool.add( nodes.pop() );
-			length++;
+			final node = nodes.pop();
+			if( !node.isInPool ) {
+				node.isInPool = true;
+				pool.add( node );
+				length++;
+			} else {
+				printErr( 'Node ${node.cell.pos} already in pool' );
+			}
 		}
 	}
 
 	public function addNodeQueue( queue:MinPriorityQueue<Node> ) {
 		while( !queue.isEmpty()) {
-			pool.add( queue.delMin() );
-			length++;
+			final node = queue.delMin();
+			if( !node.isInPool ) {
+				node.isInPool = true;
+				pool.add( queue.delMin() );
+				length++;
+			} else {
+				printErr( 'Node ${node.cell.pos} already in pool' );
+			}
+		}
+	}
+
+	public function addNodeQueues( queues:MinPriorityQueue<Node> ) {
+		while( !queues.isEmpty()) {
+			addNodeHerarchy( queues.delMin() );
 		}
 	}
 
@@ -65,8 +90,13 @@ class NodePool {
 
 	public function addNodeHerarchy( node:Node ) {
 		while( node != null ) {
-			pool.add( node );
-			length++;
+			if( !node.isInPool ) {
+				node.isInPool = true;
+				pool.add( node );
+				length++;
+			} else {
+				printErr( 'Node ${node.cell.pos} already in pool' );
+			}
 			node = node.parent;
 		}
 	}
