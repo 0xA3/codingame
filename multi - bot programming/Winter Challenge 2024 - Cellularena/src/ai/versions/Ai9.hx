@@ -21,13 +21,13 @@ import xa3.math.Pos;
 
 using xa3.MathUtils;
 
-class Ai8 {
+class Ai9 {
 	
 	static inline var ME = 1;
 	static inline var OPP = 0;
 	static inline var NO_OWNER = -1;
 
-	public var aiId = "Ai8 add neighbor protein harvesting";
+	public var aiId = "Ai9 add sporer";
 
 	final states = [Defend, HarvestA, HarvestB, HarvestC, Attack, HarvestD, Grow, TState.Wait];
 	
