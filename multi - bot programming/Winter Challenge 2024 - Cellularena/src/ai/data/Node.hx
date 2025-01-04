@@ -7,8 +7,10 @@ class Node {
 	public static final NO_NODE = new Node();
 
 	public var rootId = -1;
-	public var startCellId = -1;
+	public var startCellId = -1; // TODO remove
 	public var cell = Cell.NO_CELL;
+	public var tCell:TCell;
+	public var direction:TDir;
 	public var a = 0;
 	public var b = 0;
 	public var c = 0;
@@ -22,6 +24,8 @@ class Node {
 		rootId:Int,
 		startCellId:Int,
 		cell:Cell,
+		tCell:TCell,
+		direction:TDir,
 		a:Int,
 		b:Int,
 		c:Int,
@@ -32,6 +36,8 @@ class Node {
 		this.rootId = rootId;
 		this.startCellId = startCellId;
 		this.cell = cell;
+		this.tCell = tCell;
+		this.direction = direction;
 		this.a = a;
 		this.b = b;
 		this.c = c;

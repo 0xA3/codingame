@@ -154,7 +154,7 @@ class Ai8 {
 	function getAttackCommand() {
 		if( !canGrowTentacle()) return IdAction.NOT_POSSIBLE;
 		
-		final nodes = findOppCellNodes();
+		final nodes = findPathsToOpp();
 		// printErr( 'nodes positions:\n${getNodesPositions( nodes )}' );
 		if( nodes.length == 0 ) {
 			return return IdAction.NOT_POSSIBLE;
@@ -251,17 +251,24 @@ class Ai8 {
 	}
 
 	function getHarvestCommand( harvestType:TCell ) {
-		final node = findCellNode( harvestType );
-		printErr( 'getHarvestCommand ${Type.toString( harvestType )}, node: ${node.cell.pos}, distance: ${node.distance}' );
-		if( node == Node.NO_NODE ) {
+		final nodes = findPathsToProteins( harvestType );
+		if( nodes.length == 0 ) {
 			return return IdAction.NOT_POSSIBLE;
 		} else {
+			ArraySort.sort( nodes, ( a, b ) -> {
+				if( a.distance < b.distance ) return -1;
+				if( a.distance > b.distance ) return 1;
+				return 0;
+			});
+
+			final node = nodes[0];
+			// printErr( 'getHarvestCommand ${Type.toString( harvestType )}, node: ${node.cell.pos}, distance: ${node.distance}' );
 			if( node.distance == 2 ) {
 				final harvesterNode = node.parent;
 				final harvesterPos = harvesterNode.cell.pos;
 				final havesterDirection = getDirection( harvesterPos, node.cell.pos );
 				
-				nodePool.addNodeHerarchy( node );
+				nodePool.addNodesHierarchy( nodes );
 				if( canGrowHarvester()) {
 					return new IdAction( node.rootId, TAction.Grow( harvesterNode.startCellId, harvesterPos.x, harvesterPos.y, TGrow.Harvester, havesterDirection, "" ));
 				} else return IdAction.NOT_POSSIBLE;
@@ -269,7 +276,7 @@ class Ai8 {
 			} else {
 				final neighborNode = backtrack( node );
 				// printErr( 'backtrack node: ${neighborNode.cell.pos}' );
-				nodePool.addNodeHerarchy( node );
+				nodePool.addNodesHierarchy( nodes );
 				return new IdAction( node.rootId, TAction.Grow( neighborNode.startCellId, neighborNode.cell.pos.x, neighborNode.cell.pos.y, TGrow.Basic, TDir.X, '' ));
 			}
 		}
@@ -302,12 +309,13 @@ class Ai8 {
 		// for( type => count in income ) printErr( 'type: $type, count: $count' );
 	}
 
-	function findCellNode( type:TCell, owner = NO_OWNER ) {
+	function findPathsToProteins( type:TCell, owner = NO_OWNER ) {
 		resetVisited();
 
+		final nodes = [];
 		final frontier = new MinPriorityQueue<Node>( Node.compare );
 		for( cell in myBorderCells ) {
-			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, a, b, c, d );
+			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, cell.type, cell.organDir, a, b, c, d );
 			frontier.insert( startNode );
 		}
 
@@ -316,36 +324,40 @@ class Ai8 {
 			final currentCell = currentNode.cell;
 			// printErr( 'currentNode pos: ${currentNode.cell.pos}' );
 
-			if( currentCell.type == type && currentCell.owner == owner ) {
-				nodePool.addQueue( frontier );
+			if( currentCell.type == type && currentCell.owner == owner && currentNode.distance > 1 ) {
+				nodes.push( currentNode );
 				// printErr( 'protein ${Type.toString( type )} found at ${currentNode.cell.pos}' );
-				return currentNode;
 			}
 			
 			final nextDistance = currentNode.distance + 1;
 			for( neighbor in currentCell.neighbors ) {
 				final x = neighbor.pos.x;
 				final y = neighbor.pos.y;
-				// printErr( 'neighbor type: ${neighbor.type}, pos: ${neighbor.pos}, nextDistance: $nextDistance' );
+				// printErr( 'neighbor type: ${Type.toString( neighbor.type )}, pos: ${neighbor.pos}, nextDistance: $nextDistance' );
 				if( visited[y][x] || harvestedProteins[neighbor.pos] || neighbor.owner != NO_OWNER ) continue;
-				if( neighbor.type == type && nextDistance == 1 ) continue;
 				if( checkForFrontOfTentacle( neighbor, OPP )) continue;
 
-				frontier.insert( nodePool.get( currentNode.rootId, currentNode.startCellId, neighbor, a, b, c, d, nextDistance, currentNode ));
+				final dirToNeighbor = getDirection( currentNode.cell.pos, neighbor.pos );
+				final tCell = TCell.Basic;
+				final a1 = a - 1 + income[TCell.A];
+				
+				if( a1 <= 0 ) continue;
+				frontier.insert( nodePool.get( currentNode.rootId, currentNode.startCellId, neighbor, TCell.Basic, dirToNeighbor, a1, b, c, d, nextDistance, currentNode ));
 				visited[y][x] = true;
 			}
 		}
-		printErr( 'Node with ${Type.toString( type )} not found' );
-		return Node.NO_NODE;
+		if( nodes.length == 0 ) printErr( 'Path to ${Type.toString( type )} not found' );
+		
+		return nodes;
 	}
 	
-	function findOppCellNodes() {
+	function findPathsToOpp() {
 		resetVisited();
 		
 		final nodes = [];
 		final frontier = new MinPriorityQueue<Node>( Node.compare );
 		for( cell in myBorderCells ) {
-			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, a, b, c, d );
+			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, cell.type, cell.organDir, a, b, c, d );
 			frontier.insert( startNode );
 		}
 
@@ -366,11 +378,17 @@ class Ai8 {
 				if( neighbor.owner == OPP && nextDistance == 1 ) continue;
 				if( checkForFrontOfTentacle( neighbor, OPP )) continue;
 				
-				frontier.insert( nodePool.get( currentNode.rootId, currentNode.startCellId, neighbor, a, b, c, d, nextDistance, currentNode ));
+				final dirToNeighbor = getDirection( currentNode.cell.pos, neighbor.pos );
+				final tCell = TCell.Basic;
+				final nextA = a - 1 + income[TCell.A];
+
+				frontier.insert( nodePool.get( currentNode.rootId, currentNode.startCellId, neighbor, tCell, dirToNeighbor, a, b, c, d, nextDistance, currentNode ));
 				visited[y][x] = true;
 			}
 		}
 		
+		if( nodes.length == 0 ) printErr( 'Path to Opp not found' );
+
 		return nodes;
 	}
 	
@@ -378,7 +396,7 @@ class Ai8 {
 		resetVisited();
 
 		final frontier = new MinPriorityQueue<Node>( Node.compare );
-		final startNode = nodePool.get( start.organRootId, start.organId, start, a, b, c, d );
+		final startNode = nodePool.get( start.organRootId, start.organId, start, start.type, start.organDir, a, b, c, d );
 		frontier.insert( startNode );
 		
 		while( !frontier.isEmpty() ) {
@@ -394,7 +412,11 @@ class Ai8 {
 				if( visited[y][x] || harvestedProteins[neighbor.pos] || neighbor.owner == ME ) continue;
 				if( checkForFrontOfTentacle( neighbor, OPP )) continue;
 				
-				frontier.insert( nodePool.get( currentNode.rootId, currentNode.startCellId, neighbor, nextDistance, a, b, c, d, currentNode ));
+				final dirToNeighbor = getDirection( currentNode.cell.pos, neighbor.pos );
+				final tCell = TCell.Basic;
+				final nextA = a - 1 + income[TCell.A];
+				
+				frontier.insert( nodePool.get( currentNode.rootId, currentNode.startCellId, neighbor, tCell, dirToNeighbor, nextDistance, a, b, c, d, currentNode ));
 				visited[y][x] = true;
 			}
 		}

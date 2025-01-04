@@ -15,6 +15,8 @@ class NodePool {
 		rootId:Int,
 		startCellId:Int,
 		cell:Cell,
+		tCell:TCell,
+		direction:TDir,
 		a:Int,
 		b:Int,
 		c:Int,
@@ -24,14 +26,14 @@ class NodePool {
 	) {
 		if( pool.isEmpty() ) {
 			final node = new Node();
-			node.init( rootId, startCellId, cell, a, b, c, d, distance, parent );
+			node.init( rootId, startCellId, cell, tCell, direction, a, b, c, d, distance, parent );
 			
 			return return node;
 		
 		} else {
 			final node = pool.pop();
 			length--;
-			node.init( rootId, startCellId, cell, a, b, c, d, distance, parent );
+			node.init( rootId, startCellId, cell, tCell, direction, a, b, c, d, distance, parent );
 			
 			return node;
 		}
@@ -49,7 +51,7 @@ class NodePool {
 		}
 	}
 
-	public function addQueue( queue:MinPriorityQueue<Node> ) {
+	public function addNodeQueue( queue:MinPriorityQueue<Node> ) {
 		while( !queue.isEmpty()) {
 			pool.add( queue.delMin() );
 			length++;
