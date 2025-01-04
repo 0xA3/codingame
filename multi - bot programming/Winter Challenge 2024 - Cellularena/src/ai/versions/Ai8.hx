@@ -196,7 +196,7 @@ class Ai8 {
 				final nextNode = node2.parent;
 				
 				nodePool.addNodesHierarchy( nodes );
-				return grow( node.rootId, node.startCellId, nextNode.cell.pos, nextNode.tCell, node2.direction );
+				return growWithNeighborProteinCheck( node.rootId, node.startCellId, nextNode.cell, nextNode.tCell, node2.direction );
 				
 				// return new IdAction( node.rootId, TAction.Grow( nextNode.startCellId, nextNode.cell.pos.x, nextNode.cell.pos.y, TCell.Basic, TDir.X, '' ));
 			}
@@ -290,15 +290,28 @@ class Ai8 {
 				printErr( 'grow ${OutputTCell.output( nextNode.tCell )} direction: ${OutputTDir.toString( node2.direction )}, pos: ${nextNode.cell.pos}' );
 				
 				nodePool.addNodesHierarchy( nodes );
-				return grow( node.rootId, node.startCellId, nextNode.cell.pos, nextNode.tCell, node2.direction );
+				return growWithNeighborProteinCheck( node.rootId, node.startCellId, nextNode.cell, nextNode.tCell, node2.direction );
 				
 				// return new IdAction( node.rootId, TAction.Grow( nextNode.startCellId, nextNode.cell.pos.x, nextNode.cell.pos.y, nextNode.tCell, node2.direction, '' ));
 			}
 		}
 	}
 
-	function grow( rootId:Int, startCellId:Int, pos:Pos, type:TCell, direction:TDir ) {
-		return new IdAction( rootId, TAction.Grow( startCellId, pos.x, pos.y, type, direction, '' ));
+	function growWithNeighborProteinCheck( rootId:Int, startCellId:Int, cell:Cell, type:TCell, direction:TDir ) {
+		// printErr( 'neighborPositions: ' + [for( neighbor in cell.neighbors ) neighbor.pos].join(" "));
+		if( canGrowHarvester( 2 )) {
+			for( neighbor in cell.neighbors ) {
+				if( proteinCellTypes.exists( neighbor.type ) && !harvestedProteins.exists( neighbor.pos )) {
+					final neighborDirection = getDirection( cell.pos, neighbor.pos );
+					// printErr( 'neighbor protein at ${neighbor.pos} direction ${neighborDirection}' );
+					if( neighborDirection != direction ) {
+						// printErr( 'found neighbor protein at ${neighbor.pos}' );
+						return new IdAction( rootId, TAction.Grow( startCellId, cell.pos.x, cell.pos.y, TCell.Harvester, neighborDirection, '' ));
+					}
+				}
+			}
+		}
+		return new IdAction( rootId, TAction.Grow( startCellId, cell.pos.x, cell.pos.y, type, direction, '' ));
 	}
 
 	inline function initBorderCells() {
@@ -395,7 +408,7 @@ class Ai8 {
 			if( currentCell.owner == OPP ) {
 				currentNode.parent.tCell = TCell.Tentacle;
 				nodes.push( currentNode );
-				printErr( 'opp cell ${Type.toString( currentCell.type )} found at ${currentNode.cell.pos}, distance: ${currentNode.distance}' );
+				// printErr( 'opp cell ${Type.toString( currentCell.type )} found at ${currentNode.cell.pos}, distance: ${currentNode.distance}' );
 			}
 			
 			final nextDistance = currentNode.distance + 1;
