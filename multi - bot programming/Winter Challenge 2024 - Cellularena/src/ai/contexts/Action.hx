@@ -1,8 +1,9 @@
 package ai.contexts;
 
+import ai.contexts.Type;
 import ai.data.TAction;
+import ai.data.TCell;
 import ai.data.TDir;
-import ai.data.TGrow;
 
 class Action {
 	
@@ -12,9 +13,9 @@ class Action {
 		switch action {
 			case NotPossible: return "WAIT";
 			case Grow( id, x, y, type, direction, text ):
-				return type == TGrow.Basic
-					? 'GROW $id $x $y $type $text'
-					: 'GROW $id $x $y $type ${dirs[direction]} $text';
+				return type == TCell.Basic
+					? 'GROW $id $x $y ${Type.toString( type )} $text'
+					: 'GROW $id $x $y ${Type.toString( type )} ${dirs[direction]} $text';
 			case Wait: return "WAIT";
 		}
 	}
