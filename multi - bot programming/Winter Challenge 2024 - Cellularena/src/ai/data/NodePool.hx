@@ -1,5 +1,6 @@
 package ai.data;
 
+import algorithm.MinPriorityQueue;
 import haxe.ds.GenericStack;
 import xa3.math.Pos;
 
@@ -10,12 +11,27 @@ class NodePool {
 
 	public function new() {	}
 
-	public function get( rootId:Int, startCellId:Int, cell:Cell, distance = 1, ?parent:Node ) {
-		if( pool.isEmpty() ) return new Node( rootId, startCellId, cell, distance, parent );
-		else {
+	public function get(
+		rootId:Int,
+		startCellId:Int,
+		cell:Cell,
+		a:Int,
+		b:Int,
+		c:Int,
+		d:Int,
+		distance = 0,
+		?parent:Node
+	) {
+		if( pool.isEmpty() ) {
+			final node = new Node();
+			node.init( rootId, startCellId, cell, a, b, c, d, distance, parent );
+			
+			return return node;
+		
+		} else {
 			final node = pool.pop();
 			length--;
-			node.init( rootId, startCellId, cell, distance, parent );
+			node.init( rootId, startCellId, cell, a, b, c, d, distance, parent );
 			
 			return node;
 		}
@@ -26,17 +42,22 @@ class NodePool {
 		length++;
 	}
 
-	public function addNodeList( node:List<Node> ) {
-		while( !node.isEmpty()) {
-			pool.add( node.pop() );
+	public function addNodeList( nodes:List<Node> ) {
+		while( !nodes.isEmpty()) {
+			pool.add( nodes.pop() );
+			length++;
+		}
+	}
+
+	public function addQueue( queue:MinPriorityQueue<Node> ) {
+		while( !queue.isEmpty()) {
+			pool.add( queue.delMin() );
 			length++;
 		}
 	}
 
 	public function addNodesHierarchy( nodes:Array<Node> ) {
-		for( i in -nodes.length + 1...1 ) {
-			addNodeHerarchy( nodes[i] );
-		}
+		for( i in -nodes.length + 1...1 ) addNodeHerarchy( nodes[i] );
 		nodes.splice( 0, nodes.length );
 	}
 
