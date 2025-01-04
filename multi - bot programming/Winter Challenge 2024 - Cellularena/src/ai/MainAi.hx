@@ -23,7 +23,7 @@ class MainAi {
 	static function main() {
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		
-		final ai = new ai.versions.Ai7();
+		final ai = new ai.versions.Ai8();
 		
 		final inputs = readline().split(' ');
 		final width = parseInt( inputs[0] );
