@@ -5,7 +5,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
-import ai.contexts.Type;
+import ai.contexts.CellType;
 import ai.data.Cell;
 import ai.data.TCell;
 import ai.data.TDir;
@@ -142,8 +142,8 @@ class MainAi {
 			// final oppCellPositions = oppCells.map( cell -> cell.pos );
 			// printErr( 'oppCellPositions: ${oppCellPositions.join(" ")}' );
 
-			for( oppCell in oppMoves ) printErr( 'opp changed cell ${oppCell.pos} to ${Type.toString( oppCell.type )}' );
-			for( myCell in myMoves ) printErr( 'my changed cell ${myCell.pos} to ${Type.toString( myCell.type )}' );
+			for( oppCell in oppMoves ) printErr( 'opp changed cell ${oppCell.pos} to ${CellType.toString( oppCell.type )}' );
+			for( myCell in myMoves ) printErr( 'my changed cell ${myCell.pos} to ${CellType.toString( myCell.type )}' );
 
 			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRootIds, myCells, harvestedProteins, myMoves, oppMoves );
 

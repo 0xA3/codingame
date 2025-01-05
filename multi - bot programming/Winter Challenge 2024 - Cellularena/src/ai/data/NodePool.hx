@@ -16,7 +16,8 @@ class NodePool {
 		startCellId:Int,
 		cell:Cell,
 		tCell:TCell,
-		direction:TDir,
+		dirToCell:TDir,
+		dirCount:Int,
 		a:Int,
 		b:Int,
 		c:Int,
@@ -26,7 +27,7 @@ class NodePool {
 	) {
 		if( pool.isEmpty() ) {
 			final node = new Node();
-			node.init( rootId, startCellId, cell, tCell, direction, a, b, c, d, distance, parent );
+			node.init( rootId, startCellId, cell, tCell, dirToCell, dirCount, a, b, c, d, distance, parent );
 			
 			return return node;
 		
@@ -35,10 +36,14 @@ class NodePool {
 			node.isInPool = false;
 
 			length--;
-			node.init( rootId, startCellId, cell, tCell, direction, a, b, c, d, distance, parent );
+			node.init( rootId, startCellId, cell, tCell, dirToCell, dirCount, a, b, c, d, distance, parent );
 			
 			return node;
 		}
+	}
+
+	public function getCopy( node:Node ) {
+		return get( node.rootId, node.startCellId, node.cell, node.tCell, node.dirToCell, node.dirCount, node.a, node.b, node.c, node.d, node.distance, node.parent );
 	}
 
 	public function add( node:Node ) {

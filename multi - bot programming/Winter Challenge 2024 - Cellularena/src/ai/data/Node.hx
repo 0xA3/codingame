@@ -1,6 +1,7 @@
 package ai.data;
 
 import CodinGame.printErr;
+import ai.contexts.CellType;
 
 class Node {
 	
@@ -12,7 +13,8 @@ class Node {
 	public var startCellId = -1;
 	public var cell = Cell.NO_CELL;
 	public var tCell:TCell;
-	public var direction:TDir;
+	public var dirToCell:TDir;
+	public var dirCount = 0;
 	public var a = 0;
 	public var b = 0;
 	public var c = 0;
@@ -27,7 +29,8 @@ class Node {
 		startCellId:Int,
 		cell:Cell,
 		tCell:TCell,
-		direction:TDir,
+		dirToCell:TDir,
+		dirCount:Int,
 		a:Int,
 		b:Int,
 		c:Int,
@@ -39,7 +42,8 @@ class Node {
 		this.startCellId = startCellId;
 		this.cell = cell;
 		this.tCell = tCell;
-		this.direction = direction;
+		this.dirToCell = dirToCell;
+		this.dirCount = dirCount;
 		this.a = a;
 		this.b = b;
 		this.c = c;
@@ -53,7 +57,9 @@ class Node {
 	public static function compare( a:Node, b:Node ) return a.distance > b.distance ? true : false;
 
 	public function toString() {
-		return 'startCellId: $startCellId, pos: ${cell.pos}, distance: $distance' +
-		( parent == null ? '' : ', parent: ${parent.cell.pos}' );
+		// return 'startCellId: $startCellId, pos: ${cell.pos}, distance: $distance' +
+		// ( parent == null ? '' : ', parent: ${parent.cell.pos}' );
+
+		return 'pos: ${cell.pos}, type: ${CellType.toString( tCell )}, distance: $distance';
 	}
 }

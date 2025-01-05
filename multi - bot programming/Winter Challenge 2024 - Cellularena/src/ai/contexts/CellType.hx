@@ -2,7 +2,7 @@ package ai.contexts;
 
 import ai.data.TCell;
 
-class Type {
+class CellType {
 	public static function toString( type:TCell ) {
 		return switch type {
 			case NoCell: "NO_CELL";
