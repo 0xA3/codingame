@@ -2,6 +2,7 @@ package ai.data;
 
 import CodinGame.printErr;
 import ai.contexts.CellType;
+import ai.contexts.OutputTDir;
 
 class Node {
 	
@@ -52,6 +53,27 @@ class Node {
 		this.parent = parent;
 	}
 
+	public function pay( costs:OrganCosts ) {
+		this.a -= costs.a;
+		this.b -= costs.b;
+		this.c -= costs.c;
+		this.d -= costs.d;
+	}
+
+	public function refund( costs:OrganCosts ) {
+		this.a += costs.a;
+		this.b += costs.b;
+		this.c += costs.c;
+		this.d += costs.d;
+	}
+
+	public function copyProteinsFrom( other:Node ) {
+		this.a = other.a;
+		this.b = other.b;
+		this.c = other.c;
+		this.d = other.d;
+	}
+
 	public static function sortByDistance( a:Node, b:Node ) return a.distance - b.distance;
 
 	public static function compare( a:Node, b:Node ) return a.distance > b.distance ? true : false;
@@ -60,6 +82,6 @@ class Node {
 		// return 'startCellId: $startCellId, pos: ${cell.pos}, distance: $distance' +
 		// ( parent == null ? '' : ', parent: ${parent.cell.pos}' );
 
-		return 'pos: ${cell.pos}, type: ${CellType.toString( tCell )}, distance: $distance';
+		return 'pos: ${cell.pos}, type: ${CellType.toString( tCell )}, distance: $distance, dirToCell: ${OutputTDir.toString( dirToCell )}, dirCount: $dirCount';
 	}
 }

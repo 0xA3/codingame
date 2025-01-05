@@ -10,6 +10,7 @@ import ai.data.Cell;
 import ai.data.IdAction;
 import ai.data.Node;
 import ai.data.NodePool;
+import ai.data.OrganCosts;
 import ai.data.TAction;
 import ai.data.TCell;
 import ai.data.TDir;
@@ -34,10 +35,11 @@ class Ai9 {
 	final borderCellNeighborTypes = [TCell.Empty => true, TCell.A => true, TCell.B => true, TCell.C => true, TCell.D => true];
 	final bestOrganOrder = [TCell.Basic, TCell.Sporer, TCell.Harvester, TCell.Tentacle];
 	final organCosts = [
-		TCell.Basic => { a: 1, b: 0, c: 0, d: 0 },
-		TCell.Sporer => { a: 0, b: 1, c: 0, d: 1 },
-		TCell.Harvester => { a: 0, b: 0, c: 1, d: 1 },
-		TCell.Tentacle => { a: 0, b: 1, c: 1, d: 0 }
+		TCell.Basic => new OrganCosts( 1, 0, 0, 0 ),
+		TCell.Sporer => new OrganCosts( 0, 1, 0, 1 ),
+		TCell.Harvester => new OrganCosts( 0, 0, 1, 1 ),
+		TCell.Tentacle => new OrganCosts( 0, 1, 1, 0 ),
+		TCell.NoCell => new OrganCosts( 0, 0, 0, 0 )
 	];
 
 	var positions:Array<Array<Pos>>;
@@ -178,11 +180,17 @@ class Ai9 {
 			// 	final distanceToRoot1 = getDistanceToRoot( nodes[1].cell );
 			// }
 			final node = nodes[0];
-			// printErr( 'attack ${node.cell.pos}, distance: ${node.distance}, type: ${Type.toString( node.cell.type )}' );
+			// printErr( 'getAttackCommand node tCell ${CellType.toString( node.tCell )} a: ${node.a}, b: ${node.b}, c: ${node.c}, d: ${node.d}' );
+			if( node.a < 0 || node.b < 0 || node.c < 0 || node.d < 0 ) {
+				printErr( 'Attack not possible' );
+				return IdAction.NOT_POSSIBLE;
+			}
+
+			// printErr( 'attack ${node.cell.pos}, distance: ${node.distance}, type: ${CellType.toString( node.cell.type )}' );
 			if( node.distance < 5 ) {
 				final attackDirectionNode = backtrack( node, 2 );
 				final attackNode = attackDirectionNode.parent;
-				// printErr( 'attackNode: ${attackNode.cell.pos}, distance: ${attackNode.distance}, type: ${Type.toString( attackNode.cell.type )}' );
+				// printErr( 'attackNode: ${attackNode.cell.pos}, distance: ${attackNode.distance}, type: ${CellType.toString( attackNode.cell.type )}' );
 				final attackPos = attackNode.cell.pos;
 				// printErr( 'grow tentacle at $attackPos' );
 				
@@ -274,11 +282,12 @@ class Ai9 {
 			});
 
 			final node = nodes[0];
-			// printErr( 'getHarvestCommand ${Type.toString( harvestType )}, pos: ${node.cell.pos}, distance: ${node.distance}' );
+			printErr( 'getHarvestCommand node tCell ${CellType.toString( node.tCell )}' );
+			// printErr( 'getHarvestCommand ${CellType.toString( harvestType )}, pos: ${node.cell.pos}, distance: ${node.distance}' );
 			if( node.distance == 2 ) {
 				final harvesterNode = node.parent;
 				final harvesterPos = harvesterNode.cell.pos;
-				// printErr( 'harvesterPos: ${harvesterPos}, harvesterType: ${Type.toString( harvesterNode.tCell )}, havesterDirection: ${OutputTDir.toString( node.dirToCell )}' );
+				// printErr( 'harvesterPos: ${harvesterPos}, harvesterType: ${CellType.toString( harvesterNode.tCell )}, havesterDirection: ${OutputTDir.toString( node.dirToCell )}' );
 				nodePool.addNodesHierarchy( nodes );
 				if( canGrowHarvester()) {
 					return new IdAction( node.rootId, TAction.Grow( harvesterNode.startCellId, harvesterPos.x, harvesterPos.y, harvesterNode.tCell, node.dirToCell, "" ));
@@ -348,36 +357,37 @@ class Ai9 {
 		// final frontier = new MinPriorityQueue<Node>( Node.compare );
 		final frontier = new List<Node>();
 		for( cell in myBorderCells ) {
-			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, cell.type, cell.organDir, 0, a, b, c, d );
+			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, cell.type, TDir.X, 0, a, b, c, d );
 			frontier.add( startNode );
 		}
 
 		while( !frontier.isEmpty() ) {
 			final currentNode = frontier.pop();
 			final currentCell = currentNode.cell;
-			// printErr( 'currentNode pos: ${currentNode.cell.pos}, type: ${Type.toString( currentNode.tCell )}, distance: ${currentNode.distance}' );
+			// printErr( 'currentNode pos: ${currentNode.cell.pos}, type: ${CellType.toString( currentNode.tCell )}, distance: ${currentNode.distance}' );
 
 			if( currentCell.type == type && currentCell.owner == owner && currentNode.distance > 1 ) {
 				currentNode.tCell = type;
 				currentNode.parent.tCell = TCell.Harvester;
+				currentNode.dirCount = 0;
 				nodes.push( currentNode );
 				printErr( 'protein ${CellType.toString( type )} found at ${currentNode.cell.pos}, distance: ${currentNode.distance}' );
-				// printErr( 'build ${Type.toString( currentNode.parent.tCell )} at ${currentNode.parent.cell.pos} with direction ${OutputTDir.toString( currentNode.dirToCell )}' );
+				// printErr( 'build ${CellType.toString( currentNode.parent.tCell )} at ${currentNode.parent.cell.pos} with direction ${OutputTDir.toString( currentNode.dirToCell )}' );
 			}
 			
 			final nextDistance = currentNode.distance + 1;
 			for( neighbor in currentCell.neighbors ) {
 				final x = neighbor.pos.x;
 				final y = neighbor.pos.y;
-				// printErr( 'neighbor type: ${Type.toString( neighbor.type )}, pos: ${neighbor.pos}, nextDistance: $nextDistance' );
+				// printErr( 'neighbor type: ${CellType.toString( neighbor.type )}, pos: ${neighbor.pos}, nextDistance: $nextDistance' );
 				if( visited[y][x] || harvestedProteins[neighbor.pos] || neighbor.owner != NO_OWNER ) continue;
 				if( checkForFrontOfTentacle( neighbor, OPP )) continue;
 
 				final dirToCell = getDirection( currentNode.cell.pos, neighbor.pos );
 				final dirCount = currentNode.dirToCell == dirToCell ? currentNode.dirCount + 1 : 1;
 				final bestOrgan = getBestOrgan( currentNode.a, currentNode.b, currentNode.c, currentNode.d );
-				// printErr( 'bestOrgan: ${Type.toString( bestOrgan )}' );
-				if( bestOrgan == TCell.NoCell ) continue;
+				// printErr( 'bestOrgan: ${CellType.toString( bestOrgan )}' );
+				// if( bestOrgan == TCell.NoCell ) continue;
 
 				final organCost = organCosts[bestOrgan];
 				final a1 = currentNode.a - organCost.a + income[A] * nextDistance;
@@ -400,8 +410,9 @@ class Ai9 {
 		// final frontier = new MinPriorityQueue<Node>( Node.compare );
 		final frontier = new List<Node>();
 		for( cell in myBorderCells ) {
-			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, cell.type, cell.organDir, 0, a, b, c, d );
+			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, cell.type, TDir.X, 0, a, b, c, d );
 			frontier.add( startNode );
+			printErr( 'startNode pos: ${startNode.cell.pos}' );
 		}
 
 		while( !frontier.isEmpty() ) {
@@ -409,12 +420,17 @@ class Ai9 {
 			final currentCell = currentNode.cell;
 			
 			if( currentCell.owner == OPP ) {
+				currentNode.parent.refund( organCosts[currentNode.parent.tCell] );
 				currentNode.parent.tCell = TCell.Tentacle;
+				currentNode.parent.pay( organCosts[TCell.Tentacle] );
+				currentNode.copyProteinsFrom( currentNode.parent );
+				currentNode.dirCount = 0;
 				nodes.push( currentNode );
-				// printErr( 'opp cell ${Type.toString( currentCell.type )} found at ${currentNode.cell.pos}, distance: ${currentNode.distance}' );
+				printErr( 'opp cell ${CellType.toString( currentCell.type )} found at ${currentNode.cell.pos}, distance: ${currentNode.distance}' );
 			}
 			
 			final nextDistance = currentNode.distance + 1;
+			
 			for( neighbor in currentCell.neighbors ) {
 				final x = neighbor.pos.x;
 				final y = neighbor.pos.y;
@@ -424,9 +440,10 @@ class Ai9 {
 				
 				final dirToCell = getDirection( currentNode.cell.pos, neighbor.pos );
 				final dirCount = currentNode.dirToCell == dirToCell ? currentNode.dirCount + 1 : 1;
-				final bestOrgan = getBestOrgan( currentNode.a, currentNode.b, currentNode.c, currentNode.d );
-				// printErr( 'bestOrgan: ${Type.toString( bestOrgan )}' );
-				if( bestOrgan == TCell.NoCell ) continue;
+				// final bestOrgan = getBestOrgan( currentNode.a, currentNode.b, currentNode.c, currentNode.d );
+				final bestOrgan = TCell.Basic;
+				// printErr( 'bestOrgan: ${CellType.toString( bestOrgan )}' );
+				// if( bestOrgan == TCell.NoCell ) continue;
 
 				final organCost = organCosts[bestOrgan];
 				final a1 = currentNode.a - organCost.a + income[A] * nextDistance;
@@ -490,27 +507,28 @@ class Ai9 {
 		return false;
 	}
 	
-	// function unfoldNodes( nodes:Array<Node> ) {
-	// 	final paths = [];
-	// 	for( node in nodes ) {
-	// 		final listPath = new List<Node>();
-	// 		var tempNode = node;
-	// 		while( tempNode != null ) {
-	// 			listPath.push( tempNode );
-	// 			tempNode = tempNode.parent;
-	// 		}
-	// 		paths.push( listPath );
+	function unfoldNodes( nodes:Array<Node> ) {
+		final paths = [];
+		for( node in nodes ) {
+			final listPath = new List<Node>();
+			var tempNode = node;
+			while( tempNode != null ) {
+				listPath.push( tempNode );
+				tempNode = tempNode.parent;
+			}
+			paths.push( listPath );
 
-	// 		// output //////////////////////////////////////////////
-	// 		var positions = [];
-	// 		for( node in listPath ) {
-	// 			positions.push( node.cell.pos );
-	// 		}
-	// 		printErr( 'node positions: ' + positions.join(" ") );
-	// 		////////////////////////////////////////////////////////
-	// 	}
-	// 	return paths;
-	// }
+			// output //////////////////////////////////////////////
+			var positions = [];
+			for( node in listPath ) {
+				// positions.push( node.cell.pos );
+				printErr( '$node' );
+			}
+			// printErr( 'node positions: ' + positions.join(" ") );
+			////////////////////////////////////////////////////////
+		}
+		return paths;
+	}
 
 	// function createSporerPath( path:Array<Node> ) {
 	// 	var maxStraightLength = 0;
@@ -546,7 +564,7 @@ class Ai9 {
 		var tempNode = node;
 		while( tempNode.distance > to ) {
 			tempNode = tempNode.parent;
-			// printErr( 'backtrack tempNode: ${tempNode.cell.pos}, distance: ${tempNode.distance}, type: ${Type.toString( tempNode.cell.type )}' );
+			// printErr( 'backtrack tempNode: ${tempNode.cell.pos}, distance: ${tempNode.distance}, type: ${CellType.toString( tempNode.cell.type )}' );
 		}
 
 		return tempNode;
