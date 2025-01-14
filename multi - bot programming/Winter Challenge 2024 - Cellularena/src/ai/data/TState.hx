@@ -2,7 +2,7 @@ package ai.data;
 
 enum TState {
 	Attack;
-	Defend;
+	// Defend; // is handled at the beginning
 	Grow;
 	HarvestA;
 	HarvestB;
