@@ -74,7 +74,7 @@ class Ai9 {
 	final isInFrontOfTentacles:Map<Int, Map<Pos, Bool>> = [ME => [], OPP => []];
 
 	final actions:Map<Int, TAction> = [];
-	var actionsNum = 0;
+	// var actionsNum = 0;
 	final outputs:Array<String> = [];
 
 	public function new() {	}
@@ -127,19 +127,20 @@ class Ai9 {
 		// for( cell in myBorderCells ) printErr( 'border cells: pos: ${cell.pos}, type: ${output( cell.type )}' );
 
 		actions.clear();
-		for( actionsNum in 0...requiredActionsCount ) {
-			final statesList = actionsNum == 0 ? states : states2;
+		for( i in 0...myRootIds.length ) {
+			final rootId = myRootIds[i];
+			final statesList = i == 0 ? states : states2;
 			var idAction = IdAction.NOT_POSSIBLE;
 			for( state in statesList ) {
-				printErr( 'actionsNum: $actionsNum, state: $state' );
+				printErr( 'rootId: $rootId, check: $state' );
 				switch( state ) {
-					case Attack: idAction = getAttackCommand();
-					case Defend: idAction = getDefendCommand();
-					case Grow: idAction = getGrowCommand();
-					case HarvestA: if( income[TCell.A] == 0 ) idAction = getHarvestCommand( TCell.A);
-					case HarvestB: if( income[TCell.B] == 0 ) idAction = getHarvestCommand( TCell.B );
-					case HarvestC: if( income[TCell.C] == 0 ) idAction = getHarvestCommand( TCell.C );
-					case HarvestD: if( income[TCell.D] == 0 ) idAction = getHarvestCommand( TCell.D );
+					case Attack: idAction = getAttackCommand( rootId );
+					case Defend: idAction = getDefendCommand( rootId );
+					case Grow: idAction = getGrowCommand( rootId );
+					case HarvestA: if( income[TCell.A] == 0 ) idAction = getHarvestCommand( rootId, TCell.A);
+					case HarvestB: if( income[TCell.B] == 0 ) idAction = getHarvestCommand( rootId, TCell.B );
+					case HarvestC: if( income[TCell.C] == 0 ) idAction = getHarvestCommand( rootId, TCell.C );
+					case HarvestD: if( income[TCell.D] == 0 ) idAction = getHarvestCommand( rootId, TCell.D );
 					case Wait: // no-op
 				}
 					
@@ -179,7 +180,7 @@ class Ai9 {
 		d -= cost.d;
 	}
 
-	function getAttackCommand() {
+	function getAttackCommand( rootId:Int ) {
 		if( !canGrowTentacle()) return IdAction.NOT_POSSIBLE;
 		
 		final nodes = findPathsToOpp();
@@ -193,6 +194,8 @@ class Ai9 {
 			// }
 
 			ArraySort.sort( nodes, ( a, b ) -> {
+				if( a.rootId != rootId ) return 1;
+				if( b.rootId != rootId ) return -1;
 				if( a.distance < b.distance ) return -1;
 				if( a.distance > b.distance ) return 1;
 				return 0;
@@ -218,9 +221,9 @@ class Ai9 {
 				return new IdAction( node.rootId, TAction.Grow( attackNode.startCellId, attackPos.x, attackPos.y, TCell.Tentacle, attackDirection, "" ));
 			} else {
 				final node2 = backtrack( node, 2 );
-				printErr( 'node2: ${node2.cell.pos}, distance: ${node2.distance}, type: ${CellType.toString( node2.tCell )}' );
+				// printErr( 'node2: ${node2.cell.pos}, distance: ${node2.distance}, type: ${CellType.toString( node2.tCell )}' );
 				final nextNode = node2.parent;
-				printErr( 'nextNode: ${nextNode.cell.pos}, distance: ${nextNode.distance}, type: ${CellType.toString( nextNode.tCell )}' );
+				// printErr( 'nextNode: ${nextNode.cell.pos}, distance: ${nextNode.distance}, type: ${CellType.toString( nextNode.tCell )}' );
 				
 				nodePool.addNodesHierarchy( nodes );
 				if( nextNode.tCell == TCell.Root ) {
@@ -232,7 +235,7 @@ class Ai9 {
 		}
 	}
 
-	function getDefendCommand() {
+	function getDefendCommand( rootId:Int ) {
 		if( !canGrowTentacle()) return IdAction.NOT_POSSIBLE;
 		resetVisited();
 		for( oppCell in oppMoves ) {
@@ -240,27 +243,27 @@ class Ai9 {
 			for( neighbor in oppCell.neighbors ) {
 				if(
 					visited[neighbor.pos.y][neighbor.pos.x] ||
-					neighbor.owner != NO_OWNER ||
-					neighbor.type == TCell.Wall  ||
+					// neighbor.owner == OPP ||
+					// neighbor.type == TCell.Wall  ||
 					checkForFrontOfTentacle( neighbor, ME ) ||
 					checkForFrontOfTentacle( neighbor, OPP )
 				) continue;
-				// printErr( 'check neighbor ${neighbor.pos}' );
+				// printErr( 'check neighbors of ${neighbor.pos}' );
 				
 				visited[neighbor.pos.y][neighbor.pos.x] = true;
 				for( neighborsNeighbor in neighbor.neighbors ) {
+					// printErr( 'check neighbors neighbor ${neighborsNeighbor.pos}, owner: ${neighborsNeighbor.owner}' );
 					if(
 						visited[neighborsNeighbor.pos.y][neighborsNeighbor.pos.x] ||
-						neighborsNeighbor.owner != NO_OWNER ||
-						neighborsNeighbor.type == TCell.Wall  ||
+						// neighborsNeighbor.owner == OPP ||
+						// neighborsNeighbor.type == TCell.Wall  ||
 						checkForFrontOfTentacle( neighborsNeighbor, ME ) ||
 						checkForFrontOfTentacle( neighborsNeighbor, OPP )
 					) continue;
-					// printErr( 'check neighbors neighbor ${neighborsNeighbor.pos}, owner: ${neighborsNeighbor.owner}' );
 					
 					visited[neighborsNeighbor.pos.y][neighborsNeighbor.pos.x] = true;
-					if( neighborsNeighbor.owner == ME ) {
-						printErr( 'attack ${oppCell.pos} from my cell ${neighborsNeighbor.pos}' );
+					if( neighborsNeighbor.owner == ME && neighborsNeighbor.organRootId == rootId ) {
+						// printErr( 'attack ${oppCell.pos} from my cell ${neighborsNeighbor.pos}' );
 						final pathNode = findPath( neighborsNeighbor, oppCell );
 						if( pathNode == Node.NO_NODE ) return IdAction.NOT_POSSIBLE;
 						
@@ -278,9 +281,10 @@ class Ai9 {
 		return IdAction.NOT_POSSIBLE;
 	}
 
-	function getGrowCommand() {
+	function getGrowCommand( rootId:Int ) {
 		for( i in -myBorderCells.length + 1...1 ) {
 			final cell = myBorderCells[-i];
+			if( cell.organRootId != rootId ) continue;
 			for( neighbor in cell.neighbors ) {
 				if( borderCellNeighborTypes.exists( neighbor.type ) && !harvestedProteins[neighbor.pos] && !checkForFrontOfTentacle( neighbor, OPP )) {
 					return new IdAction( cell.organRootId, TAction.Grow( cell.organId, neighbor.pos.x, neighbor.pos.y, TCell.Basic, TDir.X, "" ));
@@ -291,7 +295,7 @@ class Ai9 {
 		return return IdAction.NOT_POSSIBLE;
 	}
 
-	function getHarvestCommand( harvestType:TCell ) {
+	function getHarvestCommand( rootId:Int, harvestType:TCell ) {
 		final nodes = findPathsToProteins( harvestType );
 		if( nodes.length == 0 ) {
 			return return IdAction.NOT_POSSIBLE;
@@ -302,6 +306,8 @@ class Ai9 {
 			}
 
 			ArraySort.sort( nodes, ( a, b ) -> {
+				if( a.rootId != rootId ) return 1;
+				if( b.rootId != rootId ) return -1;
 				if( a.distance < b.distance ) return -1;
 				if( a.distance > b.distance ) return 1;
 				return 0;
@@ -309,7 +315,7 @@ class Ai9 {
 
 			final node = nodes[0];
 			
-			printErr( 'harvest cell ${CellType.toString( harvestType )}, pos: ${node.cell.pos}, distance: ${node.distance}' );
+			// printErr( 'harvest cell ${CellType.toString( harvestType )}, pos: ${node.cell.pos}, distance: ${node.distance}' );
 			if( node.distance == 2 ) {
 				final harvesterNode = node.parent;
 				final harvesterPos = harvesterNode.cell.pos;
@@ -321,9 +327,9 @@ class Ai9 {
 
 			} else {
 				final node2 = backtrack( node, 2 );
-				printErr( 'node2: ${node2.cell.pos}, distance: ${node2.distance}, type: ${CellType.toString( node2.tCell )}' );
+				// printErr( 'node2: ${node2.cell.pos}, distance: ${node2.distance}, type: ${CellType.toString( node2.tCell )}' );
 				final nextNode = node2.parent;
-				printErr( 'nextNode: ${nextNode.cell.pos}, distance: ${nextNode.distance}, type: ${CellType.toString( nextNode.tCell )}' );
+				// printErr( 'nextNode: ${nextNode.cell.pos}, distance: ${nextNode.distance}, type: ${CellType.toString( nextNode.tCell )}' );
 				// printErr( 'grow ${OutputTCell.output( nextNode.tCell )} direction: ${OutputTDir.toString( node2.dirToCell )}, pos: ${nextNode.cell.pos}' );
 				
 				nodePool.addNodesHierarchy( nodes );
@@ -388,7 +394,6 @@ class Ai9 {
 		final frontier = new List<Node>();
 		for( cell in myBorderCells ) {
 			final startNode = nodePool.get( cell.organRootId, cell.organId, cell, cell.type, TDir.X, 0, a, b, c, d );
-			
 			frontier.add( startNode );
 		}
 
@@ -405,9 +410,6 @@ class Ai9 {
 					currentNode.parent.pay( organCosts[TCell.Harvester] );
 					currentNode.copyProteinsFrom( currentNode.parent );
 				}
-				
-				currentNode.dirCount = 0;
-				// currentNode.tCell = type;
 				
 				nodes.push( currentNode );
 				// printErr( 'protein ${CellType.toString( type )} found at ${currentNode.cell.pos}, distance: ${currentNode.distance}' );
@@ -510,7 +512,6 @@ class Ai9 {
 	function findPath( start:Cell, end:Cell ) {
 		resetVisited();
 
-		// final frontier = new MinPriorityQueue<Node>( Node.compare );
 		final frontier = new List<Node>();
 		final startNode = nodePool.get( start.organRootId, start.organId, start, start.type, start.organDir, 0, a, b, c, d );
 		frontier.add( startNode );
@@ -530,7 +531,6 @@ class Ai9 {
 				
 				final dirToCell = getDirection( currentNode.cell.pos, neighbor.pos );
 				final tCell = TCell.Basic;
-				final nextA = currentNode.a - 1 + income[TCell.A];
 				
 				frontier.add( nodePool.get( currentNode.rootId, currentNode.startCellId, neighbor, tCell, dirToCell, 0, a, b, c, d, nextDistance, currentNode ));
 				visited[y][x] = true;
@@ -573,9 +573,9 @@ class Ai9 {
 			return 0;
 		});
 
-		for( maxDirCountNode in maxDirCountNodes ) {
-			printErr( 'node: ${maxDirCountNode.node.cell.pos} distance: ${maxDirCountNode.node.distance} max ${maxDirCountNode.firstMax} index ${maxDirCountNode.index}  delta ${maxDirCountNode.node.distance - maxDirCountNode.firstMax}' );
-		}
+		// for( maxDirCountNode in maxDirCountNodes ) {
+			// printErr( 'createSporerNode: ${maxDirCountNode.node.cell.pos} distance: ${maxDirCountNode.node.distance} max ${maxDirCountNode.firstMax} index ${maxDirCountNode.index}  delta ${maxDirCountNode.node.distance - maxDirCountNode.firstMax}' );
+		// }
 
 		if( maxDirCountNodes.length == 0 ) return Node.NO_NODE;
 		
@@ -590,7 +590,7 @@ class Ai9 {
 		final maximums:Array<Maximum> = [];
 		var tempNode = node;
 		final minCount = tempNode.tCell == TCell.Sporer ? 3 : 4;
-		var dirCount = tempNode.dirCount;
+		var dirCount = 0;
 		// var positions = [];
 		while( tempNode != null ) {
 			// printErr( 'tempNode pos: ${tempNode.cell.pos} distance ${tempNode.distance} dirCount: ${tempNode.dirCount}' );
@@ -667,8 +667,8 @@ class Ai9 {
 			pathNode.distance = path[i - 1].distance + 1;
 			pathNode.parent = path[i - 1];
 		}
-		printErr( 'sporer path' );
-		for( pathNode in path ) printErr( 'pathNode: ${pathNode.cell.pos}, type: ${CellType.toString( pathNode.tCell )}, distance: ${pathNode.distance}' + ( pathNode.parent == null ? '' : ', parent: ${pathNode.parent.cell.pos}' ));
+		// printErr( 'sporer path' );
+		// for( pathNode in path ) printErr( 'pathNode: ${pathNode.cell.pos}, type: ${CellType.toString( pathNode.tCell )}, distance: ${pathNode.distance}' + ( pathNode.parent == null ? '' : ', parent: ${pathNode.parent.cell.pos}' ));
 
 		return path[path.length - 1];
 	}
@@ -767,19 +767,19 @@ class Ai9 {
 	function canGrowOrgans( organs:Array<TCell> ) {
 		final aFunds = a + income[TCell.A];
 		final aCost = organs.fold(( o, sum ) -> sum + organCosts[o].a, 0 );
-		if( aCost < aFunds ) return false;
+		if( aFunds < aCost ) return false;
 
 		final bFunds = b + income[TCell.B];
 		final bCost = organs.fold(( o, sum ) -> sum + organCosts[o].b, 0 );
-		if( bCost < bFunds ) return false;
+		if( bFunds < bCost ) return false;
 
 		final cFunds = c + income[TCell.C];
 		final cCost = organs.fold(( o, sum ) -> sum + organCosts[o].c, 0 );
-		if( cCost < cFunds ) return false;
+		if( cFunds < cCost ) return false;
 
 		final dFunds = d + income[TCell.D];
 		final dCost = organs.fold(( o, sum ) -> sum + organCosts[o].d, 0 );
-		if( dCost < dFunds ) return false;
+		if( dFunds < dCost ) return false;
 		
 		return true;
 	}
