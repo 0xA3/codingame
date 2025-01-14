@@ -42,3 +42,4 @@ cg-local-app-1.3.0.jar
 *.ffs_gui
 *.ffs_db
 *.jar
+dump
