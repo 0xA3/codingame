@@ -148,7 +148,7 @@ class MainAi {
 			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRootIds, myCells, harvestedProteins, myMoves, oppMoves );
 
 			final outputs = ai.process();
-			printErr( outputs );
+			// printErr( outputs );
 			printErr( '${int(( Timer.stamp() - startTime ) * 1000)} ms' );
 			print( outputs );
 		}

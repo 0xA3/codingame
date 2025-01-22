@@ -16,7 +16,6 @@ import ai.data.TAction;
 import ai.data.TCell;
 import ai.data.TDir;
 import ai.data.TState;
-// import algorithm.MinPriorityQueue;
 import haxe.ds.ArraySort;
 import xa3.math.Pos;
 
@@ -147,9 +146,8 @@ class Ai9 {
 				printErr( 'rootId: $rootId, check: $state' );
 				switch( state ) {
 					case Attack: idAction = getAttackCommand( rootId );
-					// case Defend: idAction = getDefendCommand( rootId );
 					case Grow: idAction = getGrowCommand( rootId );
-					case HarvestA: if( income[TCell.A] == 0 ) idAction = getHarvestCommand( rootId, TCell.A);
+					case HarvestA: if( income[TCell.A] == 0 ) idAction = getHarvestCommand( rootId, TCell.A );
 					case HarvestB: if( income[TCell.B] == 0 ) idAction = getHarvestCommand( rootId, TCell.B );
 					case HarvestC: if( income[TCell.C] == 0 ) idAction = getHarvestCommand( rootId, TCell.C );
 					case HarvestD: if( income[TCell.D] == 0 ) idAction = getHarvestCommand( rootId, TCell.D );
@@ -241,7 +239,7 @@ class Ai9 {
 				if( nextNode.tCell == TCell.Root ) {
 					return new IdAction( node.rootId, TAction.Spore( nextNode.startCellId, node2.cell.pos.x, node2.cell.pos.y, '' ));
 				} else {
-					return growWithNeighborProteinCheck( node.rootId, node.startCellId, nextNode.cell, nextNode.tCell, node2.dirToCell );
+					return growWithNeighborProteinCheck( node.rootId, node.startCellId, nextNode.cell, nextNode.tCell, node2.dirToCell, 1 );
 				}
 			}
 		}
@@ -330,7 +328,7 @@ class Ai9 {
 			if( node.distance == 2 ) {
 				final harvesterNode = node.parent;
 				final harvesterPos = harvesterNode.cell.pos;
-				// printErr( 'harvesterPos: ${harvesterPos}, harvesterType: ${CellType.toString( harvesterNode.tCell )}, havesterDirection: ${OutputTDir.toString( node.dirToCell )}' );
+				// printErr( 'harvesterPos: ${harvesterPos}, harvesterNode.tCell: ${CellType.toString( harvesterNode.tCell )}, havesterDirection: ${OutputTDir.toString( node.dirToCell )}' );
 				nodePool.addNodesHierarchy( nodes );
 				if( canGrowHarvester()) {
 					return new IdAction( node.rootId, TAction.Grow( harvesterNode.startCellId, harvesterPos.x, harvesterPos.y, harvesterNode.tCell, node.dirToCell, "" ));
@@ -347,15 +345,15 @@ class Ai9 {
 				if( nextNode.tCell == TCell.Root ) {
 					return new IdAction( node.rootId, TAction.Spore( nextNode.startCellId, nextNode.cell.pos.x, nextNode.cell.pos.y, '' ));
 				} else {
-					return growWithNeighborProteinCheck( node.rootId, node.startCellId, nextNode.cell, nextNode.tCell, node2.dirToCell );
+					return growWithNeighborProteinCheck( node.rootId, node.startCellId, nextNode.cell, nextNode.tCell, node2.dirToCell, 2 );
 				}
 			}
 		}
 	}
 
-	function growWithNeighborProteinCheck( rootId:Int, startCellId:Int, cell:Cell, type:TCell, direction:TDir ) {
+	function growWithNeighborProteinCheck( rootId:Int, startCellId:Int, cell:Cell, type:TCell, direction:TDir, numHarvestersNeeded:Int ) {
 		// printErr( 'neighborPositions: ' + [for( neighbor in cell.neighbors ) neighbor.pos].join(" "));
-		if( canGrowHarvester( 2 )) {
+		if( canGrowHarvester( numHarvestersNeeded )) {
 			for( neighbor in cell.neighbors ) {
 				if( proteinCellTypes.exists( neighbor.type ) && !harvestedProteins.exists( neighbor.pos )) {
 					final neighborDirection = getDirection( cell.pos, neighbor.pos );
@@ -446,7 +444,7 @@ class Ai9 {
 				final dirCount = currentNode.dirToCell == dirToCell ? currentNode.dirCount + 1 : 1;
 				final bestOrgan = getBestOrgan( currentNode.a, currentNode.b, currentNode.c, currentNode.d );
 				// printErr( 'bestOrgan: ${CellType.toString( bestOrgan )}' );
-				// if( bestOrgan == TCell.NoCell ) continue;
+				if( bestOrgan == TCell.NoCell ) continue;
 
 				final organCost = organCosts[bestOrgan];
 				final a1 = currentNode.a - organCost.a + income[A] * nextDistance;
@@ -503,10 +501,10 @@ class Ai9 {
 				
 				final dirToCell = getDirection( currentNode.cell.pos, neighbor.pos );
 				final dirCount = currentNode.dirToCell == dirToCell ? currentNode.dirCount + 1 : 1;
-				// final bestOrgan = getBestOrgan( currentNode.a, currentNode.b, currentNode.c, currentNode.d );
-				final bestOrgan = TCell.Basic;
+				final bestOrgan = getBestOrgan( currentNode.a, currentNode.b, currentNode.c, currentNode.d );
+				// final bestOrgan = TCell.Basic;
 				// printErr( 'bestOrgan: ${CellType.toString( bestOrgan )}' );
-				// if( bestOrgan == TCell.NoCell ) continue;
+				if( bestOrgan == TCell.NoCell ) continue;
 
 				final organCost = organCosts[bestOrgan];
 				final a1 = currentNode.a - organCost.a + income[A] * nextDistance;
