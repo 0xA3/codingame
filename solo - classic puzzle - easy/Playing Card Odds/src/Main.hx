@@ -36,18 +36,13 @@ function process( removes:Array<String>, soughts:Array<String> ) {
 function getDeckWithRemoved( cards:Array<Card>, removes:Array<String> ) {
 	final remainingCards = cards.copy();
 	for( classification in removes ) {
-		final parts = classification.split( "" );
-		final ranksInClassification = [for( part in parts ) if( ranks.contains( part ) ) part];
-		final suitsInClassification = [for( part in parts ) if( suits.contains( part ) ) part];
-		
-		final removedRanks = ranksInClassification.length == 0 ? ranks : ranksInClassification;
-		final removedSuits = suitsInClassification.length == 0 ? suits : suitsInClassification;
+		final removed = getRanksSuits( classification );
 		// printErr( 'removedRanks: $removedRanks, removedSuits: $removedSuits' );
 	
 		for( i in -remainingCards.length + 1...1 ) {
 			final card = remainingCards[-i];
 			// printErr( 'card: ${card.rank}${card.suit}, remove: ${parts.contains( card.rank ) || parts.contains( card.suit )}' );
-			if( removedRanks.contains( card.rank ) && removedSuits.contains( card.suit ) ) {
+			if( removed.ranks.contains( card.rank ) && removed.suits.contains( card.suit ) ) {
 				remainingCards.remove( card );
 			}
 		}
@@ -61,16 +56,10 @@ function countSoughts( cards:Array<Card>, soughts:Array<String> ) {
 	final resultingCards:Map<String, Bool> = [];
 
 	for( classification in soughts ) {
-		final parts = classification.split( "" );
-		final ranksInClassification = [for( part in parts ) if( ranks.contains( part ) ) part];
-		final suitsInClassification = [for( part in parts ) if( suits.contains( part ) ) part];
-		
-		final soughtRanks = ranksInClassification.length == 0 ? ranks : ranksInClassification;
-		final soughtSuits = suitsInClassification.length == 0 ? suits : suitsInClassification;
-		// printErr( 'soughtRanks: $soughtRanks, soughtSuits: $soughtSuits' );
+		final sought = getRanksSuits( classification );
 
 		for( card in cards ) {
-			if( soughtRanks.contains( card.rank ) && soughtSuits.contains( card.suit ) ) {
+			if( sought.ranks.contains( card.rank ) && sought.suits.contains( card.suit ) ) {
 				resultingCards.set( '${card.rank}${card.suit}', true );
 			}
 		}
@@ -79,4 +68,15 @@ function countSoughts( cards:Array<Card>, soughts:Array<String> ) {
 	final count = resultingCards.array().length;
 	
 	return count;
+}
+
+function getRanksSuits( classification:String ) {
+	final parts = classification.split( "" );
+	final ranksInClassification = [for( part in parts ) if( ranks.contains( part ) ) part];
+	final suitsInClassification = [for( part in parts ) if( suits.contains( part ) ) part];
+	
+	final ranks = ranksInClassification.length == 0 ? ranks : ranksInClassification;
+	final suits = suitsInClassification.length == 0 ? suits : suitsInClassification;
+
+	return { ranks: ranks, suits: suits }
 }
