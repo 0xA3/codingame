@@ -49,7 +49,7 @@ class TestProcess extends buddy.BuddySuite{
 		initReadline( input );
 		final n = parseInt( readline());
 		final k = parseInt( readline());
-		final constraints = [for( i in 0...k ) readline()];
+		final constraints = [for( i in 0...k ) readline().split( "<" ).map( s -> parseInt( s ))];
 					
 		return { n: n, constraints: constraints };
 	}
