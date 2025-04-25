@@ -1,5 +1,7 @@
 package test;
 
+import Main.Entry;
+import Std.parseFloat;
 import Std.parseInt;
 import test.Readline.initReadline;
 import test.Readline.readline;
@@ -14,29 +16,29 @@ class TestProcess extends buddy.BuddySuite{
 
 		describe( "Test process", {
 			
-			@include it( "Test 1", {
-				final ip = test1;
-				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( test1Result );
+			@include it( "Example", {
+				final ip = example;
+				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( exampleResult );
 			});
-			it( "Test 2", {
-				final ip = test2;
-				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( test2Result );
+			it( "Corners", {
+				final ip = corners;
+				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( cornersResult );
 			});
-			it( "Test 3", {
-				final ip = test3;
-				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( test3Result );
+			it( "Dense", {
+				final ip = dense;
+				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( denseResult );
 			});
-			it( "Test 4", {
-				final ip = test4;
-				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( test4Result );
+			it( "Cancellation", {
+				final ip = cancellation;
+				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( cancellationResult );
 			});
-			it( "Test 5", {
-				final ip = test5;
-				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( test5Result );
+			it( "Banded", {
+				final ip = banded;
+				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( bandedResult );
 			});
-			it( "Test 6", {
-				final ip = test6;
-				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( test6Result );
+			it( "Supertask", {
+				final ip = supertask;
+				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( supertaskResult );
 			});
 		});
 	}
@@ -50,17 +52,25 @@ class TestProcess extends buddy.BuddySuite{
 		final inputs = readline().split(' ');
 		final countA = parseInt(inputs[0]);
 		final countB = parseInt(inputs[1]);
-		final matrix1Entries = Main.readEntries( countA );
-		final matrix2Entries = Main.readEntries( countB );
+		final matrix1Entries = readEntries( countA );
+		final matrix2Entries = readEntries( countB );
 				
 		return { m: m, n: n, p: p, matrix1Entries: matrix1Entries, matrix2Entries: matrix2Entries };
+	}
+
+	static function readEntries( count:Int ) {
+		return [for( i in 0...count ) {
+			final inputs = readline().split(' ');
+			final entry:Entry = { row: parseInt( inputs[0] ), col: parseInt( inputs[1] ), value: parseFloat( inputs[2] ) }
+			entry;
+		}];
 	}
 
 	static function parseResult( input:String ) {
 		return input.replace( "\t", "" ).replace( "\r", "" );
 	}
 
-	final test1 = parseInput(
+	final example = parseInput(
 		"4 3 5
 		3 2
 		1 0 1.0
@@ -70,11 +80,11 @@ class TestProcess extends buddy.BuddySuite{
 		2 3 1.0"
 	);
 
-	final test1Result = parseResult(
+	final exampleResult = parseResult(
 		"1 3 8.0"
 	);
 
-	final test2 = parseInput(
+	final corners = parseInput(
 		"400001 300001 500001
 		4 4
 		0 0 1.0
@@ -87,14 +97,14 @@ class TestProcess extends buddy.BuddySuite{
 		300000 500000 4.0"
 	);
 
-	final test2Result = parseResult(
+	final cornersResult = parseResult(
 		"0 0 13.0
 		0 500000 21.0
 		400000 0 11.0
 		400000 500000 7.0"
 	);
 
-	final test3 = parseInput(
+	final dense = parseInput(
 		"10 1 10
 		9 9
 		1 0 1.25
@@ -117,7 +127,7 @@ class TestProcess extends buddy.BuddySuite{
 		0 9 11.25"
 	);
 
-	final test3Result = parseResult(
+	final denseResult = parseResult(
 		"1 1 1.5625
 		1 2 3.125
 		1 3 4.6875
@@ -201,7 +211,7 @@ class TestProcess extends buddy.BuddySuite{
 		9 9 126.5625"
 	);
 
-	final test4 = parseInput(
+	final cancellation = parseInput(
 		"10 10 10
 		5 5
 		0 0 2.0
@@ -216,12 +226,12 @@ class TestProcess extends buddy.BuddySuite{
 		7 7 -0.5"
 	);
 
-	final test4Result = parseResult(
+	final cancellationResult = parseResult(
 		"0 7 -1.5
 		7 0 -1.5"
 	);
 
-	final test5 = parseInput(
+	final banded = parseInput(
 		"10 10 10
 		27 27
 		0 0 6.125
@@ -280,7 +290,7 @@ class TestProcess extends buddy.BuddySuite{
 		9 9 8.625"
 	);
 
-	final test5Result = parseResult(
+	final bandedResult = parseResult(
 		"0 0 14.15625
 		0 1 -29.671875
 		0 2 -54.3125
@@ -326,7 +336,7 @@ class TestProcess extends buddy.BuddySuite{
 		9 9 -4.125"
 	);
 
-	final test6 = parseInput(
+	final supertask = parseInput(
 		"999999 999999 999999
 		19 42
 		32015 637228 -8.75
@@ -392,7 +402,7 @@ class TestProcess extends buddy.BuddySuite{
 		975558 772471 2.875"
 	);
 
-	final test6Result = parseResult(
+	final supertaskResult = parseResult(
 		"32015 367280 -20.78125
 		66238 367280 11.28125
 		176689 369129 -7.5

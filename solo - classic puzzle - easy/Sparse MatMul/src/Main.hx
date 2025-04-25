@@ -6,6 +6,7 @@ import Std.parseFloat;
 import Std.parseInt;
 
 using Lambda;
+using xa3.NumberFormat;
 
 typedef Entry = { row:Int, col:Int, value:Float };
 
@@ -34,12 +35,21 @@ function readEntries( count:Int ) {
 }
 
 function process( m:Int, n:Int, p:Int, matrix1Entries:Array<Entry>, matrix2Entries:Array<Entry> ) {
-	
+	printErr( "Matrix 1" );
+	printMatrix( n, m, matrix1Entries );
+	printErr( "Matrix 2" );
+	printMatrix( p, n, matrix2Entries );
 
 	
 	return "";
 }
 
-function printMatrix() {
-	
+function printMatrix( width:Int, height:Int, entries:Array<Entry>) {
+	final matrix = [for( y in 0...height ) [for( x in 0...width ) 0.0]];
+	for( entry in entries ) {
+		// printErr( 'Entry ${entry.col}:${entry.row} = ${entry.value.number( 2 )}' );
+		matrix[entry.row][entry.col] = entry.value;
+	}
+
+	printErr( matrix.map( row -> row.map( v -> v.number( 2 )).join( " " )).join( "\n" ));
 }
