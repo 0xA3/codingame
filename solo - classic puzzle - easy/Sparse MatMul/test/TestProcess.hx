@@ -16,7 +16,7 @@ class TestProcess extends buddy.BuddySuite{
 
 		describe( "Test process", {
 			
-			@include it( "Example", {
+			it( "Example", {
 				final ip = example;
 				Main.process( ip.m, ip.n, ip.p, ip.matrix1Entries, ip.matrix2Entries ).should.be( exampleResult );
 			});
@@ -52,6 +52,7 @@ class TestProcess extends buddy.BuddySuite{
 		final inputs = readline().split(' ');
 		final countA = parseInt(inputs[0]);
 		final countB = parseInt(inputs[1]);
+		// trace( 'm: $m, n: $n, p: $p, countA: $countA, countB: $countB' );
 		final matrix1Entries = readEntries( countA );
 		final matrix2Entries = readEntries( countB );
 				
@@ -59,8 +60,10 @@ class TestProcess extends buddy.BuddySuite{
 	}
 
 	static function readEntries( count:Int ) {
+		// trace( 'readEntries: $count' );
 		return [for( i in 0...count ) {
 			final inputs = readline().split(' ');
+			// trace( 'inputs: $inputs' );
 			final entry:Entry = { row: parseInt( inputs[0] ), col: parseInt( inputs[1] ), value: parseFloat( inputs[2] ) }
 			entry;
 		}];

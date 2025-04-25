@@ -12,5 +12,8 @@ class Readline {
 		inputLines = input.replace( "\t", "" ).replace( "\r", "" ).split( "\n" );
 	}
 	
-	public static function readline() return inputLines[lineCounter++];
+	public static function readline() {
+		if( inputLines.length <= lineCounter ) throw( 'Error: trying to read line $lineCounter of ${inputLines.length}' );
+		return inputLines[lineCounter++];
+	}
 }
