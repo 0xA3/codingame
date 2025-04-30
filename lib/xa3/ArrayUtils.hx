@@ -1,11 +1,11 @@
 package xa3;
 
-import haxe.ds.Vector;
-import haxe.ds.Option;
 import Std.int;
-import xa3.MathUtils;
+import haxe.ds.Option;
+import haxe.ds.Vector;
 import xa3.MathUtils.INTEGER_MAX_VALUE;
 import xa3.MathUtils.INTEGER_MIN_VALUE;
+import xa3.MathUtils;
 import xa3.StringUtils.repeat;
 
 class ArrayUtils {
@@ -104,26 +104,37 @@ class ArrayUtils {
 		}
 	}
 
-	extern public static inline function combinationsNum<T>( a:Array<T>, numSubItems:Int ) {
-		final result = [];
-		final indexes = new Vector<Int>( numSubItems );
-		for( i in 0...numSubItems ) indexes[i] = i;
-
-		while( indexes[0] < a.length - numSubItems + 1 ) {
-			final v = [];
-			for( i in 0...numSubItems ) v.push( a[indexes[i]] );
-			result.push( v );
-			indexes[numSubItems - 1]++;
-			var l = numSubItems - 1; // reference always is the last position at beginning
-			while (( indexes[numSubItems - 1] >= a.length )&&( indexes[0] < a.length - numSubItems + 1 )) {
-				l--; // the last position is reached
-				indexes[l]++;
-				for( i in l + 1...numSubItems ) {
-					indexes[i] = indexes[l] + ( i - l );
-				}
+	extern public static inline function getCombinations<T>(array:Array<T>, n:Int):Array<Array<T>> {
+		if (n == 0) return [[]];
+		if (array.length < n) return [];
+		
+		final result = new Array<Array<T>>();
+		
+		for (i in 0...array.length) {
+			final current = array[i];
+			final remaining = array.slice(i + 1);
+			for (subCombination in getCombinations(remaining, n - 1)) {
+				result.push([current].concat(subCombination));
 			}
 		}
-
+		
+		return result;
+	}
+	
+	extern public static inline function getCombinationsWithRepetitions<T>(array:Array<T>, n:Int):Array<Array<T>> {
+		if (n == 0) return [[]];
+		if (array.length < n) return [];
+		
+		final result = new Array<Array<T>>();
+		
+		for (i in 0...array.length) {
+			final current = array[i];
+			final remaining = array.copy();
+			for (subCombination in getCombinations(remaining, n - 1)) {
+				result.push([current].concat(subCombination));
+			}
+		}
+		
 		return result;
 	}
 
