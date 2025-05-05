@@ -14,7 +14,7 @@ class IndexedVector {
 
 	public static function sort( iVectors:Array<IndexedVector>, permutation:Array<Int> ) {
 		if (permutation.length != iVectors[0].vector.length) {
-			throw "Permutation length must match the dimension of the iVectors.";
+			throw "Permutation length must match the dimension of the vectors.";
 		}
 	
 		// Sort the iVectors based on the permutation

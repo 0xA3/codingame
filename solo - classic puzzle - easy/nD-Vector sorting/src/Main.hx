@@ -28,4 +28,3 @@ function process( dimensions:Int, ords:Array<Int>, vectors:Array<Array<Int>> ) {
 
 	return result;
 }
-
