@@ -1,0 +1,7 @@
+-lib littleBigInt
+-cp src
+--dce full
+-D analyzer-optimize
+-main Convert
+--hl bin/convert.hl
+

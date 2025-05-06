@@ -2,6 +2,15 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"type": "hl",
+			"name": "Debug Convert hl",
+			"cwd": "${workspaceFolder}/bin",
+			"request": "launch",
+			"program": "convert.hl",
+			// "args": ["-f", "2019", "-t", "2025"],
+			"preLaunchTask": "Build Convert hl"
+		},
+		{
 			"name": "Haxe Interpreter",
 			"type": "haxe-eval",
 			"request": "launch"

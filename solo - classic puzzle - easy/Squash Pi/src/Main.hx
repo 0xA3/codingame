@@ -8,7 +8,7 @@ import Std.parseInt;
 using Lambda;
 using Main;
 
-final pi_295k = readFile( "src/pi_295k.txt" );
+final pi_encoded = readFile( "bin/pi_295k_encoded.txt" );
 
 function main() {
 
@@ -20,5 +20,14 @@ function main() {
 }
 
 function process( index:Int, n:Int ) {
-	return pi_295k.substr( index, n );
+	var pi = "";
+	for( i in 0...pi_encoded.length ) {
+		final char = pi_encoded.charCodeAt( i );
+		final number = char - "0".code;
+		final numberString = '$number';
+		final extendedNumberString = [for( _ in 0...4 - numberString.length ) "0"].join( "" ) + numberString;
+		pi += extendedNumberString;
+	}
+
+	return pi.substr( index, n );
 }
