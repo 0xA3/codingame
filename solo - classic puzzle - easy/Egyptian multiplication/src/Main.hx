@@ -5,6 +5,7 @@ import Std.int;
 import Std.parseInt;
 
 using Lambda;
+using Main;
 
 function main() {
 
@@ -19,40 +20,25 @@ function main() {
 function process( numbers:Array<Int> ) {
 	numbers.sort(( a, b ) -> b - a );
 	
-	final a = numbers[0];
-	final b = numbers[1];
-	final outputs = ['$a * $b'];
-
-	if( b == 0 ) {
-		outputs.push( '= 0' );
-		return outputs.join( "\n" );
-	}
-
-	var tempSum = a;
-	var base2 = b % 2 == 0 ? b : b - 1;
-	var additions = [];
-	if( b % 2 == 1 ) {
-		additions.push( a );
-		outputs.push( '= $tempSum * $base2' + ( additions.length == 0 ? '' : ' + ' + additions.join( ' + ' )));
-	}
+	var sum = numbers[0];
+	var mult = numbers[1];
+	final outputs = ['$sum * $mult'];
 	
-	while( base2 > 1 ) {
-		if( base2 % 2 == 0 ) {
-			base2 = int( base2 / 2 );
-			tempSum *= 2;
+	final additions = [];
+	while( mult > 0 ) {
+		if( mult % 2 == 1 ) {
+			additions.push( sum );
+			mult -= 1;
 		} else {
-			base2 -= 1;
-			additions.push( tempSum );
+			sum *= 2;
+			mult = int( mult / 2 );
 		}
-		
-		outputs.push( '= $tempSum * $base2' + ( additions.length == 0 ? '' : ' + ' + additions.join( ' + ' )));
+		outputs.push( '= $sum * $mult' + ( additions.length == 0 ? '' : ' + ' + additions.join(' + ')));
 	}
 
-	outputs.push( '= $tempSum * 0' + ( additions.length == 0 ? '' : ' + ' + additions.join( ' + ' )) + ' + $tempSum');
-
-	outputs.push( '= ${a * b}' );
-
-	printErr( outputs.join( "\n" ));
-
+	outputs.push( '= ${additions.sum()}' );
+	// printErr( outputs.join( "\n" ));
 	return outputs.join( "\n" );
 }
+
+function sum( a:Array<Int> ) return a.fold(( v, sum ) -> sum + v, 0 );
