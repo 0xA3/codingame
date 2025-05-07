@@ -11,6 +11,7 @@ class TestProcess extends buddy.BuddySuite{
 
 	public function new() {
 
+		// Tests are very slow
 		describe( "Test process", {
 			
 			it( "Test 1", Main.process( 0, 10 ).should.be( "3141592653" ));
