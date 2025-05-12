@@ -1,9 +1,5 @@
 package test;
 
-import Main.HEIGHT;
-import Main.WIDTH;
-import Main.getNeighbors;
-
 using StringTools;
 using buddy.Should;
 
@@ -12,18 +8,39 @@ class TestProcess extends buddy.BuddySuite{
 
 	public function new() {
 
-		describe( "Test getNeighbors", {
-			Main.grid = [for( y in 0...HEIGHT ) [for( x in 0...WIDTH) "?"]];
+		describe( "Test process", {
 
-			it( "0:0", {
-				final n = getNeighbors( 0, 0 );
-				n.length.should.be( 3 );
-				
+			it( "test1", {
+				Main.resetMines();
+				Main.process( test1 ).should.be( "No safe cell found" );
 			});
-			it( "1:1", {
-				final n = getNeighbors( 1, 1 );
-				n.length.should.be( 8 );
+			it( "test2", {
+				Main.resetMines();
+				Main.process( test2 ).should.be( "2 1 1 2" );
+			});
+			it( "test3", {
+				Main.resetMines();
+				Main.process( test3 ).should.be( "2 2 3 2" );
 			});
 		});
 	}
+
+	static function parseInput( input:String ) {
+		return input.replace( "\t", "" ).replace( "\r", "" ).split( "\n" ).map( row -> row.split( "" ) );
+	}
+
+	final test1 = parseInput(
+		".1?"
+	);
+
+	final test2 = parseInput(
+		"...
+		11?
+		1??"
+	);
+	final test3 = parseInput(
+		".....
+		1122*
+		?????"
+	);
 }
