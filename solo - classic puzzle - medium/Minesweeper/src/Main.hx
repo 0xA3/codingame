@@ -7,6 +7,7 @@ import Std.parseInt;
 import Std.random;
 import haxe.ds.ArraySort;
 
+using Lambda;
 using Main;
 
 typedef ProbabilityPos = {
@@ -16,6 +17,8 @@ typedef ProbabilityPos = {
 
 inline var WIDTH = 30;
 inline var HEIGHT = 16;
+inline var TOTAL_MINES = 99;
+
 inline var SAFE = 0;
 inline var CLEARED = -1;
 inline var UNKNOWN = -2;
@@ -25,15 +28,18 @@ final positions:Array<Array<Pos>> = [for( y in 0...HEIGHT ) [for( x in 0...WIDTH
 final probabilitiesMap:Map<Pos, Float> = [];
 final minesSet:Map<Pos, Bool> = [];
 final newMines:Array<Pos> = [];
+var remainingMines:Int;
 
 function main() {
-	
-	for( i in 0...HEIGHT ) readline();
-	// print( '${random( WIDTH )} ${random( HEIGHT )}' );
-	print( '${int( WIDTH / 2 )} ${int( HEIGHT / 2 )}' );
 
-	// var turn = 0;
-	// while( turn++ < 10 ) {
+	for( i in 0...HEIGHT ) readline();
+	final x = int( WIDTH / 2 );
+	final y = int( HEIGHT / 2 );
+	
+	print( '$x $y' );
+
+	resetMines();
+	
 	while( true ) {
 		final grid = [for( i in 0...HEIGHT ) readline().split( " " )];
 		final output = process( grid );
@@ -42,13 +48,16 @@ function main() {
 	}
 }
 
-function resetMines() minesSet.clear();
+function resetMines() {
+	minesSet.clear();
+	remainingMines = TOTAL_MINES;
+}
 
 function process( grid:Array<Array<String>> ) {
 	// printErr( grid.map( row -> row.join("")).join( "\n" ));
 	newMines.splice( 0, newMines.length );
 	probabilitiesMap.clear();
-	
+
 	final intGrid = getIntGrid( grid );
 	insertMines( intGrid );
 	return processIntGrid( intGrid );
@@ -89,10 +98,11 @@ function processIntGrid( intGrid:Array<Array<Int>> ) {
 			// printErr( 'unknownNeighbors.length == cellValue: ${unknownNeighbors.length} == $cellValue  ${unknownNeighbors.length == cellValue}' );
 			if( unknownNeighbors.length == remainingCellValue ) {
 				for( cellNeighbor in unknownNeighbors ) {
-					printErr( '$x:$y - found a mine at $cellNeighbor' );
+					// printErr( '$x:$y - found a mine at $cellNeighbor' );
 					probabilitiesMap.set( cellNeighbor, 1 );
 					intGrid[cellNeighbor.y][cellNeighbor.x] = MINE;
 					newMines.push( cellNeighbor );
+					remainingMines--;
 				}
 			}
 			
@@ -100,7 +110,7 @@ function processIntGrid( intGrid:Array<Array<Int>> ) {
 			final unknownNeighbors = getNeighborsOfType( intGrid, x, y, UNKNOWN );
 			if( remainingCellValue == 0 ) {
 				for( cellNeighbor in unknownNeighbors ) {
-					printErr( 'pos $x:$y - found a safe cell at $cellNeighbor' );
+					// printErr( 'pos $x:$y - found a safe cell at $cellNeighbor' );
 					intGrid[cellNeighbor.y][cellNeighbor.x] = SAFE;
 					probabilitiesMap.set( cellNeighbor, 0 );
 				}
@@ -146,55 +156,65 @@ function processIntGrid( intGrid:Array<Array<Int>> ) {
 				// printErr( '  neighborsOfOnlyCell1: ${outputSet( neighborsOfOnlyCell1 )}' );
 				if( minesDifference == neighborsOfOnlyCell1Count ) {
 					for( cell1Neighbor in neighborsOfOnlyCell1 ) {
-						printErr( 'found mine at ${cell1Neighbor.x}:${cell1Neighbor.y}' );
+						// printErr( 'found a mine at ${cell1Neighbor.x}:${cell1Neighbor.y}' );
 						probabilitiesMap.set( cell1Neighbor, 1 );
 						intGrid[cell1Neighbor.y][cell1Neighbor.x] = MINE;
 						newMines.push( cell1Neighbor );
+						remainingMines--;
 						
 						// printErr( outputGrid( intGrid ) );
 						
 						return processIntGrid( intGrid );
 					}
-				} else if( minesDifference > neighborsOfOnlyCell1Count ) {
+				} // else if( minesDifference > neighborsOfOnlyCell1Count ) {
 					// printErr( '  minesDifference ($minesDifference) > neighborsOfOnlyCell1 count ($neighborsOfOnlyCell1Count) - not possible' );
-				} else {
+				// } else {
 					// printErr( '  minesDifference ($minesDifference) < neighborsOfOnlyCell1 count ($neighborsOfOnlyCell1Count) - mines not assignable' );
-				}
+				// }
 			}
 		}
 	}
 
 	if( [for( _ in probabilitiesMap ) 0].length == 0 ) printErr( "No pair cell solution found" );
 
-	final remainingUnknownCells = [];
+	final borderCells:Map<Pos, Bool> = [];
 	for( y in 0...intGrid.length ) {
 		for( x in 0...intGrid[y].length ) {
 			final cellValue = intGrid[y][x];
-			if( intGrid[y][x] == UNKNOWN ) remainingUnknownCells.push( positions[y][x] );
-		}
-	}
-
-	final random = Std.random( remainingUnknownCells.length );
-	probabilitiesMap.set( remainingUnknownCells[random], 0.5 );
-
-/*
-	// find probabilities
-	for( y in 0...grid.length ) {
-		for( x in 0...grid[y].length ) {
-			final cellCode = grid[y][x].charCodeAt( 0 );
-			if( cellCode < "1".code || cellCode > "9".code  ) continue;
-			var numMinesInNeighborCells = cellCode - "0".code;
-			
-			final unknownNeighbors = getUnknownNeighbors( x, y );
-			
-			final probabilityPerCell = numMinesInNeighborCells / unknownNeighbors.length;
-			for( neighbor in unknownNeighbors ) {
-				if( !probabilitiesMap.exists( neighbor )) probabilitiesMap.set( neighbor, 0 );
-				probabilitiesMap[neighbor] = probabilitiesMap[neighbor].max( probabilityPerCell );
+			if( intGrid[y][x] == UNKNOWN ) {
+				final numNeighbors = getNeighborsWithNumber( intGrid, x, y );
+				for( neigbor in numNeighbors ) {
+					borderCells.set( neigbor, true );
+				}
 			}
 		}
 	}
-*/
+
+	final posProbabilities:Map<Pos, Array<Float>> = [];
+	for( borderCell in borderCells.keys() ) {
+		final value = intGrid[borderCell.y][borderCell.x];
+		final mineNeighbors = getNeighborsOfType( intGrid, borderCell.x, borderCell.y, MINE );
+		final remainingValue = value - mineNeighbors.length;
+
+		final unknownNeighbors = getNeighborsOfType( intGrid, borderCell.x, borderCell.y, UNKNOWN );
+		final probability = remainingValue / unknownNeighbors.length;
+
+		for( neighbor in unknownNeighbors ) {
+			if( !posProbabilities.exists( neighbor )) posProbabilities.set( neighbor, [] );
+			posProbabilities[neighbor].push( probability );
+		}
+	}
+
+	for( pos => probabilities in posProbabilities ) {
+		final average = probabilities.fold(( v, sum ) -> sum + v, 0.0 ) / probabilities.length;
+		// printErr( '$pos - ' + probabilities.map( v -> '$v' ).join(", ") + ' avg: $average' );
+		probabilitiesMap.set( pos, average );
+		
+		// final maxValue = probabilities.fold(( v, m ) -> max( m, v ), 0.0 );
+		// printErr( '$pos - ' + probabilities.map( v -> '$v' ).join(", ") + ' max: $maxValue' );
+		// probabilitiesMap.set( pos, maxValue );
+	}
+	
 	final probabilitiesPositions:Array<ProbabilityPos> = [for( pos => probability in probabilitiesMap ) { p: probability, pos: pos }];
 
 	ArraySort.sort( probabilitiesPositions, ( a, b ) -> {
@@ -207,8 +227,10 @@ function processIntGrid( intGrid:Array<Array<Int>> ) {
 	if( probabilitiesPositions[0].p == 1 ) return 'No safe cell found';
 
 	for( probability in probabilitiesPositions ) {
-		// printErr( '${probability.pos.x}:${probability.pos.y} - ${probability.p}' );
+		if( probability.p > 0 ) printErr( '${probability.pos} -> probability ${probability.p}' );
 	}
+
+	printErr( 'remaining Mines $remainingMines' );
 
 	for( minePosition in newMines ) minesSet.set( minePosition, true );
 

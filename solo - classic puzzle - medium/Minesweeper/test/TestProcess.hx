@@ -20,7 +20,11 @@ class TestProcess extends buddy.BuddySuite{
 			});
 			it( "test3", {
 				Main.resetMines();
-				Main.process( test3 ).should.be( "2 2 3 2" );
+				Main.process( test3 ).should.be( "2 2 3 2 1 2" );
+			});
+			it( "test4", {
+				Main.resetMines();
+				Main.process( test4 ).should.be( "0 2 0 3 0 1" );
 			});
 		});
 	}
@@ -38,9 +42,17 @@ class TestProcess extends buddy.BuddySuite{
 		11?
 		1??"
 	);
+	
 	final test3 = parseInput(
 		".....
 		1122*
 		?????"
+	);
+	
+	final test4 = parseInput(
+		"**
+		?3
+		?2
+		?1"
 	);
 }
