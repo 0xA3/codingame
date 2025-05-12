@@ -166,6 +166,17 @@ function processIntGrid( intGrid:Array<Array<Int>> ) {
 
 	if( [for( _ in probabilitiesMap ) 0].length == 0 ) printErr( "No pair cell solution found" );
 
+	final remainingUnknownCells = [];
+	for( y in 0...intGrid.length ) {
+		for( x in 0...intGrid[y].length ) {
+			final cellValue = intGrid[y][x];
+			if( intGrid[y][x] == UNKNOWN ) remainingUnknownCells.push( positions[y][x] );
+		}
+	}
+
+	final random = Std.random( remainingUnknownCells.length );
+	probabilitiesMap.set( remainingUnknownCells[random], 0.5 );
+
 /*
 	// find probabilities
 	for( y in 0...grid.length ) {
