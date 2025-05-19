@@ -1,10 +1,7 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Pos.NO_POS;
 import Std.int;
-import Std.parseInt;
-import Std.random;
 import haxe.ds.ArraySort;
 
 using Lambda;

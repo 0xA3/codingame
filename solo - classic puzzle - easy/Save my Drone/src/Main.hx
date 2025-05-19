@@ -9,6 +9,7 @@ typedef Entry = { type:String, amount:Int }
 
 var input:haxe.io.Input;
 final entries:Array<Entry> = [];
+
 function main() {
 
 	final x = parseInt( readline() );
@@ -20,7 +21,7 @@ function main() {
 	print( result );
 }
 
-function process( r:Int, rows:Array<String> ):String {
+function process( r:Int, rows:Array<String> ) {
 	entries.splice( 0, entries.length );
 
 	final program = r == 0 ? rows.join( "" ) : reverseGrid( rows ).join( "" );
