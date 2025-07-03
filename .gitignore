@@ -1,30 +1,35 @@
-*.jpg
-*.js
-*.map
+_GeneratedFiles.txt
 !*manual*.js
 !*manual*.py
+.tmp
+.unittest
+*.bfnt
+*.code-workspace
+*.cpp
+*.dat
+*.exe
+*.ffs_db
+*.ffs_gui
+*.h
 *.hl
+*.jar
+*.jar
+*.jpg
+*.jpg
+*.js
 *.lua
+*.map
+*.ods
+*.ods
 *.pdf
+*.png
+*.psd
 *.psd
 *.py
 *.url
-*.jpg
-links
+/compete - clash of code/reverse/reverse.md
 /games/Coders Strike Back - Magusgeek
 /SyncToy*
-.unittest
-*.ods
-*.psd
-*.png
-contests/Spring Challenge 2020/ideas.txt
-contests/Fall Challenge 2020/dest/app.hl
-incoming
-*.ods
-.tmp
-*.dat
-*.bfnt
-node_modules
 compete - bot programming/Spring Challenge 2022/res/spider_attack/beam.json
 compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_ball.json
 compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_glint.json
@@ -32,15 +37,10 @@ compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_gust.json
 compete - bot programming/Spring Challenge 2022/res/spider_attack/heroes.json
 compete - bot programming/Spring Challenge 2022/res/spider_attack/HUD_background.json
 compete - bot programming/Spring Challenge 2022/res/spider_attack/main.json
-/compete - bot programming/Fall Challenge 2022/*.code-workspace
-/compete - clash of code/reverse/reverse.md
-/compete - bot programming/Fall Challenge 2022/Fall Challenge 2022.code-workspace
-solo - classic puzzle - easy/Squash Pi/bin/pi_295k_encoded.txt
-*.cpp
-*.h
-_GeneratedFiles.txt
-cg-local-app-1.3.0.jar
-*.ffs_gui
-*.ffs_db
-*.jar
+contests/Fall Challenge 2020/dest/app.hl
+contests/Spring Challenge 2020/ideas.txt
 dump
+incoming
+links
+node_modules
+solo - classic puzzle - easy/Squash Pi/bin/pi_295k_encoded.txt
