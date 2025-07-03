@@ -1,0 +1,84 @@
+#########################
+### build/build_node.bat
+# produces a nodejs executable with ai.js injected in
+node --experimental-sea-config sea-config.json
+node -e "require('fs').copyFileSync(process.execPath, 'ai.exe')"
+npx postject ai.exe NODE_SEA_BLOB sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+# https://nodejs.org/api/single-executable-applications.html
+
+#########################
+### build/sea-config.json
+{
+  "main": "ai.js",
+  "output": "sea-prep.blob",
+  "disableExperimentalSEAWarning": true,
+  "useSnapshot": false,
+  "useCodeCache": true
+}
+
+#########################
+### build/jar.bat
+# runs winter challenge, which executes 2 bot programs and runs a server for website results
+# first, go back to main dir (must run from main project dir, WinterChallenge2024-Cellularena)
+cd..
+java -jar ./build/winter-2024.jar -p1 "build/ai.exe" -p2 "build/ai.exe" -s -l "log.txt"
+# winter-2024.jar from https://github.com/httpsx/WinterChallenge2024-Cellularena
+
+#########################
+### AI.js
+// below is a mechanism that connects nodejs standard input with something that resembles the readline()
+let _in = [];
+let promises = [];
+let buffer = '';
+
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', (data) => {
+	buffer += data.toString();
+	let lines = buffer.split('\n');
+	if (lines.length > 1) {
+		lines.slice(0, -1).forEach((line) => {
+			_in.push(line.trim());
+			});
+		buffer = lines[lines.length - 1];
+		onReadline();
+	}
+});
+
+function onReadline(){
+	while(true){
+		if(!promises.length) break;
+		if(!_in.length) break;
+		let prom = promises.shift();
+		let str = _in.shift();
+		prom(str);
+	}
+}
+
+function readline() {
+	let resolve;
+	let prom = new Promise((r) => {
+		resolve = r;
+	});
+	promises.push(resolve);
+	onReadline();
+	return prom;
+}
+
+
+(async () => {
+
+	//////////////
+	// actual code, but must use (await readline()) instead of readline() - for example
+	
+	let input = await readline();
+	console.log(input);
+	
+	// end of actual code
+	
+})();
+
+#########################
+### check result on:
+http://localhost:8888/test.html
+# or logs in:
+log.txt

@@ -87,7 +87,7 @@ function process( lines:Array<String> ) {
 			}
 		}
 	}
-
+	
 	return outputDigits.join( "" );
 }
 
