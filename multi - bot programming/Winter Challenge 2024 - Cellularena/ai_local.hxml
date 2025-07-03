@@ -7,7 +7,7 @@
 -D analyzer-optimize
 -D message-reporting=pretty
 -D js-es=6
--D no-traces
+# -D no-traces
 # --dce full
 -main ai.MainAiLocal
 --js build/ai.js
