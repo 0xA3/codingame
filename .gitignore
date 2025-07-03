@@ -4,6 +4,7 @@ _GeneratedFiles.txt
 .tmp
 .unittest
 *.bfnt
+*.blob
 *.code-workspace
 *.cpp
 *.dat
