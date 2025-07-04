@@ -1,13 +1,13 @@
 -lib compiletime
 -lib xa3.format
-# -cp ../../codingame_extension/
+-cp ../../codingame_extension/
 -lib hxnodejs
 -lib tink_await
 -cp src
 -D analyzer-optimize
 -D message-reporting=pretty
 -D js-es=6
-# -D no-traces
+-D no-traces
 # --dce full
 -main ai.MainAiLocal
 --js dest/ai_local.js

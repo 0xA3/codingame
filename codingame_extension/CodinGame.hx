@@ -15,8 +15,8 @@ extern class CodinGame
 class CodinGame
 {
 	#if nodejs
-	static public function print(output:Dynamic):Void { Sys.println(output); }
-	static public function printErr(output:Dynamic):Void { Sys.println(output); }
+	extern static public inline function print(output:Dynamic):Void { js.Syntax.code("console.log({0})", output ); }
+	extern static public inline function printErr(output:Dynamic):Void { js.Syntax.code("console.error({0})", output ); }
 	static public inline function readline():String { return Sys.stdin().readLine(); }
 	#elseif js
 	extern static public inline function print(output:Dynamic):Void { js.Syntax.code("print({0})", output ); }

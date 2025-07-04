@@ -9,4 +9,4 @@
 -D no-traces
 # --dce full
 -main ai.MainAi
---js dest/app.js
+--js dest/ai.js
