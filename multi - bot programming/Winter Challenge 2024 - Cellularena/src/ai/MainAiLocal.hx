@@ -91,8 +91,8 @@ using tink.CoreApi;
 		
 		final myCells:Array<Cell> = [];
 		final myRootIds:Array<Int> = [];
-		final oppMoves = [];
-		final myMoves = [];
+		final oppMoves:Array<Cell> = [];
+		final myMoves:Array<Cell> = [];
 		final harvestedProteins:Map<Pos, Bool> = [];
 		
 		// game loop
