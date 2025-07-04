@@ -10,4 +10,4 @@
 # -D no-traces
 # --dce full
 -main ai.MainAiLocal
---js build/ai.js
+--js dest/ai_local.js
