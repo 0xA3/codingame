@@ -1,5 +1,5 @@
-# -lib compiletime
-# -lib xa3.format
+-lib compiletime
+-lib xa3.format
 # -cp ../../codingame_extension/
 -lib hxnodejs
 -lib tink_await
