@@ -103,7 +103,7 @@ class BreadthFirstSearch {
 		
 		final aPath = Lambda.array( path );
 		aPath.reverse();
-		for( pos in aPath ) printErr( '$pos' );
+		// for( pos in aPath ) printErr( '$pos' );
 		return aPath;
 	}
 }
