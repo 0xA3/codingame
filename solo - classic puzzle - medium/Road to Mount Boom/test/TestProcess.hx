@@ -4,6 +4,7 @@ import Std.parseInt;
 import test.Readline.initReadline;
 import test.Readline.readline;
 
+using Lambda;
 using StringTools;
 using buddy.Should;
 
@@ -13,31 +14,106 @@ class TestProcess extends buddy.BuddySuite{
 	public function new() {
 
 		describe( "Test process", {
-			it( "Basic North", Main.process( basicNorth ).should.be( "3 leagues" ));
-			it( "Basic East", Main.process( basicEast ).should.be( "7 leagues" ));
-			it( "Basic South", Main.process( basicSouth ).should.be( "2 leagues" ));
-			it( "Basic West", Main.process( basicWest ).should.be( "6 leagues" ));
-			it( "Basic North-East", Main.process( basicNorthEast ).should.be( "4 leagues" ));
-			it( "Basic South-East", Main.process( basicSouthEast ).should.be( "2 leagues" ));
-			it( "Basic South-West", Main.process( basicSouthWest ).should.be( "3 leagues" ));
-			it( "Basic North-West", Main.process( basicNorthWest ).should.be( "6 leagues" ));
-			it( "North and NE (Open)", Main.process( northAndNeOpen ).should.be( "5 leagues" ));
-			it( "East and SE (Open)", Main.process( eastAndSeOpen ).should.be( "13 leagues" ));
-			it( "South and SW (Open)", Main.process( southAndSwOpen ).should.be( "7 leagues" ));
-			it( "West and NW (Open)", Main.process( westAndNwOpen ).should.be( "10 leagues" ));
-			it( "Simple Horizontal Journey", Main.process( simpleHorizontalJourney ).should.be( "1 league" ));
-			it( "Simple Vertical Journey", Main.process( simpleVerticalJourney ).should.be( "1 league" ));
-			it( "Simple Diagonal Journey", Main.process( simpleDiagonalJourney ).should.be( "1 league" ));
-			it( "Simple Diagonal Journey 2", Main.process( simpleDiagonalJourney_2 ).should.be( "1 league" ));
-			it( "Around the World 1", Main.process( aroundTheWorld_1 ).should.be( "18 leagues" ));
-			it( "Around the World 2", Main.process( aroundTheWorld_2 ).should.be( "18 leagues" ));
-			it( "Maze 1", Main.process( maze_1 ).should.be( "34 leagues" ));
-			it( "Maze 2", Main.process( maze_2 ).should.be( "24 leagues" ));
-			it( "Large Maze", Main.process( largeMaze ).should.be( "157 leagues" ));
-			it( "Simple Outside Traversal", Main.process( simpleOutsideTraversal ).should.be( "23 leagues" ));
-			it( "Horizontal Outside Traversal", Main.process( horizontalOutsideTraversal ).should.be( "43 leagues" ));
-			it( "Vertical Outside Traversal", Main.process( verticalOutsideTraversal ).should.be( "22 leagues" ));
-			it( "Complete Traversal", Main.process( completeTraversal ).should.be( "59 leagues" ));
+			it( "Basic North", {
+				final ip = basicNorth;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "3 leagues" );
+			});
+			it( "Basic East", {
+				final ip = basicEast;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "7 leagues" );
+			});
+			it( "Basic South", {
+				final ip = basicSouth;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "2 leagues" );
+			});
+			it( "Basic West", {
+				final ip = basicWest;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "6 leagues" );
+			});
+			it( "Basic North-East", {
+				final ip = basicNorthEast;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "4 leagues" );
+			});
+			it( "Basic South-East", {
+				final ip = basicSouthEast;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "2 leagues" );
+			});
+			it( "Basic South-West", {
+				final ip = basicSouthWest;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "3 leagues" );
+			});
+			it( "Basic North-West", {
+				final ip = basicNorthWest;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "6 leagues" );
+			});
+			it( "North and NE (Open)", {
+				final ip = northAndNeOpen;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "5 leagues" );
+			});
+			it( "East and SE (Open)", {
+				final ip = eastAndSeOpen;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "13 leagues" );
+			});
+			it( "South and SW (Open)", {
+				final ip = southAndSwOpen;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "7 leagues" );
+			});
+			it( "West and NW (Open)", {
+				final ip = westAndNwOpen;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "10 leagues" );
+			});
+			it( "Simple Horizontal Journey", {
+				final ip = simpleHorizontalJourney;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "1 league" );
+			});
+			it( "Simple Vertical Journey", {
+				final ip = simpleVerticalJourney;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "1 league" );
+			});
+			it( "Simple Diagonal Journey", {
+				final ip = simpleDiagonalJourney;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "1 league" );
+			});
+			it( "Simple Diagonal Journey 2", {
+				final ip = simpleDiagonalJourney_2;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "1 league" );
+			});
+			@include it( "Around the World 1", {
+				final ip = aroundTheWorld_1;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "18 leagues" );
+			});
+			it( "Around the World 2", {
+				final ip = aroundTheWorld_2;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "18 leagues" );
+			});
+			it( "Maze 1", {
+				final ip = maze_1;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "34 leagues" );
+			});
+			it( "Maze 2", {
+				final ip = maze_2;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "24 leagues" );
+			});
+			it( "Large Maze", {
+				final ip = largeMaze;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "157 leagues" );
+			});
+			it( "Simple Outside Traversal", {
+				final ip = simpleOutsideTraversal;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "23 leagues" );
+			});
+			it( "Horizontal Outside Traversal", {
+				final ip = horizontalOutsideTraversal;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "43 leagues" );
+			});
+			it( "Vertical Outside Traversal", {
+				final ip = verticalOutsideTraversal;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "22 leagues" );
+			});
+			it( "Complete Traversal", {
+				final ip =completeTraversal;
+				Main.process( ip.w, ip.h, ip.grid ).should.be( "59 leagues" );
+			});
 		});
 	}
 
@@ -47,9 +123,14 @@ class TestProcess extends buddy.BuddySuite{
 		final inputs = readline().split(' ');
 		final h = parseInt(inputs[0]);
 		final w = parseInt(inputs[1]);
-		final rows = [for ( i in 0...h ) readline()];
+		final emptyRow = [for( _ in 0...w + 2 ) " "];
+		final grid = [
+			[emptyRow],
+			[for ( i in 0...h ) (" " + readline() + " ").split( "" )],
+			[emptyRow]
+		].flatten();
 
-		return rows;
+		return { w: w + 2, h: h + 2, grid: grid }
 	}
 
 	static function parseResult( input:String ) {
@@ -112,6 +193,16 @@ class TestProcess extends buddy.BuddySuite{
 		^^^^^"
 	);
 
+	final basicSouthWest = parseInput(
+		"6 5
+		^^^^^
+		^  B^
+		^  ^^
+		^  ^^
+		^M  ^
+		^^^^^"
+	);
+
 	final basicNorthWest = parseInput(
 		"9 16
 		^^^^^^^^^^^^^^^^
@@ -137,10 +228,10 @@ class TestProcess extends buddy.BuddySuite{
 
 	final eastAndSeOpen = parseInput(
 		"5 20
-		     ^^^  ^^    ^^^
-		B                ^^
-		^^^^^^^^^^^        
-		^          ^      ^
+		      ^^^  ^^    ^^^
+		 B                ^^
+		 ^^^^^^^^^^^        
+		 ^          ^      ^
 		^^           ^M    ^"
 	);
 
@@ -158,18 +249,14 @@ class TestProcess extends buddy.BuddySuite{
 		M    "
 	);
 
-	final basicSouthWest = parseInput(
-		"6 12
-		^^^^^^^    
-		^^^^^     B
-		^^^^  ^^^^^
-		^^^  ^^^^^^
-		^^  ^^^^^^^
-		M  ^^^^^^^^"
-	);
-
 	final westAndNwOpen = parseInput(
-		""
+		"6 12
+		 ^^^^^^^    
+		 ^^^^^     B
+		 ^^^^  ^^^^^
+		 ^^^  ^^^^^^
+		 ^^  ^^^^^^^
+		 M  ^^^^^^^^"
 	);
 
 	final simpleHorizontalJourney = parseInput(
