@@ -1,4 +1,4 @@
-import AStarSearch.getPath;
+import BreadthFirstSearch.getPath;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
@@ -34,12 +34,15 @@ function process( width:Int, height:Int, grid:Array<Array<String>> ) {
 	if( startPos == Pos.NO_POS ) throw new Exception( "Start position not found in grid" );
 	if( endPos == Pos.NO_POS ) throw new Exception( "End position not found in grid" );
 	
-	final startId = getId( startPos.x, startPos.y, grid[0].length );
-	final endId = getId( endPos.x, endPos.y, grid[0].length );
+	final startId = getId( startPos.x, startPos.y, width );
+	final endId = getId( endPos.x, endPos.y, width );
 
-	// printErr( 'start: $startId ($startPos), end: $endId ($endPos)' );
-	final nodes = createNodes( grid, width, endPos );
-	final path = getPath( nodes, startId, endId ).map( idPriority -> idPriority[0] );
+	printErr( 'start: $startId ($startPos), end: $endId ($endPos)' );
+	// final nodes = createNodes( grid, width, endPos );
+	final positions = [for( y in 0...grid.length ) [for( x in 0...grid[y].length ) { final pos:Pos = { x: x, y: y }; pos; }]];
+	final path = getPath( grid, width, positions, startId, endId );
+
+	if( path.length == 0 ) throw new Exception( "No path found" );
 
 	outputPathGrid( path, grid, width );
 
@@ -62,6 +65,9 @@ function findPosition( grid:Array<Array<String>>, char:String ) {
 	return Pos.NO_POS;
 }
 
+function getId( x:Int, y:Int, width:Int ) return y * width + x;
+
+/*
 function createNodes( grid:Array<Array<String>>, width:Int, endPos:Pos ) {
 	final positions = [for( y in 0...grid.length ) [for( x in 0...grid[y].length ) { final pos:Pos = { x: x, y: y }; pos; }]];
 	
@@ -90,6 +96,7 @@ function createNodes( grid:Array<Array<String>>, width:Int, endPos:Pos ) {
 
 	return nodes;
 }
+
 
 function getId( x:Int, y:Int, width:Int ) return y * width + x;
 function toPos( id:Int, width:Int ) {
@@ -124,6 +131,11 @@ function validateNeighbor( neighbor:Pos, x:Int, y:Int, grid:Array<Array<String>>
 	return true;
 }
 
+function abs( v:Int ) return v < 0 ? -v : v;
+function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
+function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
+*/
+
 function validateGrid( grid:Array<Array<String>>, width:Int ) {
 	if( grid == null ) throw new Exception( "Grid is null" );
 	if( grid.length == 0 ) throw new Exception( "Grid is empty" );
@@ -133,10 +145,10 @@ function validateGrid( grid:Array<Array<String>>, width:Int ) {
 	printErr( "Grid validated" );
 }
 
-function outputPathGrid( path:Array<Int>, grid:Array<Array<String>>, width:Int ) {
+function outputPathGrid( path:Array<Pos>, grid:Array<Array<String>>, width:Int ) {
 	for( i in 1...path.length - 1 ) {
+		final pos = path[i];
 		final num = i % 10;
-		final pos = toPos( path[i], width );
 
 		grid[pos.y][pos.x] = '$num';
 	}
@@ -145,6 +157,3 @@ function outputPathGrid( path:Array<Int>, grid:Array<Array<String>>, width:Int )
 	printErr( output );
 }
 
-function abs( v:Int ) return v < 0 ? -v : v;
-function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
-function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;

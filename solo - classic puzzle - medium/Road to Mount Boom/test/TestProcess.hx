@@ -78,7 +78,7 @@ class TestProcess extends buddy.BuddySuite{
 				final ip = simpleDiagonalJourney_2;
 				Main.process( ip.w, ip.h, ip.grid ).should.be( "1 league" );
 			});
-			@include it( "Around the World 1", {
+			it( "Around the World 1", {
 				final ip = aroundTheWorld_1;
 				Main.process( ip.w, ip.h, ip.grid ).should.be( "18 leagues" );
 			});
