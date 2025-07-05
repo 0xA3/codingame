@@ -35,7 +35,6 @@ class BreadthFirstSearch {
 		while( !frontier.isEmpty()) {
 			final current = frontier.pop();
 			// printErr( 'current: $current' );
-			visited.add( current.pos );
 			if( current.id == goal ) return backtrack( current );
 
 			// trace( 'current $current' );
@@ -47,6 +46,7 @@ class BreadthFirstSearch {
 				final id = neighbor.y * width + neighbor.x;
 				final node = new Node( current, id, neighbor );
 				frontier.add( node );
+				visited.add( neighbor );
 			}
 		}
 		return [];
