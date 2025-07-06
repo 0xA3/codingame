@@ -26,21 +26,21 @@ function main() {
 
 function process( width:Int, height:Int, grid:Array<Array<String>> ) {
 	validateGrid( grid, width );
+
+	final positions = [for( y in 0...grid.length ) [for( x in 0...grid[y].length ) { final pos:Pos = { x: x, y: y }; pos; }]];
 	
-	final startPos = findPosition( grid, "B" );
-	final endPos = findPosition( grid, "M" );
+	final startPos = findPosition( grid, positions, "B" );
+	final endPos = findPosition( grid, positions, "M" );
 	
 	if( startPos == Pos.NO_POS ) throw new Exception( "Start position not found in grid" );
 	if( endPos == Pos.NO_POS ) throw new Exception( "End position not found in grid" );
 	
-	final startId = getId( startPos.x, startPos.y, width );
-	final endId = getId( endPos.x, endPos.y, width );
 
 	// printErr( 'start: $startId ($startPos), end: $endId ($endPos)' );
-	final nodes = AStarSearch.createNodes( grid, width, endPos );
-	final path = getPath( nodes, startId, endId ).map( idPriority -> idPriority[0] );
+	final nodes = AStarSearch.createNodes( grid, positions, endPos );
+	final path = getPath( nodes, startPos, endPos );
 
-	outputPathGrid( path, grid, width );
+	// outputPathGrid( path, grid );
 
 	final distance = path.length - 1;
 	final unit = "league" +( distance > 1 ? "s" : "" );
@@ -48,13 +48,10 @@ function process( width:Int, height:Int, grid:Array<Array<String>> ) {
 	return '$distance $unit';
 }
 
-function findPosition( grid:Array<Array<String>>, char:String ) {
+function findPosition( grid:Array<Array<String>>, positions:Array<Array<Pos>>, char:String ) {
 	for( y in 0...grid.length ) {
 		for( x in 0...grid[y].length ) {
-			if( grid[y][x] == char ) {
-				final pos:Pos = { x: x, y: y };
-				return pos;
-			}
+			if( grid[y][x] == char ) return positions[y][x];
 		}
 	}
 
@@ -67,13 +64,13 @@ function validateGrid( grid:Array<Array<String>>, width:Int ) {
 	for( y in 1...grid.length ) {
 		if( grid[y].length != width ) throw new Exception( 'Grid width is $width but row $y has width ${grid[y].length} "' + grid[y].join( "" ) + '"' );
 	}
-	printErr( "Grid validated" );
+	// printErr( "Grid validated" );
 }
 
-function outputPathGrid( path:Array<Int>, grid:Array<Array<String>>, width:Int ) {
+function outputPathGrid( path:Array<Pos>, grid:Array<Array<String>>, ) {
 	for( i in 1...path.length - 1 ) {
 		final num = i % 10;
-		final pos = toPos( path[i], width );
+		final pos = path[i];
 
 		grid[pos.y][pos.x] = '$num';
 	}

@@ -82,7 +82,7 @@ class TestProcessAStar extends buddy.BuddySuite{
 				final ip = aroundTheWorld_1;
 				MainAStar.process( ip.w, ip.h, ip.grid ).should.be( "18 leagues" );
 			});
-			@include it( "Around the World 2", {
+			it( "Around the World 2", {
 				final ip = aroundTheWorld_2;
 				MainAStar.process( ip.w, ip.h, ip.grid ).should.be( "18 leagues" );
 			});
