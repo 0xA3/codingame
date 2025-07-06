@@ -3,7 +3,7 @@ typedef Edge = {
 	final cost:Int;
 }
 
-class PathNode {
+class PathNodeAStar {
 	
 	public final id:Int;
 	public final distanceToGoal:Int;
@@ -21,22 +21,22 @@ class PathNode {
 
 	public function toString() return '{ ${ previous != -1 ? Std.string( previous ) + "-" : ""}$id prio: $priority}';
 
-	public static function compareCostFromStart( a:PathNode, b:PathNode ) {
+	public static function compareCostFromStart( a:PathNodeAStar, b:PathNodeAStar ) {
 		if( a.costFromStart > b.costFromStart ) return true;
 		return false;
 	}
 
-	public static function compareDistanceToGoal( a:PathNode, b:PathNode ) {
+	public static function compareDistanceToGoal( a:PathNodeAStar, b:PathNodeAStar ) {
 		if( a.distanceToGoal > b.distanceToGoal ) return true;
 		return false;
 	}
 
-	public static function comparePriority( a:PathNode, b:PathNode ) {
+	public static function comparePriority( a:PathNodeAStar, b:PathNodeAStar ) {
 		if( a.priority > b.priority ) return true;
 		return false;
 	}
 
-	public static function comparePriorityAndId( a:PathNode, b:PathNode ) {
+	public static function comparePriorityAndId( a:PathNodeAStar, b:PathNodeAStar ) {
 		if( a.priority > b.priority ) return true;
 		if( a.priority < b.priority ) return false;
 		if( a.id > b.id ) return true;

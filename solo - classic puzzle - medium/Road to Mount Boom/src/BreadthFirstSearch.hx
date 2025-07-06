@@ -4,32 +4,14 @@ import ya.Set;
 
 using Lambda;
 
-class Node {
-	public static final NO_NODE = new Node( null, -1, Pos.NO_POS );
-	
-	public final previous:Node;
-	public final id:Int;
-	public final pos:Pos;
-	public var visited = false;
-
-	public function new( previous:Node, id:Int, pos:Pos ) {
-		this.previous = previous;
-		this.id = id;
-		this.pos = pos;
-	}
-
-	public function toString() return '${pos.x}:${pos.y}';
-}
-
-
 class BreadthFirstSearch {
 	
 	public static function getPath( grid:Array<Array<String>>, width:Int, positions:Array<Array<Pos>>, start:Int, goal:Int ) {
-		final frontier = new List<Node>();
+		final frontier = new List<PathNodeBFS>();
 		final visited = new Set<Pos>();
 
 		final startPos = positions[int(start / width)][start % width];
-		final startNode:Node = new Node( Node.NO_NODE, start, startPos );
+		final startNode:PathNodeBFS = new PathNodeBFS( PathNodeBFS.NO_NODE, start, startPos );
 		frontier.add( startNode );
 
 		while( !frontier.isEmpty()) {
@@ -44,7 +26,7 @@ class BreadthFirstSearch {
 			for( neighbor in validNeighbors ) {
 				// printErr( 'validNeighbor: $neighbor' );
 				final id = neighbor.y * width + neighbor.x;
-				final node = new Node( current, id, neighbor );
+				final node = new PathNodeBFS( current, id, neighbor );
 				frontier.add( node );
 				visited.add( neighbor );
 			}
@@ -93,7 +75,7 @@ class BreadthFirstSearch {
 	static function min( v1:Int, v2:Int ) return v1 < v2 ? v1 : v2;
 	static function max( v1:Int, v2:Int ) return v1 > v2 ? v1 : v2;
 
-	static function backtrack( goalNode:Node ) {
+	static function backtrack( goalNode:PathNodeBFS ) {
 		final path = new List<Pos>();
 		var current = goalNode;
 		while( current.pos != Pos.NO_POS ) {

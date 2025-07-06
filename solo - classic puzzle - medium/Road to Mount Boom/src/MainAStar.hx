@@ -1,8 +1,7 @@
-import BreadthFirstSearch.getPath;
+import AStarSearch.getPath;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import PathNode.Edge;
 import Std.int;
 import Std.parseInt;
 import haxe.Exception;
@@ -38,12 +37,10 @@ function process( width:Int, height:Int, grid:Array<Array<String>> ) {
 	final endId = getId( endPos.x, endPos.y, width );
 
 	// printErr( 'start: $startId ($startPos), end: $endId ($endPos)' );
-	final positions = [for( y in 0...grid.length ) [for( x in 0...grid[y].length ) { final pos:Pos = { x: x, y: y }; pos; }]];
-	final path = getPath( grid, width, positions, startId, endId );
+	final nodes = AStarSearch.createNodes( grid, width, endPos );
+	final path = getPath( nodes, startId, endId ).map( idPriority -> idPriority[0] );
 
-	if( path.length == 0 ) throw new Exception( "No path found" );
-
-	// outputPathGrid( path, grid, width );
+	outputPathGrid( path, grid, width );
 
 	final distance = path.length - 1;
 	final unit = "league" +( distance > 1 ? "s" : "" );
@@ -64,21 +61,19 @@ function findPosition( grid:Array<Array<String>>, char:String ) {
 	return Pos.NO_POS;
 }
 
-function getId( x:Int, y:Int, width:Int ) return y * width + x;
-
 function validateGrid( grid:Array<Array<String>>, width:Int ) {
 	if( grid == null ) throw new Exception( "Grid is null" );
 	if( grid.length == 0 ) throw new Exception( "Grid is empty" );
 	for( y in 1...grid.length ) {
 		if( grid[y].length != width ) throw new Exception( 'Grid width is $width but row $y has width ${grid[y].length} "' + grid[y].join( "" ) + '"' );
 	}
-	// printErr( "Grid validated" );
+	printErr( "Grid validated" );
 }
 
-function outputPathGrid( path:Array<Pos>, grid:Array<Array<String>>, width:Int ) {
+function outputPathGrid( path:Array<Int>, grid:Array<Array<String>>, width:Int ) {
 	for( i in 1...path.length - 1 ) {
-		final pos = path[i];
 		final num = i % 10;
+		final pos = toPos( path[i], width );
 
 		grid[pos.y][pos.x] = '$num';
 	}
@@ -86,4 +81,11 @@ function outputPathGrid( path:Array<Pos>, grid:Array<Array<String>>, width:Int )
 	final output = grid.map( row -> row.join("") ).join("\n");
 	printErr( output );
 }
+
+function getId( x:Int, y:Int, width:Int ) return y * width + x;
+function toPos( id:Int, width:Int ) {
+	final pos:Pos = { x: id % width, y: int( id / width )}
+	return pos;
+}
+
 
