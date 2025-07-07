@@ -1,14 +1,10 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
+import Std.int;
 import Std.parseInt;
 
 using StringTools;
-
-typedef ButtonResult = {
-	final button:String;
-	final result:Int;
-}
 
 function main() {
 	final n = parseInt( readline() );
@@ -18,27 +14,24 @@ function main() {
 }
 
 function process( n:Int ) {
+	var operations = 0;
 	
-	final getNeighbors = ( v:Int ) -> {
-		final b1:ButtonResult = { button: "+1", result: v + 1 };
-		final b2:ButtonResult = { button: "-1", result: v - 1 };
-		final b3:ButtonResult = { button: "*2", result: v * 2 };
-		return [b1, b2, b3];
+	while( n > 0 ) {
+		// if n is even, divide by 2
+		if( n % 2 == 0 ) {
+			n = int( n / 2 );
+		} else {
+			// n + 1 is divisible by 4 add 1 (except for n = 3)
+			if(( n + 1 ) % 4 == 0 && n != 3 ) {
+				n += 1;
+			} else {
+				n -= 1;
+			}
+		}
+
+		operations++;
 	}
-	final path = AStarSearch.getPath( n, getNeighbors );
 
-/*
-+1: 1
-+1: 2
-×2: 4
-×2: 8
-×2: 16
--1: 15
-×2: 30
-×2: 60
--1: 59
-*/
-
-	return path.length - 1;
+	return operations;
 }
 
