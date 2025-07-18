@@ -1,0 +1,12 @@
+package ai.data;
+
+//actions are "MOVE x y | SHOOT id | THROW x y | HUNKER_DOWN | MESSAGE text"
+
+enum TAction {
+	HunkerDown;
+	Message( text:String );
+	Move( x:Int, y:Int );
+	NotPossible;
+	Shoot( id:Int );
+	Throw( x:Int, y:Int );
+}
