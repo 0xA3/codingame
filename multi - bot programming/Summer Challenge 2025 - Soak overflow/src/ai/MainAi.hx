@@ -11,6 +11,8 @@ import ai.data.Agent;
 // import ai.data.TCell;
 // import ai.data.TDir;
 import haxe.Timer;
+import js.html.AbortController;
+import xa3.math.Pos;
 
 // import xa3.math.Pos;
 using StringTools;
@@ -24,7 +26,7 @@ class MainAi {
 	static function main() {
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		
-		final ai = new ai.versions.Shoot();
+		final ai = new ai.versions.TakeCover();
 		
 		final myId = parseInt(readline()); // Your player id (0 or 1)
 		final agentCount = parseInt(readline()); // Total number of agents in the game
@@ -48,16 +50,23 @@ class MainAi {
 		final inputs = readline().split(' ');
 		final width = parseInt(inputs[0]); // Width of the game map
 		final height = parseInt(inputs[1]); // Height of the game map
+		final positions = [];
+		final tiles:Map<Pos, Int> = [];
 		for( _ in 0...height ) {
+			positions.push( [] );
 			final inputs = readline().split(' ');
 			for( j in 0...width ) {
 				final x = parseInt(inputs[3*j]);// X coordinate, 0 is left edge
 				final y = parseInt(inputs[3*j+1]);// Y coordinate, 0 is top edge
 				final tileType = parseInt(inputs[3*j+2]);
+
+				final pos = new Pos( x, y );
+				positions[y][x] = pos;
+				tiles.set( pos, tileType );
 			}
 		}
 
-		ai.setGlobalInputs( agents );
+		ai.setGlobalInputs( agents, width, height, positions, tiles );
 
 		// game loop
 		while (true) {
@@ -75,7 +84,7 @@ class MainAi {
 				final wetness = parseInt(inputs[5]); // Damage (0-100) this agent has taken
 				
 				final agent = agents[agentId];
-				agent.update( x, y, cooldown, splashBombs, wetness );
+				agent.update( positions[y][x], cooldown, splashBombs, wetness );
 				
 				if( agent.player == ME ) myAgentIds.push( agentId ) else oppAgentIds.push( agentId );
 			}

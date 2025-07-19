@@ -13,7 +13,7 @@ class Agent {
 	public var splashBombs = 0;
 	public var wetness = 0;
 
-	public final pos:Pos = new Pos();
+	public var pos:Pos = new Pos();
 
 	public function new( agentId:Int, player:Int, shotCooldown:Int, optimalRange:Int, soakingPower:Int, splashBombs:Int ) {
 		this.agentId = agentId;
@@ -25,9 +25,8 @@ class Agent {
 		// printErr( 'new agent $agentId, player: $player' );
 	}
 
-	public function update( x:Int, y:Int, cooldown:Int, splashBombs:Int, wetness:Int ) {
-		this.pos.x = x;
-		this.pos.y = y;
+	public function update( pos:Pos, cooldown:Int, splashBombs:Int, wetness:Int ) {
+		this.pos = pos;
 		this.shotCooldown = cooldown;
 		this.splashBombs = splashBombs;
 		this.wetness = wetness;
