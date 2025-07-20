@@ -2,6 +2,8 @@ package ai.versions;
 
 import CodinGame.printErr;
 import ai.contexts.Action;
+import ai.data.Agent;
+import ai.data.CoverPositionSet;
 import ai.data.TAction;
 import xa3.math.IntMath.max;
 import xa3.math.IntMath.min;
@@ -19,18 +21,20 @@ class TakeCover {
 	var height = 0;
 	var positions = [];
 	var tiles:Map<Pos, Int> = [];
-
+	var coverPositionSet:CoverPositionSet;
+	
 	var myAgentIds:Array<Int> = [];
 	var oppAgentIds:Array<Int> = [];
 
 	public function new() { }
 	
-	public function setGlobalInputs( agents:Map<Int, ai.data.Agent>, width:Int, height:Int, positions:Array<Array<Pos>>, tiles:Map<Pos, Int> ) {
+	public function setGlobalInputs( agents:Map<Int, ai.data.Agent>, width:Int, height:Int, positions:Array<Array<Pos>>, tiles:Map<Pos, Int>, coverPositionSet:CoverPositionSet ) {
 		this.agents = agents;
 		this.width = width;
 		this.height = height;
 		this.positions = positions;
 		this.tiles = tiles;
+		this.coverPositionSet = coverPositionSet;
 	}
 	
 	public function setInputs( myAgentIds:Array<Int>, oppAgentIds:Array<Int> ) {
@@ -41,40 +45,41 @@ class TakeCover {
 	public function process() {
 		outputs.splice( 0, outputs.length );
 		
-		final oppAgents = [for( oppAgentId in oppAgentIds ) agents[oppAgentId] ];
-		oppAgents.sort(( a, b ) -> b.wetness - a.wetness );
-		final wettestAgent = oppAgents[0];
-
+		final oppAgents = oppAgentIds.map( id -> agents[id] );
 		for( i in 0...myAgentIds.length ) {
 			final agentActions = [];
-			final agentId = myAgentIds[i];
-			final agent = agents[agentId];
-			final coverPositions = findCoverPositions( agent.pos, oppAgentIds.map( agentId -> agents[agentId].pos ));
-			if( coverPositions.length > 0 ) {
-				coverPositions.sort(( a, b ) -> b.cover - a.cover );
-				final bestCover = coverPositions[0];
-				final action = TAction.Move( bestCover.pos.x, bestCover.pos.y );
+			final id = myAgentIds[i];
+			final agent = agents[id];
+			final freeNeighbors = getFreeNeighborPositions( agent.pos );
+			
+			final coverPositions = findCoverPositions( agent.pos, freeNeighbors, oppAgents.map( agent -> agent.pos ) );
+			coverPositions.sort(( a, b ) -> a.cover < b.cover ? -1 : 1 );
+			final bestCoverPosition = coverPositions.length > 0 ? coverPositions[0].pos : Pos.NO_POS;
+			// printErr( '${agent.pos} bestCoverPosition: $bestCoverPosition' );
 
+			if( bestCoverPosition != Pos.NO_POS ) {
+				final action = TAction.Move( bestCoverPosition.x, bestCoverPosition.y );
+				agentActions.push( action );
+				
+				final oppAgentsInRange = oppAgents.filter( opp -> bestCoverPosition.manhattanDistance( opp.pos ) <= agent.optimalRange );
+				final leastCoveredOppAgent = findLeastCoveredOppAgent( bestCoverPosition, oppAgentsInRange );
+					
+				final action = TAction.Shoot( leastCoveredOppAgent.id );
 				agentActions.push( action );
 			}
-			outputs.push( '$agentId;' + agentActions.map( action -> Action.toString( action )).join( ";" ) );
+			outputs.push( '$id;' + agentActions.map( action -> Action.toString( action )).join( ";" ) );
 		}
 		
 		return outputs.join( "\n" );
 	}
 
-	function findCoverPositions( agentPos:Pos, oppPositions:Array<Pos> ) {
-		final neighbors = getFreeNeighborPositions( agentPos );
-		printErr( 'agent at $agentPos neighbors: ' + neighbors.map( pos -> '$pos' ).join( ", " ) );
+	function findCoverPositions( myPos:Pos, neighbors:Array<Pos>, oppPositions:Array<Pos> ) {
+		// printErr( 'agent at $myPos neighbors: ' + neighbors.map( pos -> '$pos' ).join( ", " ) );
 
 		final neighborCoverSums	= [];
 		for( neighbor in neighbors ) {
-			var coverSum = 0;
-			for( oppPosition in oppPositions ) {
-				final coverValue = getCoverValue( neighbor, oppPosition );
-				coverSum += coverValue;
-			}
-			neighborCoverSums.push( coverSum );
+			final coverValue = coverPositionSet.getCoverSum( neighbor, oppPositions );
+			neighborCoverSums.push( coverValue );
 		}
 
 		final coverPositions = [];
@@ -83,30 +88,20 @@ class TakeCover {
 		return coverPositions;
 	}
 
-	function getCoverValue( pos:Pos, oppPosition:Pos ) {
-		final boxNeighbors = getBoxNeighborPositions( pos );
-		if( boxNeighbors.length == 0 ) return 0;
+	function findLeastCoveredOppAgent( myPos:Pos, oppAgents:Array<Agent> ) {
+		final oppAgentsCoverValues = [for( i in 0...oppAgents.length ) { oppAgent: oppAgents[i], coverValue: coverPositionSet.getCoverValue( oppAgents[i].pos,myPos )}];
+		oppAgentsCoverValues.sort(( a, b ) -> a.coverValue < b.coverValue ? 1 : -1 );
 
-		for( boxNeighbor in boxNeighbors ) {
-			if( boxNeighbor.x > pos.x && oppPosition.x > boxNeighbor.x + 1 ) return tiles[boxNeighbor];
-			if( boxNeighbor.x < pos.x && oppPosition.x < boxNeighbor.x - 1 ) return tiles[boxNeighbor];
-			if( boxNeighbor.y > pos.y && oppPosition.y > boxNeighbor.y + 1 ) return tiles[boxNeighbor];
-			if( boxNeighbor.y < pos.y && oppPosition.y < boxNeighbor.y - 1 ) return tiles[boxNeighbor];
-		}
+		// for( oc in oppAgentsCoverValues ) printErr( '$myPos oppAgent ${oc.oppAgent.id} coverValue: ${oc.coverValue}' );
 
-		return 0;
+		return oppAgentsCoverValues[0].oppAgent;
 	}
-	
+
 	function getFreeNeighborPositions( pos:Pos ) {
 		final neighbors = getNeighborPositions( pos );
 		return neighbors.filter(( pos ) -> tiles[pos] == 0 );
 	}
-
-	function getBoxNeighborPositions( pos:Pos ) {
-		final neighbors = getNeighborPositions( pos );
-		return neighbors.filter(( pos ) -> tiles[pos] > 0 );
-	}
-
+	
 	function getNeighborPositions( pos:Pos ) {
 		final neighbors = [];
 		for( y in max( 0, pos.y - 1 )...min( height, pos.y + 2 ) ) {

@@ -3,18 +3,11 @@ package ai;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Std.int;
 import Std.parseInt;
-// import ai.contexts.CellType;
 import ai.data.Agent;
-// import ai.data.Cell;
-// import ai.data.TCell;
-// import ai.data.TDir;
-import haxe.Timer;
-import js.html.AbortController;
+import ai.factory.CoverFactory;
 import xa3.math.Pos;
 
-// import xa3.math.Pos;
 using StringTools;
 
 class MainAi {
@@ -24,7 +17,8 @@ class MainAi {
 	static inline var NO_OWNER = -1;
 
 	static function main() {
-		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
+		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
+		printErr( CompileTime.buildDateString());
 		
 		final ai = new ai.versions.TakeCover();
 		
@@ -36,15 +30,15 @@ class MainAi {
 		
 		for( _ in 0...agentCount ) {
 			final inputs = readline().split(' ');
-			final agentId = parseInt(inputs[0]); // Unique identifier for this agent
+			final id = parseInt(inputs[0]); // Unique identifier for this agent
 			final player = parseInt(inputs[1]); // Player id of this agent
 			final shootCooldown = parseInt(inputs[2]); // Number of turns between each of this agent's shots
 			final optimalRange = parseInt(inputs[3]); // Maximum manhattan distance for greatest damage output
 			final soakingPower = parseInt(inputs[4]); // Damage output within optimal conditions
 			final splashBombs = parseInt(inputs[5]); // Number of splash bombs this can throw this game
 
-			agents.set( agentId, new Agent( agentId, player, shootCooldown, optimalRange, soakingPower, splashBombs ));
-			if( player == ME ) myAgentIds.push( agentId ) else oppAgentIds.push( agentId );
+			agents.set( id, new Agent( id, player, shootCooldown, optimalRange, soakingPower, splashBombs ));
+			if( player == ME ) myAgentIds.push( id ) else oppAgentIds.push( id );
 		};
 
 		final inputs = readline().split(' ');
@@ -66,7 +60,8 @@ class MainAi {
 			}
 		}
 
-		ai.setGlobalInputs( agents, width, height, positions, tiles );
+		final coverPositionSet = new CoverFactory( width, height, positions, tiles ).createCoverPositionsForBoxNeightbors();
+		ai.setGlobalInputs( agents, width, height, positions, tiles, coverPositionSet );
 
 		// game loop
 		while (true) {
@@ -76,17 +71,17 @@ class MainAi {
 			
 			for( _ in 0...agentCount ) {
 				final inputs = readline().split(' ');
-				final agentId = parseInt(inputs[0]);
+				final id = parseInt(inputs[0]);
 				final x = parseInt(inputs[1]);
 				final y = parseInt(inputs[2]);
 				final cooldown = parseInt(inputs[3]); // Number of turns before this agent can shoot
 				final splashBombs = parseInt(inputs[4]);
 				final wetness = parseInt(inputs[5]); // Damage (0-100) this agent has taken
 				
-				final agent = agents[agentId];
+				final agent = agents[id];
 				agent.update( positions[y][x], cooldown, splashBombs, wetness );
 				
-				if( agent.player == ME ) myAgentIds.push( agentId ) else oppAgentIds.push( agentId );
+				if( agent.player == ME ) myAgentIds.push( id ) else oppAgentIds.push( id );
 			}
 			final myAgentCount = parseInt(readline()); // Number of alive agents controlled by you
 			

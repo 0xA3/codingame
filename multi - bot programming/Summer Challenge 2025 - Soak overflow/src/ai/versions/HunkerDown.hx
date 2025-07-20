@@ -26,7 +26,7 @@ class HunkerDown {
 
 	public function process() {
 		outputs.splice( 0, outputs.length );
-		for( agentId in myAgentIds ) {
+		for( id in myAgentIds ) {
 			final action = Action.toString( TAction.HunkerDown );
 			outputs.push( Action.toString( TAction.HunkerDown ));
 		}

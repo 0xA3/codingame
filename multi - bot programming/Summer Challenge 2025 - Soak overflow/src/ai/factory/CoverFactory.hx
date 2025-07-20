@@ -1,6 +1,6 @@
 package ai.factory;
 
-import ai.data.TDirection;
+import ai.data.CoverPositionSet;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -18,17 +18,18 @@ class CoverFactory {
 		this.tiles = tiles;
 	}
 
-	public function createDamageReducedPositionsForBoxNeightbors() {
+	public function createCoverPositionsForBoxNeightbors() {
 		final boxPositions = getBoxPositions();
 		final boxNeighbors = getNeighborsOfBoxes( boxPositions );
 
 		final damageReducedPositionsForBoxNeightbors:Map<Pos, Map<Pos, Float>> = [];
 		for( neighborPosition in boxNeighbors.toArray() ) {
-			final damageReducedPositions = createDamageReducedPositionsForBoxNeighbor( neighborPosition, boxPositions );
+			final damageReducedPositions = createCoverPositionsForBoxNeighbor( neighborPosition, boxPositions );
 			damageReducedPositionsForBoxNeightbors.set( neighborPosition, damageReducedPositions );
 		}
 
-		return damageReducedPositionsForBoxNeightbors;
+		return new CoverPositionSet( damageReducedPositionsForBoxNeightbors );
+		// return damageReducedPositionsForBoxNeightbors;
 	}
 
 	function getBoxPositions() return [for( pos => height in tiles ) if( tiles[pos] > 0 ) pos => tiles[pos]];
@@ -43,7 +44,7 @@ class CoverFactory {
 		return boxNeighborPositions;
 	}
 
-	function createDamageReducedPositionsForBoxNeighbor( pos:Pos, boxPositions:Map<Pos, Int> ) {
+	function createCoverPositionsForBoxNeighbor( pos:Pos, boxPositions:Map<Pos, Int> ) {
 		// Sys.println( 'nPos $pos boxPositions ${boxPositions}' );
 		final positionAbove = pos.y > 0 ? positions[pos.y - 1][pos.x] : Pos.NO_POS;
 		final positionLeft  = pos.x > 0 ? positions[pos.y][pos.x - 1] : Pos.NO_POS;
@@ -78,7 +79,7 @@ class CoverFactory {
 					if( distanceToBox < 2 ) continue;
 
 					// Sys.println( '$shootPosition isAboveOfPos $isAboveOfPos   $pos hasBoxAbove $hasBoxAbove  distanceToBox $distanceToBox boxHeightAbove $boxHeightAbove' );
-					addDamagedReducedPosition( shootPosition, damageReducedPositions, boxHeightAbove );
+					addCoverPosition( shootPosition, damageReducedPositions, boxHeightAbove );
 				
 				} else if( isLeftOfPos && hasBoxLeft ) {
 					final boxPosition = positionLeft;
@@ -86,7 +87,7 @@ class CoverFactory {
 					if( distanceToBox < 2 ) continue;
 
 					// Sys.println( '$shootPosition isLeftOfPos $isLeftOfPos   $pos hasBoxLeft $hasBoxLeft  distanceToBox $distanceToBox boxHeightLeft $boxHeightLeft' );
-					addDamagedReducedPosition( shootPosition, damageReducedPositions, boxHeightLeft );
+					addCoverPosition( shootPosition, damageReducedPositions, boxHeightLeft );
 				
 				} else if( isBelowOfPos && hasBoxBelow ) {
 					final boxPosition = positionBelow;
@@ -94,7 +95,7 @@ class CoverFactory {
 					if( distanceToBox < 2 ) continue;
 
 					// Sys.println( '$shootPosition isBelowOfPos $isBelowOfPos   $pos hasBoxBelow $hasBoxBelow  distanceToBox $distanceToBox boxHeightBelow $boxHeightBelow' );
-					addDamagedReducedPosition( shootPosition, damageReducedPositions, boxHeightBelow );
+					addCoverPosition( shootPosition, damageReducedPositions, boxHeightBelow );
 				
 				} else if( isRightOfPos && hasBoxRight ) {
 					final boxPosition = positionRight;
@@ -102,15 +103,15 @@ class CoverFactory {
 					if( distanceToBox < 2 ) continue;
 
 					// Sys.println( '$shootPosition isRightOfPos $isRightOfPos   $pos hasBoxRight $hasBoxRight  distanceToBox $distanceToBox boxHeightRight $boxHeightRight' );
-					addDamagedReducedPosition( shootPosition, damageReducedPositions, boxHeightRight );
+					addCoverPosition( shootPosition, damageReducedPositions, boxHeightRight );
 				}
 			}
 		}
-
+		
 		return damageReducedPositions;
 	}
 
-	function addDamagedReducedPosition( pos:Pos, damageReducedPositions:Map<Pos, Float>, boxHeight:Int ) {
+	function addCoverPosition( pos:Pos, damageReducedPositions:Map<Pos, Float>, boxHeight:Int ) {
 		if( boxHeight == 0 ) throw 'Error with pos $pos: boxHeight == 0';
 		if( boxHeight > 2 ) throw 'Error with pos $pos: boxHeight > 2';
 		final damageReduction = boxHeight == 1 ? 0.75 : 0.5;

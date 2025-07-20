@@ -33,10 +33,10 @@ class Move {
 	public function process() {
 		outputs.splice( 0, outputs.length );
 		for( i in 0...myAgentIds.length ) {
-			final agentId = myAgentIds[i];
+			final id = myAgentIds[i];
 			final pos = positions[i];
 			final action = TAction.Move( pos.x, pos.y );
-			outputs.push( '$agentId;${Action.toString( action )}' );
+			outputs.push( '$id;${Action.toString( action )}' );
 		}
 		
 		return outputs.join( "\n" );

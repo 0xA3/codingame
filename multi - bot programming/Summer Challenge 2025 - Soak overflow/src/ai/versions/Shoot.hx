@@ -31,13 +31,13 @@ class Shoot {
 		
 		final oppAgents = [for( oppAgentId in oppAgentIds ) agents[oppAgentId] ];
 		oppAgents.sort(( a, b ) -> b.wetness - a.wetness );
-		// for( oppAgent in oppAgents ) printErr( 'agent ${oppAgent.agentId} wetness: ${oppAgent.wetness}' );
+		// for( oppAgent in oppAgents ) printErr( 'agent ${oppAgent.id} wetness: ${oppAgent.wetness}' );
 		final wettestAgent = oppAgents[0];
 
 		for( i in 0...myAgentIds.length ) {
-			final agentId = myAgentIds[i];
-			final action = TAction.Shoot( wettestAgent.agentId );
-			outputs.push( '$agentId;${Action.toString( action )}' );
+			final id = myAgentIds[i];
+			final action = TAction.Shoot( wettestAgent.id );
+			outputs.push( '$id;${Action.toString( action )}' );
 		}
 		
 		return outputs.join( "\n" );
