@@ -5,7 +5,6 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.data.Agent;
-import ai.factory.CoverFactory;
 import xa3.math.Pos;
 
 using StringTools;
@@ -20,7 +19,7 @@ class MainAi {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
 		
-		final ai = new ai.versions.TakeCover();
+		final ai = new ai.versions.SplashBombs();
 		
 		final myId = parseInt(readline()); // Your player id (0 or 1)
 		final agentCount = parseInt(readline()); // Total number of agents in the game
@@ -60,7 +59,7 @@ class MainAi {
 			}
 		}
 
-		final coverPositionSet = new CoverFactory( width, height, positions, tiles ).createCoverPositionsForBoxNeightbors();
+		final coverPositionSet = new ai.factory.CoverFactory( width, height, positions, tiles ).createCoverPositionsForBoxNeightbors();
 		ai.setGlobalInputs( agents, width, height, positions, tiles, coverPositionSet );
 
 		// game loop

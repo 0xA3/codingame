@@ -54,19 +54,22 @@ class TakeCover {
 			
 			final coverPositions = findCoverPositions( agent.pos, freeNeighbors, oppAgents.map( agent -> agent.pos ) );
 			coverPositions.sort(( a, b ) -> a.cover < b.cover ? -1 : 1 );
+			
 			final bestCoverPosition = coverPositions.length > 0 ? coverPositions[0].pos : Pos.NO_POS;
 			// printErr( '${agent.pos} bestCoverPosition: $bestCoverPosition' );
+			if( bestCoverPosition == Pos.NO_POS ) continue;
 
-			if( bestCoverPosition != Pos.NO_POS ) {
-				final action = TAction.Move( bestCoverPosition.x, bestCoverPosition.y );
-				agentActions.push( action );
+			final moveAction = TAction.Move( bestCoverPosition.x, bestCoverPosition.y );
+			agentActions.push( moveAction );
+			
+			final oppAgentsInRange = oppAgents.filter( opp -> bestCoverPosition.manhattanDistance( opp.pos ) <= agent.optimalRange );
+			if( oppAgentsInRange.length == 0 ) continue;
+
+			final leastCoveredOppAgent = findLeastCoveredOppAgent( bestCoverPosition, oppAgentsInRange );
 				
-				final oppAgentsInRange = oppAgents.filter( opp -> bestCoverPosition.manhattanDistance( opp.pos ) <= agent.optimalRange );
-				final leastCoveredOppAgent = findLeastCoveredOppAgent( bestCoverPosition, oppAgentsInRange );
-					
-				final action = TAction.Shoot( leastCoveredOppAgent.id );
-				agentActions.push( action );
-			}
+			final shootAction = TAction.Shoot( leastCoveredOppAgent.id );
+			agentActions.push( shootAction );
+			
 			outputs.push( '$id;' + agentActions.map( action -> Action.toString( action )).join( ";" ) );
 		}
 		
@@ -89,7 +92,7 @@ class TakeCover {
 	}
 
 	function findLeastCoveredOppAgent( myPos:Pos, oppAgents:Array<Agent> ) {
-		final oppAgentsCoverValues = [for( i in 0...oppAgents.length ) { oppAgent: oppAgents[i], coverValue: coverPositionSet.getCoverValue( oppAgents[i].pos,myPos )}];
+		final oppAgentsCoverValues = [for( i in 0...oppAgents.length ) { oppAgent: oppAgents[i], coverValue: coverPositionSet.getCoverValue( oppAgents[i].pos, myPos )}];
 		oppAgentsCoverValues.sort(( a, b ) -> a.coverValue < b.coverValue ? 1 : -1 );
 
 		// for( oc in oppAgentsCoverValues ) printErr( '$myPos oppAgent ${oc.oppAgent.id} coverValue: ${oc.coverValue}' );
