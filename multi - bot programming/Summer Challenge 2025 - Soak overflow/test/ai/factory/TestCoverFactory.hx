@@ -14,7 +14,7 @@ class TestCoverFactory extends buddy.BuddySuite {
 		describe( "Test getOrthogonalNeighborPositions", {
 			it( "position on side should get one neighbor", {
 				final factory = oneLine;
-				final neighbors = factory.getOrthogonalNeighborPositions( factory.positions[0][0] );
+				final neighbors = oneLine.getOrthogonalNeighborPositions( factory.positions[0][0] );
 				neighbors.length.should.be( 1 );
 			});
 			it( "position in middle should get two neighbors", {
@@ -23,6 +23,7 @@ class TestCoverFactory extends buddy.BuddySuite {
 				neighbors.length.should.be( 2 );
 			});
 		});
+		
 		describe( "Test getFreeNeighborPositions", {
 			it( "position next to box should get no neighbors", {
 				final factory = oneBox;
@@ -35,16 +36,20 @@ class TestCoverFactory extends buddy.BuddySuite {
 				neighbors.length.should.be( 2 );
 			});
 		});
-		describe( "Test createCoverPositions", {
-			@include it( "position on empty line shoud get no cover positions", {
-				final factory = oneLine;
-				factory.createCoverPositions();
-				// neighbors.length.should.be( 0 );
+		
+		describe( "Test createDamageReducedPositions", {
+			@include it( "position on empty line shoud get tow cover positions", {
+				final factory = oneBox;
+				final positions = factory.positions;
+				final damageReducedPositions = factory.createDamageReducedPositions( positions[0][0], factory.getBoxPositions(), factory.tiles );
+
+				damageReducedPositions[positions[0][3]].should.be( 0.75 );
+				damageReducedPositions[positions[0][4]].should.be( 0.75 );
 			});
 		});
 	}
 
-	static function parseInput( input:String ) {
+	static function createFactory( input:String ) {
 		final lines = input.replace( "\t", "" ).replace( "\r", "" ).split( "\n" );
 		final height = lines.length;
 		final width = lines[0].length;
@@ -57,7 +62,6 @@ class TestCoverFactory extends buddy.BuddySuite {
 			for( x in 0...row.length ) {
 				final pos = new Pos( x, y );
 				positions[y][x] = pos;
-
 				final cell = row[x];
 				final value = cell == "." ? 0 : Std.parseInt( cell );
 				tiles.set( pos, value );
@@ -68,11 +72,11 @@ class TestCoverFactory extends buddy.BuddySuite {
 		return new CoverFactory( width, height, positions, tiles );
 	}
 	
-	final oneLine = parseInput(
+	final oneLine = createFactory(
 		"...."
 	);
 	
-	final oneBox = parseInput(
+	final oneBox = createFactory(
 		".1..."
 	);
 	
