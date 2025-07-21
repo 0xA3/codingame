@@ -13,10 +13,6 @@ using StringTools;
 
 class MainAi {
 
-	static inline var ME = 0;
-	static inline var OPP = 1;
-	static inline var NO_OWNER = -1;
-
 	static function main() {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
@@ -39,7 +35,7 @@ class MainAi {
 			final splashBombs = parseInt(inputs[5]); // Number of splash bombs this can throw this game
 
 			agents.set( id, new Agent( id, player, shootCooldown, optimalRange, soakingPower, splashBombs ));
-			if( player == ME ) myAgentIds.push( id ) else oppAgentIds.push( id );
+			if( player == myId ) myAgentIds.push( id ) else oppAgentIds.push( id );
 		};
 
 		final inputs = readline().split(' ');
@@ -85,7 +81,7 @@ class MainAi {
 				final agent = agents[id];
 				agent.update( positions[y][x], cooldown, splashBombs, wetness );
 				
-				if( agent.player == ME ) myAgentIds.push( id ) else oppAgentIds.push( id );
+				if( agent.player == myId ) myAgentIds.push( id ) else oppAgentIds.push( id );
 			}
 			final myAgentCount = parseInt(readline()); // Number of alive agents controlled by you
 			

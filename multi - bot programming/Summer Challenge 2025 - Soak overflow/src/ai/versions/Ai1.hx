@@ -42,7 +42,7 @@ class Ai1 {
 
 		for( agent in myAgents ) {
 			final actions = processAgent( agent, oppAgents );
-			outputs.push( '${agent.id};' + actions.map( action -> Action.toString( action )).join( ";" ) );
+			outputs.push( '${agent.id}; ' + actions.map( action -> Action.toString( action )).join( "; " ) );
 		}
 		
 		turn++;
@@ -74,16 +74,17 @@ class Ai1 {
 		final isInRange = closestOppDistance <= minShootDistance;
 		final canShoot = agent.shotCooldown == 0;
 
-		if( isInRange && !canShoot ) {
-			actions.push( TAction.HunkerDown );
-		} else if( closestOppDistance > 1 ) {
+		if( closestOppDistance > 1 ) {
 			actions.push( TAction.Move( centerX, agentYs[agent.id] ));
 		}
 
 		if( isInRange && canShoot ) {
 			actions.push( TAction.Shoot( closestOppAgent.id ));
+		} else {
+			actions.push( TAction.HunkerDown );
 		}
 
+		// actions.push( TAction.HunkerDown );
 		return actions;
 	}
 
