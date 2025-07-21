@@ -5,6 +5,8 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.parseInt;
 import ai.data.Agent;
+import ai.data.Board;
+import ai.data.Cell;
 import xa3.math.Pos;
 
 using StringTools;
@@ -19,7 +21,7 @@ class MainAi {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
 		
-		final ai = new ai.versions.Ai1_Move();
+		final ai = new ai.versions.Ai1();
 		
 		final myId = parseInt(readline()); // Your player id (0 or 1)
 		final agentCount = parseInt(readline()); // Total number of agents in the game
@@ -44,7 +46,7 @@ class MainAi {
 		final width = parseInt(inputs[0]); // Width of the game map
 		final height = parseInt(inputs[1]); // Height of the game map
 		final positions = [];
-		final tiles:Map<Pos, Int> = [];
+		final tilesMap:Map<Pos, Int> = [];
 		for( _ in 0...height ) {
 			positions.push( [] );
 			final inputs = readline().split(' ');
@@ -55,12 +57,15 @@ class MainAi {
 
 				final pos = new Pos( x, y );
 				positions[y][x] = pos;
-				tiles.set( pos, tileType );
+				tilesMap.set( pos, tileType );
 			}
 		}
+		final cells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => new Cell( positions[y][x] )];
+		final coverPositionSet = new ai.factory.CoverFactory( width, height, positions, tilesMap ).createCoverPositionsForBoxNeightbors();
+		initNeighbors( width, height,positions, cells, tilesMap );
 
-		final coverPositionSet = new ai.factory.CoverFactory( width, height, positions, tiles ).createCoverPositionsForBoxNeightbors();
-		ai.setGlobalInputs( agents, width, height, positions, tiles, coverPositionSet );
+		final board = new Board( width, height, positions, cells, tilesMap, coverPositionSet );
+		ai.setGlobalInputs( agents, board );
 
 		// game loop
 		while (true) {
@@ -88,6 +93,38 @@ class MainAi {
 			final output = ai.process();
 
 			print( output );
+		}
+	}
+
+	static function initNeighbors( width:Int, height:Int, positions:Array<Array<Pos>>, cells:Map<Pos, Cell>, tiles:Map<Pos, Int> ) {
+		for( cell in cells ) {
+			final pos = cell.pos;
+
+			final x1 = pos.x - 1;
+			final y1 = pos.y;
+			final x2 = pos.x + 1;
+			final y2 = pos.y;
+			final x3 = pos.x;
+			final y3 = pos.y - 1;
+			final x4 = pos.x;
+			final y4 = pos.y + 1;
+
+			if( x1 >= 0 ) {
+				final neighborPos = positions[y1][x1];
+				if( tiles[neighborPos] == 0 ) cell.addNeighbor( cells[neighborPos] );
+			}
+			if( x2 < width ) {
+				final neighborPos = positions[y2][x2];
+				if( tiles[neighborPos] == 0 ) cell.addNeighbor( cells[neighborPos] );
+			}
+			if( y3 >= 0 ) {
+				final neighborPos = positions[y3][x3];
+				if( tiles[neighborPos] == 0 ) cell.addNeighbor( cells[positions[y3][x3]] );
+			}
+			if( y4 < height ) {
+				final neighborPos = positions[y4][x4];
+				if( tiles[neighborPos] == 0 ) cell.addNeighbor( cells[positions[y4][x4]] );
+			}
 		}
 	}
 }
