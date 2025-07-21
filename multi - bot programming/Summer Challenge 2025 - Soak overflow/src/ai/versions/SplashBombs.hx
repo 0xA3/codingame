@@ -41,11 +41,11 @@ class SplashBombs {
 	public function setInputs( myAgentIds:Array<Int>, oppAgentIds:Array<Int> ) {
 		this.myAgentIds = myAgentIds;
 		this.oppAgentIds = oppAgentIds;
+		
+		outputs.splice( 0, outputs.length );
 	}
 
 	public function process() {
-		outputs.splice( 0, outputs.length );
-		
 		final positions1D = [for( y in 0...height ) for( x in 0...width ) positions[y][x]];
 		final oppAgents = [for( oppAgentId in oppAgentIds ) agents[oppAgentId]];
 		final oppAgentsPositions:Set<Pos> = [for( oppAgentId in oppAgentIds ) agents[oppAgentId].pos];

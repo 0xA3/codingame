@@ -11,22 +11,22 @@ class CoverPositionSet {
 		this.coverPositions = coverPositions;
 	}
 
-	public function getCoverSum( pos:Pos, oppPositions:Array<Pos> ) {
-		if( !coverPositions.exists( pos )) return 1.0;
-		final posCoverValues = coverPositions[pos];
+	public function getCoverSum( coverPosition:Pos, shootPositions:Array<Pos> ) {
+		if( !coverPositions.exists( coverPosition )) return 1.0;
+		final posCoverValues = coverPositions[coverPosition];
 		
 		var coverSum = 0.0;
-		for( oppPosition in oppPositions ) coverSum += posCoverValues[oppPosition] ?? 1.0;
+		for( shootPosition in shootPositions ) coverSum += posCoverValues[shootPosition] ?? 1.0;
 		
 		return coverSum;
 	}
 
-	public function getCoverValue( pos:Pos, oppPosition:Pos ) {
-		if( !coverPositions.exists( pos )) return 1.0;
-		final posCoverValues = coverPositions[pos];
+	public function getCoverValue( coverPosition:Pos, shootPosition:Pos ) {
+		if( !coverPositions.exists( coverPosition )) return 1.0;
+		final posCoverValues = coverPositions[coverPosition];
 		// printErr( 'myPos: $pos' );
 		// for( pcPos => pcValue in posCoverValues ) printErr( 'pos: $pcPos value: $pcValue' );
 
-		return posCoverValues[oppPosition] ?? 1.0;
+		return posCoverValues[shootPosition] ?? 1.0;
 	}
 }

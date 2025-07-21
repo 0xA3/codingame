@@ -40,11 +40,11 @@ class TakeCover {
 	public function setInputs( myAgentIds:Array<Int>, oppAgentIds:Array<Int> ) {
 		this.myAgentIds = myAgentIds;
 		this.oppAgentIds = oppAgentIds;
+		
+		outputs.splice( 0, outputs.length );
 	}
 
 	public function process() {
-		outputs.splice( 0, outputs.length );
-		
 		final oppAgents = oppAgentIds.map( id -> agents[id] );
 		for( i in 0...myAgentIds.length ) {
 			final agentActions = [];

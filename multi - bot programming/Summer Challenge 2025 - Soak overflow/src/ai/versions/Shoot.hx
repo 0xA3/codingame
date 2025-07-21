@@ -24,10 +24,11 @@ class Shoot {
 	public function setInputs( myAgentIds:Array<Int>, oppAgentIds:Array<Int> ) {
 		this.myAgentIds = myAgentIds;
 		this.oppAgentIds = oppAgentIds;
+		
+		outputs.splice( 0, outputs.length );
 	}
 
 	public function process() {
-		outputs.splice( 0, outputs.length );
 		
 		final oppAgents = [for( oppAgentId in oppAgentIds ) agents[oppAgentId] ];
 		oppAgents.sort(( a, b ) -> b.wetness - a.wetness );

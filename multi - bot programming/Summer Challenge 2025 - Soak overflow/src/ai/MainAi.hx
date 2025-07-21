@@ -19,7 +19,7 @@ class MainAi {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
 		
-		final ai = new ai.versions.SplashBombs();
+		final ai = new ai.versions.Ai1_Move();
 		
 		final myId = parseInt(readline()); // Your player id (0 or 1)
 		final agentCount = parseInt(readline()); // Total number of agents in the game

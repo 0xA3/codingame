@@ -28,10 +28,11 @@ class Move {
 	
 	public function setInputs( myAgentIds:Array<Int> ) {
 		this.myAgentIds = myAgentIds;
+		
+		outputs.splice( 0, outputs.length );
 	}
 
 	public function process() {
-		outputs.splice( 0, outputs.length );
 		for( i in 0...myAgentIds.length ) {
 			final id = myAgentIds[i];
 			final pos = positions[i];

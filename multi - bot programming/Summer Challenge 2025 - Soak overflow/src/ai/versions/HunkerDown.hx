@@ -22,10 +22,11 @@ class HunkerDown {
 	
 	public function setInputs( myAgentIds:Array<Int> ) {
 		this.myAgentIds = myAgentIds;
+		
+		outputs.splice( 0, outputs.length );
 	}
 
 	public function process() {
-		outputs.splice( 0, outputs.length );
 		for( id in myAgentIds ) {
 			final action = Action.toString( TAction.HunkerDown );
 			outputs.push( Action.toString( TAction.HunkerDown ));
