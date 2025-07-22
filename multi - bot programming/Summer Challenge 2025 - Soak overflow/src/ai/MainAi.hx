@@ -7,7 +7,9 @@ import Std.parseInt;
 import ai.data.Agent;
 import ai.data.Board;
 import ai.data.Cell;
+import ai.data.TAgent;
 import xa3.math.Pos;
+import ya.Set;
 
 using StringTools;
 
@@ -22,8 +24,8 @@ class MainAi {
 		final myId = parseInt(readline()); // Your player id (0 or 1)
 		final agentCount = parseInt(readline()); // Total number of agents in the game
 		final agents:Map<Int, ai.data.Agent> = [];
-		final myAgentIds = [];
-		final oppAgentIds = [];
+		var myAgentIds = new Set<Int>();
+		var oppAgentIds = new Set<Int>();
 		
 		for( _ in 0...agentCount ) {
 			final inputs = readline().split(' ');
@@ -34,8 +36,17 @@ class MainAi {
 			final soakingPower = parseInt(inputs[4]); // Damage output within optimal conditions
 			final splashBombs = parseInt(inputs[5]); // Number of splash bombs this can throw this game
 
-			agents.set( id, new Agent( id, player, shootCooldown, optimalRange, soakingPower, splashBombs ));
-			if( player == myId ) myAgentIds.push( id ) else oppAgentIds.push( id );
+			final type = switch [shootCooldown, soakingPower] {
+				case [1,16]: Gunner;
+				case [5,24]: Sniper;
+				case [2,8]: Bomber;
+				case [2,16]: Assault;
+				case [5,32]: Berserker;
+				default: throw 'Unknown agent type with cooldown $shootCooldown soakingPower $soakingPower optimalRange $optimalRange splashBombs $splashBombs';
+			}
+
+			agents.set( id, new Agent( id, player, type, shootCooldown, optimalRange, soakingPower, splashBombs ));
+			if( player == myId ) myAgentIds.add( id ) else oppAgentIds.add( id );
 		};
 
 		final inputs = readline().split(' ');
@@ -66,8 +77,8 @@ class MainAi {
 		// game loop
 		while (true) {
 			final agentCount = parseInt(readline());
-			myAgentIds.splice( 0, myAgentIds.length );
-			oppAgentIds.splice( 0, oppAgentIds.length );
+			myAgentIds = new Set<Int>();
+			oppAgentIds = new Set<Int>();
 			
 			for( _ in 0...agentCount ) {
 				final inputs = readline().split(' ');
@@ -81,7 +92,7 @@ class MainAi {
 				final agent = agents[id];
 				agent.update( positions[y][x], cooldown, splashBombs, wetness );
 				
-				if( agent.player == myId ) myAgentIds.push( id ) else oppAgentIds.push( id );
+				if( agent.player == myId ) myAgentIds.add( id ) else oppAgentIds.add( id );
 			}
 			final myAgentCount = parseInt(readline()); // Number of alive agents controlled by you
 			

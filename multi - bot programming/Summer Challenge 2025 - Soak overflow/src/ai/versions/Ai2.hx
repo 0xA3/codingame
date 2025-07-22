@@ -1,49 +1,49 @@
 package ai.versions;
 
 import CodinGame.printErr;
-import Math.round;
 import Std.int;
 import ai.contexts.Action;
 import ai.data.Agent;
 import ai.data.Board;
 import ai.data.TAction;
+import ya.Set;
 
 class Ai2 {
 
 	public var aiId = "Ai2";
 	final outputs:Array<String> = [];
 	
-	var agents:Map<Int, ai.data.Agent> = [];
+	var allAgents:Map<Int, ai.data.Agent> = [];
 	var board:Board;
 	
 	var myAgents:Array<Agent> = [];
 	var oppAgents:Array<Agent> = [];
+	var oppAgentsMap:Map<Int,Agent> = [];
+
+	var defaultOppIdForAgent:Map<Agent, Int> = [];
 
 	var turn = 1;
-
-	final agentYs:Map<Int, Int> = [];
 
 	public function new() { }
 
 	public function setGlobalInputs( agents:Map<Int, ai.data.Agent>, board:Board ) {
-		this.agents = agents;
+		this.allAgents = agents;
 		this.board = board;
 	}
 
-	public function setInputs( myAgentIds:Array<Int>, oppAgentIds:Array<Int> ) {
-		myAgents  = [for( id in myAgentIds ) agents[id]];
-		oppAgents = [for( id in oppAgentIds ) agents[id]];
-
+	public function setInputs( myAgentIds:Set<Int>, oppAgentIds:Set<Int> ) {
+		myAgents  = [for( id in myAgentIds.toArray() ) allAgents[id]];
+		oppAgents = [for( id in oppAgentIds.toArray() ) allAgents[id]];
+		oppAgentsMap = [for( id in oppAgentIds.toArray() ) id => allAgents[id]];
+		
 		outputs.splice( 0, outputs.length );
 	}
 
 	public function process() {
 		if( turn == 1) processStart();
 
-		final agentOppTuples = findClosestOpps( myAgents, oppAgents );
-		for( agentOppTuple in agentOppTuples ) {
-			final agent = agentOppTuple.agent;
-			final actions = processAgent( agent, agentOppTuple.opp );
+		for( agent in myAgents ) {
+			final actions = processAgent( agent );
 			outputs.push( '${agent.id}; ' + actions.map( action -> Action.toString( action )).join( "; " ) );
 		}
 		
@@ -52,73 +52,42 @@ class Ai2 {
 	}
 
 	function processStart() {
-		final boardDivision = board.height / myAgents.length;
-		final half = boardDivision / 2;
 		myAgents.sort(( a, b ) -> a.pos.y - b.pos.y );
+		oppAgents.sort(( a, b ) -> a.pos.y - b.pos.y );
+
 		for( i in 0...myAgents.length ) {
-			final agent = myAgents[i];
-			agentYs.set( agent.id, int( boardDivision * i + half ));
+			final myAgent = myAgents[i];
+			final oppAgent = oppAgents[i];
+			defaultOppIdForAgent.set( myAgent, oppAgent.id );
 		}
 	}
 
-	function findClosestOpps( agents:Array<Agent>, oppAgents:Array<Agent> ) {
-		final agentsAndOpps = [];
-		for( agent in agents ) {
-			final oppsAndDistances = [];
-			for( oppAgent in oppAgents ) {
-				final distance = agent.pos.manhattanDistance( oppAgent.pos );
-				oppsAndDistances.push({ agent: oppAgent, distance: distance });
-			}
-			oppsAndDistances.sort(( a, b ) -> a.distance - b.distance );
-			agentsAndOpps.push({ agent: agent, closestOpps: oppsAndDistances });
-		}
+	function processAgent( agent:Agent ) {
+		if( oppAgents.length == 0 ) return [TAction.HunkerDown];
 		
-		agentsAndOpps.sort(( a, b ) -> a.closestOpps[0].distance - b.closestOpps[0].distance );
-
-		final agentOppTuples:Array<{ agent:Agent, opp:Agent }> = [];
-		for( i in 0...agents.length ) {
-			final agent = agentsAndOpps[i].agent;
-			final closestOpps = agentsAndOpps[i].closestOpps;
-			if( closestOpps.length > 0 ) {
-				final closestOpp = agentsAndOpps[i].closestOpps[0];
-				agentOppTuples.push({ agent: agent, opp: closestOpp.agent });
-				for( o in i + 1...agents.length ) {
-					final oppDistances = agentsAndOpps[o].closestOpps;
-					for( oppDistance in oppDistances ) {
-						if( oppDistance.agent.id == closestOpp.agent.id ) {
-							oppDistances.remove( oppDistance );
-							break;
-						}
-					}
-				}
-			} else {
-				oppAgents.sort(( a, b ) -> agent.pos.manhattanDistance( a.pos ) - agent.pos.manhattanDistance( b.pos ));
-				final closestOpp = oppAgents[0];
-				agentOppTuples.push({ agent: agent, opp: closestOpp });
-			}
-		}
-
-		return agentOppTuples;
-	}
-
-	function processAgent( agent:Agent, oppAgent:Agent ) {
 		final actions = [];
+		oppAgents.sort(( a, b ) -> sortByDistanceAndWetness( agent, a, b ));
+		final closestOppAgent = oppAgents[0];
 
-		final closestOppDistance = agent.pos.manhattanDistance( oppAgent.pos );
+		final defaultOppAgentId = defaultOppIdForAgent[agent];
+		final targetAgent = oppAgentsMap[defaultOppAgentId] ?? closestOppAgent;
+
+		final targetOppDistance = agent.pos.manhattanDistance( targetAgent.pos );
 		final minShootDistance = agent.optimalRange * 2;
-		final isInRange = closestOppDistance <= minShootDistance;
+		final isInRange = targetOppDistance <= minShootDistance;
 		final canShoot = agent.shotCooldown == 0;
 
-		if( closestOppDistance > 1 ) {
-			actions.push( TAction.Move( oppAgent.pos.x, oppAgent.pos.y ));
+
+		if( targetOppDistance > 1 ) {
+			actions.push( TAction.Move( targetAgent.pos.x, targetAgent.pos.y ));
 		}
 
 		if( isInRange && canShoot ) {
-			actions.push( TAction.Shoot( oppAgent.id ));
+			actions.push( TAction.Shoot( targetAgent.id ));
 		} else {
 			actions.push( TAction.HunkerDown );
 		}
-		actions.push( TAction.Message( '${oppAgent.pos.x}:${oppAgent.pos.y}' ));
+		actions.push( TAction.Message( '${agent.getType()} to ${targetAgent.id}' ));
 		
 		return actions;
 	}
