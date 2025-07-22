@@ -24,7 +24,7 @@ class Agent {
 		this.optimalRange = optimalRange;
 		this.soakingPower = soakingPower;
 		this.splashBombs = splashBombs;
-		printErr( 'new agent $id, player: $player optimalRange: $optimalRange' );
+		// printErr( 'new agent $id, player: $player optimalRange: $optimalRange' );
 	}
 
 	public function update( pos:Pos, cooldown:Int, splashBombs:Int, wetness:Int ) {
