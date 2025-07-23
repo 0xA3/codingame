@@ -13,8 +13,8 @@ using xa3.ArrayUtils;
 
 class Ai3 {
 
-	public var aiId = "Ai2";
-	final showMessage = false;
+	public var aiId = "Ai3";
+	final showMessage = true;
 	final outputs:Array<String> = [];
 	
 	var allAgents:Map<Int, ai.data.Agent> = [];
@@ -27,6 +27,7 @@ class Ai3 {
 	var defaultOppIdForAgent:Map<Agent, Int> = [];
 
 	var turn = 1;
+	var startDirection = 0;
 
 	public function new() { }
 
@@ -57,6 +58,8 @@ class Ai3 {
 	}
 
 	function processStart() {
+		startDirection = myAgents[0].x < board.center.x ? -1 : 1;
+		
 		myAgents.sort(( a, b ) -> a.pos.y - b.pos.y );
 		oppAgents.sort(( a, b ) -> a.pos.y - b.pos.y );
 
@@ -70,7 +73,7 @@ class Ai3 {
 	function processAgent( agent:Agent ) {
 		if( oppAgents.length == 0 ) return [TAction.HunkerDown];
 		
-		final actions = [];
+		
 		
 		final minShootDistance = agent.optimalRange * 2;
 		final canShoot = agent.shotCooldown == 0;
@@ -80,16 +83,21 @@ class Ai3 {
 
 		final targetAgentMinShootDistance = targetAgent.optimalRange;
 		final isInOppRange = agent.pos.manhattanDistance( targetAgent.pos ) <= targetAgentMinShootDistance;
-		// switch agent.type {
-			// case Sniper:
+		
+		final actions = switch agent.type {
+			case Sniper: getSniperActions();
+			
+			default:
 				if( canShoot ) shoot( actions, agent, targetAgent, minShootDistance, canShoot );
 				else if( isInOppRange ) evade( actions, agent, targetAgent );
 				else approach( actions, agent, targetAgent);
-			
-			// default: attack( actions, agent, targetAgent, minShootDistance, canShoot );
-		// }
+		}
 
 		return actions;
+	}
+
+	function getSniperActions() {
+
 	}
 
 	function getTargetAgent( agent:Agent ) {
@@ -117,8 +125,9 @@ class Ai3 {
 
 	function approach( actions:Array<TAction>, agent:Agent, targetAgent:Agent ) {
 		final nextPos = board.getNextPos( agent.pos, targetAgent.pos );
+		agent.pos = nextPos;
 		actions.push( TAction.Move( nextPos.x, nextPos.y ));
-		if( showMessage ) actions.push( TAction.Message( '${agent.getType()} approach ${targetAgent.id}' ));
+		if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} approach ${targetAgent.id}' ));
 	}
 
 	function evade( actions:Array<TAction>, agent:Agent, targetAgent:Agent ) {
@@ -126,11 +135,12 @@ class Ai3 {
 		final maxDistanceIndex = [for( cell in neighborCells ) cell.pos.manhattanDistance( targetAgent.pos )].maxIndex();
 		final cell = neighborCells[maxDistanceIndex];
 		actions.push( TAction.Move( cell.pos.x, cell.pos.y ));
-		if( showMessage ) actions.push( TAction.Message( '${agent.getType()} evade ${targetAgent.id}' ));
+		if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} evade ${targetAgent.id}' ));
 	}
 
 	function shoot( actions:Array<TAction>, agent:Agent, targetAgent:Agent, minShootDistance:Int, canShoot:Bool ) {
 		final nextPos = board.getNextPos( agent.pos, targetAgent.pos );
+		agent.pos = nextPos;
 		actions.push( TAction.Move( nextPos.x, nextPos.y ));
 
 		final afterMoveDistance = nextPos.manhattanDistance( targetAgent.pos );
@@ -139,14 +149,15 @@ class Ai3 {
 		final isInRange = afterMoveDistance <= minShootDistance;
 
 		if( isInBombRange && hasBomb ) {
-			final throwPosition = getThrowPosition( nextPos, targetAgent.pos );
+			// printErr( '${agent.id} at pos ${agent.pos} trow' );
+			final throwPosition = getThrowPosition( agent.pos, targetAgent.pos );
 			actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
 		} else if( isInRange && canShoot ) {
 			actions.push( TAction.Shoot( targetAgent.id ));
 		} else {
 			actions.push( TAction.HunkerDown );
 		}
-		if( showMessage ) actions.push( TAction.Message( '${agent.getType()} attack ${targetAgent.id}' ));
+		if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} attack ${targetAgent.id}' ));
 	}
 
 	function getThrowPosition( myPos:Pos, targetAgentPos:Pos ) {
@@ -157,8 +168,8 @@ class Ai3 {
 				if( board.checkOutsideBoard( throwX, throwY ) ) continue;
 				final pos = board.positions[throwY][throwX];
 				if( myPos.manhattanDistance( pos ) > 4 ) continue;
-				final oppAgentsInBlastArea = checkBlastArea( myPos, throwX, throwY );
-
+				final oppAgentsInBlastArea = checkBlastArea( throwX, throwY );
+				// printErr( 'pos: $pos opps: $oppAgentsInBlastArea' );
 				if( oppAgentsInBlastArea > maxOppsForPosition ) {
 					maxOppsForPosition = oppAgentsInBlastArea;
 					bestTrowPosition = pos;
@@ -169,13 +180,12 @@ class Ai3 {
 		return bestTrowPosition;
 	}
 
-	function checkBlastArea( myPos:Pos, throwX:Int, throwY:Int ) {
+	function checkBlastArea( throwX:Int, throwY:Int ) {
 		var tempOppsInBlastArea = 0;
 		for( blastY in throwY - 1...throwY + 2 ) {
 			for( blastX in throwX - 1...throwX + 2 ) {
 				if( board.checkOutsideBoard( blastX, blastY ) ) continue;
 				final blastPos = board.positions[blastY][blastX];
-				if( myPos == blastPos ) tempOppsInBlastArea--;
 				for( agent in myAgents ) if( agent.pos == blastPos ) tempOppsInBlastArea--;
 				for( oppAgent in oppAgents ) if( oppAgent.pos == blastPos ) tempOppsInBlastArea++;
 			}

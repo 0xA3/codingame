@@ -1,5 +1,6 @@
 package ai.data;
 
+import CodinGame.printErr;
 import Std.int;
 import astar.map2d.Map2D;
 import xa3.math.Pos;
@@ -14,7 +15,7 @@ class Board {
 	public final tiles:Map<Pos, Int>;
 	public final coverPositionSet:CoverPositionSet;
 
-	public final centerPosition:Pos;
+	public final center:Pos;
 
 	public function new(
 		width:Int,
@@ -34,7 +35,7 @@ class Board {
 		this.coverPositionSet = coverPositionSet;
 
 		
-		this.centerPosition = positions[int( height / 2 )][int( width / 2 )];
+		this.center = positions[int( height / 2 )][int( width / 2 )];
 	}
 
 	public function checkOutsideBoard( x:Int, y:Int ) {
@@ -42,7 +43,7 @@ class Board {
 	}
 
 	public function centerDistance( pos:Pos ) {
-		return centerPosition.manhattanDistance( pos );
+		return center.manhattanDistance( pos );
 	}
 
 	public function getDistance( start:Pos, end:Pos ) {
@@ -56,9 +57,10 @@ class Board {
 
 	public function getNextPos( start:Pos, end:Pos ) {
 		if( start.manhattanDistance( end ) <= 1 ) return start;
-
 		final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
 		if( solveResult.result == Solved ) {
+			// final path = [for( pos in solveResult.path ) '${pos.x}:${pos.y}'].join( ',' );
+			// printErr( 'path: $path' );
 			if( solveResult.path.length > 1 ) {
 				final nextPos = solveResult.path[1];
 				return positions[nextPos.y][nextPos.x];
