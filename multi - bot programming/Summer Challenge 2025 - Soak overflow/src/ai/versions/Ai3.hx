@@ -45,6 +45,7 @@ class Ai3 {
 		outputs.splice( 0, outputs.length );
 	}
 
+	// sniper hides behind cover closest to center
 	public function process() {
 		if( turn == 1) processStart();
 
@@ -70,7 +71,6 @@ class Ai3 {
 				if( isOnMySide ) coverPositions.push( coverPosition );
 			}
 		}
-		// coverPositions.sort(( a, b ) -> board.centerDistance( a ) - board.centerDistance( b ));
 		
 		// final p = [for( pos in coverPositions ) '$pos'].join( ',' );
 		// printErr( 'coverPositions: $p' );
@@ -111,11 +111,16 @@ class Ai3 {
 	}
 
 	function getSniperActions( actions:Array<TAction>, agent:Agent, minShootDistance:Int ) {
-		coverPositions.sort(( a, b ) -> board.getDistance( agent.pos, a ) - board.centerDistance( agent.pos ));
+		// coverPositions.sort(( a, b ) -> board.getDistance( agent.pos, a ) - board.getDistance( agent.pos, b ));
+		coverPositions.sort(( a, b ) -> board.centerDistance( a ) - board.centerDistance( b ));
+		// final p = [for( pos in coverPositions ) '$pos'].join( ',' );
+		// printErr( 'coverPositions: $p' );
 		
 		if( coverPositions.length > 0 ) {
-			agent.pos = coverPositions[0];
 			actions.push( TAction.Move( coverPositions[0].x, coverPositions[0].y ));
+			agent.pos = coverPositions[0];
+		} else {
+
 		}
 		if( agent.canShoot()) {
 			final targetAgent = getClosestOppAgent( agent );
