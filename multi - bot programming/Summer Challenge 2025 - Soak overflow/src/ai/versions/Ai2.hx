@@ -14,6 +14,7 @@ using xa3.ArrayUtils;
 class Ai2 {
 
 	public var aiId = "Ai2";
+	final showMessage = false;
 	final outputs:Array<String> = [];
 	
 	var allAgents:Map<Int, ai.data.Agent> = [];
@@ -70,21 +71,15 @@ class Ai2 {
 		if( oppAgents.length == 0 ) return [TAction.HunkerDown];
 		
 		final actions = [];
-		final neighborCells = board.getNeighborCells( agent.pos );
 		
-		oppAgents.sort(( a, b ) -> sortByDistanceAndWetness( agent, a, b ));
-		final closestOppAgent = oppAgents[0];
-
-		final defaultOppAgentId = defaultOppIdForAgent[agent];
-		final targetAgent = oppAgentsMap[defaultOppAgentId] ?? closestOppAgent;
-
-		final targetDistance = agent.pos.manhattanDistance( targetAgent.pos );
 		final minShootDistance = agent.optimalRange * 2;
 		final canShoot = agent.shotCooldown == 0;
+		
+		final targetAgent = getTargetAgent( agent );
+		final targetDistance = agent.pos.manhattanDistance( targetAgent.pos );
 
 		final targetAgentMinShootDistance = targetAgent.optimalRange;
 		final isInOppRange = agent.pos.manhattanDistance( targetAgent.pos ) <= targetAgentMinShootDistance;
-		final isWetter = agent.wetness > targetAgent.wetness;
 		// switch agent.type {
 			// case Sniper:
 				if( canShoot ) shoot( actions, agent, targetAgent, minShootDistance, canShoot );
@@ -98,15 +93,32 @@ class Ai2 {
 	}
 
 	function getTargetAgent( agent:Agent ) {
-		oppAgents.sort(( a, b ) -> sortByDistanceAndWetness( agent, a, b ));
-		final closestOppAgent = oppAgents[0];
+		oppAgents.sort(( a, b ) -> sortOppAgents( agent, a, b ));
+		var closestOppAgent = oppAgents[0];
+		for( oppAgent in oppAgents ) {
+			if( board.coverPositionSet.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) closestOppAgent;
+		}
 		
+		final defaultOppAgentId = defaultOppIdForAgent[agent];
+		final defaultOppAgent = oppAgentsMap[defaultOppAgentId] ?? closestOppAgent;
+		final targetAgent = board.coverPositionSet.getCoverValue( defaultOppAgent.pos, agent.pos ) == 1 ? defaultOppAgent : closestOppAgent;
+
+		return targetAgent;
+	}
+	
+	function sortOppAgents( agent:Agent, oppA:Agent, oppB:Agent ) {
+		final distanceA = board.getDistance( agent.pos, oppA.pos );
+		final distanceB = board.getDistance( agent.pos, oppB.pos );
+		if( distanceA < distanceB ) return -1;
+		if( distanceA > distanceB ) return 1;
+
+		return oppA.wetness - oppB.wetness;
 	}
 
 	function approach( actions:Array<TAction>, agent:Agent, targetAgent:Agent ) {
 		final nextPos = board.getNextPos( agent.pos, targetAgent.pos );
 		actions.push( TAction.Move( nextPos.x, nextPos.y ));
-		actions.push( TAction.Message( '${agent.getType()} approach ${targetAgent.id}' ));
+		if( showMessage ) actions.push( TAction.Message( '${agent.getType()} approach ${targetAgent.id}' ));
 	}
 
 	function evade( actions:Array<TAction>, agent:Agent, targetAgent:Agent ) {
@@ -114,7 +126,7 @@ class Ai2 {
 		final maxDistanceIndex = [for( cell in neighborCells ) cell.pos.manhattanDistance( targetAgent.pos )].maxIndex();
 		final cell = neighborCells[maxDistanceIndex];
 		actions.push( TAction.Move( cell.pos.x, cell.pos.y ));
-		actions.push( TAction.Message( '${agent.getType()} evade ${targetAgent.id}' ));
+		if( showMessage ) actions.push( TAction.Message( '${agent.getType()} evade ${targetAgent.id}' ));
 	}
 
 	function shoot( actions:Array<TAction>, agent:Agent, targetAgent:Agent, minShootDistance:Int, canShoot:Bool ) {
@@ -134,7 +146,7 @@ class Ai2 {
 		} else {
 			actions.push( TAction.HunkerDown );
 		}
-		actions.push( TAction.Message( '${agent.getType()} attack ${targetAgent.id}' ));
+		if( showMessage ) actions.push( TAction.Message( '${agent.getType()} attack ${targetAgent.id}' ));
 	}
 
 	// function throw( actions:Array<TAction>, agent:Agent, targetAgent:Agent ) {
@@ -146,15 +158,11 @@ class Ai2 {
 	// }
 
 	function getThrowPosition( agent:Agent, targetAgent:Agent ) {
-		return targetAgent.pos;
+		if( agent.pos.chebyshevDistance( targetAgent.pos ) > 1 ) return targetAgent.pos;
+		final neighbors = board.getNeighborCells( targetAgent.pos );
+		neighbors.sort(( a, b ) -> agent.pos.chebyshevDistance( b.pos ) - agent.pos.chebyshevDistance( a.pos ));
+		
+		return neighbors[0].pos;
 	}
 
-	function sortByDistanceAndWetness( agent:Agent, oppA:Agent, oppB:Agent ) {
-		final distanceA = agent.pos.manhattanDistance( oppA.pos );
-		final distanceB = agent.pos.manhattanDistance( oppB.pos );
-		if( distanceA < distanceB ) return -1;
-		if( distanceA > distanceB ) return 1;
-
-		return oppA.wetness - oppB.wetness;
-	}
 }

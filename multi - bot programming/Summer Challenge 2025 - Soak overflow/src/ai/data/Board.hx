@@ -41,9 +41,17 @@ class Board {
 		return centerPosition.manhattanDistance( pos );
 	}
 
+	public function getDistance( start:Pos, end:Pos ) {
+		if( start.manhattanDistance( end ) <= 1 ) return 1;
+
+		final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
+		if( solveResult.result == Solved ) return solveResult.path.length - 1;
+
+		return width + height;
+	}
+
 	public function getNextPos( start:Pos, end:Pos ) {
-		final distance = start.manhattanDistance( end );
-		if( distance <= 1 ) return start;
+		if( start.manhattanDistance( end ) <= 1 ) return start;
 
 		final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
 		if( solveResult.result == Solved ) {
