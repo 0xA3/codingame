@@ -28,6 +28,7 @@ class Ai3 {
 
 	var turn = 1;
 	var startDirection = 0;
+	final coverPositions = [];
 
 	public function new() { }
 
@@ -58,8 +59,22 @@ class Ai3 {
 	}
 
 	function processStart() {
-		startDirection = myAgents[0].x < board.center.x ? -1 : 1;
+		startDirection = myAgents[0].pos.x < board.center.x ? -1 : 1;
+		final oppositeX = startDirection == -1 ? board.width - 1 : 0;
 		
+		for( coverPosition => coverValues in board.coverPositions ) {
+			final y = coverPosition.y;
+			if( board.getCoverValue( coverPosition, board.positions[y][oppositeX] ) < 1 ) {
+				final isOnMySide = ( startDirection == -1 && coverPosition.x < board.center.x ) || ( startDirection == 1 && coverPosition.x > board.center.x );
+				// printErr( 'coverPosition: $coverPosition value: ${board.getCoverValue( coverPosition, board.positions[y][oppositeX] )} isOnMySide: $isOnMySide' );
+				if( isOnMySide ) coverPositions.push( coverPosition );
+			}
+		}
+		// coverPositions.sort(( a, b ) -> board.centerDistance( a ) - board.centerDistance( b ));
+		
+		// final p = [for( pos in coverPositions ) '$pos'].join( ',' );
+		// printErr( 'coverPositions: $p' );
+
 		myAgents.sort(( a, b ) -> a.pos.y - b.pos.y );
 		oppAgents.sort(( a, b ) -> a.pos.y - b.pos.y );
 
@@ -73,8 +88,6 @@ class Ai3 {
 	function processAgent( agent:Agent ) {
 		if( oppAgents.length == 0 ) return [TAction.HunkerDown];
 		
-		
-		
 		final minShootDistance = agent.optimalRange * 2;
 		final canShoot = agent.shotCooldown == 0;
 		
@@ -84,8 +97,9 @@ class Ai3 {
 		final targetAgentMinShootDistance = targetAgent.optimalRange;
 		final isInOppRange = agent.pos.manhattanDistance( targetAgent.pos ) <= targetAgentMinShootDistance;
 		
-		final actions = switch agent.type {
-			case Sniper: getSniperActions();
+		final actions = [];
+		switch agent.type {
+			case Sniper: getSniperActions( actions, agent, minShootDistance );
 			
 			default:
 				if( canShoot ) shoot( actions, agent, targetAgent, minShootDistance, canShoot );
@@ -96,20 +110,43 @@ class Ai3 {
 		return actions;
 	}
 
-	function getSniperActions() {
+	function getSniperActions( actions:Array<TAction>, agent:Agent, minShootDistance:Int ) {
+		coverPositions.sort(( a, b ) -> board.getDistance( agent.pos, a ) - board.centerDistance( agent.pos ));
+		
+		if( coverPositions.length > 0 ) {
+			agent.pos = coverPositions[0];
+			actions.push( TAction.Move( coverPositions[0].x, coverPositions[0].y ));
+		}
+		if( agent.canShoot()) {
+			final targetAgent = getClosestOppAgent( agent );
+			if( agent.pos.manhattanDistance( targetAgent.pos ) <= minShootDistance ) {
+				actions.push( TAction.Shoot( targetAgent.id ));
+				if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} shoot ${targetAgent.id}' ));
+			}
+		} else {
+			actions.push( TAction.HunkerDown );
+		}
+	}
 
+	function getClosestOppAgent( agent:Agent ) {
+		oppAgents.sort(( a, b ) -> sortOppAgents( agent, a, b ));
+		for( oppAgent in oppAgents ) {
+			if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) return oppAgent;
+		}
+		
+		return oppAgents[0];
 	}
 
 	function getTargetAgent( agent:Agent ) {
 		oppAgents.sort(( a, b ) -> sortOppAgents( agent, a, b ));
 		var closestOppAgent = oppAgents[0];
 		for( oppAgent in oppAgents ) {
-			if( board.coverPositionSet.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) closestOppAgent;
+			if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) closestOppAgent;
 		}
 		
 		final defaultOppAgentId = defaultOppIdForAgent[agent];
 		final defaultOppAgent = oppAgentsMap[defaultOppAgentId] ?? closestOppAgent;
-		final targetAgent = board.coverPositionSet.getCoverValue( defaultOppAgent.pos, agent.pos ) == 1 ? defaultOppAgent : closestOppAgent;
+		final targetAgent = board.getCoverValue( defaultOppAgent.pos, agent.pos ) == 1 ? defaultOppAgent : closestOppAgent;
 
 		return targetAgent;
 	}

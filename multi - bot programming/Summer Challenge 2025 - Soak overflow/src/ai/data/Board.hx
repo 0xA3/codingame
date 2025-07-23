@@ -9,11 +9,12 @@ class Board {
 	
 	public final width:Int;
 	public final height:Int;
-	public final positions:Array<Array<Pos>>;
+	public final positions:Array<Array<Pos>>; // [y][x]
 	public final map2D:Map2D;
 	public final cells:Map<Pos, Cell>;
 	public final tiles:Map<Pos, Int>;
-	public final coverPositionSet:CoverPositionSet;
+	public final coverPositions:Map<Pos, Map<Pos, Float>>;
+	// public final coverPositionSet:CoverPositionSet;
 
 	public final center:Pos;
 
@@ -24,7 +25,8 @@ class Board {
 		map2D:Map2D,
 		cells:Map<Pos, Cell>,
 		tiles:Map<Pos, Int>,
-		coverPositionSet:CoverPositionSet
+		coverPositions:Map<Pos, Map<Pos, Float>>
+		// coverPositionSet:CoverPositionSet
 	) {
 		this.width = width;
 		this.height = height;
@@ -32,7 +34,8 @@ class Board {
 		this.map2D = map2D;
 		this.cells = cells;
 		this.tiles = tiles;
-		this.coverPositionSet = coverPositionSet;
+		this.coverPositions = coverPositions;
+		// this.coverPositionSet = coverPositionSet;
 
 		
 		this.center = positions[int( height / 2 )][int( width / 2 )];
@@ -72,5 +75,26 @@ class Board {
 
 	public function getNeighborCells( pos:Pos ) {
 		return cells[pos].neighbors;
+	}
+
+	// cover sum calculation for multiple shoot positions
+	public function getCoverSum( coverPosition:Pos, shootPositions:Array<Pos> ) {
+		if( !coverPositions.exists( coverPosition )) return 1.0;
+		final posCoverValues = coverPositions[coverPosition];
+		
+		var coverSum = 0.0;
+		for( shootPosition in shootPositions ) coverSum += posCoverValues[shootPosition] ?? 1.0;
+		
+		return coverSum;
+	}
+
+	// cover value for single shoot position
+	public function getCoverValue( coverPosition:Pos, shootPosition:Pos ) {
+		if( !coverPositions.exists( coverPosition )) return 1.0;
+		final posCoverValues = coverPositions[coverPosition];
+		// printErr( 'myPos: $pos' );
+		// for( pcPos => pcValue in posCoverValues ) printErr( 'pos: $pcPos value: $pcValue' );
+
+		return posCoverValues[shootPosition] ?? 1.0;
 	}
 }

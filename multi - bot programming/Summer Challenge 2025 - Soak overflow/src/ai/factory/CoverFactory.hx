@@ -28,8 +28,8 @@ class CoverFactory {
 			damageReducedPositionsForBoxNeightbors.set( neighborPosition, damageReducedPositions );
 		}
 
-		return new CoverPositionSet( damageReducedPositionsForBoxNeightbors );
-		// return damageReducedPositionsForBoxNeightbors;
+		// return new CoverPositionSet( damageReducedPositionsForBoxNeightbors );
+		return damageReducedPositionsForBoxNeightbors;
 	}
 
 	function getBoxPositions() return [for( pos => height in tiles ) if( tiles[pos] > 0 ) pos => tiles[pos]];

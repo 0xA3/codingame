@@ -76,13 +76,13 @@ class MainAi {
 				grid.push( tileType );
 			}
 		}
-		final coverPositionSet = new ai.factory.CoverFactory( width, height, positions, tilesMap ).createCoverPositionsForBoxNeightbors();
+		final coverPositions = new ai.factory.CoverFactory( width, height, positions, tilesMap ).createCoverPositionsForBoxNeightbors();
 		
 		final cells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => new Cell( positions[y][x] )];
 		initNeighbors( width, height, positions, cells, tilesMap );
 
 		map2D.setMap( grid );
-		final board = new Board( width, height, positions, map2D, cells, tilesMap, coverPositionSet );
+		final board = new Board( width, height, positions, map2D, cells, tilesMap, coverPositions );
 		ai.setGlobalInputs( agents, board );
 
 		// game loop

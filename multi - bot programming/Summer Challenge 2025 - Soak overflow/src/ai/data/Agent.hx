@@ -38,6 +38,7 @@ class Agent {
 	}
 
 	public function toString() return 'id: $id';
+	
 	public function getType() {
 		switch type {
 			case Gunner: return '🔫';
@@ -47,4 +48,7 @@ class Agent {
 			case Berserker: return '🪓';
 		}
 	}
+
+	public function canShoot() return shotCooldown == 0;
+	public function hasBobs() return splashBombs > 0;
 }
