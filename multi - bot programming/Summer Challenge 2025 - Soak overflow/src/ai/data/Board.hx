@@ -37,6 +37,10 @@ class Board {
 		this.centerPosition = positions[int( height / 2 )][int( width / 2 )];
 	}
 
+	public function checkOutsideBoard( x:Int, y:Int ) {
+		return x < 0 || x >= width || y < 0 || y >= height;
+	}
+
 	public function centerDistance( pos:Pos ) {
 		return centerPosition.manhattanDistance( pos );
 	}
