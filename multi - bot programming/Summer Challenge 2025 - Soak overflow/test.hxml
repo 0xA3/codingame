@@ -1,3 +1,4 @@
+-lib astar
 -lib buddy
 -cp ../../codingame_extension/
 -cp src

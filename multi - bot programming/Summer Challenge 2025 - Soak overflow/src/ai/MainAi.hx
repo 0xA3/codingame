@@ -8,6 +8,8 @@ import ai.data.Agent;
 import ai.data.Board;
 import ai.data.Cell;
 import ai.data.TAgent;
+import astar.map2d.Direction;
+import astar.map2d.Map2D;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -54,6 +56,12 @@ class MainAi {
 		final height = parseInt(inputs[1]); // Height of the game map
 		final positions = [];
 		final tilesMap:Map<Pos, Int> = [];
+		final map2D = new Map2D( width, height, FourWay );
+		final costs = [0 => [ N => 1., S => 1., W => 1., E => 1. ]];
+		map2D.setCosts( costs );
+		map2D.configureCache(true, 512);
+		
+		final grid = [];
 		for( _ in 0...height ) {
 			positions.push( [] );
 			final inputs = readline().split(' ');
@@ -65,13 +73,16 @@ class MainAi {
 				final pos = new Pos( x, y );
 				positions[y][x] = pos;
 				tilesMap.set( pos, tileType );
+				grid.push( tileType );
 			}
 		}
-		final cells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => new Cell( positions[y][x] )];
 		final coverPositionSet = new ai.factory.CoverFactory( width, height, positions, tilesMap ).createCoverPositionsForBoxNeightbors();
-		initNeighbors( width, height,positions, cells, tilesMap );
+		
+		final cells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => new Cell( positions[y][x] )];
+		initNeighbors( width, height, positions, cells, tilesMap );
 
-		final board = new Board( width, height, positions, cells, tilesMap, coverPositionSet );
+		map2D.setMap( grid );
+		final board = new Board( width, height, positions, map2D, cells, tilesMap, coverPositionSet );
 		ai.setGlobalInputs( agents, board );
 
 		// game loop
