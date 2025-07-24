@@ -1,6 +1,5 @@
 package ai.factory;
 
-import ai.data.CoverPositionSet;
 import xa3.math.Pos;
 import ya.Set;
 

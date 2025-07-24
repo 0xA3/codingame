@@ -1,5 +1,6 @@
 package ai.data;
 /*
+  cooldown power range bombs
 GUNNER(1, 16, 4, 1),
 SNIPER(5, 24, 6, 0),
 BOMBER(2, 8, 2, 3),

@@ -3,7 +3,6 @@ package ai.versions;
 import CodinGame.printErr;
 import ai.contexts.Action;
 import ai.data.Agent;
-import ai.data.CoverPositionSet;
 import ai.data.TAction;
 import xa3.math.IntMath.max;
 import xa3.math.IntMath.min;
@@ -21,7 +20,6 @@ class TakeCover {
 	var height = 0;
 	var positions = [];
 	var tiles:Map<Pos, Int> = [];
-	var coverPositionSet:CoverPositionSet;
 	
 	var myAgentIds:Array<Int> = [];
 	var oppAgentIds:Array<Int> = [];
