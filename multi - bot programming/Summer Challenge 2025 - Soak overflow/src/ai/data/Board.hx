@@ -14,7 +14,6 @@ class Board {
 	public final cells:Map<Pos, Cell>;
 	public final tiles:Map<Pos, Int>;
 	public final coverPositions:Map<Pos, Map<Pos, Float>>;
-	// public final coverPositionSet:CoverPositionSet;
 
 	public final center:Pos;
 
@@ -47,6 +46,17 @@ class Board {
 
 	public function centerDistance( pos:Pos ) {
 		return center.manhattanDistance( pos );
+	}
+
+	public function getPath( start:Pos, end:Pos ) {
+		if( start.manhattanDistance( end ) <= 1 ) return [];
+
+		final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
+		if( solveResult.result == Solved ) {
+			return solveResult.path.map( p -> positions[p.y][p.x] );
+		}
+
+		return [];
 	}
 
 	public function getDistance( start:Pos, end:Pos ) {

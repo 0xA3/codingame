@@ -6,6 +6,7 @@ import ai.contexts.Action;
 import ai.data.Agent;
 import ai.data.Board;
 import ai.data.TAction;
+import xa3.math.IntMath.min;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -28,7 +29,6 @@ class Ai4 {
 
 	var turn = 1;
 	var startDirection = 0;
-	final coverPositions = [];
 
 	public function new() { }
 
@@ -61,19 +61,6 @@ class Ai4 {
 
 	function processStart() {
 		startDirection = myAgents[0].pos.x < board.center.x ? -1 : 1;
-		final oppositeX = startDirection == -1 ? board.width - 1 : 0;
-		
-		for( coverPosition => coverValues in board.coverPositions ) {
-			final y = coverPosition.y;
-			if( board.getCoverValue( coverPosition, board.positions[y][oppositeX] ) < 1 ) {
-				final isOnMySide = ( startDirection == -1 && coverPosition.x < board.center.x ) || ( startDirection == 1 && coverPosition.x > board.center.x );
-				// printErr( 'coverPosition: $coverPosition value: ${board.getCoverValue( coverPosition, board.positions[y][oppositeX] )} isOnMySide: $isOnMySide' );
-				if( isOnMySide ) coverPositions.push( coverPosition );
-			}
-		}
-		
-		// final p = [for( pos in coverPositions ) '$pos'].join( ',' );
-		// printErr( 'coverPositions: $p' );
 
 		myAgents.sort(( a, b ) -> a.pos.y - b.pos.y );
 		oppAgents.sort(( a, b ) -> a.pos.y - b.pos.y );
@@ -111,30 +98,47 @@ class Ai4 {
 	}
 
 	function getSniperActions( actions:Array<TAction>, agent:Agent, minShootDistance:Int ) {
-		// coverPositions.sort(( a, b ) -> board.getDistance( agent.pos, a ) - board.getDistance( agent.pos, b ));
-		coverPositions.sort(( a, b ) -> board.centerDistance( a ) - board.centerDistance( b ));
-		// final p = [for( pos in coverPositions ) '$pos'].join( ',' );
+		final coverPositionSums = [];
+		for( coverPosition in board.coverPositions.keys() ) {
+			final coverSum = board.getCoverSum( coverPosition, oppAgents.map( agent -> agent.pos ) );
+			if( coverSum < oppAgents.length ) coverPositionSums.push({ pos: coverPosition, sum: coverSum });
+		}
+		
+		coverPositionSums.sort(( a, b ) -> {
+			if( a.sum < b.sum ) return -1;
+			if( a.sum > b.sum ) return 1;
+			return board.centerDistance( a.pos ) - board.centerDistance( b.pos );
+		});
+		// final p = [for( pos in coverPositionSums ) '${pos.pos} ${pos.sum}'].join( ',' );
 		// printErr( 'coverPositions: $p' );
 		
-		if( coverPositions.length > 0 ) {
-			actions.push( TAction.Move( coverPositions[0].x, coverPositions[0].y ));
-			agent.pos = coverPositions[0];
+		if( coverPositionSums.length > 0 ) {
+			actions.push( TAction.Move( coverPositionSums[0].pos.x, coverPositionSums[0].pos.y ));
+			agent.pos = coverPositionSums[0].pos;
+			if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} hide at ${coverPositionSums[0].pos}' ));
 		} else {
-
+			final closestOpp = getClosestWettestOppAgent( agent );
+			final path = board.getPath( agent.pos, closestOpp.pos );
+			final optimalDistance = agent.optimalRange;
+			final targetPos = path[min(optimalDistance, path.length - 1)];
+			actions.push( TAction.Move( targetPos.x, targetPos.y ));
+			if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} approach ${closestOpp.id} ${coverPositionSums[0].pos}' ));
 		}
+
 		if( agent.canShoot()) {
-			final targetAgent = getClosestOppAgent( agent );
+			final targetAgent = getClosestWettestOppAgent( agent );
 			if( agent.pos.manhattanDistance( targetAgent.pos ) <= minShootDistance ) {
 				actions.push( TAction.Shoot( targetAgent.id ));
-				if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} shoot ${targetAgent.id}' ));
+				// if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} shoot ${targetAgent.id}' ));
 			}
 		} else {
 			actions.push( TAction.HunkerDown );
+			// if( showMessage ) actions.push( TAction.Message( '${agent.id}${agent.getType()} wait' ));
 		}
 	}
 
-	function getClosestOppAgent( agent:Agent ) {
-		oppAgents.sort(( a, b ) -> sortOppAgents( agent, a, b ));
+	function getClosestWettestOppAgent( agent:Agent ) {
+		oppAgents.sort(( a, b ) -> sortOppsByDistanceAndWetness( agent, a, b ));
 		for( oppAgent in oppAgents ) {
 			if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) return oppAgent;
 		}
@@ -143,7 +147,7 @@ class Ai4 {
 	}
 
 	function getTargetAgent( agent:Agent ) {
-		oppAgents.sort(( a, b ) -> sortOppAgents( agent, a, b ));
+		oppAgents.sort(( a, b ) -> sortOppsByDistanceAndWetness( agent, a, b ));
 		var closestOppAgent = oppAgents[0];
 		for( oppAgent in oppAgents ) {
 			if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) closestOppAgent;
@@ -156,7 +160,7 @@ class Ai4 {
 		return targetAgent;
 	}
 	
-	function sortOppAgents( agent:Agent, oppA:Agent, oppB:Agent ) {
+	function sortOppsByDistanceAndWetness( agent:Agent, oppA:Agent, oppB:Agent ) {
 		final distanceA = board.getDistance( agent.pos, oppA.pos );
 		final distanceB = board.getDistance( agent.pos, oppB.pos );
 		if( distanceA < distanceB ) return -1;
