@@ -7,7 +7,6 @@
 -D message-reporting=pretty
 -D js-es=6
 -D no-traces
--D sim
 --dce full
 -main ai.MainAi
 --js dest/ai.js

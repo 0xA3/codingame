@@ -15,6 +15,8 @@ class Board {
 	public final tiles:Map<Pos, Int>;
 	public final coverPositions:Map<Pos, Map<Pos, Float>>;
 
+	public final halfWidth:Int;
+
 	public final center:Pos;
 
 	public function new(
@@ -35,9 +37,9 @@ class Board {
 		this.tiles = tiles;
 		this.coverPositions = coverPositions;
 		// this.coverPositionSet = coverPositionSet;
-
 		
-		this.center = positions[int( height / 2 )][int( width / 2 )];
+		center = positions[int( height / 2 )][int( width / 2 )];
+		halfWidth = int( width / 2 );
 	}
 
 	public function checkOutsideBoard( x:Int, y:Int ) {

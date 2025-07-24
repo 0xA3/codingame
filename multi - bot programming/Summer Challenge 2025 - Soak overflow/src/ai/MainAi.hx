@@ -3,6 +3,7 @@ package ai;
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
+import Std.int;
 import Std.parseInt;
 import ai.data.Agent;
 import ai.data.Board;
@@ -88,6 +89,7 @@ class MainAi {
 		// game loop
 		while (true) {
 			final agentCount = parseInt(readline());
+			final startTime = haxe.Timer.stamp();
 			myAgentIds = new Set<Int>();
 			oppAgentIds = new Set<Int>();
 			
@@ -109,6 +111,8 @@ class MainAi {
 			
 			ai.setInputs( myAgentIds, oppAgentIds );
 			final output = ai.process();
+			
+			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
 
 			print( output );
 		}

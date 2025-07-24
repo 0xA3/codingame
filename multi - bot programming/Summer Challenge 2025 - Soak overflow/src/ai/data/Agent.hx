@@ -37,6 +37,7 @@ class Agent {
 		// printErr( 'update agent $id, $x:$y, cooldown: $shotCooldown, splashBombs: $splashBombs, wetness: $wetness' );
 	}
 
+	public function info() return '${id}${getType()}💤$shotCooldown';
 	public function toString() return 'id: $id';
 	
 	public function getType() {
