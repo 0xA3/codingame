@@ -100,7 +100,7 @@ class Ai4 {
 		for( coverPosition in board.coverPositions.keys() ) {
 			final coverDistance = agent.pos.manhattanDistance( coverPosition );
 			// printErr( '${agent.pos} - $coverPosition dist $coverDistance' );
-			if( coverDistance > board.width ) continue;
+			// if( coverDistance > board.width ) continue;
 
 			final closestOppAgentWithBombs = getClosestOppAgentWithBombs( coverPosition );
 			final oppDistance = agent.pos.manhattanDistance( closestOppAgentWithBombs.pos );
@@ -117,8 +117,11 @@ class Ai4 {
 		coverPositionSums.sort(( a, b ) -> {
 			if( a.sum < b.sum ) return -1;
 			if( a.sum > b.sum ) return 1;
-			return board.centerDistance( a.pos ) - board.centerDistance( b.pos );
+			return turn < board.halfWidth
+			? board.centerDistance( a.pos ) - board.centerDistance( b.pos )
+			: agent.pos.manhattanDistance( a.pos ) - agent.pos.manhattanDistance( b.pos );
 		});
+		// printErr( turn < board.halfWidth ? 'center sort' : 'agent distance sort' );
 		// final p = [for( pos in coverPositionSums ) '${pos.pos} ${pos.sum}'].join( ',' );
 		// printErr( 'coverPositions: $p' );
 		
