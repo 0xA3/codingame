@@ -50,6 +50,8 @@ class Ai4 {
 		for( i in 0...myAgents.length ) {
 			final agent = myAgents[i];
 			final actions = processAgent( i, agent );
+			if( actions.length == 0 ) actions.push( TAction.HunkerDown );
+
 			outputs.push( '${agent.id}; ' + actions.map( action -> Action.toString( action )).join( "; " ) );
 		}
 		
