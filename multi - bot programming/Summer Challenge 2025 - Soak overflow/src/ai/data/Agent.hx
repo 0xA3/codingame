@@ -1,6 +1,7 @@
 package ai.data;
 
 import CodinGame.printErr;
+import Std.int;
 import xa3.math.Pos;
 
 class Agent {
@@ -16,6 +17,7 @@ class Agent {
 	public var splashBombs = 0;
 	public var wetness = 0;
 
+	public final maxRange:Int;
 	public var pos:Pos = new Pos();
 
 	public function new( id:Int, player:Int, type:TAgent, shotCooldown:Int, optimalRange:Int, soakingPower:Int, splashBombs:Int ) {
@@ -27,6 +29,7 @@ class Agent {
 		this.soakingPower = soakingPower;
 		this.splashBombs = splashBombs;
 		// printErr( 'new agent $id, player: $player type: $type' );
+		maxRange = optimalRange * 2;
 	}
 
 	public function update( pos:Pos, cooldown:Int, splashBombs:Int, wetness:Int ) {
@@ -50,6 +53,16 @@ class Agent {
 		}
 	}
 
+	public function getSoakingPowerWithPos( other:Pos ) {
+		final distance = pos.manhattanDistance( other );
+		if( distance <= optimalRange ) soakingPower;
+		if( distance <= maxRange ) return int( soakingPower / 2 );
+		return 0;
+	}
+
 	public function canShoot() return shotCooldown == 0;
-	public function hasBobs() return splashBombs > 0;
+	public function canBomb() return splashBombs > 0;
+
+	public function isInShotRange( other:Agent ) return pos.manhattanDistance( other.pos ) <= other.maxRange;
+	public function isInBombRange( other:Agent ) return pos.manhattanDistance( other.pos ) <= 4 + 1;
 }

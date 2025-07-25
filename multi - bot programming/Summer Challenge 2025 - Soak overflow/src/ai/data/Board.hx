@@ -91,22 +91,25 @@ class Board {
 
 	// cover sum calculation for multiple shoot positions
 	public function getCoverSum( coverPosition:Pos, shootPositions:Array<Pos> ) {
-		if( !coverPositions.exists( coverPosition )) return 1.0;
+		if( !coverPositions.exists( coverPosition )) return 0.0;
 		final posCoverValues = coverPositions[coverPosition];
 		
 		var coverSum = 0.0;
-		for( shootPosition in shootPositions ) coverSum += posCoverValues[shootPosition] ?? 1.0;
+		for( shootPosition in shootPositions ) {
+			coverSum += posCoverValues[shootPosition] ?? 0.0;
+			// if( coverPosition == positions[4][10] ) printErr( 'cover: $coverPosition shoot: $shootPosition value: ${posCoverValues[shootPosition]} sum: $coverSum' );
+		}
 		
 		return coverSum;
 	}
 
 	// cover value for single shoot position
 	public function getCoverValue( coverPosition:Pos, shootPosition:Pos ) {
-		if( !coverPositions.exists( coverPosition )) return 1.0;
+		if( !coverPositions.exists( coverPosition )) return 0.0;
 		final posCoverValues = coverPositions[coverPosition];
 		// printErr( 'myPos: $pos' );
 		// for( pcPos => pcValue in posCoverValues ) printErr( 'pos: $pcPos value: $pcValue' );
 
-		return posCoverValues[shootPosition] ?? 1.0;
+		return posCoverValues[shootPosition] ?? 0.0;
 	}
 }

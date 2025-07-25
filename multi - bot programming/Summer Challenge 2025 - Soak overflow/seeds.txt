@@ -1,3 +1,8 @@
 3vs3 with some boxes
 seed=-2101064956414919200
 
+5vs5 no cover
+seed=8172049514443418000
+
+box error I'm on the right
+seed=7303228704903425000

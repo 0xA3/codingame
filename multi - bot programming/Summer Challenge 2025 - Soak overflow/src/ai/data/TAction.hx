@@ -6,7 +6,6 @@ enum TAction {
 	HunkerDown;
 	Message( text:String );
 	Move( x:Int, y:Int );
-	NotPossible;
 	Shoot( id:Int );
 	Throw( x:Int, y:Int );
 }

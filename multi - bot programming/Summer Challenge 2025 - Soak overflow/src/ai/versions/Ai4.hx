@@ -73,9 +73,6 @@ class Ai4 {
 	function processAgent( index:Int, agent:Agent ) {
 		if( oppAgents.length == 0 ) return [TAction.HunkerDown];
 
-		final minShootDistance = agent.optimalRange * 2;
-		final canShoot = agent.shotCooldown == 0;
-		
 		final targetAgent = getTargetAgent( agent );
 		final targetDistance = agent.pos.manhattanDistance( targetAgent.pos );
 
@@ -84,10 +81,11 @@ class Ai4 {
 		
 		final actions = [];
 		switch agent.type {
-			case Sniper: getSniperActions( actions, index, agent, minShootDistance );
+			case Sniper: getSniperActions( actions, index, agent );
 			
 			default:
-				if( canShoot ) shoot( actions, index, agent, targetAgent, minShootDistance, canShoot );
+				// if( agent.canBomb() && targetAgent.isInBombRange( agent ) ) bomb( actions, index, agent, targetAgent );
+				if( agent.canShoot() ) shoot( actions, index, agent, targetAgent );
 				else if( isInOppRange ) evade( actions, index, agent, targetAgent );
 				else approach( actions, index, agent, targetAgent);
 		}
@@ -95,16 +93,18 @@ class Ai4 {
 		return actions;
 	}
 
-	function getSniperActions( actions:Array<TAction>, index:Int, agent:Agent, minShootDistance:Int ) {
+	function getSniperActions( actions:Array<TAction>, index:Int, agent:Agent ) {
+		final isStartOfGame = turn < board.halfWidth;
+
 		final coverPositionSums = [];
 		for( coverPosition in board.coverPositions.keys() ) {
 			final coverDistance = agent.pos.manhattanDistance( coverPosition );
-			// printErr( '${agent.pos} - $coverPosition dist $coverDistance' );
-			// if( coverDistance > board.width ) continue;
+			final coverIsOnMySide = startDirection == -1 ? coverPosition.x < board.center.x : coverPosition.x > board.center.x;
+			if( isStartOfGame && !coverIsOnMySide ) continue;
 
 			final closestOppAgentWithBombs = getClosestOppAgentWithBombs( coverPosition );
 			final oppDistance = agent.pos.manhattanDistance( closestOppAgentWithBombs.pos );
-			final isBombable = closestOppAgentWithBombs == Agent.NO_AGENT ? false : oppDistance <= 6;
+			final isBombable = closestOppAgentWithBombs == Agent.NO_AGENT ? false : oppDistance < 6;
 			if( isBombable ) continue;
 			
 			final coverSum = board.getCoverSum( coverPosition, oppAgents.map( agent -> agent.pos ) );
@@ -115,21 +115,19 @@ class Ai4 {
 		}
 		
 		coverPositionSums.sort(( a, b ) -> {
-			if( a.sum < b.sum ) return -1;
-			if( a.sum > b.sum ) return 1;
-			return turn < board.halfWidth
-			? board.centerDistance( a.pos ) - board.centerDistance( b.pos )
-			: agent.pos.manhattanDistance( a.pos ) - agent.pos.manhattanDistance( b.pos );
+			if( a.sum < b.sum ) return 1;
+			if( a.sum > b.sum ) return -1;
+			return board.centerDistance( a.pos ) - board.centerDistance( b.pos ); // keep agent close to center
 		});
-		// printErr( turn < board.halfWidth ? 'center sort' : 'agent distance sort' );
-		// final p = [for( pos in coverPositionSums ) '${pos.pos} ${pos.sum}'].join( ',' );
-		// printErr( 'coverPositions: $p' );
+		// for( pos in coverPositionSums ) printErr( 'cover ${pos.pos} ${pos.sum}   dist ${board.centerDistance( pos.pos )}' );
 		
+		// move action
 		if( coverPositionSums.length > 0 ) {
 			actions.push( TAction.Move( coverPositionSums[0].pos.x, coverPositionSums[0].pos.y ));
-			agent.pos = coverPositionSums[0].pos;
+			final nextPos = board.getNextPos( agent.pos, coverPositionSums[0].pos );
+			agent.pos = nextPos;
 			#if sim
-			actions.push( TAction.Message( '${agent.info()} hide at ${coverPositionSums[0].pos}' ));
+			if( canMove( index, nextPos )) actions.push( TAction.Message( '${agent.info()} hide at ${coverPositionSums[0].pos}' ));
 			#end
 		} else {
 			final closestOpp = getClosestOppAgentWithBombs( agent.pos );
@@ -137,56 +135,50 @@ class Ai4 {
 			final maxDistanceIndex = [for( cell in cellNeighbors ) cell.pos.manhattanDistance( closestOpp.pos )].maxIndex();
 			final evadePos = cellNeighbors[maxDistanceIndex].pos;
 			if( canMove( index, evadePos )) actions.push( TAction.Move( evadePos.x, evadePos.y ));
+			
 			#if sim
 			actions.push( TAction.Message( '${agent.info()} evade ${closestOpp.id}' ));
 			#end
 		}
 
+		// combat action
 		if( agent.canShoot()) {
-			final targetAgent = getClosestWettestOppAgent( agent.pos );
-			if( agent.pos.manhattanDistance( targetAgent.pos ) <= minShootDistance ) {
+			final targetAgent = getClosestWettestOppAgent( agent );
+			if( agent.pos.manhattanDistance( targetAgent.pos ) <= agent.maxRange ) {
 				actions.push( TAction.Shoot( targetAgent.id ));
+				
 				#if sim
 				actions.push( TAction.Message( '${agent.info()} shoot ${targetAgent.id}' ));
 				#end
 			}
 		} else {
 			actions.push( TAction.HunkerDown );
+			
 			#if sim
 			actions.push( TAction.Message( '${agent.info()} wait' ));
 			#end
 		}
 	}
 
-	function canMove( index:Int, pos:Pos ) {
-		for( i in 0...index ) if( myAgents[i].pos == pos ) return false;
-		return true;
+	function getClosestWettestOppAgent( agent:Agent ) {
+		oppAgents.sort(( a, b ) -> sortOppsByDistanceRangeAndWetness( agent, a, b ));
+		// for( oppAgent in oppAgents ) printErr( '${oppAgent.id} distance ${agent.pos.manhattanDistance( oppAgent.pos )} wetness ${oppAgent.wetness} p ${agent.getSoakingPowerWithPos( oppAgent.pos )}' );
+		for( oppAgent in oppAgents ) if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) return oppAgent;
+		
+		return oppAgents[0];
 	}
 
 	function getClosestOppAgentWithBombs( pos:Pos ) {
 		oppAgents.sort(( a, b ) -> sortOppsByDistanceAndWetness( pos, a, b ));
-		for( oppAgent in oppAgents ) {
-			if( oppAgent.hasBobs() ) return oppAgent;
-		}
+		for( oppAgent in oppAgents ) if( oppAgent.canBomb() ) return oppAgent;
 
 		return Agent.NO_AGENT;
-	}
-
-	function getClosestWettestOppAgent( pos:Pos ) {
-		oppAgents.sort(( a, b ) -> sortOppsByDistanceAndWetness( pos, a, b ));
-		for( oppAgent in oppAgents ) {
-			if( board.getCoverValue( oppAgent.pos, pos ) == 1 ) return oppAgent;
-		}
-		
-		return oppAgents[0];
 	}
 
 	function getTargetAgent( agent:Agent ) {
 		oppAgents.sort(( a, b ) -> sortOppsByDistanceAndWetness( agent.pos, a, b ));
 		var closestOppAgent = oppAgents[0];
-		for( oppAgent in oppAgents ) {
-			if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) closestOppAgent;
-		}
+		for( oppAgent in oppAgents ) if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) closestOppAgent;
 		
 		final defaultOppAgentId = defaultOppIdForAgent[agent];
 		final defaultOppAgent = oppAgentsMap[defaultOppAgentId] ?? closestOppAgent;
@@ -201,13 +193,45 @@ class Ai4 {
 		if( distanceA < distanceB ) return -1;
 		if( distanceA > distanceB ) return 1;
 
-		return oppA.wetness - oppB.wetness;
+		return oppB.wetness - oppA.wetness;
 	}
 
+	function sortOppsByDistanceRangeAndWetness( agent:Agent, oppA:Agent, oppB:Agent ) {
+		final soakingPowerToA = agent.getSoakingPowerWithPos( oppA.pos );
+		final soakingPowerToB = agent.getSoakingPowerWithPos( oppB.pos );
+		if( soakingPowerToA < soakingPowerToB ) return 1;
+		if( soakingPowerToA > soakingPowerToB ) return -1;
+
+		return oppB.wetness - oppA.wetness;
+	}
+
+	function shoot( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent ) {
+		final nextPos = board.getNextPos( agent.pos, targetAgent.pos );
+		agent.pos = nextPos;
+		if( canMove( index, nextPos )) actions.push( TAction.Move( nextPos.x, nextPos.y ));
+
+		if( targetAgent.isInBombRange( agent ) && agent.canBomb() ) {
+			// printErr( '${agent.id} at pos ${agent.pos} trow' );
+			final throwPosition = getThrowPosition( agent.pos, targetAgent.pos );
+			actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
+		
+		} else if( targetAgent.isInShotRange( agent ) && agent.canShoot() ) {
+			actions.push( TAction.Shoot( targetAgent.id ));
+		
+		} else {
+			actions.push( TAction.HunkerDown );
+		}
+		
+		#if sim
+		actions.push( TAction.Message( '${agent.info()} attack ${targetAgent.id}' ));
+		#end
+	}
+	
 	function approach( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent ) {
 		final nextPos = board.getNextPos( agent.pos, targetAgent.pos );
 		agent.pos = nextPos;
 		if( canMove( index, nextPos )) actions.push( TAction.Move( nextPos.x, nextPos.y ));
+		
 		#if sim
 		actions.push( TAction.Message( '${agent.info()} approach ${targetAgent.id}' ));
 		#end
@@ -223,28 +247,9 @@ class Ai4 {
 		#end
 	}
 
-	function shoot( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent, minShootDistance:Int, canShoot:Bool ) {
-		final nextPos = board.getNextPos( agent.pos, targetAgent.pos );
-		agent.pos = nextPos;
-		if( canMove( index, nextPos )) actions.push( TAction.Move( nextPos.x, nextPos.y ));
-
-		final afterMoveDistance = nextPos.manhattanDistance( targetAgent.pos );
-		final hasBomb = agent.splashBombs > 0;
-		final isInBombRange = afterMoveDistance <= 4 + 1;
-		final isInRange = afterMoveDistance <= minShootDistance;
-
-		if( isInBombRange && hasBomb ) {
-			// printErr( '${agent.id} at pos ${agent.pos} trow' );
-			final throwPosition = getThrowPosition( agent.pos, targetAgent.pos );
-			actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
-		} else if( isInRange && canShoot ) {
-			actions.push( TAction.Shoot( targetAgent.id ));
-		} else {
-			actions.push( TAction.HunkerDown );
-		}
-		#if sim
-		actions.push( TAction.Message( '${agent.info()} attack ${targetAgent.id}' ));
-		#end
+	function canMove( index:Int, pos:Pos ) {
+		for( i in 0...index ) if( myAgents[i].pos == pos ) return false;
+		return true;
 	}
 
 	function getThrowPosition( myPos:Pos, targetAgentPos:Pos ) {
