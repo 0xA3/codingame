@@ -11,9 +11,9 @@ import ya.Set;
 
 using xa3.ArrayUtils;
 
-class Ai4 {
+class Ai5 {
 
-	public var aiId = "Ai4";
+	public var aiId = "Ai5";
 	final outputs:Array<String> = [];
 	
 	var allAgents:Map<Int, ai.data.Agent> = [];
@@ -87,7 +87,7 @@ class Ai4 {
 			
 			default:
 				// if( agent.canBomb() && targetAgent.isInBombRange( agent ) ) bomb( actions, index, agent, targetAgent );
-				if( agent.canShoot() ) shoot( actions, index, agent, targetAgent );
+				if( agent.canShoot() || agent.canBomb()) attack( actions, index, agent, targetAgent );
 				else if( isInOppRange ) evade( actions, index, agent, targetAgent );
 				else approach( actions, index, agent, targetAgent);
 		}
@@ -207,7 +207,7 @@ class Ai4 {
 		return oppB.wetness - oppA.wetness;
 	}
 
-	function shoot( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent ) {
+	function attack( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent ) {
 		final nextPos = board.getNextPos( agent.pos, targetAgent.pos );
 		agent.pos = nextPos;
 		if( canMove( index, nextPos )) actions.push( TAction.Move( nextPos.x, nextPos.y ));
@@ -215,9 +215,10 @@ class Ai4 {
 		if( targetAgent.isInBombRangeOf( agent ) && agent.canBomb() ) {
 			// printErr( '${agent.id} at pos ${agent.pos} trow' );
 			final throwPosition = getThrowPosition( agent.pos, targetAgent.pos );
-			actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
+			if( throwPosition != Pos.NO_POS ) actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
 		
-		} else if( targetAgent.isInShotRangeOf( agent ) && agent.canShoot() ) {
+		}
+		if( actions.length == 0 && targetAgent.isInShotRangeOf( agent ) && agent.canShoot() ) {
 			actions.push( TAction.Shoot( targetAgent.id ));
 		
 		} else {
@@ -255,23 +256,45 @@ class Ai4 {
 	}
 
 	function getThrowPosition( myPos:Pos, targetAgentPos:Pos ) {
-		var bestTrowPosition = targetAgentPos;
-		var maxOppsForPosition = 0;
-		for( throwY in targetAgentPos.y - 1...targetAgentPos.y + 2 ) {
-			for( throwX in targetAgentPos.x - 1...targetAgentPos.x + 2 ) {
-				if( board.checkOutsideBoard( throwX, throwY ) ) continue;
-				final pos = board.positions[throwY][throwX];
-				if( myPos.manhattanDistance( pos ) > 4 ) continue;
-				final oppAgentsInBlastArea = checkBlastArea( throwX, throwY );
-				// printErr( 'pos: $pos opps: $oppAgentsInBlastArea' );
-				if( oppAgentsInBlastArea > maxOppsForPosition ) {
-					maxOppsForPosition = oppAgentsInBlastArea;
-					bestTrowPosition = pos;
+		// var bestTrowPosition = targetAgentPos;
+		// var maxOppsForPosition = 0;
+		
+		final throwPositions = [];
+		for( oppAgent in oppAgents ) {
+			final oppAgentPos = oppAgent.pos;
+			for( throwY in oppAgentPos.y - 1...oppAgentPos.y + 2 ) {
+				for( throwX in oppAgentPos.x - 1...oppAgentPos.x + 2 ) {
+					if( board.checkOutsideBoard( throwX, throwY ) ) continue;
+					final pos = board.positions[throwY][throwX];
+					if( myPos.manhattanDistance( pos ) > 4 ) continue;
+					final oppAgentsInBlastArea = checkBlastArea( throwX, throwY );
+					// printErr( 'pos: $pos opps: $oppAgentsInBlastArea' );
+					throwPositions.push({ pos: pos, oppAgentsInBlastArea: oppAgentsInBlastArea, isCenter: throwX == oppAgentPos.x && throwY == oppAgentPos.y });
+					// if( oppAgentsInBlastArea > maxOppsForPosition ) {
+					// 	maxOppsForPosition = oppAgentsInBlastArea;
+					// 	bestTrowPosition = pos;
+					// }
 				}
 			}
 		}
+		if( throwPositions.length == 0 ) return Pos.NO_POS;
+		// if( distanceA < distanceB ) return -1;
+		// if( distanceA > distanceB ) return 1;
 
-		return bestTrowPosition;
+		throwPositions.sort( function( a, b ) { // a - b  - 1 2 3 4   =  a > b -> 1  a < b -> -1
+			if( a.oppAgentsInBlastArea < b.oppAgentsInBlastArea ) return 1;
+			if( a.oppAgentsInBlastArea > b.oppAgentsInBlastArea ) return -1;
+
+			if( a.isCenter && !b.isCenter ) return -1;
+			if( !a.isCenter && b.isCenter ) return 1;
+
+			if( a.pos == targetAgentPos && b.pos != targetAgentPos ) return -1;
+			if( a.pos != targetAgentPos && b.pos == targetAgentPos ) return 1;
+
+			return 0;
+		});
+
+		return throwPositions[0].pos;
 	}
 
 	function checkBlastArea( throwX:Int, throwY:Int ) {

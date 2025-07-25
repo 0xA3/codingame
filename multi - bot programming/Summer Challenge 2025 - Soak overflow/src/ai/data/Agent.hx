@@ -63,6 +63,6 @@ class Agent {
 	public function canShoot() return shotCooldown == 0;
 	public function canBomb() return splashBombs > 0;
 
-	public function isInShotRange( other:Agent ) return pos.manhattanDistance( other.pos ) <= other.maxRange;
-	public function isInBombRange( other:Agent ) return pos.manhattanDistance( other.pos ) <= 4 + 1;
+	public function isInShotRangeOf( other:Agent ) return pos.manhattanDistance( other.pos ) <= other.maxRange;
+	public function isInBombRangeOf( other:Agent ) return pos.manhattanDistance( other.pos ) <= 4 + 1;
 }
