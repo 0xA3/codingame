@@ -83,10 +83,13 @@ class Ai5 {
 		
 		final actions = [];
 		switch agent.type {
-			case Sniper: getSniperActions( actions, index, agent );
-			
+			case Sniper:
+				setSniperMove( actions, index, agent );
+				setSniperCombat( actions, index, agent );
+			case Gunner:
+				setGunnerMove( actions, index, agent, targetAgent );
+				setGunnerCombat( actions, index, agent, targetAgent );
 			default:
-				// if( agent.canBomb() && targetAgent.isInBombRange( agent ) ) bomb( actions, index, agent, targetAgent );
 				if( agent.canShoot() || agent.canBomb()) attack( actions, index, agent, targetAgent );
 				else if( isInOppRange ) evade( actions, index, agent, targetAgent );
 				else approach( actions, index, agent, targetAgent);
@@ -95,7 +98,7 @@ class Ai5 {
 		return actions;
 	}
 
-	function getSniperActions( actions:Array<TAction>, index:Int, agent:Agent ) {
+	function setSniperMove( actions:Array<TAction>, index:Int, agent:Agent ) {
 		final isStartOfGame = turn < board.halfWidth;
 
 		final coverPositionSums = [];
@@ -128,6 +131,7 @@ class Ai5 {
 			actions.push( TAction.Move( coverPositionSums[0].pos.x, coverPositionSums[0].pos.y ));
 			final nextPos = board.getNextPos( agent.pos, coverPositionSums[0].pos );
 			agent.pos = nextPos;
+			
 			#if sim
 			if( canMove( index, nextPos )) actions.push( TAction.Message( '${agent.info()} hide ${coverPositionSums[0].pos}' ));
 			#end
@@ -142,7 +146,9 @@ class Ai5 {
 			actions.push( TAction.Message( '${agent.info()} evade ${closestOpp.id}' ));
 			#end
 		}
+	}
 
+	function setSniperCombat( actions:Array<TAction>, index:Int, agent:Agent ) {
 		// combat action
 		if( agent.canShoot()) {
 			final targetAgent = getClosestWettestOppAgent( agent );
@@ -160,6 +166,36 @@ class Ai5 {
 			actions.push( TAction.Message( '${agent.info()} wait' ));
 			#end
 		}
+	}
+
+	function setGunnerMove( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent ) {
+		final nextPos = board.getNextPos( agent.pos, targetAgent.pos );
+		agent.pos = nextPos;
+		if( canMove( index, nextPos )) actions.push( TAction.Move( nextPos.x, nextPos.y ));
+		
+	}
+
+	function setGunnerCombat( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent ) {
+		var hasCombatAction = false;
+		if( targetAgent.isInBombRangeOf( agent ) && agent.canBomb() ) {
+			// printErr( '${agent.id} at pos ${agent.pos} trow' );
+			final throwPosition = getThrowPosition( agent.pos, targetAgent.pos );
+			if( throwPosition != Pos.NO_POS ) {
+				actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
+				hasCombatAction = true;
+			}
+		
+		}
+		if( !hasCombatAction && targetAgent.isInShotRangeOf( agent ) && agent.canShoot() ) {
+			actions.push( TAction.Shoot( targetAgent.id ));
+			hasCombatAction = true;
+		}
+
+		if( !hasCombatAction ) actions.push( TAction.HunkerDown );
+		
+		#if sim
+		actions.push( TAction.Message( '${agent.info()} attack ${targetAgent.id}' ));
+		#end
 	}
 
 	function getClosestWettestOppAgent( agent:Agent ) {

@@ -71,7 +71,7 @@ class Board {
 	}
 
 	public function getNextPos( start:Pos, end:Pos ) {
-		if( start.manhattanDistance( end ) <= 1 ) return start;
+		if( start.manhattanDistance( end ) <= 1 ) return end;
 		final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
 		if( solveResult.result == Solved ) {
 			// final path = [for( pos in solveResult.path ) '${pos.x}:${pos.y}'].join( ',' );
