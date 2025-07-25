@@ -1,5 +1,6 @@
 package ai.factory;
 
+import CodinGame.printErr;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -23,8 +24,8 @@ class CoverFactory {
 
 		final damageReducedPositionsForBoxNeightbors:Map<Pos, Map<Pos, Float>> = [];
 		for( neighborPosition in boxNeighbors.toArray() ) {
-			final damageReducedPositions = createCoverPositionsForBoxNeighbor( neighborPosition, boxPositions );
-			damageReducedPositionsForBoxNeightbors.set( neighborPosition, damageReducedPositions );
+			final coverPositions = createCoverPositionsForBoxNeighbor( neighborPosition, boxPositions );
+			damageReducedPositionsForBoxNeightbors.set( neighborPosition, coverPositions );
 		}
 
 		// return new CoverPositionSet( damageReducedPositionsForBoxNeightbors );
@@ -60,10 +61,12 @@ class CoverFactory {
 		final boxHeightBelow = positionBelow == Pos.NO_POS ? 0 : boxPositions[positionBelow];
 		final boxHeightRight = positionRight == Pos.NO_POS ? 0 : boxPositions[positionRight];
 
-		final damageReducedPositions:Map<Pos, Float> = [];
+		final coverPositions:Map<Pos, Float> = [];
 		for( y in 0...height ) {
 			for( x in 0...width ) {
 				final shootPosition = positions[y][x];
+				// final doPrint = pos == positions[4][10] && shootPosition == positions[0][0];
+				
 				if( shootPosition == pos ) continue;
 				if( boxPositions.exists( shootPosition )) continue;
 
@@ -72,68 +75,75 @@ class CoverFactory {
 				final isBelowOfPos = shootPosition.y > pos.y + 1;
 				final isRightOfPos = shootPosition.x > pos.x + 1;
 
+				// if( doPrint ) printErr( 'pos $pos  hasBoxAbove $hasBoxAbove  hasBoxLeft $hasBoxLeft  hasBoxBelow $hasBoxBelow  hasBoxRight $hasBoxRight' );
+				// if( doPrint ) printErr( 'shootPosition $shootPosition  isAboveOfPos $isAboveOfPos  isLeftOfPos $isLeftOfPos  isBelowOfPos $isBelowOfPos  isRightOfPos $isRightOfPos' );
+
 				if( isAboveOfPos && hasBoxAbove ) {
 					final boxPosition = positionAbove;
 					final distanceToBox = shootPosition.chebyshevDistance( boxPosition );
 					if( distanceToBox < 2 ) continue;
 
-					// Sys.println( '$shootPosition isAboveOfPos $isAboveOfPos   $pos hasBoxAbove $hasBoxAbove  distanceToBox $distanceToBox boxHeightAbove $boxHeightAbove' );
-					addCoverPosition( shootPosition, damageReducedPositions, boxHeightAbove );
+					addCoverPosition( shootPosition, coverPositions, boxHeightAbove );
+					// if( doPrint ) printErr( 'pos $pos from $shootPosition  isAboveOfPos && hasBoxAbove $boxHeightAbove  max ${coverPositions[shootPosition]}' );
 				
-				} else if( isLeftOfPos && hasBoxLeft ) {
+				}
+				if( isLeftOfPos && hasBoxLeft ) {
 					final boxPosition = positionLeft;
 					final distanceToBox = shootPosition.chebyshevDistance( boxPosition );
 					if( distanceToBox < 2 ) continue;
 
-					// Sys.println( '$shootPosition isLeftOfPos $isLeftOfPos   $pos hasBoxLeft $hasBoxLeft  distanceToBox $distanceToBox boxHeightLeft $boxHeightLeft' );
-					addCoverPosition( shootPosition, damageReducedPositions, boxHeightLeft );
+					addCoverPosition( shootPosition, coverPositions, boxHeightLeft );
+					// if( doPrint ) printErr( 'pos $pos from $shootPosition isLeftOfPos && hasBoxLeft $boxHeightLeft  max ${coverPositions[shootPosition]}' );
 				
-				} else if( isBelowOfPos && hasBoxBelow ) {
+				}
+				if( isBelowOfPos && hasBoxBelow ) {
 					final boxPosition = positionBelow;
 					final distanceToBox = shootPosition.chebyshevDistance( boxPosition );
 					if( distanceToBox < 2 ) continue;
 
-					// Sys.println( '$shootPosition isBelowOfPos $isBelowOfPos   $pos hasBoxBelow $hasBoxBelow  distanceToBox $distanceToBox boxHeightBelow $boxHeightBelow' );
-					addCoverPosition( shootPosition, damageReducedPositions, boxHeightBelow );
+					addCoverPosition( shootPosition, coverPositions, boxHeightBelow );
+					// if( doPrint ) printErr( 'pos $pos from $shootPosition isBelowOfPos && hasBoxBelow $boxHeightBelow  max ${coverPositions[shootPosition]}' );
 				
-				} else if( isRightOfPos && hasBoxRight ) {
+				}
+				if( isRightOfPos && hasBoxRight ) {
 					final boxPosition = positionRight;
 					final distanceToBox = shootPosition.chebyshevDistance( boxPosition );
 					if( distanceToBox < 2 ) continue;
 
-					// Sys.println( '$shootPosition isRightOfPos $isRightOfPos   $pos hasBoxRight $hasBoxRight  distanceToBox $distanceToBox boxHeightRight $boxHeightRight' );
-					addCoverPosition( shootPosition, damageReducedPositions, boxHeightRight );
+					addCoverPosition( shootPosition, coverPositions, boxHeightRight );
+					// if( doPrint ) printErr( 'pos $pos from $shootPosition  isRightOfPos && hasBoxRight $boxHeightRight  max ${coverPositions[shootPosition]}' );
 				}
+				// if( doPrint ) printErr( 'pos $pos from $shootPosition max ${coverPositions[shootPosition]}' );
 			}
 		}
 		
-		return damageReducedPositions;
+		return coverPositions;
 	}
 
-	function addCoverPosition( pos:Pos, damageReducedPositions:Map<Pos, Float>, boxHeight:Int ) {
-		if( boxHeight == 0 ) throw 'Error with pos $pos: boxHeight == 0';
-		if( boxHeight > 2 ) throw 'Error with pos $pos: boxHeight > 2';
-		final damageReduction = boxHeight == 1 ? 0.75 : 0.5;
+	function addCoverPosition( shootPosition:Pos, coverPositions:Map<Pos, Float>, boxHeight:Int ) {
+		if( boxHeight == 0 ) throw 'Error with shootPosition $shootPosition: boxHeight == 0';
+		if( boxHeight > 2 ) throw 'Error with shootPosition $shootPosition: boxHeight > 2';
+		final damageReduction = boxHeight == 1 ? 0.5 : 0.75;
 
-		if( !damageReducedPositions.exists( pos )) {
-			damageReducedPositions.set( pos, damageReduction );
+		if( !coverPositions.exists( shootPosition )) {
+			coverPositions.set( shootPosition, damageReduction );
 		} else {
-			damageReducedPositions[pos] = Math.min( damageReducedPositions[pos], damageReduction );
+			coverPositions[shootPosition] = Math.max( coverPositions[shootPosition], damageReduction );
 		}
-		// Sys.println( 'pos $pos  damageReducedPositions $damageReducedPositions  boxHeight $boxHeight' );
+		// printErr( 'shootPosition $shootPosition  coverPositions $coverPositions  boxHeight $boxHeight' );
 	}
 
-	function getFreeNeighborPositions( pos:Pos ) {
-		final neighbors = getOrthogonalNeighborPositions( pos );
+	function getFreeNeighborPositions( boxPosition:Pos ) {
+		final neighbors = getOrthogonalNeighborPositions( boxPosition );
 		return neighbors.filter(( pos ) -> tiles[pos] == 0 );
 	}
 	
-	function getOrthogonalNeighborPositions( pos:Pos ) {
+	function getOrthogonalNeighborPositions( boxPosition:Pos ) {
 		final neighbors = [];
-		if( pos.x > 0 ) neighbors.push( positions[pos.y][pos.x - 1] );
-		if( pos.x < width - 1 ) neighbors.push( positions[pos.y][pos.x + 1] );
-		if( pos.y > 0 ) neighbors.push( positions[pos.y - 1][pos.x] );
-		if( pos.y < height - 1 ) neighbors.push( positions[pos.y + 1][pos.x] );
+		if( boxPosition.x > 0 ) neighbors.push( positions[boxPosition.y][boxPosition.x - 1] );
+		if( boxPosition.x < width - 1 ) neighbors.push( positions[boxPosition.y][boxPosition.x + 1] );
+		if( boxPosition.y > 0 ) neighbors.push( positions[boxPosition.y - 1][boxPosition.x] );
+		if( boxPosition.y < height - 1 ) neighbors.push( positions[boxPosition.y + 1][boxPosition.x] );
 		
 		return neighbors;
 	}

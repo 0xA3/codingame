@@ -37,71 +37,71 @@ class TestCoverFactory extends buddy.BuddySuite {
 			});
 		});
 		
-		describe( "Test createDamageReducedPositionsForBoxNeighbor", {
+		describe( "Test createCoverPositionsForBoxNeighbor", {
 			it( "on Box left", {
 				final factory = boxLeft;
 				final positions = factory.positions;
-				final damageReducedPositions = factory.createDamageReducedPositionsForBoxNeighbor( positions[0][0], factory.getBoxPositions() );
+				final damageReducedPositions = factory.createCoverPositionsForBoxNeighbor( positions[0][0], factory.getBoxPositions() );
 
-				damageReducedPositions[positions[0][3]].should.be( 0.75 );
+				damageReducedPositions[positions[0][3]].should.be( 0.5 );
 			});
 			it( "one Box right", {
 				final factory = boxRight;
 				final positions = factory.positions;
-				final damageReducedPositions = factory.createDamageReducedPositionsForBoxNeighbor( positions[0][3], factory.getBoxPositions() );
+				final damageReducedPositions = factory.createCoverPositionsForBoxNeighbor( positions[0][3], factory.getBoxPositions() );
 
-				damageReducedPositions[positions[0][0]].should.be( 0.75 );
+				damageReducedPositions[positions[0][0]].should.be( 0.5 );
 			});
 			it( "one Box top", {
 				final factory = boxTop;
 				final positions = factory.positions;
-				final damageReducedPositions = factory.createDamageReducedPositionsForBoxNeighbor( positions[0][0], factory.getBoxPositions() );
+				final damageReducedPositions = factory.createCoverPositionsForBoxNeighbor( positions[0][0], factory.getBoxPositions() );
 
-				damageReducedPositions[positions[3][0]].should.be( 0.75 );
+				damageReducedPositions[positions[3][0]].should.be( 0.5 );
 			});
 			it( "one Box bottom", {
 				final factory = boxBottom;
 				final positions = factory.positions;
-				final damageReducedPositions = factory.createDamageReducedPositionsForBoxNeighbor( positions[3][0], factory.getBoxPositions() );
+				final damageReducedPositions = factory.createCoverPositionsForBoxNeighbor( positions[3][0], factory.getBoxPositions() );
 
-				damageReducedPositions[positions[0][0]].should.be( 0.75 );
+				damageReducedPositions[positions[0][0]].should.be( 0.5 );
 			});
 			it( "one Box top left position above", {
 				final factory = boxTopLeft;
 				final positions = factory.positions;
-				final damageReducedPositions = factory.createDamageReducedPositionsForBoxNeighbor( positions[0][1], factory.getBoxPositions() );
+				final damageReducedPositions = factory.createCoverPositionsForBoxNeighbor( positions[0][1], factory.getBoxPositions() );
 
-				damageReducedPositions[positions[2][3]].should.be( 0.75 );
-				damageReducedPositions[positions[3][0]].should.be( 0.75 );
-				damageReducedPositions[positions[3][1]].should.be( 0.75 );
-				damageReducedPositions[positions[3][2]].should.be( 0.75 );
-				damageReducedPositions[positions[3][3]].should.be( 0.75 );
+				damageReducedPositions[positions[2][3]].should.be( 0.5 );
+				damageReducedPositions[positions[3][0]].should.be( 0.5 );
+				damageReducedPositions[positions[3][1]].should.be( 0.5 );
+				damageReducedPositions[positions[3][2]].should.be( 0.5 );
+				damageReducedPositions[positions[3][3]].should.be( 0.5 );
 			});
 			it( "one Box top left position left", {
 				final factory = boxTopLeft;
 				final positions = factory.positions;
-				final damageReducedPositions = factory.createDamageReducedPositionsForBoxNeighbor( positions[1][0], factory.getBoxPositions() );
+				final damageReducedPositions = factory.createCoverPositionsForBoxNeighbor( positions[1][0], factory.getBoxPositions() );
 
-				damageReducedPositions[positions[0][3]].should.be( 0.75 );
-				damageReducedPositions[positions[1][3]].should.be( 0.75 );
-				damageReducedPositions[positions[2][3]].should.be( 0.75 );
-				damageReducedPositions[positions[3][2]].should.be( 0.75 );
-				damageReducedPositions[positions[3][3]].should.be( 0.75 );
+				damageReducedPositions[positions[0][3]].should.be( 0.5 );
+				damageReducedPositions[positions[1][3]].should.be( 0.5 );
+				damageReducedPositions[positions[2][3]].should.be( 0.5 );
+				damageReducedPositions[positions[3][2]].should.be( 0.5 );
+				damageReducedPositions[positions[3][3]].should.be( 0.5 );
 			});
 			it( "two Boxes top left position left", {
 				final factory = twoboxesTopLeft;
 				final positions = factory.positions;
-				final damageReducedPositions = factory.createDamageReducedPositionsForBoxNeighbor( positions[1][0], factory.getBoxPositions() );
+				final damageReducedPositions = factory.createCoverPositionsForBoxNeighbor( positions[1][0], factory.getBoxPositions() );
 
-				damageReducedPositions[positions[0][3]].should.be( 0.75 );
-				damageReducedPositions[positions[1][3]].should.be( 0.75 );
-				damageReducedPositions[positions[2][3]].should.be( 0.75 );
-				damageReducedPositions[positions[3][2]].should.be( 0.5 );
-				damageReducedPositions[positions[3][3]].should.be( 0.5 );
-				damageReducedPositions[positions[4][0]].should.be( 0.5 );
-				damageReducedPositions[positions[4][1]].should.be( 0.5 );
-				damageReducedPositions[positions[4][2]].should.be( 0.5 );
-				damageReducedPositions[positions[4][3]].should.be( 0.5 );
+				damageReducedPositions[positions[0][3]].should.be( 0.5 );
+				damageReducedPositions[positions[1][3]].should.be( 0.5 );
+				damageReducedPositions[positions[2][3]].should.be( 0.5 );
+				damageReducedPositions[positions[3][2]].should.be( 0.75 );
+				damageReducedPositions[positions[3][3]].should.be( 0.75 );
+				damageReducedPositions[positions[4][0]].should.be( 0.75 );
+				damageReducedPositions[positions[4][1]].should.be( 0.75 );
+				damageReducedPositions[positions[4][2]].should.be( 0.75 );
+				damageReducedPositions[positions[4][3]].should.be( 0.75 );
 			});
 		});
 	}
