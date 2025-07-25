@@ -129,7 +129,7 @@ class Ai5 {
 			final nextPos = board.getNextPos( agent.pos, coverPositionSums[0].pos );
 			agent.pos = nextPos;
 			#if sim
-			if( canMove( index, nextPos )) actions.push( TAction.Message( '${agent.info()} hide at ${coverPositionSums[0].pos}' ));
+			if( canMove( index, nextPos )) actions.push( TAction.Message( '${agent.info()} hide ${coverPositionSums[0].pos}' ));
 			#end
 		} else {
 			final closestOpp = getClosestOppAgentWithBombs( agent.pos );
@@ -163,22 +163,31 @@ class Ai5 {
 	}
 
 	function getClosestWettestOppAgent( agent:Agent ) {
-		oppAgents.sort(( a, b ) -> sortOppsByDistanceRangeAndWetness( agent, a, b ));
-		// for( oppAgent in oppAgents ) printErr( '${oppAgent.id} distance ${agent.pos.manhattanDistance( oppAgent.pos )} wetness ${oppAgent.wetness} p ${agent.getSoakingPowerWithPos( oppAgent.pos )}' );
+		oppAgents.sort(( a, b ) -> sortOppsForShoot( agent, a, b ));
+		for( oppAgent in oppAgents ) printErr( '${oppAgent.id} distance ${agent.pos.manhattanDistance( oppAgent.pos )} wetness ${oppAgent.wetness} p ${agent.getHitScore( oppAgent.pos )}' );
 		for( oppAgent in oppAgents ) if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) return oppAgent;
 		
 		return oppAgents[0];
 	}
 
 	function getClosestOppAgentWithBombs( pos:Pos ) {
-		oppAgents.sort(( a, b ) -> sortOppsByDistanceAndWetness( pos, a, b ));
+		oppAgents.sort(( a, b ) -> sortOppsForBombs( pos, a, b ));
 		for( oppAgent in oppAgents ) if( oppAgent.canBomb() ) return oppAgent;
 
 		return Agent.NO_AGENT;
 	}
 
+	function sortOppsForBombs( pos:Pos, oppA:Agent, oppB:Agent ) {
+		final distanceA = board.getDistance( pos, oppA.pos );
+		final distanceB = board.getDistance( pos, oppB.pos );
+		if( distanceA < distanceB ) return -1;
+		if( distanceA > distanceB ) return 1;
+
+		return oppB.wetness - oppA.wetness;
+	}
+
 	function getTargetAgent( agent:Agent ) {
-		oppAgents.sort(( a, b ) -> sortOppsByDistanceAndWetness( agent.pos, a, b ));
+		oppAgents.sort(( a, b ) -> sortOppsForShoot( agent, a, b ));
 		var closestOppAgent = oppAgents[0];
 		for( oppAgent in oppAgents ) if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) closestOppAgent;
 		
@@ -189,20 +198,16 @@ class Ai5 {
 		return targetAgent;
 	}
 	
-	function sortOppsByDistanceAndWetness( pos:Pos, oppA:Agent, oppB:Agent ) {
-		final distanceA = board.getDistance( pos, oppA.pos );
-		final distanceB = board.getDistance( pos, oppB.pos );
-		if( distanceA < distanceB ) return -1;
-		if( distanceA > distanceB ) return 1;
+	function sortOppsForShoot( agent:Agent, oppA:Agent, oppB:Agent ) {
+		final coverForA = board.getCoverValue( oppA.pos, agent.pos );
+		final coverForB = board.getCoverValue( oppA.pos, agent.pos );
+		if( coverForA == 0.75 && coverForB < 0.75 ) return -1; // sort out covered opps
+		if( coverForA < 0.75 && coverForB == 0.75 ) return 1;
 
-		return oppB.wetness - oppA.wetness;
-	}
-
-	function sortOppsByDistanceRangeAndWetness( agent:Agent, oppA:Agent, oppB:Agent ) {
-		final soakingPowerToA = agent.getSoakingPowerWithPos( oppA.pos );
-		final soakingPowerToB = agent.getSoakingPowerWithPos( oppB.pos );
-		if( soakingPowerToA < soakingPowerToB ) return 1;
-		if( soakingPowerToA > soakingPowerToB ) return -1;
+		final hitScoreOfA = agent.getHitScore( oppA.pos );
+		final hitScoreOfB = agent.getHitScore( oppB.pos );
+		if( hitScoreOfA < hitScoreOfB ) return 1; // sort by hit score
+		if( hitScoreOfA > hitScoreOfB ) return -1;
 
 		return oppB.wetness - oppA.wetness;
 	}
@@ -212,18 +217,22 @@ class Ai5 {
 		agent.pos = nextPos;
 		if( canMove( index, nextPos )) actions.push( TAction.Move( nextPos.x, nextPos.y ));
 
+		var hasCombatAction = false;
 		if( targetAgent.isInBombRangeOf( agent ) && agent.canBomb() ) {
 			// printErr( '${agent.id} at pos ${agent.pos} trow' );
 			final throwPosition = getThrowPosition( agent.pos, targetAgent.pos );
-			if( throwPosition != Pos.NO_POS ) actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
+			if( throwPosition != Pos.NO_POS ) {
+				actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
+				hasCombatAction = true;
+			}
 		
 		}
-		if( actions.length == 0 && targetAgent.isInShotRangeOf( agent ) && agent.canShoot() ) {
+		if( !hasCombatAction && targetAgent.isInShotRangeOf( agent ) && agent.canShoot() ) {
 			actions.push( TAction.Shoot( targetAgent.id ));
-		
-		} else {
-			actions.push( TAction.HunkerDown );
+			hasCombatAction = true;
 		}
+
+		if( !hasCombatAction ) actions.push( TAction.HunkerDown );
 		
 		#if sim
 		actions.push( TAction.Message( '${agent.info()} attack ${targetAgent.id}' ));
@@ -256,10 +265,8 @@ class Ai5 {
 	}
 
 	function getThrowPosition( myPos:Pos, targetAgentPos:Pos ) {
-		// var bestTrowPosition = targetAgentPos;
-		// var maxOppsForPosition = 0;
-		
 		final throwPositions = [];
+		
 		for( oppAgent in oppAgents ) {
 			final oppAgentPos = oppAgent.pos;
 			for( throwY in oppAgentPos.y - 1...oppAgentPos.y + 2 ) {
@@ -267,23 +274,19 @@ class Ai5 {
 					if( board.checkOutsideBoard( throwX, throwY ) ) continue;
 					final pos = board.positions[throwY][throwX];
 					if( myPos.manhattanDistance( pos ) > 4 ) continue;
-					final oppAgentsInBlastArea = checkBlastArea( throwX, throwY );
+					final agentScoreInArea = checkBlastArea( throwX, throwY );
 					// printErr( 'pos: $pos opps: $oppAgentsInBlastArea' );
-					throwPositions.push({ pos: pos, oppAgentsInBlastArea: oppAgentsInBlastArea, isCenter: throwX == oppAgentPos.x && throwY == oppAgentPos.y });
-					// if( oppAgentsInBlastArea > maxOppsForPosition ) {
-					// 	maxOppsForPosition = oppAgentsInBlastArea;
-					// 	bestTrowPosition = pos;
-					// }
+					if( agentScoreInArea <= 0 ) continue;
+
+					throwPositions.push({ pos: pos, agentScoreInArea: agentScoreInArea, isCenter: throwX == oppAgentPos.x && throwY == oppAgentPos.y });
 				}
 			}
 		}
 		if( throwPositions.length == 0 ) return Pos.NO_POS;
-		// if( distanceA < distanceB ) return -1;
-		// if( distanceA > distanceB ) return 1;
 
 		throwPositions.sort( function( a, b ) { // a - b  - 1 2 3 4   =  a > b -> 1  a < b -> -1
-			if( a.oppAgentsInBlastArea < b.oppAgentsInBlastArea ) return 1;
-			if( a.oppAgentsInBlastArea > b.oppAgentsInBlastArea ) return -1;
+			if( a.agentScoreInArea < b.agentScoreInArea ) return 1;
+			if( a.agentScoreInArea > b.agentScoreInArea ) return -1;
 
 			if( a.isCenter && !b.isCenter ) return -1;
 			if( !a.isCenter && b.isCenter ) return 1;
@@ -294,6 +297,8 @@ class Ai5 {
 			return 0;
 		});
 
+		for( throwPosition in throwPositions ) printErr( 'throw: ${throwPosition.pos} scrore: ${throwPosition.agentScoreInArea} isCenter: ${throwPosition.isCenter}' );
+		
 		return throwPositions[0].pos;
 	}
 

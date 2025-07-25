@@ -53,7 +53,7 @@ class Agent {
 		}
 	}
 
-	public function getSoakingPowerWithPos( other:Pos ) {
+	public function getHitScore( other:Pos ) {
 		final distance = pos.manhattanDistance( other );
 		if( distance <= optimalRange ) soakingPower;
 		if( distance <= maxRange ) return int( soakingPower / 2 );
@@ -64,5 +64,5 @@ class Agent {
 	public function canBomb() return splashBombs > 0;
 
 	public function isInShotRangeOf( other:Agent ) return pos.manhattanDistance( other.pos ) <= other.maxRange;
-	public function isInBombRangeOf( other:Agent ) return pos.manhattanDistance( other.pos ) <= 4 + 1;
+	public function isInBombRangeOf( other:Agent ) return pos.chebyshevDistance( other.pos ) <= 5;
 }

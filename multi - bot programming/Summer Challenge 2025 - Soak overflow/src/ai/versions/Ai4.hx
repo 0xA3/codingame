@@ -199,8 +199,8 @@ class Ai4 {
 	}
 
 	function sortOppsByDistanceRangeAndWetness( agent:Agent, oppA:Agent, oppB:Agent ) {
-		final soakingPowerToA = agent.getSoakingPowerWithPos( oppA.pos );
-		final soakingPowerToB = agent.getSoakingPowerWithPos( oppB.pos );
+		final soakingPowerToA = agent.getHitScore( oppA.pos );
+		final soakingPowerToB = agent.getHitScore( oppB.pos );
 		if( soakingPowerToA < soakingPowerToB ) return 1;
 		if( soakingPowerToA > soakingPowerToB ) return -1;
 
