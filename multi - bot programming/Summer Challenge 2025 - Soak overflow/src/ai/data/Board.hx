@@ -16,6 +16,7 @@ class Board {
 	public final coverPositions:Map<Pos, Map<Pos, Float>>;
 
 	public final halfWidth:Int;
+	public final quarterWidth:Int;
 
 	public final center:Pos;
 
@@ -40,6 +41,7 @@ class Board {
 		
 		center = positions[int( height / 2 )][int( width / 2 )];
 		halfWidth = int( width / 2 );
+		quarterWidth = int( width / 4 );
 	}
 
 	public function checkOutsideBoard( x:Int, y:Int ) {
@@ -87,6 +89,31 @@ class Board {
 
 	public function getNeighborCells( pos:Pos ) {
 		return cells[pos].neighbors;
+	}
+
+	public function calculateMyCellsNum( myAgentsPositions:Map<Agent, Pos>, oppAgents:Array<Agent> ) {
+		var myCellsNum = 0;
+		var oppCellsNum = 0;
+		// var neutralCellsNum = 0;
+		for( pos in cells.keys()) {
+			var myClosestDistance = width + height;
+			var closestOppDistance = width + height;
+			for( agent => agentPos in myAgentsPositions ) {
+				final distance = pos.manhattanDistance( agentPos ) * ( agent.wetness > 50 ? 2 : 1 );
+				if( distance < myClosestDistance ) myClosestDistance = distance;
+			}
+			for( agent in oppAgents ) {
+				final distance = pos.manhattanDistance( agent.pos ) * ( agent.wetness > 50 ? 2 : 1 );
+				if( distance < closestOppDistance ) closestOppDistance = distance;
+			}
+
+			if( myClosestDistance < closestOppDistance ) myCellsNum++;
+			else if( myClosestDistance > closestOppDistance ) oppCellsNum++;
+			// else neutralCellsNum++;
+		}
+
+		// printErr( 'myCells: $myCellsNum oppCells: $oppCellsNum nCells: $neutralCellsNum' );
+		return myCellsNum;
 	}
 
 	// cover sum calculation for multiple shoot positions

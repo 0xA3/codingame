@@ -84,7 +84,7 @@ class MainAi {
 
 		map2D.setMap( grid );
 		final board = new Board( width, height, positions, map2D, cells, tilesMap, coverPositions );
-		ai.setGlobalInputs( agents, board );
+		ai.setGlobalInputs( myId, agents, board );
 
 		// game loop
 		while (true) {

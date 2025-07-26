@@ -6,3 +6,6 @@ seed=8172049514443418000
 
 box error I'm on the right
 seed=7303228704903425000
+
+4vs4 clustering
+seed=-5138886160869347000

@@ -16,10 +16,12 @@ class Ai6 {
 	public var aiId = "Ai6";
 	final outputs:Array<String> = [];
 	
+	var myId:Int;
 	var allAgents:Map<Int, ai.data.Agent> = [];
 	var board:Board;
 	
 	var myAgents:Array<Agent> = [];
+	var myAgentsPositions:Map<Agent, Pos> = [];
 	var oppAgents:Array<Agent> = [];
 	var oppAgentsMap:Map<Int,Agent> = [];
 
@@ -27,16 +29,19 @@ class Ai6 {
 
 	var turn = 1;
 	var startDirection = 0;
+	var isGameStart = true;
 
 	public function new() { }
 
-	public function setGlobalInputs( agents:Map<Int, ai.data.Agent>, board:Board ) {
-		this.allAgents = agents;
+	public function setGlobalInputs( myId:Int, allAgents:Map<Int, ai.data.Agent>, board:Board ) {
+		this.myId = myId;
+		this.allAgents = allAgents;
 		this.board = board;
 	}
 
 	public function setInputs( myAgentIds:Set<Int>, oppAgentIds:Set<Int> ) {
 		myAgents  = [for( id in myAgentIds.toArray() ) allAgents[id]];
+		myAgentsPositions = [for( agent in myAgents ) agent => agent.pos];
 		oppAgents = [for( id in oppAgentIds.toArray() ) allAgents[id]];
 		oppAgentsMap = [for( id in oppAgentIds.toArray() ) id => allAgents[id]];
 		
@@ -44,7 +49,11 @@ class Ai6 {
 	}
 
 	public function process() {
-		if( turn == 1) processStart();
+		if( turn == 1 ) processStart();
+		// if( turn > board.quarterWidth ) isGameStart = false;
+		
+		printErr( '${turn}' );
+		// board.calculateMyCellsNum( myAgentsPositions, oppAgents );
 
 		myAgents.sort(( a, b ) -> board.centerDistance( a.pos ) - board.centerDistance( b.pos ));
 		for( i in 0...myAgents.length ) {
@@ -75,8 +84,7 @@ class Ai6 {
 	function processAgent( index:Int, agent:Agent ) {
 		if( oppAgents.length == 0 ) return [TAction.HunkerDown];
 
-		final targetAgent = getTargetAgent( agent );
-		final targetDistance = agent.pos.manhattanDistance( targetAgent.pos );
+		final targetAgent = isGameStart ? getStartTargetAgent( agent ) : getTargetAgent( agent );
 
 		final targetAgentMinShootDistance = targetAgent.optimalRange;
 		final isInOppRange = agent.pos.manhattanDistance( targetAgent.pos ) <= targetAgentMinShootDistance;
@@ -178,18 +186,20 @@ class Ai6 {
 
 	function setGunnerCombat( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent ) {
 		var hasCombatAction = false;
-		if( targetAgent.isInBombRangeOf( agent ) && agent.canBomb() ) {
+		if( targetAgent.isInShotRangeOf( agent ) && agent.canShoot() ) {
+			actions.push( TAction.Shoot( targetAgent.id ));
+			hasCombatAction = true;
+		}
+
+		if( !hasCombatAction && targetAgent.isInBombRangeOf( agent ) && agent.canBomb() ) {
 			// printErr( '${agent.id} at pos ${agent.pos} trow' );
 			final throwPosition = getThrowPosition( agent.pos, targetAgent.pos );
 			if( throwPosition != Pos.NO_POS ) {
 				actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
 				hasCombatAction = true;
+				targetAgent.wetness += 30;
 			}
 		
-		}
-		if( !hasCombatAction && targetAgent.isInShotRangeOf( agent ) && agent.canShoot() ) {
-			actions.push( TAction.Shoot( targetAgent.id ));
-			hasCombatAction = true;
 		}
 
 		if( !hasCombatAction ) actions.push( TAction.HunkerDown );
@@ -201,7 +211,8 @@ class Ai6 {
 
 	function getClosestWettestOppAgent( agent:Agent ) {
 		oppAgents.sort(( a, b ) -> sortOppsForShoot( agent, a, b ));
-		for( oppAgent in oppAgents ) printErr( '${oppAgent.id} distance ${agent.pos.manhattanDistance( oppAgent.pos )} wetness ${oppAgent.wetness} p ${agent.getHitScore( oppAgent.pos )}' );
+		// for( oppAgent in oppAgents ) printErr( '${oppAgent.id} distance ${agent.pos.manhattanDistance( oppAgent.pos )} wetness ${oppAgent.wetness} p ${agent.getHitScore( oppAgent.pos )}' );
+		
 		for( oppAgent in oppAgents ) if( board.getCoverValue( oppAgent.pos, agent.pos ) == 1 ) return oppAgent;
 		
 		return oppAgents[0];
@@ -215,12 +226,25 @@ class Ai6 {
 	}
 
 	function sortOppsForBombs( pos:Pos, oppA:Agent, oppB:Agent ) {
+		if( oppA.wetness >= 100 && oppB.wetness < 100 ) return -1; // filter out dead opps
+		if( oppA.wetness < 100 && oppB.wetness >= 100 ) return 1;
+
 		final distanceA = board.getDistance( pos, oppA.pos );
 		final distanceB = board.getDistance( pos, oppB.pos );
 		if( distanceA < distanceB ) return -1;
 		if( distanceA > distanceB ) return 1;
 
 		return oppB.wetness - oppA.wetness;
+	}
+
+	function getStartTargetAgent( agent:Agent ) {
+		final defaultOppAgentId = defaultOppIdForAgent[agent];
+		if( oppAgentsMap.exists( defaultOppAgentId )) return oppAgentsMap[defaultOppAgentId];
+		
+		oppAgents.sort(( a, b ) -> sortOppsForShoot( agent, a, b ));
+		var closestOppAgent = oppAgents[0];
+
+		return closestOppAgent;
 	}
 
 	function getTargetAgent( agent:Agent ) {
@@ -261,6 +285,7 @@ class Ai6 {
 			if( throwPosition != Pos.NO_POS ) {
 				actions.push( TAction.Throw( throwPosition.x, throwPosition.y ));
 				hasCombatAction = true;
+				targetAgent.wetness += 30;
 			}
 		
 		}
