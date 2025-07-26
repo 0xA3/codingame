@@ -11,9 +11,9 @@ import ya.Set;
 
 using xa3.ArrayUtils;
 
-class Ai5 {
+class Ai6 {
 
-	public var aiId = "Ai5";
+	public var aiId = "Ai6";
 	final outputs:Array<String> = [];
 	
 	var allAgents:Map<Int, ai.data.Agent> = [];
