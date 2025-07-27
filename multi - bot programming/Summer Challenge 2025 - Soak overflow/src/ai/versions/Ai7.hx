@@ -170,9 +170,11 @@ class Ai7 {
 		
 		// move action
 		if( coverPositionSums.length > 0 ) {
-			actions.push( TAction.Move( coverPositionSums[0].pos.x, coverPositionSums[0].pos.y ));
 			final nextPos = board.getNextPos( agent.pos, coverPositionSums[0].pos );
-			agent.pos = nextPos;
+			if( canMove( index, nextPos )) {
+				agent.pos = nextPos;
+				actions.push( TAction.Move( nextPos.x, nextPos.y ));
+			}
 			
 			#if sim
 			if( canMove( index, nextPos )) actions.push( TAction.Message( '${agent.info()} hide ${coverPositionSums[0].pos}' ));
@@ -182,17 +184,6 @@ class Ai7 {
 				final closestOpp = getClosestOppAgentWithBombs( agent.pos );
 				evade( actions, index, agent, closestOpp );
 			}
-			// final cellNeighbors = board.getNeighborCells( agent.pos );
-			// final maxDistanceIndex = [for( cell in cellNeighbors ) cell.pos.manhattanDistance( closestOpp.pos )].maxIndex();
-			// final evadePos = cellNeighbors[maxDistanceIndex].pos;
-			
-			// if( canMove( index, evadePos )) {
-			// 	actions.push( TAction.Move( evadePos.x, evadePos.y ));
-			// }
-			
-			// #if sim
-			// actions.push( TAction.Message( '${agent.info()} evade ${closestOpp.id}' ));
-			// #end
 		}
 	}
 
