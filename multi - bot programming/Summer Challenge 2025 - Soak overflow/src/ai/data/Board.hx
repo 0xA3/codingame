@@ -87,9 +87,8 @@ class Board {
 		return end;
 	}
 
-	public function getNeighborCells( pos:Pos ) {
-		return cells[pos].neighbors;
-	}
+	public function getNeighborPositions( pos:Pos ) return cells[pos].neighbors.map( cell -> cell.pos );
+	public function getNeighborCells( pos:Pos ) return cells[pos].neighbors;
 
 	public function calculateMyCellsNum( movedAgent:Agent, pos:Pos, myAgents:Array<Agent>, oppAgents:Array<Agent> ) {
 		var myCellsNum = 0;

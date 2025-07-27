@@ -60,6 +60,8 @@ class Agent {
 		return 0;
 	}
 
+	public function getBombScore( other:Pos ) return pos.chebyshevDistance( other ) <= 5 ? 30 : 0;
+
 	public function canShoot() return shotCooldown == 0;
 	public function canBomb() return splashBombs > 0;
 

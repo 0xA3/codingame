@@ -6,6 +6,7 @@ import ai.contexts.Action;
 import ai.data.Agent;
 import ai.data.Board;
 import ai.data.TAction;
+import xa3.math.IntMath.abs;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -55,7 +56,13 @@ class Ai7 {
 		printErr( '${turn}' );
 		// board.calculateMyCellsNum( myAgentsPositions, oppAgents );
 
-		myAgents.sort(( a, b ) -> board.centerDistance( a.pos ) - board.centerDistance( b.pos ));
+		if( isGameStart ) {
+			myAgents.sort(( a, b ) -> abs( b.pos.y - board.center.y ) - abs( a.pos.y - board.center.y ));
+		} else {
+			myAgents.sort(( a, b ) -> board.centerDistance( a.pos ) - board.centerDistance( b.pos ));
+		}
+		// for( agent in myAgents ) printErr( 'agent ${agent.id} pos ${agent.pos} centerDistance ${abs( agent.pos.y - board.center.y)}' );
+
 		for( i in 0...myAgents.length ) {
 			final agent = myAgents[i];
 			final actions = processAgent( i, agent );
@@ -86,9 +93,6 @@ class Ai7 {
 
 		final targetAgent = isGameStart ? getStartTargetAgent( agent ) : getTargetAgent( agent );
 
-		final targetAgentMinShootDistance = targetAgent.optimalRange;
-		final isInOppRange = agent.pos.manhattanDistance( targetAgent.pos ) <= targetAgentMinShootDistance;
-		
 		final actions = [];
 		switch agent.type {
 			case Sniper:
@@ -124,9 +128,11 @@ class Ai7 {
 
 		final targetPos = bestNeighbor == Pos.NO_POS ? targetAgent.pos : bestNeighbor;
 		final nextPos = board.getNextPos( agent.pos, targetPos );
-		agent.pos = nextPos;
 		
-		if( canMove( index, nextPos )) actions.push( TAction.Move( nextPos.x, nextPos.y ));
+		if( canMove( index, nextPos )) {
+			agent.pos = nextPos;
+			actions.push( TAction.Move( nextPos.x, nextPos.y ));
+		}
 
 		#if sim
 		if( !agent.canShoot() && !agent.canBomb()) actions.push( TAction.Message( '${agent.info()} approach ${targetAgent.id}' ));
@@ -172,15 +178,21 @@ class Ai7 {
 			if( canMove( index, nextPos )) actions.push( TAction.Message( '${agent.info()} hide ${coverPositionSums[0].pos}' ));
 			#end
 		} else {
-			final closestOpp = getClosestOppAgentWithBombs( agent.pos );
-			final cellNeighbors = board.getNeighborCells( agent.pos );
-			final maxDistanceIndex = [for( cell in cellNeighbors ) cell.pos.manhattanDistance( closestOpp.pos )].maxIndex();
-			final evadePos = cellNeighbors[maxDistanceIndex].pos;
-			if( canMove( index, evadePos )) actions.push( TAction.Move( evadePos.x, evadePos.y ));
+			if( getSoakSum( agent.pos ) > 0 ) {
+				final closestOpp = getClosestOppAgentWithBombs( agent.pos );
+				evade( actions, index, agent, closestOpp );
+			}
+			// final cellNeighbors = board.getNeighborCells( agent.pos );
+			// final maxDistanceIndex = [for( cell in cellNeighbors ) cell.pos.manhattanDistance( closestOpp.pos )].maxIndex();
+			// final evadePos = cellNeighbors[maxDistanceIndex].pos;
 			
-			#if sim
-			actions.push( TAction.Message( '${agent.info()} evade ${closestOpp.id}' ));
-			#end
+			// if( canMove( index, evadePos )) {
+			// 	actions.push( TAction.Move( evadePos.x, evadePos.y ));
+			// }
+			
+			// #if sim
+			// actions.push( TAction.Message( '${agent.info()} evade ${closestOpp.id}' ));
+			// #end
 		}
 	}
 
@@ -352,19 +364,19 @@ class Ai7 {
 	// }
 
 	function evade( actions:Array<TAction>, index:Int, agent:Agent, targetAgent:Agent ) {
-		final neighborCells = board.getNeighborCells( agent.pos );
+		final neighborPositions = [agent.pos].concat( board.getNeighborPositions( agent.pos ) );
 		final positionRankings = [];
-		for( cell in neighborCells ) {
-			final coverSum  = board.getCoverSum( cell.pos, oppAgents.map( agent -> agent.pos ) );
-			final distance = cell.pos.manhattanDistance( targetAgent.pos );
-			final points = board.calculateMyCellsNum( agent, cell.pos, myAgents, oppAgents );
+		for( pos in neighborPositions ) {
+			final soakSum = getSoakSum( pos );
+			final distance = pos.manhattanDistance( targetAgent.pos );
+			final points = board.calculateMyCellsNum( agent, pos, myAgents, oppAgents );
 			
-			positionRankings.push({ pos: cell.pos, coverSum: coverSum, distance: distance, points: points });
+			positionRankings.push({ pos: pos, soakSum: soakSum, distance: distance, points: points });
 		}
 		
-		positionRankings.sort(( a, b ) -> { // a - b  1 2 > - 1  2 1 -> 1
-			if( a.coverSum < b.coverSum ) return 1;
-			if( b.coverSum > a.coverSum ) return -1;
+		positionRankings.sort(( a, b ) -> { // a - b  1 2 > -1  2 1 -> 1
+			if( a.soakSum < b.soakSum ) return -1;
+			if( a.soakSum > b.soakSum ) return 1;
 
 			if( a.points < b.points ) return 1;
 			if( b.points > a.points ) return -1;
@@ -372,12 +384,15 @@ class Ai7 {
 			return b.distance - a.distance;
 		});
 
-		for( positionRanking in positionRankings ) {
-			printErr( '${agent.id} pos ${positionRanking.pos} coverSum ${positionRanking.coverSum} points ${positionRanking.points} distance ${positionRanking.distance}' );
-		}
-		final targetPosition = positionRankings.length > 0 ? positionRankings[0].pos : Pos.NO_POS;
+		// for( positionRanking in positionRankings ) {
+		// 	printErr( '${agent.id} pos ${positionRanking.pos} soakSum ${positionRanking.soakSum} dist ${positionRanking.distance}  points ${positionRanking.points}' );
+		// }
+		final nextPos = positionRankings.length > 0 ? positionRankings[0].pos : Pos.NO_POS;
 
-		if( canMove( index, targetPosition )) actions.push( TAction.Move( targetPosition.x, targetPosition.y ));
+		if( canMove( index, nextPos )) {
+			agent.pos = nextPos;
+			actions.push( TAction.Move( nextPos.x, nextPos.y ));
+		}
 		
 		#if sim
 		actions.push( TAction.Message( '${agent.info()} evade ${targetAgent.id}' ));
@@ -387,6 +402,18 @@ class Ai7 {
 	function canMove( index:Int, pos:Pos ) {
 		for( i in 0...index ) if( myAgents[i].pos == pos ) return false;
 		return true;
+	}
+
+	function getSoakSum( pos:Pos ) {
+		var soakSum = 0;
+		for( oppAgent in oppAgents ) {
+			final coverSum  = board.getCoverValue( pos, oppAgent.pos );
+			final hitScore = oppAgent.canShoot() ? oppAgent.getHitScore( pos ) : 0;
+			final bombScore = oppAgent.canBomb() ? oppAgent.getBombScore( pos ) : 0;
+			soakSum += int( hitScore * ( 1 - coverSum ));
+		}
+
+		return soakSum;
 	}
 
 	function getThrowPosition( myPos:Pos, targetAgentPos:Pos ) {
@@ -422,7 +449,7 @@ class Ai7 {
 			return 0;
 		});
 
-		// for( throwPosition in throwPositions ) printErr( 'throw: ${throwPosition.pos} scrore: ${throwPosition.agentScoreInArea} isCenter: ${throwPosition.isCenter}' );
+		for( throwPosition in throwPositions ) printErr( 'throw: ${throwPosition.pos} scrore: ${throwPosition.agentScoreInArea} isCenter: ${throwPosition.isCenter}' );
 		
 		return throwPositions[0].pos;
 	}
