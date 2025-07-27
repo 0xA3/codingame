@@ -16,7 +16,7 @@ class Board {
 	public final coverPositions:Map<Pos, Map<Pos, Float>>;
 
 	public final halfWidth:Int;
-	public final quarterWidth:Int;
+	public final thirdWidth:Int;
 
 	public final center:Pos;
 
@@ -41,7 +41,7 @@ class Board {
 		
 		center = positions[int( height / 2 )][int( width / 2 )];
 		halfWidth = int( width / 2 );
-		quarterWidth = int( width / 4 );
+		thirdWidth = int( width / 3 );
 	}
 
 	public function checkOutsideBoard( x:Int, y:Int ) {
@@ -91,14 +91,15 @@ class Board {
 		return cells[pos].neighbors;
 	}
 
-	public function calculateMyCellsNum( myAgentsPositions:Map<Agent, Pos>, oppAgents:Array<Agent> ) {
+	public function calculateMyCellsNum( movedAgent:Agent, pos:Pos, myAgents:Array<Agent>, oppAgents:Array<Agent> ) {
 		var myCellsNum = 0;
 		var oppCellsNum = 0;
 		// var neutralCellsNum = 0;
 		for( pos in cells.keys()) {
 			var myClosestDistance = width + height;
 			var closestOppDistance = width + height;
-			for( agent => agentPos in myAgentsPositions ) {
+			for( agent in myAgents ) {
+				final agentPos = agent == movedAgent ? pos : agent.pos;
 				final distance = pos.manhattanDistance( agentPos ) * ( agent.wetness > 50 ? 2 : 1 );
 				if( distance < myClosestDistance ) myClosestDistance = distance;
 			}

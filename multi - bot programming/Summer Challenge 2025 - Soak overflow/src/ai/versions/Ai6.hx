@@ -50,7 +50,7 @@ class Ai6 {
 
 	public function process() {
 		if( turn == 1 ) processStart();
-		// if( turn > board.quarterWidth ) isGameStart = false;
+		if( turn > board.thirdWidth ) isGameStart = false;
 		
 		printErr( '${turn}' );
 		// board.calculateMyCellsNum( myAgentsPositions, oppAgents );
@@ -359,7 +359,7 @@ class Ai6 {
 			return 0;
 		});
 
-		for( throwPosition in throwPositions ) printErr( 'throw: ${throwPosition.pos} scrore: ${throwPosition.agentScoreInArea} isCenter: ${throwPosition.isCenter}' );
+		// for( throwPosition in throwPositions ) printErr( 'throw: ${throwPosition.pos} scrore: ${throwPosition.agentScoreInArea} isCenter: ${throwPosition.isCenter}' );
 		
 		return throwPositions[0].pos;
 	}
