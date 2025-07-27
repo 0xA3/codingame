@@ -12,9 +12,9 @@ import ya.Set;
 
 using xa3.ArrayUtils;
 
-class Ai7 {
+class Ai8 {
 
-	public var aiId = "Ai7";
+	public var aiId = "Ai8";
 	final outputs:Array<String> = [];
 	
 	var myId:Int;
@@ -66,21 +66,20 @@ class Ai7 {
 		for( i in 0...myAgents.length ) {
 			final agent = myAgents[i];
 			final moveActions = processAgentMove( i, agent );
-			moveCombatActions.push( moveActions );
+			for( action in moveActions ) moveCombatActions[i].push( action );
 		}
 		
 		for( i in 0...myAgents.length ) {
 			final agent = myAgents[i];
 			final combatActions = processAgentCombat( i, agent );
-			moveCombatActions.push( combatActions );
-
+			for( action in combatActions ) moveCombatActions[i].push( action );
 		}
 
 		for( i in 0...myAgents.length ) {
 			final agent = myAgents[i];
 			final actionsForAgent = moveCombatActions[i];
-			if( actionsForAgent.length == 0 ) actions.push( TAction.HunkerDown );
-			outputs.push( '${agent.id}; ' + actions.map( action -> Action.toString( action )).join( "; " ) );
+			if( actionsForAgent.length == 0 ) actionsForAgent.push( TAction.HunkerDown );
+			outputs.push( '${agent.id}; ' + actionsForAgent.map( action -> Action.toString( action )).join( "; " ) );
 		}
 
 		turn++;
@@ -144,7 +143,7 @@ class Ai7 {
 					attack( actions, index, agent, targetAgent );
 				// } else {
 				// 	evade( actions, index, agent, targetAgent );
-				// }
+				}
 		}
 
 		return actions;
