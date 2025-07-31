@@ -1,6 +1,7 @@
 package mcts.tree;
 
 import mcts.montecarlo.State;
+import mcts.tictactoe.Position;
 
 class Node {
 	
@@ -32,6 +33,12 @@ class Node {
 		for( child in node.childArray ) childArray.push( Node.fromNode( child ));
 
 		return new Node( state, childArray, node.parent );
+	}
+
+	public function getChildOfMove( p:Position ) {
+		for( child in childArray ) if( child.state.board.move == p ) return child;
+
+		throw 'Error: child of move $p not found';
 	}
 
 	public function getRandomChildNode() {
