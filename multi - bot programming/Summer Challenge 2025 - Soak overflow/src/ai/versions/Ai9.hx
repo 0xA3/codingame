@@ -413,11 +413,7 @@ class Ai9 {
 	}
 
 	function canMove( index:Int, pos:Pos ) {
-		// printErr( 'canMove $index  agent ${myAgents[index].id} ${myAgents[index].pos}' );
-		for( i in 0...index ) {
-			// printErr( 'compare ${myAgents[i].id} ${myAgents[i].pos} ' + ( myAgents[i].pos == pos ? "no" : "yes" ) );
-			if( myAgents[i].pos == pos ) return false;
-		}
+		for( i in 0...index ) if( myAgents[i].pos == pos ) return false;
 		return true;
 	}
 

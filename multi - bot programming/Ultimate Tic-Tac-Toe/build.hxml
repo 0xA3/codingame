@@ -1,0 +1,7 @@
+-cp src
+-D analyzer-optimize
+-main Main
+# --interp
+--hl app.hl
+
+-cmd hl app.hl
