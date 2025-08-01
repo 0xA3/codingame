@@ -2,22 +2,19 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Debug Game",
-			"request": "launch",
 			"type": "hl",
-			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "Build Game"
-		},
-		{
-			"type": "hl",
-			"name": "Debug Referee",
-			"cwd": "${workspaceFolder}/bin",
+			"name": "Debug hl",
 			"request": "launch",
-			"program": "referee.hl",
-			"preLaunchTask": "Build Referee"
+			"program": "${workspaceFolder}/app.hl",
+			"preLaunchTask": "Build hl"
 		},
 		{
 			"name": "Haxe Interpreter",
+			"type": "haxe-eval",
+			"request": "launch"
+		},
+		{
+			"name": "test.hxml",
 			"type": "haxe-eval",
 			"request": "launch"
 		}

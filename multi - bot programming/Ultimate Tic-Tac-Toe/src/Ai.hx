@@ -6,27 +6,27 @@ import mcts.tree.Tree;
 
 class Ai {
 
-	final positions:Array<Array<Position>>;
 	final tree:Tree;
 	final mcts:MonteCarloTreeSearch;
 	final player = Board.P1;
 
 	var board:Board;
 
-	public function new( positions:Array<Array<Position>>, rootBoard:Board, tree:Tree, mcts:MonteCarloTreeSearch ) {
-		this.positions = positions;
+	var turn = 0;
+
+	public function new( rootBoard:Board, tree:Tree, mcts:MonteCarloTreeSearch ) {
 		board = rootBoard;
 		this.tree = tree;
 		this.mcts = mcts;
-
 	}
 
 	public function setGlobalInputs() { }
 
 	public function setInputs( oy:Int, ox:Int, validActionCount:Int) {
-		final move = positions[oy][ox];
+		final move = board.positions[oy][ox];
 		
 		final nextNode = tree.root.getChildOfMove( move );
+		tree.root = nextNode;
 		board = nextNode.state.board;
 	}
 
@@ -34,8 +34,7 @@ class Ai {
 		board = mcts.findNextMove( player );
 		final move = board.move;
 
+		turn++;
 		return '${move.y} ${move.x}';
 	}
-
-
 }

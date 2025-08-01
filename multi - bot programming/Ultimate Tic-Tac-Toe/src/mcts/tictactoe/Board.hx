@@ -1,9 +1,12 @@
 package mcts.tictactoe;
 
+import CodinGame.printErr;
 import haxe.ds.Vector;
 
 class Board {
 	
+	public final positions:Array<Array<Position>>;
+	public var boardValuesInt = 0;
 	public final boardValues:Vector<Vector<Int>>;
 	public var totalMoves:Int;
 
@@ -16,45 +19,57 @@ class Board {
 
 	public var move = Position.NO_POSITION;
 	
-	public function new( boardValues:Vector<Vector<Int>>, totalMoves = 0 ) {
+	public function new( positions:Array<Array<Position>>, boardValues:Vector<Vector<Int>>, totalMoves = 0 ) {
+		this.positions = positions;
 		this.boardValues = boardValues;
 		this.totalMoves = totalMoves;
 	}
 
 	public static function createEmpty() {
+		final positions = createPositions( DEFAULT_BOARD_SIZE );
 		final boardValues = createEmptyBoardValues( DEFAULT_BOARD_SIZE );
-		return new Board( boardValues );
+		return new Board( positions, boardValues );
 	}
 
 	public static function fromBoardSize( boardSize:Int ) {
+		final positions = createPositions( boardSize );
 		final boardValues = createEmptyBoardValues( boardSize );
-		return new Board( boardValues );
+		return new Board( positions, boardValues );
 	}
 
 	public static function fromBoard( board:Board ) {
 		final boardSize = board.boardValues.length;
 		final boardValues = createEmptyBoardValues( boardSize );
-		for( i in 0...boardSize ) {
-			final m = boardValues[i].length;
-			for( j in 0...m ) {
-				boardValues[i][j] = board.boardValues[i][j];
+		for( y in 0...boardSize ) {
+			final m = boardValues[y].length;
+			for( x in 0...m ) {
+				boardValues[y][x] = board.boardValues[y][x];
 			}
 		}
-		return new Board( boardValues, board.totalMoves );
+		return new Board( board.positions, boardValues, board.totalMoves );
+	}
+
+	static function createPositions( boardSize:Int ) {
+		final positions:Array<Array<Position>> = [for( y in 0...DEFAULT_BOARD_SIZE ) [for( x in 0...DEFAULT_BOARD_SIZE ) { x: x, y: y }]];
+		return positions;
 	}
 
 	static function createEmptyBoardValues( boardSize:Int ) {
 		final boardValues = new Vector<Vector<Int>>( boardSize );
-		for( i in 0...boardValues.length ) {
-			boardValues[i] = new Vector<Int>( boardSize );
-			for( j in 0...boardSize ) boardValues[i][j] = 0;
+		for( y in 0...boardValues.length ) {
+			boardValues[y] = new Vector<Int>( boardSize );
+			for( x in 0...boardSize ) boardValues[y][x] = 0;
 		}
 		return boardValues;
 	}
 
 	public function performMove( player:Int, p:Position) {
 		totalMoves++;
-		boardValues[p.x][p.y] = player;
+		if( boardValues[p.y][p.x] != 0 ) {
+			printErr( toString() );
+			throw 'Error: position $p is not empty\n';
+		}
+		boardValues[p.y][p.x] = player;
 		move = p;
 	}
 
@@ -64,11 +79,11 @@ class Board {
 		final diag1 = new Vector<Int>( boardSize );
 		final diag2 = new Vector<Int>( boardSize );
 
-		for( i in 0...boardSize ) {
-			final row = boardValues[i];
+		for( y in 0...boardSize ) {
+			final row = boardValues[y];
 			final col = new Vector<Int>( boardSize );
-			for( j in 0...boardSize ) {
-				col[j] = boardValues[j][i];
+			for( x in 0...boardSize ) {
+				col[x] = boardValues[x][y];
 			}
 
 			final checkRowForWin = checkForWin( row );
@@ -77,8 +92,8 @@ class Board {
 			final checkColForWin = checkForWin( col );
 			if( checkColForWin != 0 ) return checkColForWin;
 
-			diag1[i] = boardValues[i][i];
-			diag2[i] = boardValues[maxIndex - i][i];
+			diag1[y] = boardValues[y][y];
+			diag2[y] = boardValues[maxIndex - y][y];
 		}
 
 		final checkDiag1ForWin = checkForWin( diag1 );
@@ -86,7 +101,6 @@ class Board {
 
 		final checkDiag2ForWin = checkForWin( diag2 );
 		if( checkDiag2ForWin != 0 ) return checkDiag2ForWin;
-
 		return getEmptyPositions().length > 0 ? IN_PROGRESS : DRAW;
 	}
 
@@ -114,12 +128,11 @@ class Board {
 
 	public function getEmptyPositions() {
 		final emptyPositions:Array<Position> = [];
-		for( i in 0...boardValues.length ) {
-			for( j in 0...boardValues.length ) {
-				if( boardValues[i][j] == 0 ) emptyPositions.push({ x: i, y: j });
+		for( y in 0...boardValues.length ) {
+			for( x in 0...boardValues.length ) {
+				if( boardValues[y][x] == 0 ) emptyPositions.push( positions[y][x] );
 			}
 		}
-
 		return emptyPositions;
 	}
 

@@ -7,7 +7,7 @@
 -D js-es=6
 -D no-traces
 --dce full
--main Main
+-main MainAi
 --js dest/ai.js
 
 # -cmd uglifyjs dest/ai.js -o dest/ai-min.js

@@ -6,4 +6,6 @@ package mcts.tictactoe;
 
 	public final x:Int;
 	public final y:Int;
+
+	public function toString() return '$x:$y';
 }

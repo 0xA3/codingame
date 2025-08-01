@@ -4,7 +4,6 @@ import CodinGame.printErr;
 import Std.int;
 import haxe.Timer;
 import mcts.tictactoe.Board;
-import mcts.tictactoe.Position;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -26,28 +25,34 @@ class MonteCarloTreeSearch {
 
 	public function findNextMove( playerNo:Int ) {
 		final start = Timer.stamp();
-		final end = start + 0.019 * getMillisForCurrentLevel();
+		// final end = start + 0.019 * getMillisForCurrentLevel();
+		final end = start + 0.09;
 		// printErr( 'time ${int(( end - start ) * 1000 )}' );
-		
+
 		opponent = 3 - playerNo;
 		final rootNode = tree.root;
 
 		while( Timer.stamp() < end ) {
 			// Phase 1 - Selection
 			final promisingNode = selectPromisingNode( rootNode );
+			// printErr( 'Phase 1 - Selection time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 2 - Expansion
 			if( promisingNode.state.board.checkStatus() == Board.IN_PROGRESS ) expandNode( promisingNode );
+			// printErr( 'Phase 2 - Expansion time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 3 - Simulation
 			var nodeToExplore = promisingNode;
 			if( promisingNode.childArray.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
 
 			final playoutResult = simulateRandomPlayout( nodeToExplore );
+			// printErr( 'Phase 3 - Simulation time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 4 - Update
 			backPropagation( nodeToExplore, playoutResult );
+			// printErr( 'Phase 4 - Update time ${int(( Timer.stamp() - start ) * 1000 )}' );
 		}
 		
 		final winnerNode = rootNode.getChildWithMaxScore();
 		tree.root = winnerNode;
+		// printErr( 'WinnerNode move ${winnerNode.state.board.move} time ${int(( Timer.stamp() - start ) * 1000 )}' );
 		
 		return winnerNode.state.board;
 	}
@@ -92,7 +97,7 @@ class MonteCarloTreeSearch {
 			tempState.randomPlay();
 			boardStatus = tempState.board.checkStatus();
 		}
-
+		
 		return boardStatus;
 	}
 }

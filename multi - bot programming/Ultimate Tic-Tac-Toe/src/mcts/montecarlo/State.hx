@@ -1,7 +1,7 @@
 package mcts.montecarlo;
 
+import CodinGame.printErr;
 import mcts.tictactoe.Board;
-import mcts.tictactoe.Position;
 
 class State {
 	
@@ -40,6 +40,7 @@ class State {
 	}
 
 	public function getAllPossibleStates() {
+		// printErr( 'getAllPossibleStates' );
 		// constructs a list of all possible states from current state
 		final possibleStates:Array<State> = [];
 		final availablePositions = board.getEmptyPositions();
@@ -66,7 +67,6 @@ class State {
 		final availablePositions = board.getEmptyPositions();
 		final totalPossibilities = availablePositions.length;
 		final selectRandom = Std.int( Math.random() * totalPossibilities );
-		
 		board.performMove( playerNo, availablePositions[selectRandom] );
 	}
 
