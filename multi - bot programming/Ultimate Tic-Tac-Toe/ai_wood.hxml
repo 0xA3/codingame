@@ -1,0 +1,13 @@
+-lib compiletime
+-lib xa3.format
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-D message-reporting=pretty
+-D js-es=6
+-D no-traces
+--dce full
+-main MainAiWood
+--js dest/ai.js
+
+# -cmd uglifyjs dest/ai.js -o dest/ai-min.js
