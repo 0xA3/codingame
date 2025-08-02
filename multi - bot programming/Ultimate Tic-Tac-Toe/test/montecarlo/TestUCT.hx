@@ -3,6 +3,7 @@ package test.montecarlo;
 import mcts.montecarlo.Integer;
 import mcts.montecarlo.UCT;
 import mcts.tree.Node;
+
 using buddy.Should;
 
 class TestUCT extends buddy.BuddySuite {
@@ -28,10 +29,10 @@ class TestUCT extends buddy.BuddySuite {
 			});
 			
 			it( "Test findBestNodeWithUCT", {
-				final node = Node.createEmpty();
+				final node = Node.create( 3 );
 
-				final childNode1 = Node.createEmpty();
-				final childNode2 = Node.createEmpty();
+				final childNode1 = Node.create( 3 );
+				final childNode2 = Node.create( 3 );
 			});
 			
 		});
@@ -39,13 +40,13 @@ class TestUCT extends buddy.BuddySuite {
 		describe( "Test findBestNodeWithUCT", {
 			
 			it( "Test uctValue nodeVisit 0", {
-				final node = Node.createEmpty();
+				final node = Node.create( 3 );
 				node.state.visitCount = 3;
 
-				final child1 = Node.createEmpty();
+				final child1 = Node.create( 3 );
 				child1.state.visitCount = 2;
 				
-				final child2 = Node.createEmpty();
+				final child2 = Node.create( 3 );
 				child2.state.visitCount = 2;
 				child2.state.winScore = 0.5;
 

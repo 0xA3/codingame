@@ -12,7 +12,7 @@ class MainAi {
 	
 	static function main() {
 		
-		final rootBoard = Board.createEmpty();
+		final rootBoard = Board.create( 9 );
 		final rootState = State.fromBoard( rootBoard );
 		final rootNode = Node.fromState( rootState );
 		final tree = new Tree( rootNode );
@@ -28,17 +28,17 @@ class MainAi {
 			final validActionCount = parseInt(readline());
 			// printErr( 'opponentRow $opponentRow opponentCol $opponentCol validActionCount $validActionCount' );
 
-			for( i in 0...validActionCount ) {
+			final validPositions = [for( i in 0...validActionCount ) {
 				var inputs = readline().split(' ');
-				final row = parseInt(inputs[0]);
-				final col = parseInt(inputs[1]);
+				final y = parseInt(inputs[0]);
+				final x = parseInt(inputs[1]);
 
-				// printErr( 'row $row col $col' );
-			}
-			if( opponentRow != -1 ) ai.setInputs( opponentRow, opponentCol, validActionCount );
+				rootBoard.positions[y][x];
+			}];
+
+			ai.setInputs( opponentRow, opponentCol, validPositions );
 
 			final action = ai.process();
-
 			print( action );
 		}
 

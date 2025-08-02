@@ -17,13 +17,13 @@ class State {
 		this.winScore = winScore;
 	}
 
-	public static function createEmpty() {
-		final board = Board.createEmpty();
+	public static function create( boardSize:Int ) {
+		final board = Board.create( boardSize );
 		return new State( board );
 	}
 
 	public static function fromState( state:State ) {
-		final board = Board.fromBoard( state.board );
+		final board = Board.copy( state.board );
 		final playerNo = state.playerNo;
 		final visitCount = state.visitCount;
 		final winScore = state.winScore;
@@ -32,7 +32,7 @@ class State {
 	}
 
 	public static function fromBoard( board:Board ) {
-		return new State( Board.fromBoard( board ));
+		return new State( Board.copy( board ));
 	}
 
 	public function getOpponent() {
@@ -45,7 +45,7 @@ class State {
 		final possibleStates:Array<State> = [];
 		final availablePositions = board.getEmptyPositions();
 		for( p in availablePositions ) {
-			final newState = new State( Board.fromBoard( board ), 3 - playerNo );
+			final newState = new State( Board.copy( board ), 3 - playerNo );
 			newState.board.performMove( newState.playerNo, p );
 			possibleStates.push( newState );
 		}

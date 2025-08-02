@@ -2,6 +2,7 @@ package test.montecarlo;
 
 import mcts.montecarlo.State;
 import mcts.tictactoe.Board;
+
 using buddy.Should;
 
 class TestState extends buddy.BuddySuite {
@@ -11,7 +12,7 @@ class TestState extends buddy.BuddySuite {
 		describe( "Test State", {
 			
 			it( "Test createEmpty", {
-				final state = State.createEmpty();
+				final state = State.create( 3 );
 				state.board.should.not.be( null );
 				state.playerNo.should.be( 1 );
 				state.visitCount.should.be( 0 );
@@ -19,7 +20,7 @@ class TestState extends buddy.BuddySuite {
 			});
 			
 			it( "Test fromState", {
-				final state1 = State.createEmpty();
+				final state1 = State.create( 3 );
 				final state2 = State.fromState( state1 );
 				state2.playerNo = 2;
 				state2.visitCount = 1;
@@ -31,12 +32,12 @@ class TestState extends buddy.BuddySuite {
 			});
 			
 			it( "Test getOpponent", {
-				final state = State.createEmpty();
+				final state = State.create( 3 );
 				state.getOpponent().should.be( 2 );
 			});
 
 			it( "Test getAllPossibleStates", {
-				final board = Board.fromBoardSize( 2 );
+				final board = Board.create( 2 );
 				final state = State.fromBoard( board );
 				final allPossibleStates = state.getAllPossibleStates();
 				allPossibleStates.length.should.be( 4 );

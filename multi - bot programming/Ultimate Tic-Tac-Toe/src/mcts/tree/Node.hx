@@ -16,8 +16,8 @@ class Node {
 		this.parent = parent;
 	}
 
-	public static function createEmpty() {
-		final state = State.createEmpty();
+	public static function create( boardSize:Int ) {
+		final state = State.create( boardSize );
 		final childArray = new Array<Node>();
 		
 		return new Node( state, childArray );

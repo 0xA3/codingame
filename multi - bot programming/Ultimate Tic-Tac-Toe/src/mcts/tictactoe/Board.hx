@@ -25,19 +25,13 @@ class Board {
 		this.totalMoves = totalMoves;
 	}
 
-	public static function createEmpty() {
-		final positions = createPositions( DEFAULT_BOARD_SIZE );
-		final boardValues = createEmptyBoardValues( DEFAULT_BOARD_SIZE );
-		return new Board( positions, boardValues );
-	}
-
-	public static function fromBoardSize( boardSize:Int ) {
+	public static function create( boardSize:Int ) {
 		final positions = createPositions( boardSize );
 		final boardValues = createEmptyBoardValues( boardSize );
 		return new Board( positions, boardValues );
 	}
 
-	public static function fromBoard( board:Board ) {
+	public static function copy( board:Board ) {
 		final boardSize = board.boardValues.length;
 		final boardValues = createEmptyBoardValues( boardSize );
 		for( y in 0...boardSize ) {
@@ -50,7 +44,7 @@ class Board {
 	}
 
 	static function createPositions( boardSize:Int ) {
-		final positions:Array<Array<Position>> = [for( y in 0...DEFAULT_BOARD_SIZE ) [for( x in 0...DEFAULT_BOARD_SIZE ) { x: x, y: y }]];
+		final positions:Array<Array<Position>> = [for( y in 0...boardSize ) [for( x in 0...boardSize ) { x: x, y: y }]];
 		return positions;
 	}
 
