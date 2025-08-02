@@ -1,7 +1,6 @@
 import CodinGame.printErr;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.Board;
-import mcts.tictactoe.Position;
 import mcts.tree.Tree;
 
 class Ai {
@@ -25,7 +24,7 @@ class Ai {
 	public function setInputs( oy:Int, ox:Int, validActionCount:Int) {
 		final move = board.positions[oy][ox];
 		
-		final nextNode = tree.root.getChildOfMove( move );
+		final nextNode = tree.root.getNodeOfMove( move );
 		tree.root = nextNode;
 		board = nextNode.state.board;
 	}

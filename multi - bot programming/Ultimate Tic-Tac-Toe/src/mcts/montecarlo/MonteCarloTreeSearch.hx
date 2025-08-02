@@ -83,7 +83,7 @@ class MonteCarloTreeSearch {
 	}
 
 	function simulateRandomPlayout( node:Node ) {
-		final tempNode = Node.fromNode( node );
+		final tempNode = Node.copy( node );
 		final tempState = tempNode.state;
 		var boardStatus = tempState.board.checkStatus();
 

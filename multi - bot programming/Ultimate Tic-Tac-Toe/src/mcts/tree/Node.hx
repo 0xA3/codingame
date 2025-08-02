@@ -28,18 +28,21 @@ class Node {
 		return new Node( state, childArray );
 	}
 
-	public static function fromNode( node:Node ) {
+	public static function copy( node:Node ) {
 		final childArray = new Array<Node>();
 		final state = State.fromState( node.state );
-		for( child in node.childArray ) childArray.push( Node.fromNode( child ));
+		for( child in node.childArray ) childArray.push( Node.copy( child ));
 
 		return new Node( state, childArray, node.parent );
 	}
 
-	public function getChildOfMove( p:Position ) {
+	public function getNodeOfMove( p:Position ) {
 		for( child in childArray ) if( child.state.board.move == p ) return child;
 
-		throw 'Error: child of move $p not found';
+		final node = Node.copy( this );
+		node.state.board.performMove( state.playerNo, p );
+		
+		return node;
 	}
 
 	public function getRandomChildNode() {

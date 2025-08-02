@@ -39,7 +39,7 @@ class MainAi {
 
 			final action = ai.process();
 
-			print('0 0');
+			print( action );
 		}
 
 	}
