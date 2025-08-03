@@ -29,7 +29,7 @@ class Main {
 		for( i in 0...maxMoves ) {
 			board = mcts.findNextMove( player );
 			Sys.println( board );
-			if( board.checkStatus() != -1 ) break;
+			if( board.status != -1 ) break;
 			player = 3 - player;
 		}
 

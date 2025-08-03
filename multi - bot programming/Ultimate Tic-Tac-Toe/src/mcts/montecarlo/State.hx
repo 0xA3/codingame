@@ -64,7 +64,12 @@ class State {
 	}
 
 	public function randomPlay() {
+		// printErr( 'randomPlay status ${board.printStatus()} moves ${board.totalMoves}' );
 		final availablePositions = board.getEmptyPositions();
+		if( availablePositions.length == 0 ) {
+			printErr( '${board}status: ${board.printStatus()}' );
+			throw 'Error: no available positions';
+		}
 		final totalPossibilities = availablePositions.length;
 		final selectRandom = Std.int( Math.random() * totalPossibilities );
 		board.performMove( playerNo, availablePositions[selectRandom] );

@@ -16,7 +16,6 @@ class MonteCarloTreeSearch {
 	public var level = 3;
 	public var opponent:Int;
 
-
 	public function new( tree:Tree ) {
 		this.tree = tree;
 	}
@@ -37,7 +36,7 @@ class MonteCarloTreeSearch {
 			final promisingNode = selectPromisingNode( rootNode );
 			// printErr( 'Phase 1 - Selection time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 2 - Expansion
-			if( promisingNode.state.board.checkStatus() == Board.IN_PROGRESS ) expandNode( promisingNode );
+			if( promisingNode.state.board.status == Board.IN_PROGRESS ) expandNode( promisingNode );
 			// printErr( 'Phase 2 - Expansion time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 3 - Simulation
 			var nodeToExplore = promisingNode;
@@ -85,7 +84,7 @@ class MonteCarloTreeSearch {
 	function simulateRandomPlayout( node:Node ) {
 		final tempNode = Node.copy( node );
 		final tempState = tempNode.state;
-		var boardStatus = tempState.board.checkStatus();
+		var boardStatus = tempState.board.status;
 
 		if( boardStatus == opponent ) {
 			tempNode.parent.state.winScore = Integer.MIN_VALUE;
@@ -95,7 +94,7 @@ class MonteCarloTreeSearch {
 		while( boardStatus == Board.IN_PROGRESS ) {
 			tempState.togglePlayer();
 			tempState.randomPlay();
-			boardStatus = tempState.board.checkStatus();
+			boardStatus = tempState.board.status;
 		}
 		
 		return boardStatus;

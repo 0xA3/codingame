@@ -3,8 +3,8 @@
 	"tasks": [
 		{
 			"type": "hxml",
-			"label": "Build hl",
-			"file": "build.hxml"
+			"label": "Build Debug hl",
+			"file": "debug.hxml"
 		},
 		{
 			"type": "haxe",

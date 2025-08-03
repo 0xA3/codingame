@@ -3,5 +3,3 @@
 -D analyzer-optimize
 -main Main
 --hl app.hl
-
--cmd hl app.hl

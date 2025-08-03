@@ -1,21 +1,20 @@
 package mcts.tictactoe;
 
 import CodinGame.printErr;
-import haxe.ds.Vector;
 
 class BitBoard {
 	
-	public final positions:Array<Array<Position>> = [];
-	public var board1 = 0;
-	public var board2 = 0;
-	public var totalMoves:Int;
-
 	public static inline var BOARD_SIZE = 3;
-
+	public static inline var BOARD_CELLS_NUM = 3 * 3;
 	public static inline var IN_PROGRESS  = -1;
 	public static inline var DRAW = 0;
 	public static inline var P1 = 1;
 	public static inline var P2 = 2;
+
+	public final positions:Array<Array<Position>> = [];
+	public var board1 = 0;
+	public var board2 = 0;
+	public var totalMoves:Int;
 
 	public var move = Position.NO_POSITION;
 	public var status = IN_PROGRESS;
@@ -32,6 +31,7 @@ class BitBoard {
 	}
 
 	public static function copy( board:BitBoard ) {
+		if( board.status != IN_PROGRESS ) return board;
 		return new BitBoard( board.positions, board.board1, board.board2, board.totalMoves );
 	}
 
@@ -41,16 +41,38 @@ class BitBoard {
 	}
 
 	public function performMove( player:Int, p:Position) {
-		totalMoves++;
 		if( getCell( board1 | board2, p ) != 0 ) {
 			printErr( toString() );
 			throw 'Error: position $p is not empty\n';
 		}
+		
 		if( player == P1 ) setCellP1( p )
 		else if( player == P2 ) setCellP2( p );
 		else throw 'Error: illegal player $player';
 		
+		totalMoves++;
+		status = getStatusAfterMove( p );
 		move = p;
+	}
+
+	function getStatusAfterMove( p:Position) {
+		final rowResult = checkRowForWin( p.y );
+		if( rowResult != 0 ) return rowResult;
+		
+		final colResult = checkColForWin( p.x );
+		if( colResult != 0 ) return colResult;
+		
+		if( p.y == p.x ) {
+			final diagDownResult = checkDiagDownForWin();
+			if( diagDownResult != 0 ) return diagDownResult;
+		}
+		
+		if( p.y + p.x == BOARD_SIZE - 1 ) {
+			final diagUpResult = checkDiagUpForWin();
+			if( diagUpResult != 0 ) return diagUpResult;
+		}
+
+		return totalMoves < BOARD_CELLS_NUM ? IN_PROGRESS : DRAW;
 	}
 
 	public function checkStatus() {
@@ -70,7 +92,7 @@ class BitBoard {
 		final diagUpResult = checkDiagUpForWin();
 		if( diagUpResult != 0 ) return diagUpResult;
 
-		return countCells( board1 | board2 ) < BOARD_SIZE * BOARD_SIZE ? IN_PROGRESS : DRAW;
+		return totalMoves < BOARD_CELLS_NUM ? IN_PROGRESS : DRAW;
 	}
 
 	function checkRowForWin( y:Int ) {

@@ -6,7 +6,7 @@
 			"name": "Debug hl",
 			"request": "launch",
 			"program": "${workspaceFolder}/app.hl",
-			"preLaunchTask": "Build hl"
+			"preLaunchTask": "Build Debug hl"
 		},
 		{
 			"name": "Haxe Interpreter",
