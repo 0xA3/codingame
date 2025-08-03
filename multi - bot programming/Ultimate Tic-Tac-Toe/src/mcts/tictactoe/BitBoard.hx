@@ -54,52 +54,50 @@ class BitBoard {
 	}
 
 	public function checkStatus() {
-		final boardSize = BOARD_SIZE;
-		final maxIndex = boardSize - 1;
-		final diag1 = new Vector<Int>( boardSize );
-		final diag2 = new Vector<Int>( boardSize );
-
-		for( y in 0...boardSize ) {
-			final row = new Vector<Int>( boardSize );
-			for( x in 0...boardSize ) row[x] = getValue( positions[y][x] );
-			final col = new Vector<Int>( boardSize );
-			for( x in 0...boardSize ) {
-				col[x] = getValue( positions[x][y] );
-			}
-
-			final checkRowForWin = checkForWin( row );
-			if( checkRowForWin != 0 ) return checkRowForWin;
-
-			final checkColForWin = checkForWin( col );
-			if( checkColForWin != 0 ) return checkColForWin;
-
-			diag1[y] = getValue( positions[y][y] );
-			diag2[y] = getValue( positions[maxIndex - y][y] );
+		for( y in 0...BOARD_SIZE ) {
+			final rowResult = checkRowForWin( y );
+			if( rowResult != 0 ) return rowResult;
 		}
 
-		final checkDiag1ForWin = checkForWin( diag1 );
-		if( checkDiag1ForWin != 0 ) return checkDiag1ForWin;
+		for( x in 0...BOARD_SIZE ) {
+			final colResult = checkColForWin( x );
+			if( colResult != 0 ) return colResult;
+		}
+		
+		final diagDownResult = checkDiagDownForWin();
+		if( diagDownResult != 0 ) return diagDownResult;
 
-		final checkDiag2ForWin = checkForWin( diag2 );
-		if( checkDiag2ForWin != 0 ) return checkDiag2ForWin;
-		return getEmptyPositions().length > 0 ? IN_PROGRESS : DRAW;
+		final diagUpResult = checkDiagUpForWin();
+		if( diagUpResult != 0 ) return diagUpResult;
+
+		return countCells( board1 | board2 ) < BOARD_SIZE * BOARD_SIZE ? IN_PROGRESS : DRAW;
+	}
+
+	function checkRowForWin( y:Int ) {
+		var playerAtPos0 = getValue( positions[y][0] );
+		for( x in 1...BOARD_SIZE ) if( getValue( positions[y][x] ) != playerAtPos0 ) return 0;
+		return playerAtPos0;
+	}
+
+	function checkColForWin( x:Int ) {
+		var playerAtPos0 = getValue( positions[0][x] );
+		for( y in 1...BOARD_SIZE ) if( getValue( positions[y][x] ) != playerAtPos0 ) return 0;
+		return playerAtPos0;
+	}
+
+	function checkDiagDownForWin() {
+		var playerAtTopLeft = getValue( positions[0][0] );
+		for( i in 1...BOARD_SIZE ) if( getValue( positions[i][i] ) != playerAtTopLeft ) return 0;
+		return playerAtTopLeft;
+	}
+
+	function checkDiagUpForWin() {
+		var playerAtBottomLeft = getValue( positions[BOARD_SIZE - 1][0] );
+		for( i in 1...BOARD_SIZE ) if( getValue( positions[BOARD_SIZE - 1 - i][i] ) != playerAtBottomLeft ) return 0;
+		return playerAtBottomLeft;
 	}
 
 	function getValue( p:Position ) return getCell( board1, p ) == 1 ? 1 : getCell( board2, p ) == 1 ? 2 : 0;
-
-	function checkForWin( row:Vector<Int> ) {
-		var isEqual = true;
-		var previous = row[0];
-		for( i in 0...row.length ) {
-			if( previous != row[i] ) {
-				isEqual = false;
-				break;
-			}
-			previous = row[i];
-		}
-
-		return isEqual ? previous : 0;
-	}
 
 	function setCellP1( p:Position ) board1 = setCell( board1, p );
 	function setCellP2( p:Position ) board2 = setCell( board2, p );
