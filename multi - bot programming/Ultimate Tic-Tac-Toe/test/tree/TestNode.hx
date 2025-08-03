@@ -12,14 +12,14 @@ class TestNode extends buddy.BuddySuite {
 		describe( "Test Node", {
 			
 			it( "Test createEmpty", {
-				final node = Node.create( 3 );
+				final node = Node.create();
 				node.state.should.not.be( null );
 				node.parent.should.be( null );
 				node.childArray.length.should.be( 0 );
 			});
 			
 			it( "Test fromState", {
-				final state = State.create( 3 );
+				final state = State.create();
 				final node = Node.fromState( state );
 				node.state.should.be( state );
 				node.parent.should.be( null );
@@ -27,7 +27,7 @@ class TestNode extends buddy.BuddySuite {
 			});
 			
 			it( "Test fromNode", {
-				final node1 = Node.create( 3 );
+				final node1 = Node.create();
 				final node2 = Node.copy( node1 );
 				node1.state.should.not.be( node2.state );
 				node2.parent.should.be( null );
@@ -35,9 +35,9 @@ class TestNode extends buddy.BuddySuite {
 			});
 
 			it( "Test getRandomChildNode", {
-				final childNode1 = Node.create( 3 );
-				final childNode2 = Node.create( 3 );
-				final node = Node.create( 3 );
+				final childNode1 = Node.create();
+				final childNode2 = Node.create();
+				final node = Node.create();
 				node.childArray.push( childNode1 );
 				node.childArray.push( childNode2 );
 
@@ -48,15 +48,15 @@ class TestNode extends buddy.BuddySuite {
 			});
 
 			it( "Test getChildWithMaxScore", {
-				final childNode1 = Node.create( 3 );
-				final childNode2 = Node.create( 3 );
-				final childNode3 = Node.create( 3 );
+				final childNode1 = Node.create();
+				final childNode2 = Node.create();
+				final childNode3 = Node.create();
 
 				childNode1.state.visitCount = 1;
 				childNode2.state.visitCount = 3;
 				childNode3.state.visitCount = 2;
 
-				final node = Node.create( 3 );
+				final node = Node.create();
 				node.childArray.push( childNode1 );
 				node.childArray.push( childNode2 );
 				node.childArray.push( childNode3 );

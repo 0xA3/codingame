@@ -43,8 +43,6 @@ class TestBoard extends buddy.BuddySuite {
 				final board = Board.create( 3 );
 				board.getEmptyPositions().length.should.be( 9 );
 			});
-			
 		});
-
 	}
 }

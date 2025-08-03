@@ -29,10 +29,10 @@ class TestUCT extends buddy.BuddySuite {
 			});
 			
 			it( "Test findBestNodeWithUCT", {
-				final node = Node.create( 3 );
+				final node = Node.create();
 
-				final childNode1 = Node.create( 3 );
-				final childNode2 = Node.create( 3 );
+				final childNode1 = Node.create();
+				final childNode2 = Node.create();
 			});
 			
 		});
@@ -40,13 +40,13 @@ class TestUCT extends buddy.BuddySuite {
 		describe( "Test findBestNodeWithUCT", {
 			
 			it( "Test uctValue nodeVisit 0", {
-				final node = Node.create( 3 );
+				final node = Node.create();
 				node.state.visitCount = 3;
 
-				final child1 = Node.create( 3 );
+				final child1 = Node.create();
 				child1.state.visitCount = 2;
 				
-				final child2 = Node.create( 3 );
+				final child2 = Node.create();
 				child2.state.visitCount = 2;
 				child2.state.winScore = 0.5;
 

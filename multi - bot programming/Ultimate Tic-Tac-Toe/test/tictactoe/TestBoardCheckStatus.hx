@@ -104,6 +104,5 @@ class TestBoardCheckStatus extends buddy.BuddySuite {
 				board.checkStatus().should.be( Board.P1 );
 			});
 		});
-
 	}
 }

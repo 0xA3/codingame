@@ -1,29 +1,29 @@
 package mcts.montecarlo;
 
 import CodinGame.printErr;
-import mcts.tictactoe.Board;
+import mcts.tictactoe.BitBoard;
 
 class State {
 	
-	public var board:Board;
+	public var board:BitBoard;
 	public var playerNo:Int;
 	public var visitCount:Int;
 	public var winScore:Float;
 
-	function new( board:Board, playerNo = 1, visitCount = 0, winScore = 0.0 ) {
+	function new( board:BitBoard, playerNo = 1, visitCount = 0, winScore = 0.0 ) {
 		this.board = board;
 		this.playerNo = playerNo;
 		this.visitCount = visitCount;
 		this.winScore = winScore;
 	}
 
-	public static function create( boardSize:Int ) {
-		final board = Board.create( boardSize );
+	public static function create() {
+		final board = BitBoard.create();
 		return new State( board );
 	}
 
 	public static function fromState( state:State ) {
-		final board = Board.copy( state.board );
+		final board = BitBoard.copy( state.board );
 		final playerNo = state.playerNo;
 		final visitCount = state.visitCount;
 		final winScore = state.winScore;
@@ -31,8 +31,8 @@ class State {
 		return new State( board, playerNo, visitCount, winScore );
 	}
 
-	public static function fromBoard( board:Board ) {
-		return new State( Board.copy( board ));
+	public static function fromBoard( board:BitBoard ) {
+		return new State( BitBoard.copy( board ));
 	}
 
 	public function getOpponent() {
@@ -45,7 +45,7 @@ class State {
 		final possibleStates:Array<State> = [];
 		final availablePositions = board.getEmptyPositions();
 		for( p in availablePositions ) {
-			final newState = new State( Board.copy( board ), 3 - playerNo );
+			final newState = new State( BitBoard.copy( board ), 3 - playerNo );
 			newState.board.performMove( newState.playerNo, p );
 			possibleStates.push( newState );
 		}

@@ -6,7 +6,6 @@ import haxe.ds.Vector;
 class Board {
 	
 	public final positions:Array<Array<Position>>;
-	public var boardValuesInt = 0;
 	public final boardValues:Vector<Vector<Int>>;
 	public var totalMoves:Int;
 
