@@ -40,7 +40,7 @@ class MonteCarloTreeSearch {
 			// printErr( 'Phase 2 - Expansion time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 3 - Simulation
 			var nodeToExplore = promisingNode;
-			if( promisingNode.childArray.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
+			if( promisingNode.children.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
 
 			final playoutResult = simulateRandomPlayout( nodeToExplore );
 			// printErr( 'Phase 3 - Simulation time ${int(( Timer.stamp() - start ) * 1000 )}' );
@@ -58,7 +58,7 @@ class MonteCarloTreeSearch {
 
 	function selectPromisingNode( rootNode:Node ) {
 		var node = rootNode;
-		while( node.childArray.length != 0 ) node = UCT.findBestNodeWithUCT( node );
+		while( node.children.length != 0 ) node = UCT.findBestNodeWithUCT( node );
 		
 		return node;
 	}
@@ -68,7 +68,7 @@ class MonteCarloTreeSearch {
 		for( state in possibleStates ) {
 			final newNode = new Node( state, [], node );
 			newNode.state.playerNo = node.state.getOpponent();
-			node.childArray.push( newNode );
+			node.children.push( newNode );
 		}
 	}
 

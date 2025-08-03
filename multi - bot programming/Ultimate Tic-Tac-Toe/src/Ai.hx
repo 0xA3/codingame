@@ -1,27 +1,27 @@
 import CodinGame.printErr;
 import Std.int;
 import mcts.montecarlo.MonteCarloTreeSearch;
-import mcts.tictactoe.Board;
+import mcts.tictactoe.BitBoard;
 import mcts.tictactoe.Position;
 import mcts.tree.Tree;
 
 class Ai {
 
-	final boards:Array<Board>;
+	final boards:Array<BitBoard>;
 	final trees:Array<Tree>;
 	final mctss:Array<MonteCarloTreeSearch>;
-	final player = Board.P1;
+	final player = BitBoard.P1;
 
 	var validPositions:Array<Position>;
 	
-	var board:Board;
+	var board:BitBoard;
 	var tree:Tree;
 	var mcts:MonteCarloTreeSearch;
 	var squareIndex = 0;
 
 	var turn = 0;
 
-	public function new( rootBoards:Array<Board>, trees:Array<Tree>, mctss:Array<MonteCarloTreeSearch> ) {
+	public function new( rootBoards:Array<BitBoard>, trees:Array<Tree>, mctss:Array<MonteCarloTreeSearch> ) {
 		boards = rootBoards;
 		this.trees = trees;
 		this.mctss = mctss;

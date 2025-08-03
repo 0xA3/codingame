@@ -75,26 +75,6 @@ class BitBoard {
 		return totalMoves < BOARD_CELLS_NUM ? IN_PROGRESS : DRAW;
 	}
 
-	public function checkStatus() {
-		for( y in 0...BOARD_SIZE ) {
-			final rowResult = checkRowForWin( y );
-			if( rowResult != 0 ) return rowResult;
-		}
-
-		for( x in 0...BOARD_SIZE ) {
-			final colResult = checkColForWin( x );
-			if( colResult != 0 ) return colResult;
-		}
-		
-		final diagDownResult = checkDiagDownForWin();
-		if( diagDownResult != 0 ) return diagDownResult;
-
-		final diagUpResult = checkDiagUpForWin();
-		if( diagUpResult != 0 ) return diagUpResult;
-
-		return totalMoves < BOARD_CELLS_NUM ? IN_PROGRESS : DRAW;
-	}
-
 	function checkRowForWin( y:Int ) {
 		var playerAtPos0 = getValue( positions[y][0] );
 		for( x in 1...BOARD_SIZE ) if( getValue( positions[y][x] ) != playerAtPos0 ) return 0;
@@ -148,7 +128,7 @@ class BitBoard {
 
 	public function getEmptyPositions() {
 		final board = board1 | board2;
-		final emptyPositions:Array<Position> = [];
+		final emptyPositions = [];
 		for( y in 0...BOARD_SIZE ) {
 			for( x in 0...BOARD_SIZE ) {
 				if( getCell( board, positions[y][x] ) == 0 ) emptyPositions.push( positions[y][x] );

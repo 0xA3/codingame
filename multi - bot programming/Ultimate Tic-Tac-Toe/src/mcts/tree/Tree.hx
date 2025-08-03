@@ -6,5 +6,5 @@ class Tree {
 
 	public function new( root:Node ) this.root = root;
 
-	public function addChild( parent:Node, child:Node ) parent.childArray.push( child );
+	public function addChild( parent:Node, child:Node ) parent.children.push( child );
 }

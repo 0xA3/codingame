@@ -8,36 +8,36 @@ class Node {
 	
 	public final state:State;
 	public final parent:Node;
-	public final childArray:Array<Node>;
+	public final children:Array<Node>;
 
-	public function new( state:State, childArray:Array<Node>, ?parent:Node ) {
+	public function new( state:State, children:Array<Node>, ?parent:Node ) {
 		this.state = state;
-		this.childArray = childArray;
+		this.children = children;
 		this.parent = parent;
 	}
 
 	public static function create() {
 		final state = State.create();
-		final childArray = new Array<Node>();
+		final children = new Array<Node>();
 		
-		return new Node( state, childArray );
+		return new Node( state, children );
 	}
 
 	public static function fromState( state:State ) {
-		final childArray = new Array<Node>();
-		return new Node( state, childArray );
+		final children = new Array<Node>();
+		return new Node( state, children );
 	}
 
 	public static function copy( node:Node ) {
-		final childArray = new Array<Node>();
+		final children = new Array<Node>();
 		final state = State.fromState( node.state );
-		for( child in node.childArray ) childArray.push( Node.copy( child ));
+		for( child in node.children ) children.push( Node.copy( child ));
 
-		return new Node( state, childArray, node.parent );
+		return new Node( state, children, node.parent );
 	}
 
 	public function getNodeOfMove( p:Position ) {
-		for( child in childArray ) if( child.state.board.move == p ) return child;
+		for( child in children ) if( child.state.board.move == p ) return child;
 
 		final node = Node.copy( this );
 		node.state.board.performMove( state.playerNo, p );
@@ -46,25 +46,25 @@ class Node {
 	}
 
 	public function getRandomChildNode() {
-		if( childArray.length == 0 ) throw "Error: childArray is empty";
+		if( children.length == 0 ) throw "Error: child array is empty";
 		
-		final noOfPossibleMoves = childArray.length;
+		final noOfPossibleMoves = children.length;
 		final selectRandom = Std.int( Math.random() * noOfPossibleMoves );
 		
-		return childArray[selectRandom];
+		return children[selectRandom];
 	}
 
 	public function getChildWithMaxScore() {
-		if( childArray.length == 0 ) throw "Error: childArray is empty";
+		if( children.length == 0 ) throw "Error: child array is empty";
 		
 		// solution without sorting
-		// var childWithMaxScore = childArray[0];
-		// for( child in childArray ) if( child.state.visitCount > childWithMaxScore.state.visitCount ) childWithMaxScore = child;
+		// var childWithMaxScore = children[0];
+		// for( child in children ) if( child.state.visitCount > childWithMaxScore.state.visitCount ) childWithMaxScore = child;
 		// return childWithMaxScore;
 
 		// solution with sorting
-		childArray.sort(( a, b ) -> b.state.visitCount - a.state.visitCount );
-		return childArray[0];
+		children.sort(( a, b ) -> b.state.visitCount - a.state.visitCount );
+		return children[0];
 	}
 
 	public function toString() {

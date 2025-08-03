@@ -5,7 +5,7 @@ import Std.int;
 import Std.parseInt;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
-import mcts.tictactoe.Board;
+import mcts.tictactoe.BitBoard;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -13,7 +13,7 @@ class MainAi {
 	
 	static function main() {
 		
-		final rootBoards = [for( _ in 0...9 ) Board.create( 3 )];
+		final rootBoards = [for( _ in 0...9 ) BitBoard.create()];
 		final rootStates = [for( rootBoard in rootBoards ) State.fromBoard( rootBoard )];
 		final rootNodes = [for( rootState in rootStates ) Node.fromState( rootState )];
 		final trees = [for( rootNode in rootNodes ) new Tree( rootNode )];

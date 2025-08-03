@@ -10,9 +10,9 @@ class UCT { // Upper Confidence Bound applied to trees
 	}
 
 	public static function findBestNodeWithUCT( node:Node ) {
-		if( node.childArray.length == 0 ) throw "Error: childArray length is 0";
+		if( node.children.length == 0 ) throw "Error: childArray length is 0";
 		final parentVisit = node.state.visitCount;
-		node.childArray.sort(( a, b ) -> {
+		node.children.sort(( a, b ) -> {
 			final aUct = uctValue( parentVisit, a.state.winScore, a.state.visitCount );
 			final bUct = uctValue( parentVisit, b.state.winScore, b.state.visitCount );
 			
@@ -21,6 +21,6 @@ class UCT { // Upper Confidence Bound applied to trees
 			return 0;
 		});
 		// for( childNode in node.childArray ) trace( '$childNode UTC: ${uctValue( parentVisit, childNode.state.winScore, childNode.state.visitCount )}' );
-		return node.childArray[0];
+		return node.children[0];
 	}
 }
