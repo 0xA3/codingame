@@ -4,8 +4,9 @@
 		{
 			"type": "hl",
 			"name": "Debug hl",
+			"cwd": "${workspaceFolder}",
 			"request": "launch",
-			"program": "${workspaceFolder}/app.hl",
+			"program": "app.hl",
 			"preLaunchTask": "Build Debug hl"
 		},
 		{
