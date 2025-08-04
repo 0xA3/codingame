@@ -21,8 +21,6 @@ class AiWood {
 		board = rootBoard;
 		this.tree = tree;
 		this.mcts = mcts;
-
-		tree.root.state.togglePlayer();
 	}
 
 	public function setGlobalInputs() { }

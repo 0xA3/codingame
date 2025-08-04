@@ -18,6 +18,7 @@ class MonteCarloTreeSearch {
 
 	public function new( tree:Tree ) {
 		this.tree = tree;
+		tree.root.state.togglePlayer();
 	}
 
 	function getMillisForCurrentLevel() return 2 * ( level - 1 ) + 1;
