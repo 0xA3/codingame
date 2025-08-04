@@ -7,19 +7,22 @@ import mcts.tree.Tree;
 
 class AiWood {
 
+	final player:Int;
 	final tree:Tree;
 	final mcts:MonteCarloTreeSearch;
-	final player = BitBoard.P1;
 
 	public var board:IBoard;
 	
 	var validPositions:Array<Position>;
 	var turn = 0;
 
-	public function new( rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+	public function new( player:Int, rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+		this.player = player;
 		board = rootBoard;
 		this.tree = tree;
 		this.mcts = mcts;
+
+		tree.root.state.togglePlayer();
 	}
 
 	public function setGlobalInputs() { }
@@ -27,7 +30,10 @@ class AiWood {
 	public function setInputs( oy:Int, ox:Int, validPositions:Array<Position> ) {
 		this.validPositions = validPositions;
 		
-		if( oy == -1 ) return;
+		if( oy == -1 ) {
+			printErr( 'AiWood makes first move\n' );
+			return;
+		}
 		
 		final move = board.positions[oy][ox];
 		final nextNode = tree.root.getNodeOfMove( move );
@@ -39,7 +45,7 @@ class AiWood {
 		board = mcts.findNextMove( player );
 		final move = board.move;
 
-		printErr( board );
+		printErr( 'Player $player: AiWood at $move\n$board' );
 
 		turn++;
 		return '${move.y} ${move.x}';

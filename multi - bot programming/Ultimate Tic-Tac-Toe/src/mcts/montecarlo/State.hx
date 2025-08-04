@@ -6,36 +6,36 @@ import mcts.tictactoe.IBoard;
 class State {
 	
 	public var board:IBoard;
-	public var playerNo:Int;
+	public var player:Int;
 	public var visitCount:Int;
 	public var winScore:Float;
 
-	function new( board:IBoard, playerNo = 1, visitCount = 0, winScore = 0.0 ) {
+	function new( player:Int, board:IBoard, visitCount = 0, winScore = 0.0 ) {
 		this.board = board;
-		this.playerNo = playerNo;
+		this.player = player;
 		this.visitCount = visitCount;
 		this.winScore = winScore;
 	}
 
-	public static function create( board:IBoard) {
-		return new State( board );
+	public static function create( player:Int, board:IBoard) {
+		return new State( player, board );
 	}
 
 	public static function copy( state:State ) {
 		final board = state.board.copy();
-		final playerNo = state.playerNo;
+		final player = state.player;
 		final visitCount = state.visitCount;
 		final winScore = state.winScore;
 
-		return new State( board, playerNo, visitCount, winScore );
+		return new State( player, board, visitCount, winScore );
 	}
 
-	public static function fromBoard( board:IBoard ) {
-		return new State( board.copy());
+	public static function fromBoard( player:Int, board:IBoard ) {
+		return new State( player, board.copy());
 	}
 
 	public function getOpponent() {
-		return 3 - playerNo;
+		return 3 - player;
 	}
 
 	public function getAllPossibleStates() {
@@ -43,15 +43,14 @@ class State {
 		// constructs a list of all possible states from current state
 		final possibleStates:Array<State> = [];
 		final availablePositions = board.getEmptyPositions();
-		final ps = [for( position in availablePositions ) '$position'].join( ',' );
-		printErr( 'availablePositions: $ps' );
-		
-		printErr( '${board}' );
-		board.checkForErrors();
+		// final ps = [for( position in availablePositions ) '$position'].join( ',' );
+		// printErr( 'availablePositions: $ps' );
+		// printErr( '${board}' );
+		// board.checkForErrors();
 
 		for( p in availablePositions ) {
-			final newState = new State( board.copy(), 3 - playerNo );
-			newState.board.performMove( newState.playerNo, p );
+			final newState = new State( 3 - player, board.copy() );
+			newState.board.performMove( newState.player, p );
 			possibleStates.push( newState );
 		}
 		
@@ -70,10 +69,10 @@ class State {
 
 	public function randomPlay() {
 		final availablePositions = board.getEmptyPositions();
-		final ps = [for( position in availablePositions ) '$position'].join( ',' );
-		printErr( 'availablePositions: $ps' );
-		printErr( '${board}' );
-		board.checkForErrors();
+		// final ps = [for( position in availablePositions ) '$position'].join( ',' );
+		// printErr( 'availablePositions: $ps' );
+		// printErr( '${board}' );
+		// board.checkForErrors();
 		
 		if( availablePositions.length == 0 ) {
 			// printErr( '${board}status: ${board.printStatus()}' );
@@ -82,15 +81,15 @@ class State {
 
 		final totalPossibilities = availablePositions.length;
 		final selectRandom = Std.int( Math.random() * totalPossibilities );
-		printErr( 'randomPosition: ${availablePositions[selectRandom]}' );
-		board.performMove( playerNo, availablePositions[selectRandom] );
+		// printErr( 'randomPosition: ${availablePositions[selectRandom]}' );
+		board.performMove( player, availablePositions[selectRandom] );
 	}
 
 	public function togglePlayer() {
-		playerNo = 3 - playerNo;
+		player = 3 - player;
 	}
 
 	public function toString() {
-		return 'playerNo: $playerNo, visitCount: $visitCount, winScore: $winScore';
+		return 'player: $player, visitCount: $visitCount, winScore: $winScore';
 	}
 }

@@ -1,20 +1,19 @@
 import CodinGame.printErr;
 import mcts.montecarlo.MonteCarloTreeSearch;
-import mcts.tictactoe.BitBoard;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
 import mcts.tree.Tree;
 
 class AiRandom {
 
-	var player = BitBoard.P2;
-	var opp = BitBoard.P1;
+	final player:Int;
 	
 	public var board:IBoard;
 	
 	var validPositions:Array<Position>;
 
-	public function new( rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+	public function new( player:Int, rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+		this.player = player;
 		board = rootBoard;
 	}
 
@@ -24,19 +23,18 @@ class AiRandom {
 		this.validPositions = validPositions;
 		
 		if( oy == -1 ) {
-			player = BitBoard.P1;
-			opp = BitBoard.P2;
+			printErr( 'AiRandom makes first move\n' );
 			return;
 		}
 		
-		board.performMove( opp, board.positions[oy][ox] );
+		board.performMove( 3 - player, board.positions[oy][ox] );
 	}
 
 	public function process() {
 		final randomPosition = validPositions[Std.random( validPositions.length )];
 		board.performMove( player, randomPosition );
 		
-		// printErr( board );
+		printErr( 'Player $player AiRandom at $randomPosition\n$board' );
 		
 		return '${randomPosition.y} ${randomPosition.x}';
 	}

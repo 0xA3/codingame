@@ -22,13 +22,13 @@ class MonteCarloTreeSearch {
 
 	function getMillisForCurrentLevel() return 2 * ( level - 1 ) + 1;
 
-	public function findNextMove( playerNo:Int ) {
+	public function findNextMove( player:Int ) {
 		final start = Timer.stamp();
 		// final end = start + 0.019 * getMillisForCurrentLevel();
 		final end = start + 0.09;
 		// printErr( 'time ${int(( end - start ) * 1000 )}' );
 
-		opponent = 3 - playerNo;
+		opponent = 3 - player;
 		final rootNode = tree.root;
 
 		while( Timer.stamp() < end ) {
@@ -50,7 +50,7 @@ class MonteCarloTreeSearch {
 		}
 		final winnerNode = rootNode.getChildWithMaxScore();
 		tree.root = winnerNode;
-		// printErr( 'WinnerNode move ${winnerNode.state.board.move} time ${int(( Timer.stamp() - start ) * 1000 )}' );
+		// printErr( 'Player: $player WinnerNode player: ${winnerNode.state.player} time ${int(( Timer.stamp() - start ) * 1000 )}' );
 		
 		return winnerNode.state.board;
 	}
@@ -66,7 +66,7 @@ class MonteCarloTreeSearch {
 		final possibleStates = node.state.getAllPossibleStates();
 		for( state in possibleStates ) {
 			final newNode = new Node( state, [], node );
-			newNode.state.playerNo = node.state.getOpponent();
+			newNode.state.player = node.state.getOpponent();
 			node.children.push( newNode );
 		}
 	}
@@ -75,13 +75,13 @@ class MonteCarloTreeSearch {
 		var tempNode = nodeToExplore;
 		while( tempNode != null ) {
 			tempNode.state.incrementVisit();
-			if( tempNode.state.playerNo == playerNo ) tempNode.state.addScore( WIN_SCORE );
+			if( tempNode.state.player == playerNo ) tempNode.state.addScore( WIN_SCORE );
 			tempNode = tempNode.parent;
 		}
 	}
 
 	function simulateRandomPlayout( node:Node ) {
-		printErr( 'simulateRandomPlayout' );
+		// printErr( 'simulateRandomPlayout' );
 		final tempNode = Node.copy( node );
 		final tempState = tempNode.state;
 		var boardStatus = tempState.board.status;
@@ -96,7 +96,7 @@ class MonteCarloTreeSearch {
 			tempState.randomPlay();
 			boardStatus = tempState.board.status;
 		}
-		printErr( 'end simulateRandomPlayout' );
+		// printErr( 'end simulateRandomPlayout' );
 		return boardStatus;
 	}
 }

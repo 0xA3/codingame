@@ -17,8 +17,8 @@ class Node {
 		this.parent = parent;
 	}
 
-	public static function create( board:IBoard ) {
-		final state = State.create( board );
+	public static function create( player:Int, board:IBoard ) {
+		final state = State.create( player, board );
 		final children = new Array<Node>();
 		
 		return new Node( state, children );
@@ -41,12 +41,11 @@ class Node {
 		for( child in children ) if( child.state.board.move == p ) return child;
 
 		final node = Node.copy( this );
+		// printErr( '${node.state.board}' );
+		// printErr( 'position: $p' );
 
-		printErr( '${node.state.board}' );
-		printErr( 'position: $p' );
 
-
-		node.state.board.performMove( state.playerNo, p );
+		node.state.board.performMove( state.player, p );
 		
 		return node;
 	}
