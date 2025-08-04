@@ -9,6 +9,7 @@ interface IBoard {
 
 	function copy():IBoard;
 	function performMove( player:Int, p:Position ):Void;
+	function checkForErrors():Void;
 	function getEmptyPositions():Array<Position>;
 	function toString():String;
 	function printStatus():String;

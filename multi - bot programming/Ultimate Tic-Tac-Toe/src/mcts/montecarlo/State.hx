@@ -43,6 +43,12 @@ class State {
 		// constructs a list of all possible states from current state
 		final possibleStates:Array<State> = [];
 		final availablePositions = board.getEmptyPositions();
+		final ps = [for( position in availablePositions ) '$position'].join( ',' );
+		printErr( 'availablePositions: $ps' );
+		
+		printErr( '${board}' );
+		board.checkForErrors();
+
 		for( p in availablePositions ) {
 			final newState = new State( board.copy(), 3 - playerNo );
 			newState.board.performMove( newState.playerNo, p );
@@ -63,14 +69,20 @@ class State {
 	}
 
 	public function randomPlay() {
-		// printErr( 'randomPlay status ${board.printStatus()} moves ${board.totalMoves}' );
 		final availablePositions = board.getEmptyPositions();
+		final ps = [for( position in availablePositions ) '$position'].join( ',' );
+		printErr( 'availablePositions: $ps' );
+		printErr( '${board}' );
+		board.checkForErrors();
+		
 		if( availablePositions.length == 0 ) {
-			printErr( '${board}status: ${board.printStatus()}' );
+			// printErr( '${board}status: ${board.printStatus()}' );
 			throw 'Error: no available positions';
 		}
+
 		final totalPossibilities = availablePositions.length;
 		final selectRandom = Std.int( Math.random() * totalPossibilities );
+		printErr( 'randomPosition: ${availablePositions[selectRandom]}' );
 		board.performMove( playerNo, availablePositions[selectRandom] );
 	}
 

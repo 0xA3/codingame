@@ -35,9 +35,8 @@ class Main {
 
 		Sys.println( rootBoard1 );
 
-		var x = -1;
 		var y = -1;
-		var validPositions:Array<Position> = rootBoard1.getEmptyPositions();
+		var x = -1;
 		var player = BitBoard.P1;
 		var board = rootBoard1;
 

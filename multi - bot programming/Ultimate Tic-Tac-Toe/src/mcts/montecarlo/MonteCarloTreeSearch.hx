@@ -48,7 +48,6 @@ class MonteCarloTreeSearch {
 			backPropagation( nodeToExplore, playoutResult );
 			// printErr( 'Phase 4 - Update time ${int(( Timer.stamp() - start ) * 1000 )}' );
 		}
-		
 		final winnerNode = rootNode.getChildWithMaxScore();
 		tree.root = winnerNode;
 		// printErr( 'WinnerNode move ${winnerNode.state.board.move} time ${int(( Timer.stamp() - start ) * 1000 )}' );
@@ -82,6 +81,7 @@ class MonteCarloTreeSearch {
 	}
 
 	function simulateRandomPlayout( node:Node ) {
+		printErr( 'simulateRandomPlayout' );
 		final tempNode = Node.copy( node );
 		final tempState = tempNode.state;
 		var boardStatus = tempState.board.status;
@@ -96,7 +96,7 @@ class MonteCarloTreeSearch {
 			tempState.randomPlay();
 			boardStatus = tempState.board.status;
 		}
-		
+		printErr( 'end simulateRandomPlayout' );
 		return boardStatus;
 	}
 }

@@ -41,6 +41,11 @@ class Node {
 		for( child in children ) if( child.state.board.move == p ) return child;
 
 		final node = Node.copy( this );
+
+		printErr( '${node.state.board}' );
+		printErr( 'position: $p' );
+
+
 		node.state.board.performMove( state.playerNo, p );
 		
 		return node;
