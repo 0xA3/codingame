@@ -1,5 +1,6 @@
 package mcts.tictactoe;
 
+import CodinGame.printErr;
 import haxe.ds.Vector;
 
 class UltimateBitBoard implements IBoard {
@@ -14,15 +15,15 @@ class UltimateBitBoard implements IBoard {
 	public final positions:Array<Array<Position>> = [];
 	public var board1 = 0;
 	public var board2 = 0;
-	public final smallBoards1:Vector<BitBoard>;
-	public final smallBoards2:Vector<BitBoard>;
+	public final smallBoards1:Vector<IBoard>;
+	public final smallBoards2:Vector<IBoard>;
 	public var totalMoves:Int;
 
 	public var move = Position.NO_POSITION;
 	public var activeBoard = -1;
 	public var status = IN_PROGRESS;
 
-	public function new( positions:Array<Array<Position>>, board1 = 0, board2 = 0, smallBoards1:Vector<BitBoard>, smallBoards2:Vector<BitBoard>, totalMoves = 0 ) {
+	public function new( positions:Array<Array<Position>>, board1 = 0, board2 = 0, smallBoards1:Vector<IBoard>, smallBoards2:Vector<IBoard>, totalMoves = 0 ) {
 		this.positions = positions;
 		this.board1 = board1;
 		this.board2 = board2;
@@ -37,7 +38,14 @@ class UltimateBitBoard implements IBoard {
 
 	public function copy() {
 		if( status != IN_PROGRESS ) return this;
-		return new BitBoard( positions, board1, board2, totalMoves );
+		
+		final smallBoards1Copy = new Vector<IBoard>( smallBoards1.length );
+		for( i in 0...smallBoards1.length ) smallBoards1Copy[i] = smallBoards1[i].copy();
+		
+		final smallBoards2Copy = new Vector<IBoard>( smallBoards2.length );
+		for( i in 0...smallBoards2.length ) smallBoards2Copy[i] = smallBoards2[i].copy();
+		
+		return new UltimateBitBoard( positions, board1, board2, smallBoards1Copy, smallBoards2Copy, totalMoves );
 	}
 
 	static function createPositions() {
@@ -45,7 +53,8 @@ class UltimateBitBoard implements IBoard {
 		return positions;
 	}
 
-	public function performMove( player:Int, boardIndex:Int, p:Position) {
+	public function performMove( player:Int, p:Position) {
+		final boardIndex = Transform.getIndex( p.x, p.y );
 		final smallBoard1 = smallBoards1[boardIndex].board1;
 		final smallBoard2 = smallBoards2[boardIndex].board2;
 		if( getCell( smallBoard1 | smallBoard2, p ) != 0 ) {

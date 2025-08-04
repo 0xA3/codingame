@@ -1,9 +1,11 @@
 import CodinGame.print;
 import CodinGame.printErr;
-import CodinGame.readline;
+import Std.parseInt;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
 import mcts.tictactoe.BitBoard;
+import mcts.tictactoe.IBoard;
+import mcts.tictactoe.Position;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -11,24 +13,53 @@ class Main {
 	
 	static function main() {
 		
-		final rootBoard = BitBoard.create();
-		final rootState = State.fromBoard( rootBoard );
-		final rootNode = Node.fromState( rootState );
-		final tree = new Tree( rootNode );
-		final mcts = new MonteCarloTreeSearch( tree );
+		final positions = BitBoard.createPositions();
 		
-		var player = BitBoard.P1;
+		final rootBoard1:IBoard = BitBoard.create( positions );
+		final rootState1 = State.fromBoard( rootBoard1 );
+		final rootNode1 = Node.fromState( rootState1 );
+		final tree1 = new Tree( rootNode1 );
+		final mcts1 = new MonteCarloTreeSearch( tree1 );
+
+		final ai1 = new AiWood( rootBoard1, tree1, mcts1 );
+
+		final rootBoard2:IBoard = BitBoard.create( positions );
+		final rootState2 = State.fromBoard( rootBoard2 );
+		final rootNode2 = Node.fromState( rootState2 );
+		final tree2 = new Tree( rootNode2 );
+		final mcts2 = new MonteCarloTreeSearch( tree2 );
+		
+		final ai2 = new AiRandom( rootBoard2, tree2, mcts2 );
+
 		final maxMoves = BitBoard.BOARD_SIZE * BitBoard.BOARD_SIZE;
 
-		// final ai = new Ai( rootBoard, tree, mcts );
-		// ai.setGlobalInputs();
+		Sys.println( rootBoard1 );
 
-		Sys.println( rootBoard );
+		var x = -1;
+		var y = -1;
+		var validPositions:Array<Position> = rootBoard1.getEmptyPositions();
+		var player = BitBoard.P1;
+		var board = rootBoard1;
 
-		var board = rootBoard;
 		for( i in 0...maxMoves ) {
-			board = mcts.findNextMove( player );
-			Sys.println( board );
+			final validPositions = board.getEmptyPositions();
+			
+			var action = "";
+			if( player == BitBoard.P1 ) {
+				ai1.setInputs( y, x, validPositions );
+				action = ai1.process();
+				board = ai1.board;
+			
+			} else {
+				ai2.setInputs( y, x, validPositions );
+				action = ai2.process();
+				board = ai2.board;
+			}
+
+			final move = action.split(' ').map( parseInt );
+			y = move[0];
+			x = move[1];
+
 			if( board.status != -1 ) break;
 			player = 3 - player;
 		}

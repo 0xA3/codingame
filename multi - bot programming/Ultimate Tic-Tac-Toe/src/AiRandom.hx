@@ -5,21 +5,17 @@ import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
 import mcts.tree.Tree;
 
-class AiWood {
+class AiRandom {
 
-	final tree:Tree;
-	final mcts:MonteCarloTreeSearch;
-	final player = BitBoard.P1;
-
+	var player = BitBoard.P2;
+	var opp = BitBoard.P1;
+	
 	public var board:IBoard;
 	
 	var validPositions:Array<Position>;
-	var turn = 0;
 
 	public function new( rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
 		board = rootBoard;
-		this.tree = tree;
-		this.mcts = mcts;
 	}
 
 	public function setGlobalInputs() { }
@@ -27,21 +23,21 @@ class AiWood {
 	public function setInputs( oy:Int, ox:Int, validPositions:Array<Position> ) {
 		this.validPositions = validPositions;
 		
-		if( oy == -1 ) return;
+		if( oy == -1 ) {
+			player = BitBoard.P1;
+			opp = BitBoard.P2;
+			return;
+		}
 		
-		final move = board.positions[oy][ox];
-		final nextNode = tree.root.getNodeOfMove( move );
-		tree.root = nextNode;
-		board = nextNode.state.board;
+		board.performMove( opp, board.positions[oy][ox] );
 	}
 
 	public function process() {
-		board = mcts.findNextMove( player );
-		final move = board.move;
-
-		printErr( board );
-
-		turn++;
-		return '${move.y} ${move.x}';
+		final randomPosition = validPositions[Std.random( validPositions.length )];
+		board.performMove( player, randomPosition );
+		
+		// printErr( board );
+		
+		return '${randomPosition.y} ${randomPosition.x}';
 	}
 }

@@ -3,6 +3,7 @@ import Std.int;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.BitBoard;
 import mcts.tictactoe.IBoard;
+import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
 import mcts.tree.Tree;
 
@@ -10,21 +11,21 @@ class Ai1 {
 
 	// 9 boards, 9 trees and 9 mctss
 
-	final boards:Array<BitBoard>;
+	final boards:Array<IBoard>;
 	final trees:Array<Tree>;
 	final mctss:Array<MonteCarloTreeSearch>;
 	final player = BitBoard.P1;
 
 	var validPositions:Array<Position>;
 	
-	var board:IBoard;
+	public var board:IBoard;
 	var tree:Tree;
 	var mcts:MonteCarloTreeSearch;
 	var squareIndex = 0;
 
 	var turn = 0;
 
-	public function new( rootBoards:Array<BitBoard>, trees:Array<Tree>, mctss:Array<MonteCarloTreeSearch> ) {
+	public function new( rootBoards:Array<IBoard>, trees:Array<Tree>, mctss:Array<MonteCarloTreeSearch> ) {
 		boards = rootBoards;
 		this.trees = trees;
 		this.mctss = mctss;
@@ -32,25 +33,27 @@ class Ai1 {
 
 	public function setGlobalInputs() { }
 
-	public function setInputs( oppSquareIndex:Int, oppY:Int, oppX:Int, squareIndex:Int, validPositions:Array<Position> ) {
+	public function setInputs( oppY:Int, oppX:Int, validPositions:Array<Position> ) {
+		final oppBoardIndex = Transform.getIndex( oppX, oppY );
+		final oppLocalY = Transform.getLocalY( oppY );
+		final oppLocalX = Transform.getLocalX( oppX );
+		
 		this.validPositions = validPositions;
 		// printErr( 'setInputs oppSquareIndex $oppSquareIndex, oppX $oppX, oppY $oppY, squareIndex $squareIndex' );
 		
 		if( oppY != -1 ) {
-			board = boards[oppSquareIndex];
-			tree = trees[oppSquareIndex];
-			mcts = mctss[oppSquareIndex];
+			board = boards[oppBoardIndex];
+			tree = trees[oppBoardIndex];
+			mcts = mctss[oppBoardIndex];
 
-			final move = board.positions[oppY][oppX];
+			final move = board.positions[oppLocalY][oppLocalX];
 			final nextNode = tree.root.getNodeOfMove( move );
 			tree.root = nextNode;
 			board = nextNode.state.board;
 		}
 		
-		this.squareIndex = squareIndex;
+		squareIndex = Transform.getIndex( validPositions[0].x, validPositions[0].y );
 		board = boards[squareIndex];
-		tree = trees[squareIndex];
-		mcts = mctss[squareIndex];
 	}
 
 	public function process() {

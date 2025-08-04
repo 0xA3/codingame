@@ -19,18 +19,18 @@ class BitBoard implements IBoard {
 	public var move = Position.NO_POSITION;
 	public var status = IN_PROGRESS;
 
-	public function new( positions:Array<Array<Position>>, board1 = 0, board2 = 0, totalMoves = 0 ) {
+	function new( positions:Array<Array<Position>>, board1 = 0, board2 = 0, totalMoves = 0 ) {
 		this.positions = positions;
 		this.board1 = board1;
 		this.board2 = board2;
 		this.totalMoves = totalMoves;
 	}
 
-	public static function create() {
-		return new BitBoard( createPositions() );
+	public static function create( positions:Array<Array<Position>> ) {
+		return new BitBoard( positions );
 	}
 
-	static function createPositions() {
+	public static function createPositions() {
 		final positions:Array<Array<Position>> = [for( y in 0...BOARD_SIZE ) [for( x in 0...BOARD_SIZE ) { x: x, y: y }]];
 		return positions;
 	}
@@ -147,8 +147,8 @@ class BitBoard implements IBoard {
 				final p1 = getCell( board1, positions[y][x] );
 				final p2 = getCell( board2, positions[y][x] );
 				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${positions[y][x]} is occupied by both players\n';
-				else if( p1 == 1 ) grid[y].push( 'O' );
-				else if( p2 == 1 ) grid[y].push( 'X' );
+				else if( p1 == 1 ) grid[y].push( 'X' );
+				else if( p2 == 1 ) grid[y].push( 'O' );
 				else grid[y].push( '.' );
 			}
 		}

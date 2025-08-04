@@ -6,6 +6,7 @@ import Std.parseInt;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
 import mcts.tictactoe.BitBoard;
+import mcts.tictactoe.IBoard;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -13,7 +14,9 @@ class MainAi {
 	
 	static function main() {
 		
-		final rootBoards = [for( _ in 0...9 ) BitBoard.create()];
+		final positions = BitBoard.createPositions();
+
+		final rootBoards:Array<IBoard> = [for( _ in 0...9 ) BitBoard.create( positions )];
 		final rootStates = [for( rootBoard in rootBoards ) State.create( rootBoard )];
 		final rootNodes = [for( rootState in rootStates ) Node.fromState( rootState )];
 		final trees = [for( rootNode in rootNodes ) new Tree( rootNode )];
@@ -24,12 +27,8 @@ class MainAi {
 
 		while( true ) {
 			final inputs = readline().split(' ');
-			final oppGlobalY = parseInt(inputs[0]);
-			final oppGlobalX = parseInt(inputs[1]);
-			final oppIndex = Transform.getIndex( oppGlobalX, oppGlobalY );
-
-			final oppLocalY = Transform.getLocalY( oppGlobalY );
-			final oppLocalX = Transform.getLocalX( oppGlobalX );
+			final oppY = parseInt(inputs[0]);
+			final oppX = parseInt(inputs[1]);
 
 			final validActionCount = parseInt(readline());
 			// printErr( 'opponentRow $opponentRow opponentCol $opponentCol validActionCount $validActionCount' );
@@ -48,7 +47,7 @@ class MainAi {
 				rootBoards[index].positions[y][x];
 			}];
 
-			ai.setInputs( oppIndex, oppLocalY, oppLocalX, index, validPositions );
+			ai.setInputs( oppY, oppX, validPositions );
 
 			final action = ai.process();
 			print( action );
