@@ -1,8 +1,8 @@
 package mcts.tictactoe;
 
-import CodinGame.printErr;
+import haxe.ds.Vector;
 
-class BitBoard implements IBoard {
+class UltimateBitBoard implements IBoard {
 	
 	public static inline var BOARD_SIZE = 3;
 	public static inline var BOARD_CELLS_NUM = 3 * 3;
@@ -14,15 +14,20 @@ class BitBoard implements IBoard {
 	public final positions:Array<Array<Position>> = [];
 	public var board1 = 0;
 	public var board2 = 0;
+	public final smallBoards1:Vector<BitBoard>;
+	public final smallBoards2:Vector<BitBoard>;
 	public var totalMoves:Int;
 
 	public var move = Position.NO_POSITION;
+	public var activeBoard = -1;
 	public var status = IN_PROGRESS;
 
-	public function new( positions:Array<Array<Position>>, board1 = 0, board2 = 0, totalMoves = 0 ) {
+	public function new( positions:Array<Array<Position>>, board1 = 0, board2 = 0, smallBoards1:Vector<BitBoard>, smallBoards2:Vector<BitBoard>, totalMoves = 0 ) {
 		this.positions = positions;
 		this.board1 = board1;
 		this.board2 = board2;
+		this.smallBoards1 = smallBoards1;
+		this.smallBoards2 = smallBoards2;
 		this.totalMoves = totalMoves;
 	}
 
@@ -30,18 +35,20 @@ class BitBoard implements IBoard {
 		return new BitBoard( createPositions() );
 	}
 
+	public function copy() {
+		if( status != IN_PROGRESS ) return this;
+		return new BitBoard( positions, board1, board2, totalMoves );
+	}
+
 	static function createPositions() {
 		final positions:Array<Array<Position>> = [for( y in 0...BOARD_SIZE ) [for( x in 0...BOARD_SIZE ) { x: x, y: y }]];
 		return positions;
 	}
 
-	public function copy() {
-		if( status != IN_PROGRESS ) return this;
-		return new BitBoard( positions, board2, totalMoves );
-	}
-
-	public function performMove( player:Int, p:Position ) {
-		if( getCell( board1 | board2, p ) != 0 ) {
+	public function performMove( player:Int, boardIndex:Int, p:Position) {
+		final smallBoard1 = smallBoards1[boardIndex].board1;
+		final smallBoard2 = smallBoards2[boardIndex].board2;
+		if( getCell( smallBoard1 | smallBoard2, p ) != 0 ) {
 			printErr( toString() );
 			throw 'Error: position $p is not empty\n';
 		}

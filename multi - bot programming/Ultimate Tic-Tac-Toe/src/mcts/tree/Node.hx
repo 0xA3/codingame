@@ -2,6 +2,7 @@ package mcts.tree;
 
 import CodinGame.printErr;
 import mcts.montecarlo.State;
+import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
 
 class Node {
@@ -16,8 +17,8 @@ class Node {
 		this.parent = parent;
 	}
 
-	public static function create() {
-		final state = State.create();
+	public static function create( board:IBoard ) {
+		final state = State.create( board );
 		final children = new Array<Node>();
 		
 		return new Node( state, children );
@@ -30,7 +31,7 @@ class Node {
 
 	public static function copy( node:Node ) {
 		final children = new Array<Node>();
-		final state = State.fromState( node.state );
+		final state = State.copy( node.state );
 		for( child in node.children ) children.push( Node.copy( child ));
 
 		return new Node( state, children, node.parent );

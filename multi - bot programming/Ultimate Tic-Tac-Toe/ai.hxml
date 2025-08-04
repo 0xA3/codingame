@@ -1,5 +1,4 @@
--lib compiletime
--lib xa3.format
+-lib littleBigInt
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize

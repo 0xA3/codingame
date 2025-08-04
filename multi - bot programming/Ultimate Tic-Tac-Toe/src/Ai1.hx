@@ -2,10 +2,13 @@ import CodinGame.printErr;
 import Std.int;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.BitBoard;
+import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
 import mcts.tree.Tree;
 
-class Ai {
+class Ai1 {
+
+	// 9 boards, 9 trees and 9 mctss
 
 	final boards:Array<BitBoard>;
 	final trees:Array<Tree>;
@@ -14,7 +17,7 @@ class Ai {
 
 	var validPositions:Array<Position>;
 	
-	var board:BitBoard;
+	var board:IBoard;
 	var tree:Tree;
 	var mcts:MonteCarloTreeSearch;
 	var squareIndex = 0;

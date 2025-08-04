@@ -14,12 +14,12 @@ class MainAi {
 	static function main() {
 		
 		final rootBoards = [for( _ in 0...9 ) BitBoard.create()];
-		final rootStates = [for( rootBoard in rootBoards ) State.fromBoard( rootBoard )];
+		final rootStates = [for( rootBoard in rootBoards ) State.create( rootBoard )];
 		final rootNodes = [for( rootState in rootStates ) Node.fromState( rootState )];
 		final trees = [for( rootNode in rootNodes ) new Tree( rootNode )];
 		final mctss = [for( tree in trees ) new MonteCarloTreeSearch( tree )];
 		
-		final ai = new Ai( rootBoards, trees, mctss );
+		final ai = new Ai1( rootBoards, trees, mctss );
 		ai.setGlobalInputs();
 
 		while( true ) {
