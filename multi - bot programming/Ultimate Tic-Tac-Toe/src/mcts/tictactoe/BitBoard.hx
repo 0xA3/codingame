@@ -37,10 +37,11 @@ class BitBoard implements IBoard {
 
 	public function copy() {
 		if( status != IN_PROGRESS ) return this;
-		return new BitBoard( positions, board2, totalMoves );
+		return new BitBoard( positions, board1, board2, totalMoves );
 	}
 
 	public function performMove( player:Int, p:Position ) {
+		printErr( '${toString()}player $player performMove $p' );
 		if( getCell( board1 | board2, p ) != 0 ) {
 			printErr( toString() );
 			throw 'Error: position $p is not empty\n';
@@ -53,6 +54,7 @@ class BitBoard implements IBoard {
 		totalMoves++;
 		status = getStatusAfterMove( p );
 		move = p;
+		printErr( '${toString()}' );
 	}
 
 	function getStatusAfterMove( p:Position) {
@@ -139,14 +141,19 @@ class BitBoard implements IBoard {
 	}
 
 	public function toString() {
-		var s = 'totalMoves $totalMoves\n';
+		// var s = 'totalMoves $totalMoves\n';
+		var s = "";
 		final grid = [];
 		for( y in 0...BOARD_SIZE ) {
 			grid.push( [] );
 			for( x in 0...BOARD_SIZE ) {
 				final p1 = getCell( board1, positions[y][x] );
 				final p2 = getCell( board2, positions[y][x] );
-				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${positions[y][x]} is occupied by both players\n';
+				// if( p1 == 1 && p2 == 1 ) throw 'Error: position ${positions[y][x]} is occupied by both players\n';
+				if( p1 == 1 && p2 == 1 ) {
+					printErr( 'Error: position ${positions[y][x]} is occupied by both players\n' );
+					grid[y].push( '#' );
+				}
 				else if( p1 == 1 ) grid[y].push( 'X' );
 				else if( p2 == 1 ) grid[y].push( 'O' );
 				else grid[y].push( '.' );
@@ -156,6 +163,16 @@ class BitBoard implements IBoard {
 			s += grid[y].join(" ") + "\n";
 		}
 		return s;
+	}
+
+	public function checkForErrors() {
+		for( y in 0...BOARD_SIZE ) {
+			for( x in 0...BOARD_SIZE ) {
+				final p1 = getCell( board1, positions[y][x] );
+				final p2 = getCell( board2, positions[y][x] );
+				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${positions[y][x]} is occupied by both players\n';
+			}
+		}
 	}
 
 	public function printStatus() {
