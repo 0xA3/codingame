@@ -3,8 +3,8 @@ import CodinGame.printErr;
 import Std.parseInt;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
-import mcts.tictactoe.BitBoard;
 import mcts.tictactoe.IBoard;
+import mcts.tictactoe.UltimateBitBoard;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -12,40 +12,40 @@ class Main {
 	
 	static function main() {
 		
-		final positions = BitBoard.createPositions();
-		final player1 = BitBoard.P1;
+		final positions = UltimateBitBoard.createPositions();
+		final player1 = UltimateBitBoard.P1;
 
-		final rootBoard1:IBoard = BitBoard.create( positions );
+		final rootBoard1:IBoard = UltimateBitBoard.create( positions );
 		final rootState1 = State.fromBoard( player1, rootBoard1 );
 		final rootNode1 = Node.fromState( rootState1 );
 		final tree1 = new Tree( rootNode1 );
 		final mcts1 = new MonteCarloTreeSearch( tree1 );
 
 
-		final player2 = BitBoard.P2;
-		final rootBoard2:IBoard = BitBoard.create( positions );
+		final player2 = UltimateBitBoard.P2;
+		final rootBoard2:IBoard = UltimateBitBoard.create( positions );
 		final rootState2 = State.fromBoard( player2, rootBoard2 );
 		final rootNode2 = Node.fromState( rootState2 );
 		final tree2 = new Tree( rootNode2 );
 		final mcts2 = new MonteCarloTreeSearch( tree2 );
 
-		final ai1 = new AiWood( BitBoard.P1, rootBoard1, tree1, mcts1 );
-		final ai2 = new AiRandom( BitBoard.P2, rootBoard2, tree2, mcts2 );
+		final ai1 = new Ai2( UltimateBitBoard.P1, rootBoard1, tree1, mcts1 );
+		final ai2 = new AiRandom( UltimateBitBoard.P2, rootBoard2, tree2, mcts2 );
 
-		final maxMoves = BitBoard.BOARD_SIZE * BitBoard.BOARD_SIZE;
+		final maxMoves = UltimateBitBoard.BOARD_SIZE * UltimateBitBoard.BOARD_SIZE;
 
 		Sys.println( rootBoard1 );
 
 		var y = -1;
 		var x = -1;
-		var player = BitBoard.P1;
+		var player = UltimateBitBoard.P1;
 		var board = rootBoard1;
 
 		for( i in 0...maxMoves ) {
 			final validPositions = board.getEmptyPositions();
 			
 			var action = "";
-			if( player == BitBoard.P1 ) {
+			if( player == UltimateBitBoard.P1 ) {
 				ai1.setInputs( y, x, validPositions );
 				action = ai1.process();
 				board = ai1.board;

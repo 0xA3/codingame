@@ -57,7 +57,7 @@ class BitBoard implements IBoard {
 		// printErr( '${toString()}' );
 	}
 
-	function getStatusAfterMove( p:Position) {
+	function getStatusAfterMove( p:Position ) {
 		final rowResult = checkRowForWin( p.y );
 		if( rowResult != 0 ) return rowResult;
 		

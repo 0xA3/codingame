@@ -9,18 +9,19 @@ import mcts.tree.Tree;
 class Ai2 {
 
 	// Ultimate board with small boards
-	final player = UltimateBitBoard.P1;
+	final player:Int;
 
 	var validPositions:Array<Position>;
 	
-	var board:IBoard;
+	public var board:IBoard;
 	var tree:Tree;
 	var mcts:MonteCarloTreeSearch;
 	var squareIndex = 0;
 
 	var turn = 0;
 
-	public function new( rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+	public function new( player:Int, rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+		this.player = player;
 		board = rootBoard;
 		this.tree = tree;
 		this.mcts = mcts;
