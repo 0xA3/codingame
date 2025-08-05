@@ -111,6 +111,9 @@ class BitBoard implements IBoard {
 		return board |= bit;
 	}
 
+	function getCellP1( p:Position ) return getCell( board1, p );
+	function getCellP2( p:Position ) return getCell( board2, p );
+
 	function getCell( board:Int, p:Position ) {
 		final mask = 1 << ( p.y * BOARD_SIZE + p.x );
 		return ( board & mask ) != 0 ? 1 : 0;

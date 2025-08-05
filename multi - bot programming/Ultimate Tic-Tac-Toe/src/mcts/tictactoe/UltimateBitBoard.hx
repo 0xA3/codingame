@@ -4,18 +4,20 @@ import CodinGame.printErr;
 import Std.int;
 import haxe.ds.Vector;
 
+using Lambda;
+
 class UltimateBitBoard extends BitBoard implements IBoard {
 	
 	public static inline var BOARD_SIZE = 9;
 	public static inline var BOARD_CELLS_NUM = 9 * 9;
+	public static inline var SMALL_BOARDS_NUM = 3 * 3;
 	public static inline var IN_PROGRESS  = -1;
 	public static inline var DRAW = 0;
 	public static inline var P1 = 1;
 	public static inline var P2 = 2;
 
 	public final smallBoards:Vector<BitBoard>;
-
-	public var previousBoardIndex = -1;
+	public var nextIndex = -1;
 
 	function new( positions:Array<Array<Position>>, smallBoards:Vector<BitBoard>, board1 = 0, board2 = 0, totalMoves = 0 ) {
 		super( positions, board1, board2, totalMoves );
@@ -26,8 +28,8 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		final positions = createPositions();
 		final smallBoardPositions = [for( y in 0...BitBoard.BOARD_SIZE ) [for( x in 0...BitBoard.BOARD_SIZE ) positions[y][x]]];
 		
-		final smallBoards = new Vector<BitBoard>( BOARD_CELLS_NUM );
-		for( i in 0...BOARD_CELLS_NUM ) smallBoards[i] = BitBoard.create( smallBoardPositions );
+		final smallBoards = new Vector<BitBoard>( SMALL_BOARDS_NUM );
+		for( i in 0...SMALL_BOARDS_NUM ) smallBoards[i] = BitBoard.create( smallBoardPositions );
 		
 		return new UltimateBitBoard( positions, smallBoards );
 	}
@@ -37,7 +39,7 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		
 		final smallBoardsCopy = new Vector<BitBoard>( smallBoards.length );
 		for( i in 0...smallBoards.length ) smallBoardsCopy[i] = smallBoards[i].copy();
-		
+
 		return new UltimateBitBoard( positions, smallBoardsCopy, board1, board2, totalMoves );
 	}
 
@@ -57,24 +59,63 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		
 		final localX = Transform.getLocalX( p.x );
 		final localY = Transform.getLocalY( p.y );
+
+		// printErr( 'player $player performMove $p in small board $boardIndex at ${localX}:${localY}  nextIndex ${localY * 3 + localX}' );
 		smallBoard.performMove( player, smallBoard.positions[localY][localX] );
 
-		final bigBoardLocalY = int( boardIndex / 3 );
-		final bigBoardLocalX = boardIndex % 3;
-		final bigBoardPos = positions[bigBoardLocalY][bigBoardLocalX];
+		if( smallBoard.status != IN_PROGRESS ) {
+			final overBoardY = int( boardIndex / 3 );
+			final overBoardX = boardIndex % 3;
+			final overBoardPosition = positions[overBoardY][overBoardX];
+			
+			if( player == P1 ) setCellP1( overBoardPosition )
+			else if( player == P2 ) setCellP2( overBoardPosition );
+			else throw 'Error: illegal player $player';
+			
+			totalMoves++;
+			status = getStatusAfterMove( overBoardPosition );
+		}
 		
-		if( player == P1 ) setCellP1( bigBoardPos )
-		else if( player == P2 ) setCellP2( bigBoardPos );
-		else throw 'Error: illegal player $player';
+		move = p;
+		nextIndex = localY * 3 + localX;
+	}
+
+	override public function getEmptyPositions() {
+		if( nextIndex == -1 ) return getAllEmptyPositions();
 		
-		totalMoves++;
-		smallBoard.status = getStatusAfterMove( bigBoardPos );
+		final previousSmallBoard = smallBoards[nextIndex];
+		final previousMove = previousSmallBoard.move;
+
+		final nextBoard = smallBoards[nextIndex];
+
+		if( nextBoard.status != IN_PROGRESS ) return getAllEmptyPositions();
+
+		final emptyPositions = getEmptyPositionsOfSmallBoard( nextIndex );
 		
-		final moveX = Transform.getGlobalX( boardIndex, localX );
-		final moveY = Transform.getGlobalY( boardIndex, localY );
+		// printErr( 'getEmptyPositions nextIndex $nextIndex emptyPositions $emptyPositions' );
 		
-		previousBoardIndex = boardIndex;
-		move = positions[moveY][moveX];
+		return emptyPositions;
+	}
+
+	function getAllEmptyPositions() {
+		var emptyPositions = [];
+		for( i in 0...smallBoards.length ) {
+			if( smallBoards[i].status != IN_PROGRESS ) continue;
+			emptyPositions = emptyPositions.concat( getEmptyPositionsOfSmallBoard( i ) );
+		}
+		return emptyPositions;
+	}
+
+	function getEmptyPositionsOfSmallBoard( i:Int ) {
+		final emptyPositions = [];
+		final localEmptyPositions = smallBoards[i].getEmptyPositions();
+		for( p in localEmptyPositions ) {
+			final globalX = Transform.getGlobalX( i, p.x );
+			final globalY = Transform.getGlobalY( i, p.y );
+			emptyPositions.push( positions[globalY][globalX] );
+		}
+
+		return emptyPositions;
 	}
 
 	override public function toString() {
@@ -90,16 +131,22 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 				final localX = Transform.getLocalX( x );
 				final localY = Transform.getLocalY( y );
 
-				final p1 = smallBoard.getCell( board1, positions[y][x] );
-				final p2 = smallBoard.getCell( board2, positions[y][x] );
+				final p1 = smallBoard.getCellP1( positions[localY][localX] );
+				final p2 = smallBoard.getCellP2( positions[localY][localX] );
 				if( x % 3 == 0 ) grid[y].push( '|' );
 				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${positions[y][x]} is occupied by both players\n';
 				// if( p1 == 1 && p2 == 1 ) {
 				// 	printErr( 'Error: position ${positions[y][x]} is occupied by both players\n' );
 				// 	grid[y].push( '#' );
 				// }
-				else if( p1 == 1 ) grid[y].push( 'X' );
-				else if( p2 == 1 ) grid[y].push( 'O' );
+				else if( p1 == 1 ) {
+					// printErr( 'position $x:$y  player 1' );
+					grid[y].push( 'X' );
+				}
+				else if( p2 == 1 ) {
+					// printErr( 'position $x:$y  player 2' );
+					grid[y].push( 'O' );
+				}
 				else grid[y].push( '.' );
 			}
 			grid[y].push( '|' );

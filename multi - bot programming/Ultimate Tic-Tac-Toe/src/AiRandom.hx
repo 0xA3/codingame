@@ -21,9 +21,9 @@ class AiRandom {
 
 	public function setInputs( oy:Int, ox:Int, validPositions:Array<Position> ) {
 		this.validPositions = validPositions;
-		
+
 		if( oy == -1 ) {
-			printErr( 'AiRandom makes first move\n' );
+			printErr( 'Player $player AiRandom makes first move\n' );
 			return;
 		}
 		

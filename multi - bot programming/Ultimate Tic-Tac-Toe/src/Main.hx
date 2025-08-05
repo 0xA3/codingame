@@ -29,6 +29,7 @@ class Main {
 		final tree2 = new Tree( rootNode2 );
 		final mcts2 = new MonteCarloTreeSearch( tree2 );
 
+		// final ai1 = new Ai2( UltimateBitBoard.P1, rootBoard1, tree1, mcts1 );
 		final ai1 = new Ai2( UltimateBitBoard.P1, rootBoard1, tree1, mcts1 );
 		final ai2 = new AiRandom( UltimateBitBoard.P2, rootBoard2, tree2, mcts2 );
 
