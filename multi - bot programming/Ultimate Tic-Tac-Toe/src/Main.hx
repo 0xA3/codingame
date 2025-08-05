@@ -35,7 +35,7 @@ class Main {
 
 		final maxMoves = UltimateBitBoard.BOARD_SIZE * UltimateBitBoard.BOARD_SIZE;
 
-		Sys.println( rootBoard1 );
+		// Sys.println( rootBoard1 );
 
 		var y = -1;
 		var x = -1;

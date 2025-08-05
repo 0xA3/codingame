@@ -15,20 +15,23 @@ class MonteCarloTreeSearch {
 	
 	public var level = 3;
 	public var opponent:Int;
+	var nodeCount = 0;
 
 	public function new( tree:Tree ) {
 		this.tree = tree;
 		tree.root.state.togglePlayer();
 	}
 
-	function getMillisForCurrentLevel() return 2 * ( level - 1 ) + 1;
+	// function getMillisForCurrentLevel() return 2 * ( level - 1 ) + 1;
 
 	public function findNextMove( player:Int ) {
 		final start = Timer.stamp();
 		// final end = start + 0.019 * getMillisForCurrentLevel();
 		final end = start + 0.09;
+		// final end = start + 0.9;
 		// printErr( 'time ${int(( end - start ) * 1000 )}' );
 
+		nodeCount = 0;
 		opponent = 3 - player;
 		final rootNode = tree.root;
 
@@ -51,7 +54,7 @@ class MonteCarloTreeSearch {
 		}
 		final winnerNode = rootNode.getChildWithMaxScore();
 		tree.root = winnerNode;
-		// printErr( 'Player: $player WinnerNode player: ${winnerNode.state.player} time ${int(( Timer.stamp() - start ) * 1000 )}' );
+		printErr( 'explored $nodeCount nodes' );
 		
 		return winnerNode.state.board;
 	}
@@ -69,6 +72,7 @@ class MonteCarloTreeSearch {
 			final newNode = new Node( state, [], node );
 			newNode.state.player = node.state.getOpponent();
 			node.children.push( newNode );
+			nodeCount++;
 		}
 	}
 
@@ -82,7 +86,7 @@ class MonteCarloTreeSearch {
 	}
 
 	function simulateRandomPlayout( node:Node ) {
-		// printErr( 'simulateRandomPlayout' );
+
 		final tempNode = Node.copy( node );
 		final tempState = tempNode.state;
 		var boardStatus = tempState.board.status;
@@ -97,7 +101,7 @@ class MonteCarloTreeSearch {
 			tempState.randomPlay();
 			boardStatus = tempState.board.status;
 		}
-		// printErr( 'end simulateRandomPlayout' );
+		
 		return boardStatus;
 	}
 }

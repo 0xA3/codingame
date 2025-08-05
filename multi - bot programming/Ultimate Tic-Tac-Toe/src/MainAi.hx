@@ -1,12 +1,11 @@
 import CodinGame.print;
 import CodinGame.printErr;
 import CodinGame.readline;
-import Std.int;
 import Std.parseInt;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
-import mcts.tictactoe.BitBoard;
 import mcts.tictactoe.IBoard;
+import mcts.tictactoe.UltimateBitBoard;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -14,15 +13,17 @@ class MainAi {
 	
 	static function main() {
 		
-		final positions = BitBoard.createPositions();
+		final positions = UltimateBitBoard.createPositions();
+		final player1 = UltimateBitBoard.P1;
 
-		final rootBoards:Array<IBoard> = [for( _ in 0...9 ) BitBoard.create( positions )];
-		final rootStates = [for( rootBoard in rootBoards ) State.create( rootBoard )];
-		final rootNodes = [for( rootState in rootStates ) Node.fromState( rootState )];
-		final trees = [for( rootNode in rootNodes ) new Tree( rootNode )];
-		final mctss = [for( tree in trees ) new MonteCarloTreeSearch( tree )];
+		final rootBoard1:IBoard = UltimateBitBoard.create( positions );
+		final rootState1 = State.fromBoard( player1, rootBoard1 );
+		final rootNode1 = Node.fromState( rootState1 );
+		final tree1 = new Tree( rootNode1 );
+		final mcts1 = new MonteCarloTreeSearch( tree1 );
 		
-		final ai = new Ai1( rootBoards, trees, mctss );
+		// final ai = new AiRandom( UltimateBitBoard.P1, rootBoard1, tree1, mcts1 );
+		final ai = new Ai2( UltimateBitBoard.P1, rootBoard1, tree1, mcts1 );
 		ai.setGlobalInputs();
 
 		while( true ) {
@@ -36,15 +37,10 @@ class MainAi {
 			var index = -1;
 			final validPositions = [for( i in 0...validActionCount ) {
 				var inputs = readline().split(' ');
-				final gy = parseInt(inputs[0]);
-				final gx = parseInt(inputs[1]);
+				final y = parseInt(inputs[0]);
+				final x = parseInt(inputs[1]);
 				
-				index = Transform.getIndex( gx, gy );
-				final y = Transform.getLocalY( gy );
-				final x = Transform.getLocalX( gx );
-				// printErr( 'global $gx:$gy  index $index  local $x:$y' );
-
-				rootBoards[index].positions[y][x];
+				positions[y][x];
 			}];
 
 			ai.setInputs( oppY, oppX, validPositions );

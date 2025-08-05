@@ -34,7 +34,7 @@ class AiRandom {
 		final randomPosition = validPositions[Std.random( validPositions.length )];
 		board.performMove( player, randomPosition );
 		
-		printErr( 'Player $player AiRandom at $randomPosition\n$board' );
+		// printErr( 'Player $player AiRandom at $randomPosition\n$board' );
 		
 		return '${randomPosition.y} ${randomPosition.x}';
 	}
