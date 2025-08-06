@@ -20,7 +20,7 @@ class MainAi {
 		final rootState1 = State.fromBoard( player1, rootBoard1 );
 		final rootNode1 = Node.fromState( rootState1 );
 		final tree1 = new Tree( rootNode1 );
-		final mcts1 = new MonteCarloTreeSearch( tree1 );
+		final mcts1 = new MonteCarloTreeSearch( tree1, 0.09 );
 		
 		// final ai = new AiRandom( UltimateBitBoard.P1, rootBoard1, tree1, mcts1 );
 		final ai = new Ai2( UltimateBitBoard.P1, rootBoard1, tree1, mcts1 );

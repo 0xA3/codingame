@@ -7,7 +7,7 @@
 			"cwd": "${workspaceFolder}/bin",
 			"request": "launch",
 			"program": "app.hl",
-			"preLaunchTask": "Build Debug hl"
+			"preLaunchTask": "Build hl"
 		},
 		{
 			"type": "node",
@@ -15,7 +15,7 @@
 			"cwd": "${workspaceFolder}/bin",
 			"request": "launch",
 			"program": "app.js",
-			"preLaunchTask": "Build Debug node"
+			"preLaunchTask": "Build node"
 		},
 		{
 			"name": "Attach node",

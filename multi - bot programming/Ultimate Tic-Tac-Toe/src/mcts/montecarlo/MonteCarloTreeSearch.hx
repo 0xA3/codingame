@@ -1,7 +1,7 @@
 package mcts.montecarlo;
 
 import CodinGame.printErr;
-import Std.int;
+import Math.round;
 import haxe.Timer;
 import mcts.tictactoe.Board;
 import mcts.tree.Node;
@@ -17,6 +17,9 @@ class MonteCarloTreeSearch {
 	public var level = 3;
 	public var opponent:Int;
 	var nodeCount = 0;
+	var nodeDepth = 0;
+
+	var endTime = 0.0;
 
 	public function new( tree:Tree, responseTime:Float ) {
 		this.tree = tree;
@@ -31,7 +34,7 @@ class MonteCarloTreeSearch {
 		final start = Timer.stamp();
 		// final end = start + 0.019 * getMillisForCurrentLevel();
 		
-		final end = start + responseTime;
+		endTime = start + responseTime;
 
 		nodeCount = 0;
 		opponent = 3 - player;
@@ -40,10 +43,15 @@ class MonteCarloTreeSearch {
 		#if nodejs
 		js.html.Console.profile();
 		#end
-		
-		while( Timer.stamp() < end ) {
+
+		var loopTime = 0.0;
+		var numLoops = 0;
+		nodeDepth = 0;
+		while( Timer.stamp() < endTime ) {
+			final loopStartTime = Timer.stamp();
 			// Phase 1 - Selection
 			final promisingNode = selectPromisingNode( rootNode );
+			// if( Timer.stamp() > endTime ) break;
 			// printErr( 'Phase 1 - Selection time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 2 - Expansion
 			if( promisingNode.state.board.status == Board.IN_PROGRESS ) expandNode( promisingNode );
@@ -53,14 +61,18 @@ class MonteCarloTreeSearch {
 			if( promisingNode.children.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
 
 			final playoutResult = simulateRandomPlayout( nodeToExplore );
+			// if( Timer.stamp() > endTime ) break;
 			// printErr( 'Phase 3 - Simulation time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 4 - Update
 			backPropagation( nodeToExplore, playoutResult );
 			// printErr( 'Phase 4 - Update time ${int(( Timer.stamp() - start ) * 1000 )}' );
+
+			loopTime = Timer.stamp() - loopStartTime;
+			numLoops++;
 		}
 		final winnerNode = rootNode.getChildWithMaxScore();
 		tree.root = winnerNode;
-		printErr( 'player $player, $nodeCount nodes, ${int(( Timer.stamp() - start ) * 1000 )}ms' );
+		printErr( 'player $player, $nodeCount nodes in ${round(( Timer.stamp() - start ) * 1000 )}ms   maxDepth $nodeDepth     $numLoops loops, ${round( loopTime * 1000 )}ms' );
 		
 		#if nodejs
 		js.html.Console.profileEnd();
@@ -71,9 +83,36 @@ class MonteCarloTreeSearch {
 
 	function selectPromisingNode( rootNode:Node ) {
 		var node = rootNode;
-		while( node.children.length != 0 ) node = UCT.findBestNodeWithUCT( node );
+		var tempNodeDepth = 0;
+		while( node.children.length != 0 ) {
+			// if( Timer.stamp() > endTime ) break;
+			node = findBestNodeWithUCT( node );
+			tempNodeDepth++;
+		}
 		
+		if( tempNodeDepth > nodeDepth ) nodeDepth = tempNodeDepth;
+
 		return node;
+	}
+
+	extern inline function findBestNodeWithUCT( node:Node ) {
+		// if( node.children.length == 0 ) throw "Error: childArray length is 0";
+		
+		final parentVisit = node.state.visitCount;
+		node.children.sort(( a, b ) -> {
+			final aUct = uctValue( parentVisit, a.state.winScore, a.state.visitCount );
+			final bUct = uctValue( parentVisit, b.state.winScore, b.state.visitCount );
+			
+			if( aUct < bUct ) return 1;
+			if( aUct > bUct ) return -1;
+			return 0;
+		});
+		// for( childNode in node.childArray ) trace( '$childNode UTC: ${uctValue( parentVisit, childNode.state.winScore, childNode.state.visitCount )}' );
+		return node.children[0];
+	}
+	
+	extern inline function uctValue( totalVisit:Int, nodeWinScore:Float, nodeVisit:Int ):Float {
+		return nodeVisit == 0 ? Integer.MAX_VALUE : nodeWinScore / nodeVisit + 1.41 * Math.sqrt( Math.log( totalVisit ) / nodeVisit );
 	}
 
 	function expandNode( node:Node ) {
@@ -86,17 +125,7 @@ class MonteCarloTreeSearch {
 		}
 	}
 
-	function backPropagation( nodeToExplore:Node, playerNo:Int ) {
-		var tempNode = nodeToExplore;
-		while( tempNode != null ) {
-			tempNode.state.incrementVisit();
-			if( tempNode.state.player == playerNo ) tempNode.state.addScore( WIN_SCORE );
-			tempNode = tempNode.parent;
-		}
-	}
-
 	function simulateRandomPlayout( node:Node ) {
-
 		final tempNode = Node.copy( node );
 		final tempState = tempNode.state;
 		var boardStatus = tempState.board.status;
@@ -107,11 +136,21 @@ class MonteCarloTreeSearch {
 		}
 
 		while( boardStatus == Board.IN_PROGRESS ) {
+			// if( Timer.stamp() > endTime ) break;
 			tempState.togglePlayer();
 			tempState.randomPlay();
 			boardStatus = tempState.board.status;
 		}
 		
 		return boardStatus;
+	}
+	
+	function backPropagation( nodeToExplore:Node, playerNo:Int ) {
+		var tempNode = nodeToExplore;
+		while( tempNode != null ) {
+			tempNode.state.incrementVisit();
+			if( tempNode.state.player == playerNo ) tempNode.state.addScore( WIN_SCORE );
+			tempNode = tempNode.parent;
+		}
 	}
 }
