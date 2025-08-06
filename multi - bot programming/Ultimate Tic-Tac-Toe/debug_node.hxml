@@ -1,0 +1,15 @@
+-lib littleBigInt
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+--debug
+-main Main
+
+-lib hxnodejs
+--js bin/app.js
+
+# attach debugger
+# node --inspect bin/app.js
+
+# stop at first line and attach debugger
+# node --inspect-brk bin/app.js

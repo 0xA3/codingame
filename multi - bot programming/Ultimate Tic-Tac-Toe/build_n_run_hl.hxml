@@ -1,0 +1,9 @@
+-lib littleBigInt
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main Main
+
+--hl bin/app.hl
+
+-cmd hl bin/app.hl

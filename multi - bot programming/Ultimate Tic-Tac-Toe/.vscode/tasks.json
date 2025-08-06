@@ -4,7 +4,12 @@
 		{
 			"type": "hxml",
 			"label": "Build Debug hl",
-			"file": "debug.hxml"
+			"file": "debug_hl.hxml"
+		},
+		{
+			"type": "hxml",
+			"label": "Build Debug node",
+			"file": "debug_node.hxml"
 		},
 		{
 			"type": "haxe",

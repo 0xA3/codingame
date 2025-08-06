@@ -1,0 +1,10 @@
+-lib littleBigInt
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main Main
+
+-lib hxnodejs
+--js bin/app.js
+
+-cmd node bin/app.js

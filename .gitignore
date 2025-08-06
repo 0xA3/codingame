@@ -46,3 +46,4 @@ incoming
 links
 node_modules
 solo - classic puzzle - easy/Squash Pi/bin/pi_295k_encoded.txt
+*.cpuprofile

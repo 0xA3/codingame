@@ -4,10 +4,27 @@
 		{
 			"type": "hl",
 			"name": "Debug hl",
-			"cwd": "${workspaceFolder}",
+			"cwd": "${workspaceFolder}/bin",
 			"request": "launch",
 			"program": "app.hl",
 			"preLaunchTask": "Build Debug hl"
+		},
+		{
+			"type": "node",
+			"name": "Debug node",
+			"cwd": "${workspaceFolder}/bin",
+			"request": "launch",
+			"program": "app.js",
+			"preLaunchTask": "Build Debug node"
+		},
+		{
+			"name": "Attach node",
+			"port": 9229,
+			"request": "attach",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node"
 		},
 		{
 			"name": "Haxe Interpreter",

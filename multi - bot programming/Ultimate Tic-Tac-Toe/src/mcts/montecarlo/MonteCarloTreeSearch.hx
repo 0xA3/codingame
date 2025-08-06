@@ -12,13 +12,16 @@ class MonteCarloTreeSearch {
 	public static inline var WIN_SCORE = 10;
 	
 	final tree:Tree;
-	
+	final responseTime:Float;
+
 	public var level = 3;
 	public var opponent:Int;
 	var nodeCount = 0;
 
-	public function new( tree:Tree ) {
+	public function new( tree:Tree, responseTime:Float ) {
 		this.tree = tree;
+		this.responseTime = responseTime;
+
 		tree.root.state.togglePlayer();
 	}
 
@@ -27,14 +30,17 @@ class MonteCarloTreeSearch {
 	public function findNextMove( player:Int ) {
 		final start = Timer.stamp();
 		// final end = start + 0.019 * getMillisForCurrentLevel();
-		final end = start + 0.09;
-		// final end = start + 0.9;
-		// printErr( 'time ${int(( end - start ) * 1000 )}' );
+		
+		final end = start + responseTime;
 
 		nodeCount = 0;
 		opponent = 3 - player;
 		final rootNode = tree.root;
-
+		
+		#if nodejs
+		js.html.Console.profile();
+		#end
+		
 		while( Timer.stamp() < end ) {
 			// Phase 1 - Selection
 			final promisingNode = selectPromisingNode( rootNode );
@@ -54,7 +60,11 @@ class MonteCarloTreeSearch {
 		}
 		final winnerNode = rootNode.getChildWithMaxScore();
 		tree.root = winnerNode;
-		printErr( 'explored $nodeCount nodes' );
+		printErr( 'player $player, $nodeCount nodes, ${int(( Timer.stamp() - start ) * 1000 )}ms' );
+		
+		#if nodejs
+		js.html.Console.profileEnd();
+		#end
 		
 		return winnerNode.state.board;
 	}

@@ -1,0 +1,9 @@
+-lib littleBigInt
+-cp ../../codingame_extension/
+-cp src
+-D analyzer-optimize
+-main Main
+
+--jvm bin/app.jar
+
+-cmd java -jar bin/app.jar
