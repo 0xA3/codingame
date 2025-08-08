@@ -1,6 +1,7 @@
 package mcts.tictactoe;
 
 import CodinGame.printErr;
+import mcts.tictactoe.Positions.smallPositions;
 
 class BitBoard implements IBoard {
 	
@@ -11,7 +12,6 @@ class BitBoard implements IBoard {
 	public static inline var P1 = 1;
 	public static inline var P2 = 2;
 
-	public final positions:Array<Array<Position>> = [];
 	public var board1 = 0;
 	public var board2 = 0;
 	public var totalMoves:Int;
@@ -19,25 +19,19 @@ class BitBoard implements IBoard {
 	public var move = Position.NO_POSITION;
 	public var status = IN_PROGRESS;
 
-	function new( positions:Array<Array<Position>>, board1 = 0, board2 = 0, totalMoves = 0 ) {
-		this.positions = positions;
+	function new( board1 = 0, board2 = 0, totalMoves = 0 ) {
 		this.board1 = board1;
 		this.board2 = board2;
 		this.totalMoves = totalMoves;
 	}
 
-	public static function create( positions:Array<Array<Position>> ) {
-		return new BitBoard( positions );
-	}
-
-	public static function createPositions() {
-		final positions:Array<Array<Position>> = [for( y in 0...BOARD_SIZE ) [for( x in 0...BOARD_SIZE ) { x: x, y: y }]];
-		return positions;
+	public static function create() {
+		return new BitBoard();
 	}
 
 	public function copy() {
 		if( status != IN_PROGRESS ) return this;
-		return new BitBoard( positions, board1, board2, totalMoves );
+		return new BitBoard( board1, board2, totalMoves );
 	}
 
 	public function performMove( player:Int, p:Position ) {
@@ -78,26 +72,26 @@ class BitBoard implements IBoard {
 	}
 
 	function checkRowForWin( y:Int ) {
-		var playerAtPos0 = getValue( positions[y][0] );
-		for( x in 1...BOARD_SIZE ) if( getValue( positions[y][x] ) != playerAtPos0 ) return 0;
+		var playerAtPos0 = getValue( smallPositions[y][0] );
+		for( x in 1...BOARD_SIZE ) if( getValue( smallPositions[y][x] ) != playerAtPos0 ) return 0;
 		return playerAtPos0;
 	}
 
 	function checkColForWin( x:Int ) {
-		var playerAtPos0 = getValue( positions[0][x] );
-		for( y in 1...BOARD_SIZE ) if( getValue( positions[y][x] ) != playerAtPos0 ) return 0;
+		var playerAtPos0 = getValue( smallPositions[0][x] );
+		for( y in 1...BOARD_SIZE ) if( getValue( smallPositions[y][x] ) != playerAtPos0 ) return 0;
 		return playerAtPos0;
 	}
 
 	function checkDiagDownForWin() {
-		var playerAtTopLeft = getValue( positions[0][0] );
-		for( i in 1...BOARD_SIZE ) if( getValue( positions[i][i] ) != playerAtTopLeft ) return 0;
+		var playerAtTopLeft = getValue( smallPositions[0][0] );
+		for( i in 1...BOARD_SIZE ) if( getValue( smallPositions[i][i] ) != playerAtTopLeft ) return 0;
 		return playerAtTopLeft;
 	}
 
 	function checkDiagUpForWin() {
-		var playerAtBottomLeft = getValue( positions[BOARD_SIZE - 1][0] );
-		for( i in 1...BOARD_SIZE ) if( getValue( positions[BOARD_SIZE - 1 - i][i] ) != playerAtBottomLeft ) return 0;
+		var playerAtBottomLeft = getValue( smallPositions[BOARD_SIZE - 1][0] );
+		for( i in 1...BOARD_SIZE ) if( getValue( smallPositions[BOARD_SIZE - 1 - i][i] ) != playerAtBottomLeft ) return 0;
 		return playerAtBottomLeft;
 	}
 
@@ -136,7 +130,7 @@ class BitBoard implements IBoard {
 		final emptyPositions = [];
 		for( y in 0...BOARD_SIZE ) {
 			for( x in 0...BOARD_SIZE ) {
-				if( getCell( board, positions[y][x] ) == 0 ) emptyPositions.push( positions[y][x] );
+				if( getCell( board, smallPositions[y][x] ) == 0 ) emptyPositions.push( smallPositions[y][x] );
 			}
 		}
 
@@ -150,11 +144,11 @@ class BitBoard implements IBoard {
 		for( y in 0...BOARD_SIZE ) {
 			grid.push( [] );
 			for( x in 0...BOARD_SIZE ) {
-				final p1 = getCell( board1, positions[y][x] );
-				final p2 = getCell( board2, positions[y][x] );
-				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${positions[y][x]} is occupied by both players\n';
+				final p1 = getCell( board1, smallPositions[y][x] );
+				final p2 = getCell( board2, smallPositions[y][x] );
+				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${smallPositions[y][x]} is occupied by both players\n';
 				// if( p1 == 1 && p2 == 1 ) {
-				// 	printErr( 'Error: position ${positions[y][x]} is occupied by both players\n' );
+				// 	printErr( 'Error: position ${smallPositions[y][x]} is occupied by both players\n' );
 				// 	grid[y].push( '#' );
 				// }
 				else if( p1 == 1 ) grid[y].push( 'X' );
@@ -171,9 +165,9 @@ class BitBoard implements IBoard {
 	public function checkForErrors() {
 		for( y in 0...BOARD_SIZE ) {
 			for( x in 0...BOARD_SIZE ) {
-				final p1 = getCell( board1, positions[y][x] );
-				final p2 = getCell( board2, positions[y][x] );
-				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${positions[y][x]} is occupied by both players\n';
+				final p1 = getCell( board1, smallPositions[y][x] );
+				final p2 = getCell( board2, smallPositions[y][x] );
+				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${smallPositions[y][x]} is occupied by both players\n';
 			}
 		}
 	}

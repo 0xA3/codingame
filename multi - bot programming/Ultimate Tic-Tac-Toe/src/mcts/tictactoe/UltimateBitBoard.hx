@@ -3,6 +3,8 @@ package mcts.tictactoe;
 import CodinGame.printErr;
 import Std.int;
 import haxe.ds.Vector;
+import mcts.tictactoe.Positions.smallPositions;
+import mcts.tictactoe.Positions.ultimatePositions;
 
 using Lambda;
 
@@ -19,19 +21,16 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 	public final smallBoards:Vector<BitBoard>;
 	public var nextIndex = -1;
 
-	function new( positions:Array<Array<Position>>, smallBoards:Vector<BitBoard>, board1 = 0, board2 = 0, totalMoves = 0 ) {
-		super( positions, board1, board2, totalMoves );
+	function new( smallBoards:Vector<BitBoard>, board1 = 0, board2 = 0, totalMoves = 0 ) {
+		super( board1, board2, totalMoves );
 		this.smallBoards = smallBoards;
 	}
 
-	public static function create( positions:Array<Array<Position>> ) {
-		final positions = createPositions();
-		final smallBoardPositions = [for( y in 0...BitBoard.BOARD_SIZE ) [for( x in 0...BitBoard.BOARD_SIZE ) positions[y][x]]];
-		
+	public static function create() {
 		final smallBoards = new Vector<BitBoard>( SMALL_BOARDS_NUM );
-		for( i in 0...SMALL_BOARDS_NUM ) smallBoards[i] = BitBoard.create( smallBoardPositions );
+		for( i in 0...SMALL_BOARDS_NUM ) smallBoards[i] = BitBoard.create();
 		
-		return new UltimateBitBoard( positions, smallBoards );
+		return new UltimateBitBoard( smallBoards );
 	}
 
 	override public function copy() {
@@ -40,12 +39,7 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		final smallBoardsCopy = new Vector<BitBoard>( smallBoards.length );
 		for( i in 0...smallBoards.length ) smallBoardsCopy[i] = smallBoards[i].copy();
 
-		return new UltimateBitBoard( positions, smallBoardsCopy, board1, board2, totalMoves );
-	}
-
-	public static function createPositions() {
-		final positions:Array<Array<Position>> = [for( y in 0...BOARD_SIZE ) [for( x in 0...BOARD_SIZE ) { x: x, y: y }]];
-		return positions;
+		return new UltimateBitBoard( smallBoardsCopy, board1, board2, totalMoves );
 	}
 
 	override public function performMove( player:Int, p:Position) {
@@ -61,12 +55,12 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		final localY = Transform.getLocalY( p.y );
 
 		// printErr( 'player $player performMove $p in small board $boardIndex at ${localX}:${localY}  nextIndex ${localY * 3 + localX}' );
-		smallBoard.performMove( player, smallBoard.positions[localY][localX] );
+		smallBoard.performMove( player, smallPositions[localY][localX] );
 
 		if( smallBoard.status != IN_PROGRESS ) {
 			final overBoardY = int( boardIndex / 3 );
 			final overBoardX = boardIndex % 3;
-			final overBoardPosition = positions[overBoardY][overBoardX];
+			final overBoardPosition = ultimatePositions[overBoardY][overBoardX];
 			
 			if( player == P1 ) setCellP1( overBoardPosition )
 			else if( player == P2 ) setCellP2( overBoardPosition );
@@ -112,7 +106,7 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		for( p in localEmptyPositions ) {
 			final globalX = Transform.getGlobalX( i, p.x );
 			final globalY = Transform.getGlobalY( i, p.y );
-			emptyPositions.push( positions[globalY][globalX] );
+			emptyPositions.push( ultimatePositions[globalY][globalX] );
 		}
 
 		return emptyPositions;
@@ -131,10 +125,10 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 				final localX = Transform.getLocalX( x );
 				final localY = Transform.getLocalY( y );
 
-				final p1 = smallBoard.getCellP1( positions[localY][localX] );
-				final p2 = smallBoard.getCellP2( positions[localY][localX] );
+				final p1 = smallBoard.getCellP1( ultimatePositions[localY][localX] );
+				final p2 = smallBoard.getCellP2( ultimatePositions[localY][localX] );
 				if( x % 3 == 0 ) grid[y].push( '|' );
-				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${positions[y][x]} is occupied by both players\n';
+				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${ultimatePositions[y][x]} is occupied by both players\n';
 				// if( p1 == 1 && p2 == 1 ) {
 				// 	printErr( 'Error: position ${positions[y][x]} is occupied by both players\n' );
 				// 	grid[y].push( '#' );

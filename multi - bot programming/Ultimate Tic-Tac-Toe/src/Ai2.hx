@@ -3,7 +3,7 @@ import Std.int;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
-import mcts.tictactoe.UltimateBitBoard;
+import mcts.tictactoe.Positions.ultimatePositions;
 import mcts.tree.Tree;
 
 class Ai2 {
@@ -35,7 +35,7 @@ class Ai2 {
 		
 		if( oppY == -1 ) return;
 		
-		final move = board.positions[oppY][oppX];
+		final move = ultimatePositions[oppY][oppX];
 		final nextNode = tree.root.getNodeOfMove( move );
 		tree.root = nextNode;
 		board = nextNode.state.board;

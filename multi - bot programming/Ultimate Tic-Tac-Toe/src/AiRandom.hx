@@ -2,6 +2,7 @@ import CodinGame.printErr;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
+import mcts.tictactoe.Positions.ultimatePositions;
 import mcts.tree.Tree;
 
 class AiRandom {
@@ -27,7 +28,7 @@ class AiRandom {
 			return;
 		}
 		
-		board.performMove( 3 - player, board.positions[oy][ox] );
+		board.performMove( 3 - player, ultimatePositions[oy][ox] );
 	}
 
 	public function process() {

@@ -1,7 +1,6 @@
 package mcts.tictactoe;
 
 interface IBoard {
-	final positions:Array<Array<Position>>;
 	var board1:Int;
 	var board2:Int;
 	var status:Int;

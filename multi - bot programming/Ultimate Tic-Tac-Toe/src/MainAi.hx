@@ -5,6 +5,8 @@ import Std.parseInt;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
 import mcts.tictactoe.IBoard;
+import mcts.tictactoe.Positions.ultimatePositions;
+import mcts.tictactoe.Positions;
 import mcts.tictactoe.UltimateBitBoard;
 import mcts.tree.Node;
 import mcts.tree.Tree;
@@ -13,10 +15,10 @@ class MainAi {
 	
 	static function main() {
 		
-		final positions = UltimateBitBoard.createPositions();
+		Positions.create();
 		final player1 = UltimateBitBoard.P1;
 
-		final rootBoard1:IBoard = UltimateBitBoard.create( positions );
+		final rootBoard1:IBoard = UltimateBitBoard.create();
 		final rootState1 = State.fromBoard( player1, rootBoard1 );
 		final rootNode1 = Node.fromState( rootState1 );
 		final tree1 = new Tree( rootNode1 );
@@ -40,7 +42,7 @@ class MainAi {
 				final y = parseInt(inputs[0]);
 				final x = parseInt(inputs[1]);
 				
-				positions[y][x];
+				ultimatePositions[y][x];
 			}];
 
 			ai.setInputs( oppY, oppX, validPositions );
