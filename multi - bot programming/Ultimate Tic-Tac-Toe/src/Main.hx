@@ -5,6 +5,7 @@ import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.UltimateBitBoard;
+import mcts.tictactoe.UltimatePositions;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
@@ -12,6 +13,8 @@ class Main {
 	
 	static function main() {
 		
+		UltimatePositions.create();
+		return;
 		final positions = UltimateBitBoard.createPositions();
 		final player1 = UltimateBitBoard.P1;
 

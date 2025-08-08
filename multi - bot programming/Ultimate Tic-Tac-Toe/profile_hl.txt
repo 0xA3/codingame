@@ -1,0 +1,4 @@
+https://github.com/HaxeFoundation/hashlink/wiki/Profiler
+
+hl --profile 10000 bin/app.hl
+hl profiler.hl hlprofile.dump --out hlprofile.json

@@ -85,7 +85,7 @@ class State {
 		board.performMove( player, availablePositions[selectRandom] );
 	}
 
-	public function togglePlayer() {
+	extern public inline function togglePlayer() {
 		player = 3 - player;
 	}
 
