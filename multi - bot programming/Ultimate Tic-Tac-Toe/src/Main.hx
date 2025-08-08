@@ -66,5 +66,7 @@ class Main {
 		}
 
 		Sys.println( board.printStatus());
+
+		Sys.println( 'nodes created ${Node.nodeCount}' );
 	}
 }

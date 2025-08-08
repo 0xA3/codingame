@@ -11,15 +11,19 @@ class Node {
 	public final parent:Node;
 	public final children:Array<Node>;
 
+	public static var nodeCount = 0;
+
 	public function new( state:State, children:Array<Node>, ?parent:Node ) {
 		this.state = state;
 		this.children = children;
 		this.parent = parent;
+		
+		nodeCount++;
 	}
 
 	public static function create( player:Int, board:IBoard ) {
 		final state = State.create( player, board );
-		final children = new Array<Node>();
+		final children = [];
 		
 		return new Node( state, children );
 	}
@@ -29,21 +33,19 @@ class Node {
 		return new Node( state, children );
 	}
 
-	public static function copy( node:Node ) {
-		final children = new Array<Node>();
-		final state = State.copy( node.state );
-		for( child in node.children ) children.push( Node.copy( child ));
+	public function copy() {
+		final children = [];
+		for( child in children ) children.push( child.copy() );
 
-		return new Node( state, children, node.parent );
+		return new Node( state.copy(), children, parent );
 	}
 
 	public function getNodeOfMove( p:Position ) {
 		for( child in children ) if( child.state.board.move == p ) return child;
 
-		final node = Node.copy( this );
+		final node = this.copy();
 		// printErr( '${node.state.board}' );
 		// printErr( 'position: $p' );
-
 
 		node.state.board.performMove( state.player, p );
 		

@@ -51,9 +51,9 @@ class MonteCarloTreeSearch {
 		while( Timer.stamp() < endTime ) {
 			final loopStartTime = Timer.stamp();
 			// Phase 1 - Selection
-			final selectStart = Timer.stamp();
+			// final selectStart = Timer.stamp();
 			final promisingNode = selectPromisingNode( rootNode );
-			if( Timer.stamp() > endTime ) printErr( 'after selectPromisingNode time ${round(( Timer.stamp() - selectStart ) * 1000 )}' );
+			// if( Timer.stamp() > endTime ) printErr( 'after selectPromisingNode time ${round(( Timer.stamp() - selectStart ) * 1000 )}' );
 			// printErr( 'Phase 1 - Selection time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 2 - Expansion
 			
@@ -63,9 +63,9 @@ class MonteCarloTreeSearch {
 			var nodeToExplore = promisingNode;
 			if( promisingNode.children.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
 
-			final playoutStart = Timer.stamp();
+			// final playoutStart = Timer.stamp();
 			final playoutResult = simulateRandomPlayout( nodeToExplore );
-			if( Timer.stamp() > endTime ) printErr( 'after simulateRandomPlayout time ${round(( Timer.stamp() - playoutStart ) * 1000 )}ms' );
+			// if( Timer.stamp() > endTime ) printErr( 'after simulateRandomPlayout time ${round(( Timer.stamp() - playoutStart ) * 1000 )}ms' );
 			// printErr( 'Phase 3 - Simulation time ${int(( Timer.stamp() - start ) * 1000 )}' );
 			// Phase 4 - Update
 			backPropagation( nodeToExplore, playoutResult );
@@ -140,7 +140,7 @@ class MonteCarloTreeSearch {
 	}
 
 	function simulateRandomPlayout( node:Node ) {
-		final tempNode = Node.copy( node );
+		final tempNode = node.copy();
 		final tempState = tempNode.state;
 		var boardStatus = tempState.board.status;
 

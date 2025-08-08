@@ -21,13 +21,8 @@ class State {
 		return new State( player, board );
 	}
 
-	public static function copy( state:State ) {
-		final board = state.board.copy();
-		final player = state.player;
-		final visitCount = state.visitCount;
-		final winScore = state.winScore;
-
-		return new State( player, board, visitCount, winScore );
+	public function copy() {
+		return new State( player, board.copy(), visitCount, winScore );
 	}
 
 	public static function fromBoard( player:Int, board:IBoard ) {

@@ -16,8 +16,8 @@ class MainAi {
 	static function main() {
 		
 		Positions.create();
+		
 		final player1 = UltimateBitBoard.P1;
-
 		final rootBoard1:IBoard = UltimateBitBoard.create();
 		final rootState1 = State.fromBoard( player1, rootBoard1 );
 		final rootNode1 = Node.fromState( rootState1 );
