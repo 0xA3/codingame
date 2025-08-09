@@ -5,10 +5,14 @@ import mcts.tictactoe.IBoard;
 
 class State {
 	
+	public static final NO_STATE = new State( -1, null, 0, 0.0 );
+
 	public var board:IBoard;
 	public var player:Int;
 	public var visitCount:Int;
 	public var winScore:Float;
+
+	public var isInPool = false;
 
 	function new( player:Int, board:IBoard, visitCount = 0, winScore = 0.0 ) {
 		this.board = board;

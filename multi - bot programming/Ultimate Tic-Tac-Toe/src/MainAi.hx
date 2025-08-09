@@ -5,8 +5,7 @@ import Std.parseInt;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
 import mcts.tictactoe.IBoard;
-import mcts.tictactoe.Positions.ultimatePositions;
-import mcts.tictactoe.Positions;
+import mcts.tictactoe.UltimateBitBoard.ultimatePositions;
 import mcts.tictactoe.UltimateBitBoard;
 import mcts.tree.Node;
 import mcts.tree.Tree;
@@ -15,7 +14,7 @@ class MainAi {
 	
 	static function main() {
 		
-		Positions.create();
+		UltimateBitBoard.createPositions();
 		
 		final player1 = UltimateBitBoard.P1;
 		final rootBoard1:IBoard = UltimateBitBoard.create();

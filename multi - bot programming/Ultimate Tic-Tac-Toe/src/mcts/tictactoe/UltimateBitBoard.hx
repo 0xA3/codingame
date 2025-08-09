@@ -3,20 +3,20 @@ package mcts.tictactoe;
 import CodinGame.printErr;
 import Std.int;
 import haxe.ds.Vector;
-import mcts.tictactoe.Positions.smallPositions;
-import mcts.tictactoe.Positions.ultimatePositions;
 
 using Lambda;
 
 class UltimateBitBoard extends BitBoard implements IBoard {
 	
-	public static inline var BOARD_SIZE = 9;
+	public static inline var ULTIMATE_BOARD_SIZE = 9;
 	public static inline var BOARD_CELLS_NUM = 9 * 9;
 	public static inline var SMALL_BOARDS_NUM = 3 * 3;
 	public static inline var IN_PROGRESS  = -1;
 	public static inline var DRAW = 0;
 	public static inline var P1 = 1;
 	public static inline var P2 = 2;
+
+	public static var ultimatePositions:Array<Array<Position>>;
 
 	public final smallBoards:Vector<BitBoard>;
 	public var nextIndex = -1;
@@ -31,6 +31,11 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		for( i in 0...SMALL_BOARDS_NUM ) smallBoards[i] = BitBoard.create();
 		
 		return new UltimateBitBoard( smallBoards );
+	}
+
+	public static function createPositions() {
+		ultimatePositions = [for( y in 0...ULTIMATE_BOARD_SIZE ) [for( x in 0...ULTIMATE_BOARD_SIZE ) { x: x, y: y }]];
+		BitBoard.smallPositions = [for( y in 0...BitBoard.SMALL_BOARD_SIZE ) [for( x in 0...BitBoard.SMALL_BOARD_SIZE ) ultimatePositions[y][x]]];
 	}
 
 	override public function copy() {
@@ -55,7 +60,7 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		final localY = Transform.getLocalY( p.y );
 
 		// printErr( 'player $player performMove $p in small board $boardIndex at ${localX}:${localY}  nextIndex ${localY * 3 + localX}' );
-		smallBoard.performMove( player, smallPositions[localY][localX] );
+		smallBoard.performMove( player, BitBoard.smallPositions[localY][localX] );
 
 		if( smallBoard.status != IN_PROGRESS ) {
 			final overBoardY = int( boardIndex / 3 );
@@ -116,9 +121,9 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		// var s = 'totalMoves $totalMoves\n';
 		var s = "";
 		final grid = [];
-		for( y in 0...BOARD_SIZE ) {
+		for( y in 0...ULTIMATE_BOARD_SIZE ) {
 			grid.push( [] );
-			for( x in 0...BOARD_SIZE ) {
+			for( x in 0...ULTIMATE_BOARD_SIZE ) {
 				final index = Transform.getIndex( x, y );
 				final smallBoard = smallBoards[index];
 

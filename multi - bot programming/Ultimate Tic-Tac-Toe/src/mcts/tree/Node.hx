@@ -7,18 +7,21 @@ import mcts.tictactoe.Position;
 
 class Node {
 	
+	public static final NO_NODE = new Node( State.NO_STATE, [] );
+	public static var id = 0;
+
 	public final state:State;
-	public final parent:Node;
+	public var parent:Node;
 	public final children:Array<Node>;
 
-	public static var nodeCount = 0;
+	public var isInPool = false;
 
 	public function new( state:State, children:Array<Node>, ?parent:Node ) {
 		this.state = state;
 		this.children = children;
 		this.parent = parent;
 		
-		nodeCount++;
+		id++;
 	}
 
 	public static function create( player:Int, board:IBoard ) {

@@ -4,23 +4,24 @@ import Std.parseInt;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.montecarlo.State;
 import mcts.tictactoe.IBoard;
-import mcts.tictactoe.Positions;
 import mcts.tictactoe.UltimateBitBoard;
 import mcts.tree.Node;
+import mcts.tree.NodePool;
 import mcts.tree.Tree;
 
 class Main {
 	
 	static function main() {
-		
-		Positions.create();
+		final nodePool = new NodePool();
+
 		final player1 = UltimateBitBoard.P1;
 
+		UltimateBitBoard.createPositions();
 		final rootBoard1:IBoard = UltimateBitBoard.create();
 		final rootState1 = State.fromBoard( player1, rootBoard1 );
 		final rootNode1 = Node.fromState( rootState1 );
 		final tree1 = new Tree( rootNode1 );
-		final mcts1 = new MonteCarloTreeSearch( tree1, 0.09 );
+		final mcts1 = new MonteCarloTreeSearch( tree1, nodePool, 0.09 );
 
 
 		final player2 = UltimateBitBoard.P2;
@@ -28,12 +29,12 @@ class Main {
 		final rootState2 = State.fromBoard( player2, rootBoard2 );
 		final rootNode2 = Node.fromState( rootState2 );
 		final tree2 = new Tree( rootNode2 );
-		final mcts2 = new MonteCarloTreeSearch( tree2, 0.09 );
+		final mcts2 = new MonteCarloTreeSearch( tree2, nodePool, 0.09 );
 
 		final ai1 = new Ai2( UltimateBitBoard.P1, rootBoard1, tree1, mcts1 );
 		final ai2 = new AiRandom( UltimateBitBoard.P2, rootBoard2, tree2, mcts2 );
 
-		final maxMoves = UltimateBitBoard.BOARD_SIZE * UltimateBitBoard.BOARD_SIZE;
+		final maxMoves = UltimateBitBoard.ULTIMATE_BOARD_SIZE * UltimateBitBoard.ULTIMATE_BOARD_SIZE;
 
 		// Sys.println( rootBoard1 );
 
@@ -67,6 +68,6 @@ class Main {
 
 		Sys.println( board.printStatus());
 
-		Sys.println( 'nodes created ${Node.nodeCount}' );
+		Sys.println( 'nodes created ${Node.id}' );
 	}
 }

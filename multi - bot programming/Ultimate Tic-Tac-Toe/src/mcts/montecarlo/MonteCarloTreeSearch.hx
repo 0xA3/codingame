@@ -5,6 +5,7 @@ import Math.round;
 import haxe.Timer;
 import mcts.tictactoe.Board;
 import mcts.tree.Node;
+import mcts.tree.NodePool;
 import mcts.tree.Tree;
 
 class MonteCarloTreeSearch {
@@ -12,6 +13,7 @@ class MonteCarloTreeSearch {
 	public static inline var WIN_SCORE = 10;
 	
 	final tree:Tree;
+	final nodePool:NodePool;
 	final responseTime:Float;
 
 	public var level = 3;
@@ -22,8 +24,9 @@ class MonteCarloTreeSearch {
 	var startTime = 0.0;
 	var endTime = 0.0;
 
-	public function new( tree:Tree, responseTime:Float ) {
+	public function new( tree:Tree, nodePool:NodePool, responseTime:Float ) {
 		this.tree = tree;
+		this.nodePool = nodePool;
 		this.responseTime = responseTime;
 
 		tree.root.state.togglePlayer();

@@ -1,16 +1,17 @@
 package mcts.tictactoe;
 
 import CodinGame.printErr;
-import mcts.tictactoe.Positions.smallPositions;
 
 class BitBoard implements IBoard {
 	
-	public static inline var BOARD_SIZE = 3;
-	public static inline var BOARD_CELLS_NUM = 3 * 3;
+	public static inline var SMALL_BOARD_SIZE = 3;
+	public static inline var SMALL_BOARD_CELLS_NUM = 3 * 3;
 	public static inline var IN_PROGRESS  = -1;
 	public static inline var DRAW = 0;
 	public static inline var P1 = 1;
 	public static inline var P2 = 2;
+
+	public static var smallPositions:Array<Array<Position>> = [];
 
 	public var board1 = 0;
 	public var board2 = 0;
@@ -63,35 +64,35 @@ class BitBoard implements IBoard {
 			if( diagDownResult != 0 ) return diagDownResult;
 		}
 		
-		if( p.y + p.x == BOARD_SIZE - 1 ) {
+		if( p.y + p.x == SMALL_BOARD_SIZE - 1 ) {
 			final diagUpResult = checkDiagUpForWin();
 			if( diagUpResult != 0 ) return diagUpResult;
 		}
 
-		return totalMoves < BOARD_CELLS_NUM ? IN_PROGRESS : DRAW;
+		return totalMoves < SMALL_BOARD_CELLS_NUM ? IN_PROGRESS : DRAW;
 	}
 
 	function checkRowForWin( y:Int ) {
 		var playerAtPos0 = getValue( smallPositions[y][0] );
-		for( x in 1...BOARD_SIZE ) if( getValue( smallPositions[y][x] ) != playerAtPos0 ) return 0;
+		for( x in 1...SMALL_BOARD_SIZE ) if( getValue( smallPositions[y][x] ) != playerAtPos0 ) return 0;
 		return playerAtPos0;
 	}
 
 	function checkColForWin( x:Int ) {
 		var playerAtPos0 = getValue( smallPositions[0][x] );
-		for( y in 1...BOARD_SIZE ) if( getValue( smallPositions[y][x] ) != playerAtPos0 ) return 0;
+		for( y in 1...SMALL_BOARD_SIZE ) if( getValue( smallPositions[y][x] ) != playerAtPos0 ) return 0;
 		return playerAtPos0;
 	}
 
 	function checkDiagDownForWin() {
 		var playerAtTopLeft = getValue( smallPositions[0][0] );
-		for( i in 1...BOARD_SIZE ) if( getValue( smallPositions[i][i] ) != playerAtTopLeft ) return 0;
+		for( i in 1...SMALL_BOARD_SIZE ) if( getValue( smallPositions[i][i] ) != playerAtTopLeft ) return 0;
 		return playerAtTopLeft;
 	}
 
 	function checkDiagUpForWin() {
-		var playerAtBottomLeft = getValue( smallPositions[BOARD_SIZE - 1][0] );
-		for( i in 1...BOARD_SIZE ) if( getValue( smallPositions[BOARD_SIZE - 1 - i][i] ) != playerAtBottomLeft ) return 0;
+		var playerAtBottomLeft = getValue( smallPositions[SMALL_BOARD_SIZE - 1][0] );
+		for( i in 1...SMALL_BOARD_SIZE ) if( getValue( smallPositions[SMALL_BOARD_SIZE - 1 - i][i] ) != playerAtBottomLeft ) return 0;
 		return playerAtBottomLeft;
 	}
 
@@ -101,7 +102,7 @@ class BitBoard implements IBoard {
 	function setCellP2( p:Position ) board2 = setCell( board2, p );
 
 	function setCell( board:Int, p:Position ) {
-		final bit = 1 << ( p.y * BOARD_SIZE + p.x );
+		final bit = 1 << ( p.y * SMALL_BOARD_SIZE + p.x );
 		return board |= bit;
 	}
 
@@ -109,7 +110,7 @@ class BitBoard implements IBoard {
 	function getCellP2( p:Position ) return getCell( board2, p );
 
 	function getCell( board:Int, p:Position ) {
-		final mask = 1 << ( p.y * BOARD_SIZE + p.x );
+		final mask = 1 << ( p.y * SMALL_BOARD_SIZE + p.x );
 		return ( board & mask ) != 0 ? 1 : 0;
 	}
 
@@ -128,8 +129,8 @@ class BitBoard implements IBoard {
 	public function getEmptyPositions() {
 		final board = board1 | board2;
 		final emptyPositions = [];
-		for( y in 0...BOARD_SIZE ) {
-			for( x in 0...BOARD_SIZE ) {
+		for( y in 0...SMALL_BOARD_SIZE ) {
+			for( x in 0...SMALL_BOARD_SIZE ) {
 				if( getCell( board, smallPositions[y][x] ) == 0 ) emptyPositions.push( smallPositions[y][x] );
 			}
 		}
@@ -141,9 +142,9 @@ class BitBoard implements IBoard {
 		// var s = 'totalMoves $totalMoves\n';
 		var s = "";
 		final grid = [];
-		for( y in 0...BOARD_SIZE ) {
+		for( y in 0...SMALL_BOARD_SIZE ) {
 			grid.push( [] );
-			for( x in 0...BOARD_SIZE ) {
+			for( x in 0...SMALL_BOARD_SIZE ) {
 				final p1 = getCell( board1, smallPositions[y][x] );
 				final p2 = getCell( board2, smallPositions[y][x] );
 				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${smallPositions[y][x]} is occupied by both players\n';
@@ -163,8 +164,8 @@ class BitBoard implements IBoard {
 	}
 
 	public function checkForErrors() {
-		for( y in 0...BOARD_SIZE ) {
-			for( x in 0...BOARD_SIZE ) {
+		for( y in 0...SMALL_BOARD_SIZE ) {
+			for( x in 0...SMALL_BOARD_SIZE ) {
 				final p1 = getCell( board1, smallPositions[y][x] );
 				final p2 = getCell( board2, smallPositions[y][x] );
 				if( p1 == 1 && p2 == 1 ) throw 'Error: position ${smallPositions[y][x]} is occupied by both players\n';

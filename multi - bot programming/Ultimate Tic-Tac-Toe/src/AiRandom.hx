@@ -2,7 +2,7 @@ import CodinGame.printErr;
 import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
-import mcts.tictactoe.Positions.ultimatePositions;
+import mcts.tictactoe.UltimateBitBoard.ultimatePositions;
 import mcts.tree.Tree;
 
 class AiRandom {
