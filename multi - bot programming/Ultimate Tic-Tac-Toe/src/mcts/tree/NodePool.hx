@@ -41,10 +41,10 @@ class NodePool {
 			return;
 		}
 
-		node.parent.children.remove( node );
-
 		statePool.recycle( node.state );
 		node.state = State.NO_STATE;
+
+		node.parent.children.remove( node );
 
 		if( node.children.length > 0 ) for( child in node.children ) child.parent = Node.NO_NODE;
 		node.children.splice( 0, node.children.length );
@@ -63,10 +63,10 @@ class NodePool {
 			return;
 		}
 		
-		if( depth == 0 )node.parent.children.remove( node );
-
 		statePool.recycle( node.state );
 		node.state = State.NO_STATE;
+
+		if( depth == 0 ) node.parent.children.remove( node );
 
 		while( node.children.length > 0 ) {
 			node.children[0].parent = Node.NO_NODE;

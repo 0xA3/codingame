@@ -37,7 +37,7 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		ultimatePositions = [for( y in 0...ULTIMATE_BOARD_SIZE ) [for( x in 0...ULTIMATE_BOARD_SIZE ) { x: x, y: y }]];
 		BitBoard.smallPositions = [for( y in 0...BitBoard.SMALL_BOARD_SIZE ) [for( x in 0...BitBoard.SMALL_BOARD_SIZE ) ultimatePositions[y][x]]];
 	}
-
+	
 	override public function copy() {
 		if( status != IN_PROGRESS ) return this;
 		
@@ -46,7 +46,7 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 
 		return new UltimateBitBoard( smallBoardsCopy, board1, board2, totalMoves );
 	}
-	
+
 	override public function getContentFrom( other:IBoard ) {
 		super.getContentFrom( other );
 		final otherUltimateBitBoard = cast( other, UltimateBitBoard );
@@ -80,6 +80,36 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 			
 			totalMoves++;
 			status = getStatusAfterMove( overBoardPosition );
+			
+			var unfinishedSmallboards = 0;
+			for( smallBoard in smallBoards ) if( smallBoard.status == IN_PROGRESS ) unfinishedSmallboards++;
+			
+			if( unfinishedSmallboards == 0 && status == IN_PROGRESS ) {
+				printErr( 'Error: all small boards are finished but status is still IN_PROGRESS' );
+				final bits1 = [for( i in 0...smallBoards.length ) {
+					final mask = 1 << i;
+					( board1 & mask ) != 0 ? 1 : 0;
+				}];
+				final bits2 = [for( i in 0...smallBoards.length ) {
+					final mask = 1 << i;
+					( board2 & mask ) != 0 ? 1 : 0;
+				}];
+				final combined = [for( i in 0...bits1.length ) {
+					final b1 = bits1[i];
+					final b2 = bits2[i];
+					if( b1 == 1 ) "X";
+					else if( b2 == 1 ) "O";
+					else ".";
+				}];
+				printErr( 'perform move $p' );
+				printErr( combined.slice( 0, 3 ).join( ' ' ) );
+				printErr( combined.slice( 3, 6 ).join( ' ' ) );
+				printErr( combined.slice( 6, 9 ).join( ' ' ) );
+				
+				printErr( toString() );
+				
+				throw 'Error: all small boards are finished but status is still IN_PROGRESS';
+			}
 		}
 		
 		move = p;
@@ -95,10 +125,13 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		final nextBoard = smallBoards[nextIndex];
 
 		if( nextBoard.status != IN_PROGRESS ) return getAllEmptyPositions();
+		// if( nextBoard.status != IN_PROGRESS ) {
+			// final smallStatie = [for( i in 0...smallBoards.length ) smallBoards[i].status].join( ',' );
+			// printErr( 'ultimate status $status   smallStatie $smallStatie' );
+			// return getAllEmptyPositions();
+		// }
 
 		final emptyPositions = getEmptyPositionsOfSmallBoard( nextIndex );
-		
-		// printErr( 'getEmptyPositions nextIndex $nextIndex emptyPositions $emptyPositions' );
 		
 		return emptyPositions;
 	}
@@ -120,7 +153,8 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 			final globalY = Transform.getGlobalY( i, p.y );
 			emptyPositions.push( ultimatePositions[globalY][globalX] );
 		}
-
+		if( emptyPositions.length == 0 ) throw 'Error: no empty positions in small board $i\n${smallBoards[i]}';
+		
 		return emptyPositions;
 	}
 

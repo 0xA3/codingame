@@ -20,9 +20,9 @@ class StatePool {
 		
 		} else {
 			final state = pool.pop();
-			// printErr( 'get State ${state.id}' );
 			state.player = player;
 			state.board.getContentFrom( board );
+			// printErr( 'get State ${state.id}' );
 			state.isInPool = false;
 
 			length--;

@@ -52,7 +52,7 @@ class MonteCarloTreeSearch {
 		
 		nodePool.recycle( rootNode );
 		rootNode = newNode;
-		printErr( 'new rootNode ${rootNode.id}\n${rootNode.state.board}' );
+		printErr( 'create new rootNode ${rootNode.id}\n${rootNode.state.board}' );
 
 		return rootNode;
 	}
@@ -177,6 +177,7 @@ class MonteCarloTreeSearch {
 		}
 
 		final tempState = statePool.get( node.state.player, node.state.board );
+		
 		// var previousTime = 0.0;
 		while( boardStatus == Board.IN_PROGRESS ) {
 			final currentTime = Timer.stamp();

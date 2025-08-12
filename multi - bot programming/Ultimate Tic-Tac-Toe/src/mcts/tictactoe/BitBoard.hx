@@ -39,8 +39,8 @@ class BitBoard implements IBoard {
 		board1 = other.board1;
 		board2 = other.board2;
 		totalMoves = other.totalMoves;
-		status = other.status;
 		move = other.move;
+		status = other.status;
 	}
 
 	public function performMove( player:Int, p:Position ) {

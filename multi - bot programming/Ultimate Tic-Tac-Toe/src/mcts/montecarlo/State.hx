@@ -80,7 +80,7 @@ class State {
 		
 		if( availablePositions.length == 0 ) {
 			// printErr( '${board}status: ${board.printStatus()}' );
-			throw 'Error: no available positions';
+			throw 'Error: no available positions\n${board}';
 		}
 
 		final totalPossibilities = availablePositions.length;
