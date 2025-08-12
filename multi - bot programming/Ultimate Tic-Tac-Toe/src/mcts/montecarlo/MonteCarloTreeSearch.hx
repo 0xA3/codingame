@@ -2,8 +2,10 @@ package mcts.montecarlo;
 
 import CodinGame.printErr;
 import Math.round;
+import Std.int;
 import haxe.Timer;
 import mcts.tictactoe.Board;
+import mcts.tictactoe.Position;
 import mcts.tree.Node;
 import mcts.tree.NodePool;
 import mcts.tree.Tree;
@@ -12,8 +14,9 @@ class MonteCarloTreeSearch {
 	
 	public static inline var WIN_SCORE = 10;
 	
-	final tree:Tree;
+	var rootNode:Node;
 	final nodePool:NodePool;
+	final statePool:StatePool;
 	final responseTime:Float;
 
 	public var level = 3;
@@ -24,15 +27,35 @@ class MonteCarloTreeSearch {
 	var startTime = 0.0;
 	var endTime = 0.0;
 
-	public function new( tree:Tree, nodePool:NodePool, responseTime:Float ) {
-		this.tree = tree;
+	public function new( rootNode:Node, nodePool:NodePool, statePool:StatePool, responseTime:Float ) {
+		this.rootNode = rootNode;
 		this.nodePool = nodePool;
+		this.statePool = statePool;
 		this.responseTime = responseTime;
 
-		tree.root.state.togglePlayer();
+		rootNode.state.togglePlayer();
 	}
 
-	// function getMillisForCurrentLevel() return 2 * ( level - 1 ) + 1;
+	public function getNodeOfMove( p:Position ) {
+		for( child in rootNode.children ) if( child.state.board.move == p ) {
+			nodePool.recycle( rootNode );
+			rootNode = child;
+			printErr( 'new rootNode ${rootNode.id}' );
+			
+			return rootNode;
+		}
+
+		// Node is not in children
+		// create new node and perform move
+		final newNode = nodePool.get( rootNode.state );
+		newNode.state.board.performMove( rootNode.state.player, p );
+		
+		nodePool.recycle( rootNode );
+		rootNode = newNode;
+		printErr( 'new rootNode ${rootNode.id}\n${rootNode.state.board}' );
+
+		return rootNode;
+	}
 
 	public function findNextMove( player:Int ) {
 		#if nodejs
@@ -40,13 +63,12 @@ class MonteCarloTreeSearch {
 		#end
 
 		startTime = Timer.stamp();
-		// final end = start + 0.019 * getMillisForCurrentLevel();
+		// final end = startTime + 0.019 * getMillisForCurrentLevel();
 		
 		endTime = startTime + responseTime;
 
 		nodeCount = 0;
 		opponent = 3 - player;
-		final rootNode = tree.root;
 
 		var loopTime = 0.0;
 		var numLoops = 0;
@@ -57,11 +79,10 @@ class MonteCarloTreeSearch {
 			// final selectStart = Timer.stamp();
 			final promisingNode = selectPromisingNode( rootNode );
 			// if( Timer.stamp() > endTime ) printErr( 'after selectPromisingNode time ${round(( Timer.stamp() - selectStart ) * 1000 )}' );
-			// printErr( 'Phase 1 - Selection time ${int(( Timer.stamp() - start ) * 1000 )}' );
+			// printErr( 'Phase 1 - Selection time ${int(( Timer.stamp() - startTime ) * 1000 )}' );
 			// Phase 2 - Expansion
-			
 			if( promisingNode.state.board.status == Board.IN_PROGRESS ) expandNode( promisingNode );
-			// printErr( 'Phase 2 - Expansion time ${int(( Timer.stamp() - start ) * 1000 )}' );
+			// printErr( 'Phase 2 - Expansion time ${int(( Timer.stamp() - startTime ) * 1000 )}' );
 			// Phase 3 - Simulation
 			var nodeToExplore = promisingNode;
 			if( promisingNode.children.length > 0 ) nodeToExplore = promisingNode.getRandomChildNode();
@@ -69,22 +90,27 @@ class MonteCarloTreeSearch {
 			// final playoutStart = Timer.stamp();
 			final playoutResult = simulateRandomPlayout( nodeToExplore );
 			// if( Timer.stamp() > endTime ) printErr( 'after simulateRandomPlayout time ${round(( Timer.stamp() - playoutStart ) * 1000 )}ms' );
-			// printErr( 'Phase 3 - Simulation time ${int(( Timer.stamp() - start ) * 1000 )}' );
+			// printErr( 'Phase 3 - Simulation time ${int(( Timer.stamp() - startTime ) * 1000 )}' );
 			// Phase 4 - Update
 			backPropagation( nodeToExplore, playoutResult );
-			// printErr( 'Phase 4 - Update time ${int(( Timer.stamp() - start ) * 1000 )}' );
+			// printErr( 'Phase 4 - Update time ${int(( Timer.stamp() - startTime ) * 1000 )}' );
 
 			loopTime = Timer.stamp() - loopStartTime;
 			numLoops++;
 		}
 
 		if( rootNode.children.length == 0 ) {
-			printErr( 'Error: Node has not children.${rootNode.state.board}' );
-			return rootNode.state.board;
+			throw 'Error: Node has not children.${rootNode.state.board}';
+			// return rootNode.state.board;
 		}
 
 		final winnerNode = rootNode.getChildWithMaxScore();
-		tree.root = winnerNode;
+		for( child in rootNode.children ) {
+			if( child != winnerNode ) nodePool.recycleBranch( child );
+		}
+		nodePool.recycle( rootNode );
+		rootNode = winnerNode;
+		printErr( 'new root id ${winnerNode.id}\n${winnerNode.state.board}' );
 		
 		#if nodejs
 		js.html.Console.profileEnd();
@@ -133,9 +159,9 @@ class MonteCarloTreeSearch {
 	}
 
 	function expandNode( node:Node ) {
-		final possibleStates = node.state.getAllPossibleStates();
+		final possibleStates = node.state.getAllPossibleStates( statePool );
 		for( state in possibleStates ) {
-			final newNode = new Node( state, [], node );
+			final newNode = nodePool.get( state );
 			newNode.state.player = node.state.getOpponent();
 			node.children.push( newNode );
 			nodeCount++;
@@ -143,15 +169,14 @@ class MonteCarloTreeSearch {
 	}
 
 	function simulateRandomPlayout( node:Node ) {
-		final tempNode = node.copy();
-		final tempState = tempNode.state;
-		var boardStatus = tempState.board.status;
-
+		var boardStatus = node.state.board.status;
+		
 		if( boardStatus == opponent ) {
-			tempNode.parent.state.winScore = Integer.MIN_VALUE;
+			node.parent.state.winScore = Integer.MIN_VALUE;
 			return boardStatus;
 		}
 
+		final tempState = statePool.get( node.state.player, node.state.board );
 		// var previousTime = 0.0;
 		while( boardStatus == Board.IN_PROGRESS ) {
 			final currentTime = Timer.stamp();
@@ -164,7 +189,8 @@ class MonteCarloTreeSearch {
 			tempState.randomPlay();
 			boardStatus = tempState.board.status;
 		}
-		
+
+		statePool.recycle( tempState );
 		return boardStatus;
 	}
 	

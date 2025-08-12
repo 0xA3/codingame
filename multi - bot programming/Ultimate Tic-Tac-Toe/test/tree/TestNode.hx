@@ -1,6 +1,7 @@
 package test.tree;
 
 import mcts.montecarlo.State;
+import mcts.tictactoe.BitBoard;
 import mcts.tree.Node;
 
 using buddy.Should;
@@ -12,34 +13,26 @@ class TestNode extends buddy.BuddySuite {
 		describe( "Test Node", {
 			
 			it( "Test createEmpty", {
-				final node = Node.create();
+				final node = Node.create( State.create( 1, BitBoard.create() ));
 				node.state.should.not.be( null );
-				node.parent.should.be( null );
-				node.childArray.length.should.be( 0 );
+				node.parent.should.be( Node.NO_NODE );
+				node.children.length.should.be( 0 );
 			});
 			
 			it( "Test fromState", {
-				final state = State.create();
+				final state = State.create( 1, BitBoard.create() );
 				final node = Node.fromState( state );
 				node.state.should.be( state );
-				node.parent.should.be( null );
-				node.childArray.length.should.be( 0 );
+				node.parent.should.be( Node.NO_NODE );
+				node.children.length.should.be( 0 );
 			});
 			
-			it( "Test fromNode", {
-				final node1 = Node.create();
-				final node2 = Node.copy( node1 );
-				node1.state.should.not.be( node2.state );
-				node2.parent.should.be( null );
-				node2.childArray.length.should.be( node1.childArray.length );
-			});
-
 			it( "Test getRandomChildNode", {
-				final childNode1 = Node.create();
-				final childNode2 = Node.create();
-				final node = Node.create();
-				node.childArray.push( childNode1 );
-				node.childArray.push( childNode2 );
+				final childNode1 = Node.create( State.create( 1, BitBoard.create() ));
+				final childNode2 = Node.create( State.create( 1, BitBoard.create() ));
+				final node = Node.create( State.create( 1, BitBoard.create() ));
+				node.children.push( childNode1 );
+				node.children.push( childNode2 );
 
 				final randomChildNode = node.getRandomChildNode();
 				final isOneOfChildnodes = randomChildNode == childNode1 || randomChildNode == childNode2;
@@ -48,18 +41,18 @@ class TestNode extends buddy.BuddySuite {
 			});
 
 			it( "Test getChildWithMaxScore", {
-				final childNode1 = Node.create();
-				final childNode2 = Node.create();
-				final childNode3 = Node.create();
+				final childNode1 = Node.create( State.create( 1, BitBoard.create() ));
+				final childNode2 = Node.create( State.create( 1, BitBoard.create() ));
+				final childNode3 = Node.create( State.create( 1, BitBoard.create() ));
 
 				childNode1.state.visitCount = 1;
 				childNode2.state.visitCount = 3;
 				childNode3.state.visitCount = 2;
 
-				final node = Node.create();
-				node.childArray.push( childNode1 );
-				node.childArray.push( childNode2 );
-				node.childArray.push( childNode3 );
+				final node = Node.create( State.create( 1, BitBoard.create() ));
+				node.children.push( childNode1 );
+				node.children.push( childNode2 );
+				node.children.push( childNode3 );
 
 				final maxScoreChildNode = node.getChildWithMaxScore();
 

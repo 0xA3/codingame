@@ -13,11 +13,16 @@ class StatePool {
 
 	public function get( player:Int, board:IBoard ) {
 		if( pool.isEmpty() ) {
-			final state = State.create( player, board );
+			final nextBoard = board.copy();
+			final state = State.create( player, nextBoard );
+			// printErr( 'create State ${state.id}' );
 			return state;
 		
 		} else {
 			final state = pool.pop();
+			// printErr( 'get State ${state.id}' );
+			state.player = player;
+			state.board.getContentFrom( board );
 			state.isInPool = false;
 
 			length--;
@@ -26,17 +31,16 @@ class StatePool {
 		}
 	}
 
-	public function getCopy( state:State ) {
-		return state.copy();
-	}
-
-	public function add( state:State ) {
+	public function recycle( state:State ) {
 		if( state.isInPool ) {
+			// printErr( 'State ${state.id} is already in pool' );
 			printErr( 'State is already in pool' );
 			return;
 		}
-		state.isInPool = true;
+
+		// printErr( 'return State ${state.id} to pool' );
 		pool.add( state );
+		state.isInPool = true;
 		length++;
 	}
 }

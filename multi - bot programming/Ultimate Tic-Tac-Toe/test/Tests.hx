@@ -9,5 +9,6 @@ class Tests implements Buddy<[
 	test.tictactoe.TestBoard,
 	test.tictactoe.TestBitBoard,
 	test.tictactoe.TestBoardCheckStatus,
-	test.tree.TestNode
+	test.tree.TestNode,
+	test.tree.TestNodePool
 ]>{}

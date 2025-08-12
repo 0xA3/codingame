@@ -13,7 +13,7 @@ class AiRandom {
 	
 	var validPositions:Array<Position>;
 
-	public function new( player:Int, rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+	public function new( player:Int, rootBoard:IBoard ) {
 		this.player = player;
 		board = rootBoard;
 	}

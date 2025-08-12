@@ -35,6 +35,14 @@ class BitBoard implements IBoard {
 		return new BitBoard( board1, board2, totalMoves );
 	}
 
+	public function getContentFrom( other:IBoard ) {
+		board1 = other.board1;
+		board2 = other.board2;
+		totalMoves = other.totalMoves;
+		status = other.status;
+		move = other.move;
+	}
+
 	public function performMove( player:Int, p:Position ) {
 		// printErr( '${toString()}player $player performMove $p' );
 		if( getCell( board1 | board2, p ) != 0 ) {

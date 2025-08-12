@@ -46,6 +46,13 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 
 		return new UltimateBitBoard( smallBoardsCopy, board1, board2, totalMoves );
 	}
+	
+	override public function getContentFrom( other:IBoard ) {
+		super.getContentFrom( other );
+		final otherUltimateBitBoard = cast( other, UltimateBitBoard );
+
+		for( i in 0...smallBoards.length ) smallBoards[i].getContentFrom( otherUltimateBitBoard.smallBoards[i] );
+	}
 
 	override public function performMove( player:Int, p:Position) {
 		final boardIndex = Transform.getIndex( p.x, p.y );

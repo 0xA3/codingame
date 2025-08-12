@@ -14,16 +14,14 @@ class Ai2 {
 	var validPositions:Array<Position>;
 	
 	public var board:IBoard;
-	var tree:Tree;
 	var mcts:MonteCarloTreeSearch;
 	var squareIndex = 0;
 
 	var turn = 0;
 
-	public function new( player:Int, rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+	public function new( player:Int, rootBoard:IBoard, mcts:MonteCarloTreeSearch ) {
 		this.player = player;
 		board = rootBoard;
-		this.tree = tree;
 		this.mcts = mcts;
 	}
 
@@ -36,8 +34,8 @@ class Ai2 {
 		if( oppY == -1 ) return;
 		
 		final move = ultimatePositions[oppY][oppX];
-		final nextNode = tree.root.getNodeOfMove( move );
-		tree.root = nextNode;
+		final nextNode = mcts.getNodeOfMove( move );
+		
 		board = nextNode.state.board;
 	}
 

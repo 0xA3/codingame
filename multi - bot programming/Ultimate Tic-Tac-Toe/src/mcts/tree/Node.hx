@@ -8,51 +8,36 @@ import mcts.tictactoe.Position;
 class Node {
 	
 	public static final NO_NODE = new Node( State.NO_STATE, [] );
-	public static var id = 0;
+	public static var nodeCount = 0;
 
-	public final state:State;
+	public final id:Int;
+	public var state:State;
 	public var parent:Node;
 	public final children:Array<Node>;
 
 	public var isInPool = false;
 
-	public function new( state:State, children:Array<Node>, ?parent:Node ) {
+	function new( state:State, children:Array<Node>, ?parent:Node ) {
+		this.id = nodeCount;
 		this.state = state;
 		this.children = children;
-		this.parent = parent;
+		this.parent = parent == null ? Node.NO_NODE : parent;
 		
-		id++;
+		#if interp
+		if( nodeCount == null ) nodeCount = 0;
+		#end
+
+		nodeCount++;
 	}
 
-	public static function create( player:Int, board:IBoard ) {
-		final state = State.create( player, board );
+	public static function create( state:State, ?parent:Node ) {
 		final children = [];
-		
-		return new Node( state, children );
+		return new Node( state, children, parent );
 	}
 
 	public static function fromState( state:State ) {
 		final children = new Array<Node>();
 		return new Node( state, children );
-	}
-
-	public function copy() {
-		final children = [];
-		for( child in children ) children.push( child.copy() );
-
-		return new Node( state.copy(), children, parent );
-	}
-
-	public function getNodeOfMove( p:Position ) {
-		for( child in children ) if( child.state.board.move == p ) return child;
-
-		final node = this.copy();
-		// printErr( '${node.state.board}' );
-		// printErr( 'position: $p' );
-
-		node.state.board.performMove( state.player, p );
-		
-		return node;
 	}
 
 	public function getRandomChildNode() {
@@ -78,7 +63,7 @@ class Node {
 	}
 
 	public function toString() {
-		return 'state: $state';
+		return 'id: $id';
 	}
 
 }
