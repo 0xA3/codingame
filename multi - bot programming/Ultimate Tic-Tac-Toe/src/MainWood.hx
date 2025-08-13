@@ -6,7 +6,6 @@ import mcts.montecarlo.State;
 import mcts.tictactoe.BitBoard;
 import mcts.tictactoe.IBoard;
 import mcts.tree.Node;
-import mcts.tree.Tree;
 
 class Main {
 	

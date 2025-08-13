@@ -3,7 +3,6 @@ import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
 import mcts.tictactoe.UltimateBitBoard.ultimatePositions;
-import mcts.tree.Tree;
 
 class AiRandom {
 
@@ -29,6 +28,7 @@ class AiRandom {
 		}
 		
 		board.performMove( 3 - player, ultimatePositions[oy][ox] );
+		// printErr( 'random board\n$board' );
 	}
 
 	public function process() {

@@ -3,12 +3,11 @@ import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.BitBoard;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
-import mcts.tree.Tree;
 
 class AiWood {
 
 	final player:Int;
-	final tree:Tree;
+	final tree:Node;
 	final mcts:MonteCarloTreeSearch;
 
 	public var board:IBoard;
@@ -16,7 +15,7 @@ class AiWood {
 	var validPositions:Array<Position>;
 	var turn = 0;
 
-	public function new( player:Int, rootBoard:IBoard, tree:Tree, mcts:MonteCarloTreeSearch ) {
+	public function new( player:Int, rootBoard:IBoard, tree:Node, mcts:MonteCarloTreeSearch ) {
 		this.player = player;
 		board = rootBoard;
 		this.tree = tree;

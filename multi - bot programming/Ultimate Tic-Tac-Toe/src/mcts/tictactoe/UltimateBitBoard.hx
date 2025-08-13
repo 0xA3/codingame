@@ -3,6 +3,7 @@ package mcts.tictactoe;
 import CodinGame.printErr;
 import Std.int;
 import haxe.ds.Vector;
+import mcts.montecarlo.MonteCarloTreeSearch;
 
 using Lambda;
 
@@ -39,12 +40,16 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 	}
 	
 	override public function copy() {
-		if( status != IN_PROGRESS ) return this;
+		// if( status != IN_PROGRESS ) return this;
 		
 		final smallBoardsCopy = new Vector<BitBoard>( smallBoards.length );
 		for( i in 0...smallBoards.length ) smallBoardsCopy[i] = smallBoards[i].copy();
 
-		return new UltimateBitBoard( smallBoardsCopy, board1, board2, totalMoves );
+		final boardCopy = new UltimateBitBoard( smallBoardsCopy, board1, board2, totalMoves );
+		boardCopy.move = move;
+		boardCopy.status = status;
+		
+		return boardCopy;
 	}
 
 	override public function getContentFrom( other:IBoard ) {
@@ -59,12 +64,15 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		final smallBoard = smallBoards[boardIndex];
 		
 		if( smallBoard.status != IN_PROGRESS ) {
+			printErr( 'Error: small board $boardIndex is already finished\n' );
 			printErr( toString() );
 			throw 'Error: small board $boardIndex is already finished\n';
 		}
 		
 		final localX = Transform.getLocalX( p.x );
 		final localY = Transform.getLocalY( p.y );
+
+		final beforeMove = 'small\n${smallBoardsToString()}\nover\n${toString()}';
 
 		// printErr( 'player $player performMove $p in small board $boardIndex at ${localX}:${localY}  nextIndex ${localY * 3 + localX}' );
 		smallBoard.performMove( player, BitBoard.smallPositions[localY][localX] );
@@ -74,47 +82,46 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 			final overBoardX = boardIndex % 3;
 			final overBoardPosition = ultimatePositions[overBoardY][overBoardX];
 			
-			if( player == P1 ) setCellP1( overBoardPosition )
-			else if( player == P2 ) setCellP2( overBoardPosition );
+			if( smallBoard.status == BitBoard.P1 ) setCellP1( overBoardPosition )
+			else if( smallBoard.status == BitBoard.P2 ) setCellP2( overBoardPosition );
+			else if( smallBoard.status == BitBoard.DRAW ) {
+				setCellP1( overBoardPosition );
+				setCellP2( overBoardPosition );
+			}
 			else throw 'Error: illegal player $player';
 			
 			totalMoves++;
 			status = getStatusAfterMove( overBoardPosition );
 			
+			// printErr( 'smallboard $boardIndex status is ${smallBoard.status}' );
+			// printErr( 'overboard status is ${status} totalMoves $totalMoves\n${overBoardToString()}' );
+
 			var unfinishedSmallboards = 0;
 			for( smallBoard in smallBoards ) if( smallBoard.status == IN_PROGRESS ) unfinishedSmallboards++;
 			
 			if( unfinishedSmallboards == 0 && status == IN_PROGRESS ) {
 				printErr( 'Error: all small boards are finished but status is still IN_PROGRESS' );
-				final bits1 = [for( i in 0...smallBoards.length ) {
-					final mask = 1 << i;
-					( board1 & mask ) != 0 ? 1 : 0;
-				}];
-				final bits2 = [for( i in 0...smallBoards.length ) {
-					final mask = 1 << i;
-					( board2 & mask ) != 0 ? 1 : 0;
-				}];
-				final combined = [for( i in 0...bits1.length ) {
-					final b1 = bits1[i];
-					final b2 = bits2[i];
-					if( b1 == 1 ) "X";
-					else if( b2 == 1 ) "O";
-					else ".";
-				}];
-				printErr( 'perform move $p' );
-				printErr( combined.slice( 0, 3 ).join( ' ' ) );
-				printErr( combined.slice( 3, 6 ).join( ' ' ) );
-				printErr( combined.slice( 6, 9 ).join( ' ' ) );
-				
-				printErr( toString() );
+				printErr( 'totalMoves $totalMoves unfinishedSmallboards $unfinishedSmallboards' );
+				printErr( 'startBoard\n${MonteCarloTreeSearch.startBoard.toString()}' );
+				printErr( 'endBoard\n${toString()}' );
 				
 				throw 'Error: all small boards are finished but status is still IN_PROGRESS';
 			}
 		}
 		
+		if( smallBoardsToString() != overBoardToString() ) {
+			printErr( 'beforeMove\n$beforeMove' );
+			printErr( 'move $p in small board $boardIndex at ${localX}:${localY}  nextIndex ${getNextIndex( localX, localY )}' );
+			printErr( 'smallBoardsToString\n${smallBoardsToString()}' );
+			printErr( 'overBoardToString\n${toString()}' );
+			throw 'Error: smallBoardsToString != overBoardToString';
+		}
+
 		move = p;
-		nextIndex = localY * 3 + localX;
+		nextIndex = getNextIndex( localX, localY );
 	}
+
+	extern inline function getNextIndex( localX:Int, localY:Int ) return localY * 3 + localX;
 
 	override public function getEmptyPositions() {
 		if( nextIndex == -1 ) return getAllEmptyPositions();
@@ -158,9 +165,53 @@ class UltimateBitBoard extends BitBoard implements IBoard {
 		return emptyPositions;
 	}
 
+	function smallBoardsToString() {
+		var s = "";
+		s += [for( i in 0...3 ) statusToString( smallBoards[i].status )].join( ' ' ) + '\n';
+		s += [for( i in 3...6 ) statusToString( smallBoards[i].status )].join( ' ' ) + '\n';
+		s += [for( i in 6...9 ) statusToString( smallBoards[i].status )].join( ' ' ) + '\n';
+		return s;
+	}
+
+	function statusToString( status:Int ) {
+		if( status == DRAW ) return '#';
+		if( status == P1 ) return 'X';
+		if( status == P2 ) return 'O';
+		return '.';
+	}
+
+	function overBoardToString() {
+		var s = "";
+		final bits1 = [for( i in 0...smallBoards.length ) {
+			final mask = 1 << i;
+			( board1 & mask ) != 0 ? 1 : 0;
+		}];
+		final bits2 = [for( i in 0...smallBoards.length ) {
+			final mask = 1 << i;
+			( board2 & mask ) != 0 ? 1 : 0;
+		}];
+		
+		final status = [for( i in 0...bits1.length ) {
+			final b1 = bits1[i];
+			final b2 = bits2[i];
+			if( b1 == 1 && b2 == 1 ) DRAW;
+			else if( b1 == 1 ) P1;
+			else if( b2 == 1 ) P2;
+			else IN_PROGRESS;
+		}];
+		
+		final combined = status.map( statusToString );
+		s += combined.slice( 0, 3 ).join( ' ' ) + '\n';
+		s += combined.slice( 3, 6 ).join( ' ' ) + '\n';
+		s += combined.slice( 6, 9 ).join( ' ' ) + '\n';
+
+		return s;
+	}
+
 	override public function toString() {
 		// var s = 'totalMoves $totalMoves\n';
 		var s = "";
+		s += overBoardToString();
 		final grid = [];
 		for( y in 0...ULTIMATE_BOARD_SIZE ) {
 			grid.push( [] );

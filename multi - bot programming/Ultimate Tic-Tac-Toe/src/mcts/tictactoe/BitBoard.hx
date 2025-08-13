@@ -31,8 +31,12 @@ class BitBoard implements IBoard {
 	}
 
 	public function copy() {
-		if( status != IN_PROGRESS ) return this;
-		return new BitBoard( board1, board2, totalMoves );
+		// if( status != IN_PROGRESS ) return this;
+		final boardCopy = new BitBoard( board1, board2, totalMoves );
+		boardCopy.move = move;
+		boardCopy.status = status;
+		
+		return boardCopy;
 	}
 
 	public function getContentFrom( other:IBoard ) {

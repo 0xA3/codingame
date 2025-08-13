@@ -5,27 +5,26 @@ import mcts.tictactoe.BitBoard;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
-import mcts.tree.Tree;
 
 class Ai1 {
 
 	// 9 boards, 9 trees and 9 mctss
 
 	final boards:Array<IBoard>;
-	final trees:Array<Tree>;
+	final trees:Array<Node>;
 	final mctss:Array<MonteCarloTreeSearch>;
 	final player = BitBoard.P1;
 
 	var validPositions:Array<Position>;
 	
 	public var board:IBoard;
-	var tree:Tree;
+	var tree:Node;
 	var mcts:MonteCarloTreeSearch;
 	var squareIndex = 0;
 
 	var turn = 0;
 
-	public function new( rootBoards:Array<IBoard>, trees:Array<Tree>, mctss:Array<MonteCarloTreeSearch> ) {
+	public function new( rootBoards:Array<IBoard>, trees:Array<Node>, mctss:Array<MonteCarloTreeSearch> ) {
 		boards = rootBoards;
 		this.trees = trees;
 		this.mctss = mctss;

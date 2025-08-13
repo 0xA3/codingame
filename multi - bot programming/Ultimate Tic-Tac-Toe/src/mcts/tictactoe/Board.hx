@@ -94,6 +94,7 @@ class Board {
 
 		final checkDiag2ForWin = checkForWin( diag2 );
 		if( checkDiag2ForWin != 0 ) return checkDiag2ForWin;
+		
 		return getEmptyPositions().length > 0 ? IN_PROGRESS : DRAW;
 	}
 

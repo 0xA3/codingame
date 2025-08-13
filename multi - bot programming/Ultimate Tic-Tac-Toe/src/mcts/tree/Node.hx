@@ -17,7 +17,7 @@ class Node {
 
 	public var isInPool = false;
 
-	function new( state:State, children:Array<Node>, ?parent:Node ) {
+	public function new( state:State, children:Array<Node>, ?parent:Node ) {
 		this.id = nodeCount;
 		this.state = state;
 		this.children = children;
@@ -28,16 +28,6 @@ class Node {
 		#end
 
 		nodeCount++;
-	}
-
-	public static function create( state:State, ?parent:Node ) {
-		final children = [];
-		return new Node( state, children, parent );
-	}
-
-	public static function fromState( state:State ) {
-		final children = new Array<Node>();
-		return new Node( state, children );
 	}
 
 	public function getRandomChildNode() {

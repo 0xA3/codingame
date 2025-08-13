@@ -6,23 +6,25 @@ import mcts.tictactoe.IBoard;
 
 class StatePool {
 	
-	final pool = new GenericStack<State>();
+	public final pool = new GenericStack<State>();
 	public var length = 0;
 
 	public function new() {	}
 
-	public function get( player:Int, board:IBoard ) {
+	public function get( player:Int, parentBoard:IBoard ) {
 		if( pool.isEmpty() ) {
-			final nextBoard = board.copy();
-			final state = State.create( player, nextBoard );
-			// printErr( 'create State ${state.id}' );
+			final nextBoard = parentBoard.copy();
+			final state = new State( player, nextBoard );
+			// printErr( 'new State ${state.id}' );
 			return state;
 		
 		} else {
 			final state = pool.pop();
 			state.player = player;
-			state.board.getContentFrom( board );
-			// printErr( 'get State ${state.id}' );
+			state.board.getContentFrom( parentBoard );
+			state.visitCount = 0;
+			state.winScore = 0.0;
+			// printErr( 'use State ${state.id}' );
 			state.isInPool = false;
 
 			length--;
@@ -32,13 +34,12 @@ class StatePool {
 	}
 
 	public function recycle( state:State ) {
+		// printErr( 'recycle State ${state.id}' );
 		if( state.isInPool ) {
-			// printErr( 'State ${state.id} is already in pool' );
-			printErr( 'State is already in pool' );
-			return;
+			printErr( 'Error: State ${state.id} is already in pool' );
+			throw 'Error: State ${state.id} is already in pool';
 		}
 
-		// printErr( 'return State ${state.id} to pool' );
 		pool.add( state );
 		state.isInPool = true;
 		length++;

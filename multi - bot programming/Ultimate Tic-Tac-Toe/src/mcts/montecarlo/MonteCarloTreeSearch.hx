@@ -5,10 +5,10 @@ import Math.round;
 import Std.int;
 import haxe.Timer;
 import mcts.tictactoe.Board;
+import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
 import mcts.tree.Node;
 import mcts.tree.NodePool;
-import mcts.tree.Tree;
 
 class MonteCarloTreeSearch {
 	
@@ -32,27 +32,31 @@ class MonteCarloTreeSearch {
 		this.nodePool = nodePool;
 		this.statePool = statePool;
 		this.responseTime = responseTime;
-
+		
 		rootNode.state.togglePlayer();
 	}
 
 	public function getNodeOfMove( p:Position ) {
+		final childMoves = [for( child in rootNode.children ) child.state.board.move].join(", ");
+		printErr( 'getNodeOfMove $p. child moves: $childMoves' );
+
 		for( child in rootNode.children ) if( child.state.board.move == p ) {
 			nodePool.recycle( rootNode );
 			rootNode = child;
-			printErr( 'new rootNode ${rootNode.id}' );
+			printErr( 'new rootNode from child node ${child.id}' );
 			
 			return rootNode;
 		}
 
 		// Node is not in children
 		// create new node and perform move
-		final newNode = nodePool.get( rootNode.state );
-		newNode.state.board.performMove( rootNode.state.player, p );
+		final newState = statePool.get( opponent, rootNode.state.board );
+		final newNode = nodePool.get( newState );
+		newNode.state.board.performMove( opponent, p );
 		
 		nodePool.recycle( rootNode );
 		rootNode = newNode;
-		printErr( 'create new rootNode ${rootNode.id}\n${rootNode.state.board}' );
+		printErr( 'get new root node ${newNode.id} player ${rootNode.state.player}' );
 
 		return rootNode;
 	}
@@ -63,8 +67,6 @@ class MonteCarloTreeSearch {
 		#end
 
 		startTime = Timer.stamp();
-		// final end = startTime + 0.019 * getMillisForCurrentLevel();
-		
 		endTime = startTime + responseTime;
 
 		nodeCount = 0;
@@ -78,6 +80,7 @@ class MonteCarloTreeSearch {
 			// Phase 1 - Selection
 			// final selectStart = Timer.stamp();
 			final promisingNode = selectPromisingNode( rootNode );
+			
 			// if( Timer.stamp() > endTime ) printErr( 'after selectPromisingNode time ${round(( Timer.stamp() - selectStart ) * 1000 )}' );
 			// printErr( 'Phase 1 - Selection time ${int(( Timer.stamp() - startTime ) * 1000 )}' );
 			// Phase 2 - Expansion
@@ -99,42 +102,40 @@ class MonteCarloTreeSearch {
 			numLoops++;
 		}
 
-		if( rootNode.children.length == 0 ) {
-			throw 'Error: Node has not children.${rootNode.state.board}';
-			// return rootNode.state.board;
-		}
+		if( rootNode.children.length == 0 ) throw 'Error: Node has not children.${rootNode.state.board}';
 
 		final winnerNode = rootNode.getChildWithMaxScore();
-		for( child in rootNode.children ) {
-			if( child != winnerNode ) nodePool.recycleBranch( child );
-		}
+		printErr( 'winnerNode ${winnerNode.id}, player ${winnerNode.state.player}, children ${winnerNode.children.length}' );
+		
+		for( child in rootNode.children ) if( child != winnerNode ) nodePool.recycleBranch( child );
+		
 		nodePool.recycle( rootNode );
 		rootNode = winnerNode;
-		printErr( 'new root id ${winnerNode.id}\n${winnerNode.state.board}' );
 		
 		#if nodejs
 		js.html.Console.profileEnd();
 		#end
 		
-		printErr( 'player $player, $nodeCount nodes in ${round(( Timer.stamp() - startTime ) * 1000 )}ms   maxDepth $nodeDepth     $numLoops loops, ${round( loopTime * 1000 )}ms' );
-		
+		// printErr( 'player $player, $nodeCount nodes in ${round(( Timer.stamp() - startTime ) * 1000 )}ms   maxDepth $nodeDepth     $numLoops loops, ${round( loopTime * 1000 )}ms' );
+		// printErr( 'winnerNode state player ${winnerNode.state.player}\n${winnerNode.state.board}' );
+		final poolNodeIds = [for( node in nodePool.pool ) node.id];
+		final poolStateIds = [for( state in statePool.pool ) state.id];
+		// printErr( 'pn: ${poolNodeIds.join(",")}\nps: ${poolStateIds.join(",")}' );
+		// for( i in 0...poolNodeIds.length ) if( poolNodeIds[i] != poolStateIds[i] ) printErr( 'difference at $i: ${poolNodeIds[i]} != ${poolStateIds[i]}' );
+		// printErr( 'nodePool length ${nodePool.length}\nstatePool length ${statePool.length}' );
 		return winnerNode.state.board;
 	}
 
 	function selectPromisingNode( rootNode:Node ) {
 		var node = rootNode;
-		var tempNodeDepth = 0;
 		while( node.children.length != 0 ) {
 			// if( Timer.stamp() > endTime ) {
 			// 	printErr( 'break select ${round((Timer.stamp() - startTime ) * 1000)}' );
 			// 	break;
 			// }
 			node = findBestNodeWithUCT( node );
-			tempNodeDepth++;
 		}
 		
-		if( tempNodeDepth > nodeDepth ) nodeDepth = tempNodeDepth;
-
 		return node;
 	}
 
@@ -159,14 +160,19 @@ class MonteCarloTreeSearch {
 	}
 
 	function expandNode( node:Node ) {
-		final possibleStates = node.state.getAllPossibleStates( statePool );
+		// printErr( "expandNode" );
+		final opponent = node.state.getOpponent();
+		final possibleStates = node.state.getAllPossibleStates( statePool, opponent );
+		// printErr( 'possibleStates ${possibleStates.length}: ' + [for( state in possibleStates ) state.id].join( ', ' ) );
 		for( state in possibleStates ) {
 			final newNode = nodePool.get( state );
-			newNode.state.player = node.state.getOpponent();
 			node.children.push( newNode );
 			nodeCount++;
 		}
+		// printErr( "end expandNode" );
 	}
+
+	public static var startBoard:IBoard;
 
 	function simulateRandomPlayout( node:Node ) {
 		var boardStatus = node.state.board.status;
@@ -177,7 +183,8 @@ class MonteCarloTreeSearch {
 		}
 
 		final tempState = statePool.get( node.state.player, node.state.board );
-		
+		final tempNode = nodePool.get( tempState );
+		startBoard = node.state.board;
 		// var previousTime = 0.0;
 		while( boardStatus == Board.IN_PROGRESS ) {
 			final currentTime = Timer.stamp();
@@ -190,14 +197,15 @@ class MonteCarloTreeSearch {
 			tempState.randomPlay();
 			boardStatus = tempState.board.status;
 		}
-
-		statePool.recycle( tempState );
+		// statePool.recycle( tempState );
+		nodePool.recycle( tempNode );
+		
 		return boardStatus;
 	}
 	
 	function backPropagation( nodeToExplore:Node, playerNo:Int ) {
 		var tempNode = nodeToExplore;
-		while( tempNode != null ) {
+		while( tempNode != Node.NO_NODE ) {
 			tempNode.state.incrementVisit();
 			if( tempNode.state.player == playerNo ) tempNode.state.addScore( WIN_SCORE );
 			tempNode = tempNode.parent;

@@ -77,5 +77,40 @@ class TestBitBoard extends buddy.BuddySuite {
 				bitBoard.countCells( bitBoard.board1 ).should.be( 5 );
 			});
 		});
+		
+		describe( "Test BitBoard performMove", {
+
+			it( "Test horizontal win", {
+				final bitBoard = BitBoard.create();
+				bitBoard.performMove( 1, BitBoard.smallPositions[0][0] );
+				bitBoard.performMove( 1, BitBoard.smallPositions[0][1] );
+				bitBoard.performMove( 1, BitBoard.smallPositions[0][2] );
+				bitBoard.status.should.be( BitBoard.P1 );
+			});
+
+			it( "Test vertical win", {
+				final bitBoard = BitBoard.create();
+				bitBoard.performMove( 1, BitBoard.smallPositions[0][0] );
+				bitBoard.performMove( 1, BitBoard.smallPositions[1][0] );
+				bitBoard.performMove( 1, BitBoard.smallPositions[2][0] );
+				bitBoard.status.should.be( BitBoard.P1 );
+			});
+
+			it( "Test diagonal down win", {
+				final bitBoard = BitBoard.create();
+				bitBoard.performMove( 1, BitBoard.smallPositions[0][0] );
+				bitBoard.performMove( 1, BitBoard.smallPositions[1][1] );
+				bitBoard.performMove( 1, BitBoard.smallPositions[2][2] );
+				bitBoard.status.should.be( BitBoard.P1 );
+			});
+
+			it( "Test diagonal up win", {
+				final bitBoard = BitBoard.create();
+				bitBoard.performMove( 1, BitBoard.smallPositions[2][0] );
+				bitBoard.performMove( 1, BitBoard.smallPositions[1][1] );
+				bitBoard.performMove( 1, BitBoard.smallPositions[0][2] );
+				bitBoard.status.should.be( BitBoard.P1 );
+			});
+		});
 	}
 }

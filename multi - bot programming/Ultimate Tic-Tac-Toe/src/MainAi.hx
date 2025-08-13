@@ -8,7 +8,6 @@ import mcts.tictactoe.IBoard;
 import mcts.tictactoe.UltimateBitBoard.ultimatePositions;
 import mcts.tictactoe.UltimateBitBoard;
 import mcts.tree.Node;
-import mcts.tree.Tree;
 
 class MainAi {
 	

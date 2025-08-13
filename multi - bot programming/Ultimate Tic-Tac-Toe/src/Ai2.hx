@@ -4,7 +4,6 @@ import mcts.montecarlo.MonteCarloTreeSearch;
 import mcts.tictactoe.IBoard;
 import mcts.tictactoe.Position;
 import mcts.tictactoe.UltimateBitBoard.ultimatePositions;
-import mcts.tree.Tree;
 
 class Ai2 {
 
@@ -29,9 +28,11 @@ class Ai2 {
 
 	public function setInputs( oppY:Int, oppX:Int, validPositions:Array<Position> ) {
 		this.validPositions = validPositions;
-		// printErr( 'setInputs oppSquareIndex $oppSquareIndex, oppX $oppX, oppY $oppY, squareIndex $squareIndex' );
 		
-		if( oppY == -1 ) return;
+		if( oppY == -1 ) {
+			printErr( 'Player $player Ai2 makes first move\n' );
+			return;
+		}
 		
 		final move = ultimatePositions[oppY][oppX];
 		final nextNode = mcts.getNodeOfMove( move );
@@ -41,6 +42,7 @@ class Ai2 {
 
 	public function process() {
 		board = mcts.findNextMove( player );
+		
 		final move = board.move;
 		
 		turn++;

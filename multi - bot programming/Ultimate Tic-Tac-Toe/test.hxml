@@ -3,6 +3,6 @@
 -cp ../../codingame_extension/
 -cp src
 -D analyzer-optimize
--D buddy-ignore-passing-specs
+# -D buddy-ignore-passing-specs
 -main test.Tests
 --interp
