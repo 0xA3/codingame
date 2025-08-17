@@ -70,7 +70,7 @@ class NodePool {
 			printErr( 'Error: Node ${node.id} is already in pool.' );
 			throw 'Error: Node ${node.id} is already in pool.';
 		}
-
+		
 		statePool.recycle( node.state );
 		node.state = State.NO_STATE;
 

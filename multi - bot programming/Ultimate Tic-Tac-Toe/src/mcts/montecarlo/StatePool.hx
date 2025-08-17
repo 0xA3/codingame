@@ -39,7 +39,7 @@ class StatePool {
 			printErr( 'Error: State ${state.id} is already in pool' );
 			throw 'Error: State ${state.id} is already in pool';
 		}
-
+		
 		pool.add( state );
 		state.isInPool = true;
 		length++;

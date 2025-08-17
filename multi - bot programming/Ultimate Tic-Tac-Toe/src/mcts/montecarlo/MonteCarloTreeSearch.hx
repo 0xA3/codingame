@@ -37,13 +37,13 @@ class MonteCarloTreeSearch {
 	}
 
 	public function getNodeOfMove( p:Position ) {
-		final childMoves = [for( child in rootNode.children ) child.state.board.move].join(", ");
-		printErr( 'getNodeOfMove $p. child moves: $childMoves' );
+		final childMoves = [for( child in rootNode.children ) child.state.board.move].join(",");
+		// printErr( 'getNodeOfMove $p. child moves: $childMoves' );
 
 		for( child in rootNode.children ) if( child.state.board.move == p ) {
 			nodePool.recycle( rootNode );
 			rootNode = child;
-			printErr( 'new rootNode from child node ${child.id}' );
+			// printErr( 'new rootNode from child node ${child.id}' );
 			
 			return rootNode;
 		}
@@ -56,7 +56,7 @@ class MonteCarloTreeSearch {
 		
 		nodePool.recycle( rootNode );
 		rootNode = newNode;
-		printErr( 'get new root node ${newNode.id} player ${rootNode.state.player}' );
+		// printErr( 'get new root node ${newNode.id} player ${rootNode.state.player}' );
 
 		return rootNode;
 	}
@@ -105,18 +105,22 @@ class MonteCarloTreeSearch {
 		if( rootNode.children.length == 0 ) throw 'Error: Node has not children.${rootNode.state.board}';
 
 		final winnerNode = rootNode.getChildWithMaxScore();
-		printErr( 'winnerNode ${winnerNode.id}, player ${winnerNode.state.player}, children ${winnerNode.children.length}' );
+		// printErr( 'winnerNode ${winnerNode.id}, player ${winnerNode.state.player}, children ${winnerNode.children.length}' );
 		
+		final recycleStart = Timer.stamp();
+		
+		// recycle nodes
 		for( child in rootNode.children ) if( child != winnerNode ) nodePool.recycleBranch( child );
-		
 		nodePool.recycle( rootNode );
 		rootNode = winnerNode;
 		
+		printErr( 'recycle time ${round(( Timer.stamp() - recycleStart ) * 1000 )}ms' );
+
 		#if nodejs
 		js.html.Console.profileEnd();
 		#end
 		
-		// printErr( 'player $player, $nodeCount nodes in ${round(( Timer.stamp() - startTime ) * 1000 )}ms   maxDepth $nodeDepth     $numLoops loops, ${round( loopTime * 1000 )}ms' );
+		printErr( 'player $player, $nodeCount nodes in ${round(( Timer.stamp() - startTime ) * 1000 )}ms   $numLoops loops, ${round( loopTime * 1000 )}ms' );
 		// printErr( 'winnerNode state player ${winnerNode.state.player}\n${winnerNode.state.board}' );
 		final poolNodeIds = [for( node in nodePool.pool ) node.id];
 		final poolStateIds = [for( state in statePool.pool ) state.id];
