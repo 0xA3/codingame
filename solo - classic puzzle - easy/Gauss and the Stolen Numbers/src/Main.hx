@@ -32,12 +32,11 @@ function process( n:Int64, s:Int64, q:Int64 ) {
 	// trace( 'sumSquares $sumSquares  squareDifference $squareDifference' );
 	// trace( 'startHigh $startHigh\n' );
 
-
 	var i = 1i64;
 	var low = i;
 	var high = startHigh;
 
-	while( i < 20 ) {
+	while( true ) {
 		final v1 = low + ( high - low ) / 2;
 		final v2 = sumDifference - v1;
 
@@ -60,7 +59,6 @@ function process( n:Int64, s:Int64, q:Int64 ) {
 			// trace( 'sqSum > squareDifference increase low to $v1\n' );
 			low = v1;
 		}
-		i++;
 	}
 
 	return "0 0";
