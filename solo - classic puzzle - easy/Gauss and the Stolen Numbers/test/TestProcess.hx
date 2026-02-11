@@ -31,7 +31,7 @@ class TestProcess extends buddy.BuddySuite{
 				final ip = extremeEnds;
 				Main.process( ip[0], ip[1], ip[2] ).should.be( "1 100000" );
 			});
-			@include it( "Middle pair", {
+			it( "Middle pair", {
 				final ip = middlePair;
 				Main.process( ip[0], ip[1], ip[2] ).should.be( "50000 50001" );
 			});
@@ -77,7 +77,7 @@ class TestProcess extends buddy.BuddySuite{
 	);
 	
 	final middlePair = parseInput(
-		"1100000
+		"100000
 		4999949999
 		333333333249999"
 	);
