@@ -362,5 +362,4 @@ class TestProcess extends buddy.BuddySuite{
 	final noLinesByNumberResult = parseResult(
 		"No Diffs"
 	);
-
 }
