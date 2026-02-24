@@ -12,7 +12,7 @@ function main() {
 	final cardsPlayer1 = [for( i in 0...m ) readline()];
 	
 	final n = parseInt(readline());
-	final cardsPlayer2 = [for( i in 0...m ) readline()];
+	final cardsPlayer2 = [for( i in 0...n ) readline()];
 	
 	final result = process( [cardsPlayer1, cardsPlayer2] );
 	print( result );
@@ -23,8 +23,11 @@ function process( cardsPlayers:Array<Array<String>> ) {
 
 	var i = 0;
 	while( true ) {
-		if( cardsPlayers[i].length == 0 ) return 'Winner: Player ${1 - i + 1}\n${cardsPlayers[1 - i].length}';
-		if( cardsPlayers[1 - i].length == 0 ) return 'Winner: Player ${i + 1}\n${cardsPlayers[i].length}';
+		var current = i;
+		var other = 1 - i;
+		
+		if( cardsPlayers[current].length == 0 ) return 'Winner: Player ${other + 1}\n${cardsPlayers[other].length}';
+		if( cardsPlayers[other].length == 0 ) return 'Winner: Player ${current + 1}\n${cardsPlayers[current].length}';
 		centralCards.unshift( cardsPlayers[i].shift() );
 
 		var switchPlayers = true;
@@ -38,10 +41,10 @@ function process( cardsPlayers:Array<Array<String>> ) {
 				final precedence = suitsValue[suits[0]] > suitsValue[suits[1]] ? 0 : 1;
 				centralCards.reverse();
 				if( precedence == 0 ) {
-					cardsPlayers[i] = cardsPlayers[i].concat( centralCards );
+					cardsPlayers[current] = cardsPlayers[current].concat( centralCards );
 					switchPlayers = false;
 				} else {
-					cardsPlayers[1 - i] = cardsPlayers[1 - i].concat( centralCards );
+					cardsPlayers[other] = cardsPlayers[other].concat( centralCards );
 				}
 				centralCards.splice( 0, centralCards.length );
 			}
