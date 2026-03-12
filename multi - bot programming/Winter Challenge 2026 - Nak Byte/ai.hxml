@@ -1,4 +1,3 @@
--lib astar
 -lib compiletime
 -lib xa3.format
 -cp ../../codingame_extension/

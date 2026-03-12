@@ -5,13 +5,11 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
-import ai.data.Agent;
 import ai.data.Board;
 import ai.data.Cell;
 import ai.data.Snakebot;
-import ai.data.TAgent;
-import astar.map2d.Direction;
-import astar.map2d.Map2D;
+import ai.versions.AiRandom;
+import ai.versions.AiWait;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -23,34 +21,47 @@ class MainAi {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
 		
-		final ai = new ai.versions.AiWait();
+		final ai = new AiRandom();
 		
-		final myId = parseInt(readline()); // Your player id (0 or 1)
-		final width = parseInt(readline()); // The width of the board
-		final height = parseInt(readline()); // The height of the board
-		final rows = [for( i in 0...height ) readline().split( "" )]; // The current state of the board{
+		final myId = parseInt( readline() ); // Your player id (0 or 1)
+		final width = parseInt( readline() ); // The width of the board
+		final height = parseInt( readline() ); // The height of the board
+		final grid = [for( i in 0...height ) readline().split( "" ).map( s -> s == "." ? Board.EMPTY : Board.WALL )]; // The current state of the board{
+		// printErr( grid.map( s -> s.join( "" ) ).join( "\n" ) );
+		final positions = Pos.createPositions( width, height );
+		final board = new Board( width, height, positions, grid );
 
-		final agents:Map<Int, ai.data.Agent> = [];
-		var myAgentIds = new Set<Int>();
-		var oppAgentIds = new Set<Int>();
+		final snakebots:Map<Int, ai.data.Snakebot> = [];
+		var mySnakebotIds = new Set<Int>();
+		var oppSnakebotIds = new Set<Int>();
 
 		final snakebotsPerPlayer = parseInt(readline()); // The number of your snakebots
-		for( i in 0...snakebotsPerPlayer ) myAgentIds.add( parseInt(readline()) ); // The ids of your snakebots
-		for( i in 0...snakebotsPerPlayer ) oppAgentIds.add( parseInt(readline()) ); // The ids of your opponent's snakebots
+		for( i in 0...snakebotsPerPlayer ) {
+			final snakebotId = parseInt( readline() );
+			mySnakebotIds.add( snakebotId ); // The ids of your snakebots
+			snakebots.set( snakebotId, new Snakebot( snakebotId, [] ) );
+		}
+		for( i in 0...snakebotsPerPlayer ) {
+			final snakebotId = parseInt( readline() );
+			oppSnakebotIds.add( snakebotId); // The ids of your opponent's snakebots
+			snakebots.set( snakebotId, new Snakebot( snakebotId, [] ) );
+		}
+
+		ai.setGlobalInputs( board, snakebots );
 
 		// game loop
 		while( true ) {
 			final startTime = haxe.Timer.stamp();
-			final powerSourceCount = parseInt(readline()); // The number of power sources
+			final powerSourceCount = parseInt( readline() ); // The number of power sources
 			final powerSources = [for( i in 0...powerSourceCount ) {
 				final inputs = readline().split(' ');
 				final x = parseInt(inputs[0]);
 				final y = parseInt(inputs[1]);
-				new Pos( x, y );
+				positions[y][x];
 			}];
 
 			final snakebotCount = parseInt(readline()); // The number of snakebots
-			final snakebots = [for( i in 0...snakebotCount ) {
+			final newSnakebots = [for( i in 0...snakebotCount ) {
 				final inputs = readline().split(" ");
 				final snakebotId = parseInt(inputs[0]);
 				final body = inputs[1];
@@ -59,12 +70,22 @@ class MainAi {
 					final parts = p.split( "," );
 					final x = parseInt( parts[0] );
 					final y = parseInt( parts[1] );
-					new Pos( x, y );
+					if( x > 0 && y > 0 ) positions[y][x] else null;
 				}];
-				new Snakebot( snakebotId, bodyPositions );
+				snakebotId => new Snakebot( snakebotId, bodyPositions );
 			}];
+
+			for( snakebotId in snakebots.keys() ) if( !newSnakebots.exists( snakebotId )) {
+				snakebots.remove( snakebotId );
+				mySnakebotIds.remove( snakebotId );
+				oppSnakebotIds.remove( snakebotId );
+			}
+
+			for( newSnakebot in newSnakebots ) snakebots[newSnakebot.id].updateBody( newSnakebot.bodyPositions );
+
+			board.createFrameGrid( powerSources, mySnakebotIds, snakebots );
 			
-			ai.setInputs( myAgentIds, oppAgentIds );
+			ai.setInputs( mySnakebotIds, oppSnakebotIds );
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );

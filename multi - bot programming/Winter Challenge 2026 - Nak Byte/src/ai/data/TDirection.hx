@@ -1,8 +1,8 @@
 package ai.data;
 
-enum TDirection {
-	Up;
-	Left;
-	Down;
-	Right;
+enum abstract TDirection(String) {
+	var Up = "UP";
+	var Left = "LEFT";
+	var Down = "DOWN";
+	var Right = "RIGHT";
 }

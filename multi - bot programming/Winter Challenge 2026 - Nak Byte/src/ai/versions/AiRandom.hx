@@ -5,15 +5,15 @@ import Math.round;
 import Std.int;
 import ai.data.Board;
 import ai.data.Snakebot;
+import ai.data.TDirection;
 import ya.Set;
 
-class AiWait {
+class AiRandom {
 
 	public var aiId = "AiWait";
 	final outputs:Array<String> = [];
 	
 	var allSnakebots:Map<Int, ai.data.Snakebot> = [];
-	var agents:Map<Int, ai.data.Snakebot> = [];
 	var board:Board;
 	
 	var mySnakebots:Array<Snakebot> = [];
@@ -21,21 +21,32 @@ class AiWait {
 
 	var turn = 1;
 
+
 	public function new() { }
 
-	public function setGlobalInputs( agents:Map<Int, ai.data.Snakebot>, board:Board ) {
-		this.agents = agents;
+	public function setGlobalInputs( board:Board, allSnakebots:Map<Int, Snakebot> ) {
 		this.board = board;
+		this.allSnakebots = allSnakebots;
 	}
 
 	public function setInputs( mySnakebotIds:Set<Int>, oppSnakebotIds:Set<Int> ) {
 		mySnakebots  = [for( id in mySnakebotIds.toArray() ) allSnakebots[id]];
 		oppSnakebots = [for( id in oppSnakebotIds.toArray() ) allSnakebots[id]];
+
+		printErr( mySnakebotIds.toArray().join( "," ) );
 		
 		outputs.splice( 0, outputs.length );
 	}
 
 	public function process() {
-		return "Wait";
+		final outputs = [];
+		for( snakebot in mySnakebots ) {
+			var randomTurn = Std.random( 3 ) - 1;
+			snakebot.turn( randomTurn );
+			outputs.push( '${snakebot.id} ${snakebot.direction}' );
+		}
+		turn++;
+		
+		return outputs.join( ";" );
 	}
 }
