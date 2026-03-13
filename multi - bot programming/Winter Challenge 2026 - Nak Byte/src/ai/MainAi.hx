@@ -19,7 +19,7 @@ class MainAi {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
 		
-		final ai = new ai.versions.Ai1();
+		final ai = new ai.versions.Ai2();
 		
 		final myId = parseInt( readline() ); // Your player id (0 or 1)
 		final gridWidth = parseInt( readline() ); // The width of the board
