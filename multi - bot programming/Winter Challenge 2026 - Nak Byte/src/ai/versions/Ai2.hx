@@ -47,10 +47,12 @@ class Ai2 {
 	public function process() {
 		final outputs = [];
 		for( snakebot in mySnakebots ) {
+			// final snakebot = mySnakebots[0];
 			printErr( 'get path for snakebot ${snakebot.id} with head at ${outputPos( snakebot.bodyPositions[0] )}' );
 			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions.length );
 			if( path.length > 0 ) {
 				printErr( [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+				
 				final nextPosition = path[0];
 				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
 				if( nextPosition.x < snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Left );
@@ -58,9 +60,11 @@ class Ai2 {
 				if( nextPosition.x > snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Right );
 			}
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
-			printErr( '${snakebot.id} ${snakebot.direction}' );
+			printErr( 'snakebot ${snakebot.id} ${snakebot.direction}' );
 		}
 		turn++;
+		
+		// return "";
 		
 		return outputs.join( ";" );
 	}
@@ -69,10 +73,11 @@ class Ai2 {
 		visitedMap.clear();
 		
 		final frontier = new List<PathNode>();
-		final headNode = new PathNode( headPos, PathNode.NO_NODE, 0 );
+		final headNode = new PathNode( headPos, PathNode.NO_NODE, 0, length );
 		frontier.add( headNode );
 		visitedMap.set( headNode.pos, true );
 
+		var loops = 0;
 		while( !frontier.isEmpty() ) {
 			final current = frontier.pop();
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
@@ -81,12 +86,25 @@ class Ai2 {
 			}
 
 			final neighbors = board.getNeighbors( current.pos, length );
+			// if( loops == 0 ) printErr( "neighbors " + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			for( neighbor in neighbors ) {
-				if( !visitedMap.exists( neighbor ) ) {
-					final nextNode = new PathNode( neighbor, current, current.depth + 1 );
-					visitedMap.set( nextNode.pos, true );
-					frontier.add( nextNode );
+				final isUpperNeighbor = neighbor.y < current.pos.y;
+				final cellBelowNeighbor = board.currentBoard[neighbor.y + 1][neighbor.x];
+				final isOnGround = cellBelowNeighbor != Board.EMPTY;
+				final groundDistance = isOnGround ? 0 : current.groundDistance + 1;
+
+				if( loops == 0 ) {
+					printErr( 'neighbor at ${outputPos( neighbor )} isOnGround: $isOnGround, groundDistance: $groundDistance' );
 				}
+
+				loops++;
+
+				if( visitedMap.exists( neighbor )) continue;
+				if( isUpperNeighbor && groundDistance > length ) continue;
+				
+				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
+				visitedMap.set( nextNode.pos, true );
+				frontier.add( nextNode );
 			}
 			
 		}
