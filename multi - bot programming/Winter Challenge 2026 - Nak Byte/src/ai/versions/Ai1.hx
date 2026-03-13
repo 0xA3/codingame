@@ -47,13 +47,14 @@ class Ai1 {
 	public function process() {
 		final outputs = [];
 		for( snakebot in mySnakebots ) {
-			// final snakebot = mySnakebots[0];
+			printErr( 'get path for snakebot ${snakebot.id} with head at ${outputPos( snakebot.bodyPositions[0] )}' );
 			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions.length );
 			if( path.length > 0 ) {
+				printErr( [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 				final nextPosition = path[0];
-				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Up );
+				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
 				if( nextPosition.x < snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Left );
-				if( nextPosition.y < snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
+				if( nextPosition.y < snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Up );
 				if( nextPosition.x > snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Right );
 			}
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
@@ -72,7 +73,6 @@ class Ai1 {
 		frontier.add( headNode );
 		visitedMap.set( headNode.pos, true );
 
-		printErr( 'getPath for head ${outputPos( headPos )} length $length' );
 		while( !frontier.isEmpty() ) {
 			final current = frontier.pop();
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
@@ -99,7 +99,7 @@ class Ai1 {
 		final path = new List<Pos>();
 		var tempNode = node;
 		while( tempNode.previous != PathNode.NO_NODE ) {
-			path.add( node.pos );
+			path.add( tempNode.pos );
 			tempNode = tempNode.previous;
 		}
 		
