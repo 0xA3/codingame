@@ -22,6 +22,7 @@ class Ai2 {
 	var oppSnakebots:Array<Snakebot> = [];
 
 	var turn = 1;
+	var currentSnakebotId:Int;
 
 	final visitedMap = new Map<Pos, Bool>();
 
@@ -45,13 +46,14 @@ class Ai2 {
 	}
 
 	public function process() {
+		printErr( 'turn: $turn' );
 		final outputs = [];
 		for( snakebot in mySnakebots ) {
-			// final snakebot = mySnakebots[0];
-			printErr( 'get path for snakebot ${snakebot.id} with head at ${outputPos( snakebot.bodyPositions[0] )}' );
+			currentSnakebotId = snakebot.id;
+			// printErr( 'get path for snakebot ${snakebot.id} with head at ${outputPos( snakebot.bodyPositions[0] )}' );
 			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions.length );
 			if( path.length > 0 ) {
-				printErr( [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+				// printErr( "path: " + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 				
 				final nextPosition = path[0];
 				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
@@ -60,7 +62,7 @@ class Ai2 {
 				if( nextPosition.x > snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Right );
 			}
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
-			printErr( 'snakebot ${snakebot.id} ${snakebot.direction}' );
+			// printErr( 'snakebot ${snakebot.id} ${snakebot.direction}' );
 		}
 		turn++;
 		
@@ -85,16 +87,17 @@ class Ai2 {
 				return backtrack( current );
 			}
 
-			final neighbors = board.getNeighbors( current.pos, length );
+			final neighbors = board.getNeighbors( current.pos );
 			// if( loops == 0 ) printErr( "neighbors " + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			for( neighbor in neighbors ) {
 				final isUpperNeighbor = neighbor.y < current.pos.y;
-				final cellBelowNeighbor = board.currentBoard[neighbor.y + 1][neighbor.x];
+				var cellBelowNeighbor = neighbor.y + 1 >= board.boardHeight ? Board.EMPTY : board.currentBoard[neighbor.y + 1][neighbor.x];
+
 				final isOnGround = cellBelowNeighbor != Board.EMPTY;
 				final groundDistance = isOnGround ? 0 : current.groundDistance + 1;
 
 				if( loops == 0 ) {
-					printErr( 'neighbor at ${outputPos( neighbor )} isOnGround: $isOnGround, groundDistance: $groundDistance' );
+					// printErr( 'neighbor at ${outputPos( neighbor )} isOnGround: $isOnGround, groundDistance: $groundDistance' );
 				}
 
 				loops++;
@@ -103,6 +106,7 @@ class Ai2 {
 				if( isUpperNeighbor && groundDistance > length ) continue;
 				
 				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
+
 				visitedMap.set( nextNode.pos, true );
 				frontier.add( nextNode );
 			}

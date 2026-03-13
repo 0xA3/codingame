@@ -8,10 +8,8 @@ import ya.Set;
 class Board {
 	
 	public static inline var EMPTY = 0;
-	public static inline var WALL = 1;
-	public static inline var POWER_SOURCE = 2;
-	public static inline var ME = 100;
-	public static inline var OPPONENT = 200;
+	public static inline var WALL = 100;
+	public static inline var POWER_SOURCE = 200;
 
 	public final gridWidth:Int;
 	public final gridHeight:Int;
@@ -73,13 +71,13 @@ class Board {
 		for( snakebot in snakebots ) {
 			for( i in 0...snakebot.bodyPositions.length ) {// ignore last element as it moves 1 cell forward
 				final pos = snakebot.bodyPositions[i];
-				currentBoard[pos.y][pos.x] = mySnakeBotIds.contains( snakebot.id ) ? ME + i : OPPONENT + i;
+				currentBoard[pos.y][pos.x] = i + 1;
 			}
 		}
 		// outputBoard();
 	}
 
-	public function getNeighbors( pos:Pos, length:Int ) {
+	public function getNeighbors( pos:Pos ) {
 		// if( neighborsCache.exists( pos )) return neighborsCache[pos];
 		final neighbors = [];
 		for( neighborOffset in neighborOffsets ) {
@@ -113,9 +111,7 @@ class Board {
 					case EMPTY: ".";
 					case WALL: "#";
 					case POWER_SOURCE: "P";
-					default:
-						if( cell >= OPPONENT ) "O";
-						else "M";
+					default: '$cell';
 				}
 			}].join( "" );
 			printErr( line );
