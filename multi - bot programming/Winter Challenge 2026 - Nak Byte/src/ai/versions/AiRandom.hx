@@ -21,6 +21,7 @@ class AiRandom {
 
 	var turn = 1;
 
+	final directions = [TDirection.Up, TDirection.Left, TDirection.Down, TDirection.Right];
 
 	public function new() { }
 
@@ -41,8 +42,14 @@ class AiRandom {
 	public function process() {
 		final outputs = [];
 		for( snakebot in mySnakebots ) {
+			final directionIndex = directions.indexOf( snakebot.direction );
 			var randomTurn = Std.random( 3 ) - 1;
-			snakebot.turn( randomTurn );
+			
+			final nextDirectionIndex = ( directions.length + directionIndex + randomTurn ) % directions.length;
+			final nextDirection = directions[nextDirectionIndex];
+			
+			snakebot.changeDirection( nextDirection );
+			
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
 		}
 		turn++;
