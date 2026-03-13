@@ -80,7 +80,7 @@ class Ai1 {
 				return backtrack( current );
 			}
 
-			final neighbors = board.getNeighbors( current.pos );
+			final neighbors = board.getNeighbors( current.pos, length );
 			for( neighbor in neighbors ) {
 				if( !visitedMap.exists( neighbor ) ) {
 					final nextNode = new PathNode( neighbor, current, current.depth + 1 );

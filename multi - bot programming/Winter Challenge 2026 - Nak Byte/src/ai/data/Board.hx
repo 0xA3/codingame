@@ -29,7 +29,7 @@ class Board {
 	public final center:Pos;
 	final neighborOffsets = Pos.createNeighborOffsets();
 
-	final neighborsCache:Map<Pos, Array<Pos>> = [];
+	// final neighborsCache:Map<Pos, Array<Pos>> = [];
 
 	public function new(
 		gridWidth:Int,
@@ -66,7 +66,7 @@ class Board {
 	}
 
 	public function populateGrid( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
-		neighborsCache.clear();
+		// neighborsCache.clear();
 		
 		for( y in 0...boardHeight ) for( x in 0...boardWidth ) currentBoard[y][x] = emptyBoard[y][x];
 		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
@@ -79,8 +79,8 @@ class Board {
 		// outputBoard();
 	}
 
-	public function getNeighbors( pos:Pos ) {
-		if( neighborsCache.exists( pos )) return neighborsCache[pos];
+	public function getNeighbors( pos:Pos, length:Int ) {
+		// if( neighborsCache.exists( pos )) return neighborsCache[pos];
 		final neighbors = [];
 		for( neighborOffset in neighborOffsets ) {
 			final nextX = pos.x + neighborOffset.x;
@@ -91,7 +91,7 @@ class Board {
 			final cell = currentBoard[neighborPosition.y][neighborPosition.x];
 			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
 		}
-		neighborsCache.set( pos, neighbors );
+		// neighborsCache.set( pos, neighbors );
 
 		return neighbors;
 	}
