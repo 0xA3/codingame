@@ -50,7 +50,7 @@ class Board {
 		return center.manhattanDistance( pos );
 	}
 
-	public function createFrameGrid( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
+	public function populateGrid( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
 		for( y in 0...height ) for( x in 0...width ) frameGrid[y][x] = grid[y][x];
 		for( powerSource in powerSources ) frameGrid[powerSource.y][powerSource.x] = POWER_SOURCE;
 		for( snakebot in snakebots ) {
@@ -58,7 +58,6 @@ class Board {
 				if( pos != null ) frameGrid[pos.y][pos.x] = mySnakeBotIds.contains( snakebot.id ) ? ME : OPPONENT;
 			}
 		}
-
 		// printErr( frameGrid.map( row -> row.map( cell -> cell ).join( "" ) ).join( "\n" ) );
 	}
 

@@ -8,9 +8,9 @@ import ai.data.Snakebot;
 import ai.data.TDirection;
 import ya.Set;
 
-class AiRandom {
+class Ai1 {
 
-	public var aiId = "AiRandom";
+	public var aiId = "Ai1";
 	final outputs:Array<String> = [];
 	
 	var allSnakebots:Map<Int, ai.data.Snakebot> = [];
@@ -42,13 +42,6 @@ class AiRandom {
 	public function process() {
 		final outputs = [];
 		for( snakebot in mySnakebots ) {
-			final directionIndex = directions.indexOf( snakebot.direction );
-			var randomTurn = Std.random( 3 ) - 1;
-			
-			final nextDirectionIndex = ( directions.length + directionIndex + randomTurn ) % directions.length;
-			final nextDirection = directions[nextDirectionIndex];
-			
-			snakebot.changeDirection( nextDirection );
 			
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
 		}

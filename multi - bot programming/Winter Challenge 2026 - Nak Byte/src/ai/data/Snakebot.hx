@@ -7,7 +7,7 @@ class Snakebot {
 	public final id:Int;
 	public final bodyPositions:Array<Pos>;
 
-	public var direction:TDirection;
+	public var direction = TDirection.Up;
 
 	public function new( id:Int, bodyPositions:Array<Pos> ) {
 		this.id = id;

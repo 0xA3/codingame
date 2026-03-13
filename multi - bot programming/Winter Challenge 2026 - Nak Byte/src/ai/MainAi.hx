@@ -8,8 +8,6 @@ import Std.parseInt;
 import ai.data.Board;
 import ai.data.Cell;
 import ai.data.Snakebot;
-import ai.versions.AiRandom;
-import ai.versions.AiWait;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -21,7 +19,7 @@ class MainAi {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
 		
-		final ai = new AiRandom();
+		final ai = new ai.versions.Ai1();
 		
 		final myId = parseInt( readline() ); // Your player id (0 or 1)
 		final gridWidth = parseInt( readline() ); // The width of the board
@@ -92,7 +90,7 @@ class MainAi {
 
 			for( newSnakebot in newSnakebots ) snakebots[newSnakebot.id].updateBody( newSnakebot.bodyPositions );
 
-			board.createFrameGrid( powerSources, mySnakebotIds, snakebots );
+			board.populateGrid( powerSources, mySnakebotIds, snakebots );
 			
 			ai.setInputs( mySnakebotIds, oppSnakebotIds );
 			final output = ai.process();
