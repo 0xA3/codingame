@@ -24,12 +24,20 @@ class MainAi {
 		final ai = new AiRandom();
 		
 		final myId = parseInt( readline() ); // Your player id (0 or 1)
-		final width = parseInt( readline() ); // The width of the board
-		final height = parseInt( readline() ); // The height of the board
-		final grid = [for( i in 0...height ) readline().split( "" ).map( s -> s == "." ? Board.EMPTY : Board.WALL )]; // The current state of the board{
-		// printErr( grid.map( s -> s.join( "" ) ).join( "\n" ) );
-		final positions = Pos.createPositions( width, height );
-		final board = new Board( width, height, positions, grid );
+		final gridWidth = parseInt( readline() ); // The width of the board
+		final gridHeight = parseInt( readline() ); // The height of the board
+		final grid = [for( i in 0...gridHeight ) readline().split( "" ).map( s -> s == "." ? Board.EMPTY : Board.WALL )]; // The current state of the board{
+
+		final marginX = gridWidth;
+		final marginY = gridHeight;
+
+		final boardWidth = marginX * 2 + gridWidth;
+		final boardHeight = marginY * 2 + gridHeight;
+
+		final positions = Pos.createPositions( boardWidth, boardHeight );
+		final marginGrid = createMarginGrid( gridWidth, gridHeight, marginX, marginY, grid );
+
+		final board = new Board( boardWidth, boardHeight, positions, marginGrid );
 
 		final snakebots:Map<Int, ai.data.Snakebot> = [];
 		var mySnakebotIds = new Set<Int>();
@@ -55,8 +63,8 @@ class MainAi {
 			final powerSourceCount = parseInt( readline() ); // The number of power sources
 			final powerSources = [for( i in 0...powerSourceCount ) {
 				final inputs = readline().split(' ');
-				final x = parseInt(inputs[0]);
-				final y = parseInt(inputs[1]);
+				final x = parseInt(inputs[0]) + marginX;
+				final y = parseInt(inputs[1]) + marginY;
 				positions[y][x];
 			}];
 
@@ -68,13 +76,14 @@ class MainAi {
 				final positionStrings = body.split( ":" );
 				final bodyPositions = [for( p in positionStrings ) {
 					final parts = p.split( "," );
-					final x = parseInt( parts[0] );
-					final y = parseInt( parts[1] );
-					if( x > 0 && y > 0 ) positions[y][x] else null;
+					final x = parseInt( parts[0] ) + marginX;
+					final y = parseInt( parts[1] ) + marginY;
+					positions[y][x];
 				}];
 				snakebotId => new Snakebot( snakebotId, bodyPositions );
 			}];
 
+			// remove dead snakebots
 			for( snakebotId in snakebots.keys() ) if( !newSnakebots.exists( snakebotId )) {
 				snakebots.remove( snakebotId );
 				mySnakebotIds.remove( snakebotId );
@@ -92,6 +101,23 @@ class MainAi {
 
 			print( output );
 		}
+	}
+
+	static function createMarginGrid( gridWidth:Int, gridHeight:Int, marginX:Int, marginY:Int, grid:Array<Array<Int>> ) {
+		final marginGrid = [for( y in 0...gridHeight + marginY * 2 ) []];
+		
+		for( y in 0...marginY ) for( x in 0...marginX * 2 + gridWidth ) marginGrid[y].push( Board.EMPTY );
+		
+		for( y in 0...gridHeight ) {
+			for( x in 0...marginX ) marginGrid[y + marginY].push( Board.EMPTY );
+			for( x in 0...gridWidth ) marginGrid[y + marginY].push( grid[y][x] );
+			for( x in 0...marginX ) marginGrid[y + marginY].push( Board.EMPTY );
+		}
+		
+		for( y in 0...marginY ) for( x in 0...marginX * 2 + gridWidth ) marginGrid[y + marginY + gridHeight].push( Board.EMPTY );
+		// printErr( marginGrid.map( s -> s.join( "" ) ).join( "\n" ) );
+		
+		return marginGrid;
 	}
 
 	static function initNeighbors( width:Int, height:Int, positions:Array<Array<Pos>>, cells:Map<Pos, Cell>, tiles:Map<Pos, Int> ) {
