@@ -15,6 +15,7 @@ class Pos {
 		this.y = y;
 	}
 
+	public static function createNeighborOffsets() return [new Pos( 0, -1 ), new Pos( -1, 0 ), new Pos( 0, 1 ), new Pos( 1, 0 )];
 	public static function createPositions( width:Int, height:Int ) return [for( y in 0...height ) [for( x in 0...width ) new Pos( x, y )]];
 
 	public function manhattanDistance( other:Pos ) return abs( x - other.x ) + abs( y - other.y );

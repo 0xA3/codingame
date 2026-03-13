@@ -31,6 +31,7 @@ class MainAi {
 
 		final boardWidth = marginX * 2 + gridWidth;
 		final boardHeight = marginY * 2 + gridHeight;
+		printErr( 'boardWidth ${boardWidth} boardHeight ${boardHeight}' );
 
 		final positions = Pos.createPositions( boardWidth, boardHeight );
 		final marginGrid = createMarginGrid( gridWidth, gridHeight, marginX, marginY, grid );

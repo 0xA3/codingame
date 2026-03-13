@@ -13,37 +13,40 @@ class Board {
 	public static inline var ME = 3;
 	public static inline var OPPONENT = 4;
 
-	public final width:Int;
-	public final height:Int;
+	public final boardWidth:Int;
+	public final boardHeight:Int;
 	public final positions:Array<Array<Pos>>;
-	public final grid:Array<Array<Int>>;
+	public final marginGrid:Array<Array<Int>>;
 	public final frameGrid:Array<Array<Int>>;
 
 	public final halfWidth:Int;
 	public final thirdWidth:Int;
 
 	public final center:Pos;
+	final neighborOffsets = Pos.createNeighborOffsets();
+
+	final neighborsCache:Map<Pos, Array<Pos>> = [];
 
 	public function new(
-		width:Int,
-		height:Int,
+		boardWidth:Int,
+		boardHeight:Int,
 		positions:Array<Array<Pos>>,
-		grid:Array<Array<Int>>
+		marginGrid:Array<Array<Int>>
 	) {
-		this.width = width;
-		this.height = height;
+		this.boardWidth = boardWidth;
+		this.boardHeight = boardHeight;
 		this.positions = positions;
-		this.grid = grid;
+		this.marginGrid = marginGrid;
 
-		frameGrid = [for( y in 0...height ) []];
+		frameGrid = [for( y in 0...boardHeight ) []];
 		
-		center = positions[int( height / 2 )][int( width / 2 )];
-		halfWidth = int( width / 2 );
-		thirdWidth = int( width / 3 );
+		center = positions[int( boardHeight / 2 )][int( boardWidth / 2 )];
+		halfWidth = int( boardWidth / 2 );
+		thirdWidth = int( boardWidth / 3 );
 	}
 
-	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < width && y >= 0 && y < height;
-	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= width || y < 0 || y >= height;
+	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
+	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= boardWidth || y < 0 || y >= boardHeight;
 	
 
 	public function centerDistance( pos:Pos ) {
@@ -51,25 +54,34 @@ class Board {
 	}
 
 	public function populateGrid( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
-		for( y in 0...height ) for( x in 0...width ) frameGrid[y][x] = grid[y][x];
+		neighborsCache.clear();
+		
+		for( y in 0...boardHeight ) for( x in 0...boardWidth ) frameGrid[y][x] = marginGrid[y][x];
 		for( powerSource in powerSources ) frameGrid[powerSource.y][powerSource.x] = POWER_SOURCE;
 		for( snakebot in snakebots ) {
-			for( pos in snakebot.bodyPositions ) {
-				if( pos != null ) frameGrid[pos.y][pos.x] = mySnakeBotIds.contains( snakebot.id ) ? ME : OPPONENT;
+			for( i in 0...snakebot.bodyPositions.length - 1 ) {// ignore last element as it moves 1 cell forward
+				final pos = snakebot.bodyPositions[i];
+				frameGrid[pos.y][pos.x] = mySnakeBotIds.contains( snakebot.id ) ? ME : OPPONENT;
 			}
 		}
 		// printErr( frameGrid.map( row -> row.map( cell -> cell ).join( "" ) ).join( "\n" ) );
 	}
 
-	public function getPath( start:Pos, end:Pos ) {
-		if( start.manhattanDistance( end ) <= 1 ) return [];
+	public function getNeighbors( pos:Pos ) {
+		if( neighborsCache.exists( pos )) return neighborsCache[pos];
+		final neighbors = [];
+		for( neighborOffset in neighborOffsets ) {
+			final nextX = pos.x + neighborOffset.x;
+			final nextY = pos.y + neighborOffset.y;
+			if( checkOutsideBoard( nextX, nextY ) ) continue;
 
-		// final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
-		// if( solveResult.result == Solved ) {
-		// 	return solveResult.path.map( p -> positions[p.y][p.x] );
-		// }
+			final neighborPosition = positions[nextY][nextX];
+			final cell = marginGrid[neighborPosition.y][neighborPosition.x];
+			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
+		}
+		neighborsCache.set( pos, neighbors );
 
-		return [];
+		return neighbors;
 	}
 
 	public function getDistance( start:Pos, end:Pos ) {
@@ -78,7 +90,7 @@ class Board {
 		// final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
 		// if( solveResult.result == Solved ) return solveResult.path.length - 1;
 
-		return width + height;
+		return boardWidth + boardHeight;
 	}
 
 
