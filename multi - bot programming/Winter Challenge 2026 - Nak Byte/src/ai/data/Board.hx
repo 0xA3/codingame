@@ -10,14 +10,18 @@ class Board {
 	public static inline var EMPTY = 0;
 	public static inline var WALL = 1;
 	public static inline var POWER_SOURCE = 2;
-	public static inline var ME = 3;
-	public static inline var OPPONENT = 4;
+	public static inline var ME = 100;
+	public static inline var OPPONENT = 200;
 
+	public final gridWidth:Int;
+	public final gridHeight:Int;
+	public final marginX:Int;
+	public final marginY:Int;
 	public final boardWidth:Int;
 	public final boardHeight:Int;
 	public final positions:Array<Array<Pos>>;
-	public final marginGrid:Array<Array<Int>>;
-	public final frameGrid:Array<Array<Int>>;
+	public final emptyBoard:Array<Array<Int>>;
+	public final currentBoard:Array<Array<Int>>;
 
 	public final halfWidth:Int;
 	public final thirdWidth:Int;
@@ -28,17 +32,25 @@ class Board {
 	final neighborsCache:Map<Pos, Array<Pos>> = [];
 
 	public function new(
+		gridWidth:Int,
+		gridHeight:Int,
+		marginX:Int,
+		marginY:Int,
 		boardWidth:Int,
 		boardHeight:Int,
 		positions:Array<Array<Pos>>,
 		marginGrid:Array<Array<Int>>
 	) {
+		this.gridWidth = gridWidth;
+		this.gridHeight = gridHeight;
+		this.marginX = marginX;
+		this.marginY = marginY;
 		this.boardWidth = boardWidth;
 		this.boardHeight = boardHeight;
 		this.positions = positions;
-		this.marginGrid = marginGrid;
+		this.emptyBoard = marginGrid;
 
-		frameGrid = [for( y in 0...boardHeight ) []];
+		currentBoard = [for( y in 0...boardHeight ) []];
 		
 		center = positions[int( boardHeight / 2 )][int( boardWidth / 2 )];
 		halfWidth = int( boardWidth / 2 );
@@ -56,15 +68,15 @@ class Board {
 	public function populateGrid( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
 		neighborsCache.clear();
 		
-		for( y in 0...boardHeight ) for( x in 0...boardWidth ) frameGrid[y][x] = marginGrid[y][x];
-		for( powerSource in powerSources ) frameGrid[powerSource.y][powerSource.x] = POWER_SOURCE;
+		for( y in 0...boardHeight ) for( x in 0...boardWidth ) currentBoard[y][x] = emptyBoard[y][x];
+		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
 		for( snakebot in snakebots ) {
-			for( i in 0...snakebot.bodyPositions.length - 1 ) {// ignore last element as it moves 1 cell forward
+			for( i in 0...snakebot.bodyPositions.length ) {// ignore last element as it moves 1 cell forward
 				final pos = snakebot.bodyPositions[i];
-				frameGrid[pos.y][pos.x] = mySnakeBotIds.contains( snakebot.id ) ? ME : OPPONENT;
+				currentBoard[pos.y][pos.x] = mySnakeBotIds.contains( snakebot.id ) ? ME + i : OPPONENT + i;
 			}
 		}
-		// printErr( frameGrid.map( row -> row.map( cell -> cell ).join( "" ) ).join( "\n" ) );
+		// outputBoard();
 	}
 
 	public function getNeighbors( pos:Pos ) {
@@ -76,7 +88,7 @@ class Board {
 			if( checkOutsideBoard( nextX, nextY ) ) continue;
 
 			final neighborPosition = positions[nextY][nextX];
-			final cell = marginGrid[neighborPosition.y][neighborPosition.x];
+			final cell = currentBoard[neighborPosition.y][neighborPosition.x];
 			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
 		}
 		neighborsCache.set( pos, neighbors );
@@ -93,7 +105,20 @@ class Board {
 		return boardWidth + boardHeight;
 	}
 
-
-	// public function getNeighborPositions( pos:Pos ) return cells[pos].neighbors.map( cell -> cell.pos );
-	// public function getNeighborCells( pos:Pos ) return cells[pos].neighbors;
+	public function outputBoard() {
+		for( y in marginY...marginY + gridHeight ) {
+			final line = [for( x in marginX...marginX + gridWidth ) {
+				final cell = currentBoard[y][x];
+				switch( cell ) {
+					case EMPTY: ".";
+					case WALL: "#";
+					case POWER_SOURCE: "P";
+					default:
+						if( cell >= OPPONENT ) "O";
+						else "M";
+				}
+			}].join( "" );
+			printErr( line );
+		}
+	}
 }

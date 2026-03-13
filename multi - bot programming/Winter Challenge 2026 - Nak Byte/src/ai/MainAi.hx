@@ -31,12 +31,12 @@ class MainAi {
 
 		final boardWidth = marginX * 2 + gridWidth;
 		final boardHeight = marginY * 2 + gridHeight;
-		printErr( 'boardWidth ${boardWidth} boardHeight ${boardHeight}' );
+		// printErr( 'boardWidth ${boardWidth} boardHeight ${boardHeight}' );
 
 		final positions = Pos.createPositions( boardWidth, boardHeight );
 		final marginGrid = createMarginGrid( gridWidth, gridHeight, marginX, marginY, grid );
 
-		final board = new Board( boardWidth, boardHeight, positions, marginGrid );
+		final board = new Board( gridWidth, gridHeight, marginX, marginY, boardWidth, boardHeight, positions, marginGrid );
 
 		final snakebots:Map<Int, ai.data.Snakebot> = [];
 		var mySnakebotIds = new Set<Int>();
@@ -54,7 +54,7 @@ class MainAi {
 			snakebots.set( snakebotId, new Snakebot( snakebotId, [] ) );
 		}
 
-		ai.setGlobalInputs( board, snakebots );
+		ai.setGlobalInputs( board, snakebots, marginX, marginY );
 
 		// game loop
 		while( true ) {
