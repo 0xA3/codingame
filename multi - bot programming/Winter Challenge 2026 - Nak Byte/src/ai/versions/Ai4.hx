@@ -24,6 +24,8 @@ class Ai4 {
 	var turn = 1;
 	var currentSnakebotId:Int;
 
+	var isLog = false;
+
 	final visitedMap = new Map<Pos, Bool>();
 
 	public function new() { }
@@ -50,10 +52,16 @@ class Ai4 {
 		final outputs = [];
 		for( snakebot in mySnakebots ) {
 			currentSnakebotId = snakebot.id;
-			// printErr( 'get path for snakebot ${snakebot.id} with head at ${outputPos( snakebot.bodyPositions[0] )}' );
-			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions.length );
+			
+			// isLog = turn == 4 && currentSnakebotId == 1;
+			// isLog = currentSnakebotId == 1;
+			
+			
+			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )}' );
+			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
+			
 			if( path.length > 0 ) {
-				// printErr( "path: " + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+				if( isLog ) printErr( "path: " + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 				
 				final nextPosition = path[0];
 				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
@@ -71,50 +79,55 @@ class Ai4 {
 		return outputs.join( ";" );
 	}
 
-	public function getPath( headPos:Pos, length:Int ) {
+	public function getPath( headPos:Pos, tailPos:Pos, length:Int ) {
 		visitedMap.clear();
 		
 		final frontier = new List<PathNode>();
-		final headNode = new PathNode( headPos, PathNode.NO_NODE, 0, length );
+		final headNode = new PathNode( headPos, PathNode.NO_NODE, 0, max( 0, tailPos.y - headPos.y + 1 ));
 		frontier.add( headNode );
 		visitedMap.set( headNode.pos, true );
 
 		while( !frontier.isEmpty() ) {
 			final current = frontier.pop();
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
-				printErr( 'found powerSource at ${outputPos( current.pos )}' );
+				if( isLog ) printErr( 'found powerSource at ${outputPos( current.pos )}' );
 				return backtrack( current );
 			}
-			// if( turn == 3 && currentSnakebotId == 1 ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth}' );
+			
+			// if( isLog) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
 			final neighbors = board.getNeighbors( current.pos, current.depth + 1 );
 			// if( loops == 0 ) printErr( "neighbors " + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			for( neighbor in neighbors ) {
-				// if( turn == 3 && currentSnakebotId == 1 ) {
-					// printErr( 'next neighbor ${outputPos( neighbor )} cell ${board.getCell( neighbor, current.depth + 1 )}' );
-				// }
 				final isUpperNeighbor = neighbor.y < current.pos.y;
-				var cellBelowNeighbor = neighbor.y + 1 >= board.boardHeight ? Board.EMPTY : board.currentBoard[neighbor.y + 1][neighbor.x];
-
-				final isOnGround = cellBelowNeighbor != Board.EMPTY;
+				
+				final isOnGround = getIsOnGround( neighbor, headPos, current.depth + 1 );
 				final groundDistance = isOnGround ? 0 : current.groundDistance + 1;
 
 				if( visitedMap.exists( neighbor )) continue;
 				if( isUpperNeighbor && groundDistance > length ) continue;
-				
+
+				// if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpperNeighbor $isUpperNeighbor groundDistance $groundDistance' );
+
 				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
 
 				visitedMap.set( nextNode.pos, true );
 				frontier.add( nextNode );
 			}
-			
 		}
 		
 		printErr( 'path not found' );
 		return [];
 	}
 
-	public function backtrack( node:PathNode ) {
+	function getIsOnGround( pos:Pos, headPos:Pos, currentDepth:Int ) {
+		final positionBelowNeighbor = pos.y + 1 >= board.boardHeight ? pos : board.positions[pos.y + 1][pos.x];
+		var cellBelowNeighbor = board.getCell( positionBelowNeighbor, currentDepth + 1 );
+
+		return positionBelowNeighbor == headPos ? false : cellBelowNeighbor != Board.EMPTY;
+	}
+
+	function backtrack( node:PathNode ) {
 		final path = new List<Pos>();
 		var tempNode = node;
 		while( tempNode.previous != PathNode.NO_NODE ) {
@@ -126,6 +139,8 @@ class Ai4 {
 		aPath.reverse();
 		return aPath;
 	}
+
+	inline function max( a:Int, b:Int ) return a > b ? a : b;
 
 	public inline function outputPos( pos:Pos ) return '${pos.x - marginX}:${pos.y - marginY}';
 }

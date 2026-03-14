@@ -1,1 +1,5 @@
 seed=5281144954393593000 small map
+
+seed=5624805695819020000 isOnGround Error
+
+seed=-2438856086292557300 small map suicide
