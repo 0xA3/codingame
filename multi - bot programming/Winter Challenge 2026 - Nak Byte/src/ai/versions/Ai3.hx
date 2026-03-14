@@ -53,7 +53,7 @@ class Ai3 {
 			// printErr( 'get path for snakebot ${snakebot.id} with head at ${outputPos( snakebot.bodyPositions[0] )}' );
 			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions.length );
 			if( path.length > 0 ) {
-				// printErr( "path: " + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+				printErr( "path: " + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 				
 				final nextPosition = path[0];
 				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
