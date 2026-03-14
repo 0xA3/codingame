@@ -27,7 +27,7 @@ class Board {
 	public final center:Pos;
 	final neighborOffsets = Pos.createNeighborOffsets();
 
-	final neighborsCache:Map<Pos, Array<Pos>> = [];
+	// final neighborsCache:Map<Pos, Array<Pos>> = [];
 
 	public function new(
 		gridWidth:Int,
@@ -58,28 +58,33 @@ class Board {
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
 	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= boardWidth || y < 0 || y >= boardHeight;
 	
+	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
-	public function centerDistance( pos:Pos ) {
-		return center.manhattanDistance( pos );
-	}
-
-	public function populateGrid( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
-		neighborsCache.clear();
+	public function populateBoard( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
+		// neighborsCache.clear();
 		
 		for( y in 0...boardHeight ) for( x in 0...boardWidth ) currentBoard[y][x] = emptyBoard[y][x];
 		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
 		for( snakebot in snakebots ) {
 			final length = snakebot.bodyPositions.length;
-			for( i in 0...length ) {// ignore last element as it moves 1 cell forward
+			for( i in 0...length ) {
 				final pos = snakebot.bodyPositions[i];
-				currentBoard[pos.y][pos.x] = length - i - 1;
+				currentBoard[pos.y][pos.x] = length - i;
 			}
 		}
-		outputBoard();
+		// outputBoard();
 	}
 
-	public function getNeighbors( pos:Pos ) {
-		if( neighborsCache.exists( pos )) return neighborsCache[pos];
+	public function getCell( pos:Pos, futureTurns:Int ) {
+		final cell = currentBoard[pos.y][pos.x];
+		if( cell == EMPTY ) return EMPTY;
+		if( cell == POWER_SOURCE ) return POWER_SOURCE;
+		if( cell == WALL ) return WALL;
+		else return cell - futureTurns;
+	}
+
+	public function getNeighbors( pos:Pos, depth:Int ) {
+		// if( neighborsCache.exists( pos )) return neighborsCache[pos];
 		final neighbors = [];
 		for( neighborOffset in neighborOffsets ) {
 			final nextX = pos.x + neighborOffset.x;
@@ -87,10 +92,10 @@ class Board {
 			if( checkOutsideBoard( nextX, nextY ) ) continue;
 
 			final neighborPosition = positions[nextY][nextX];
-			final cell = currentBoard[neighborPosition.y][neighborPosition.x];
+			final cell = getCell( neighborPosition, depth );
 			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
 		}
-		neighborsCache.set( pos, neighbors );
+		// neighborsCache.set( pos, neighbors );
 
 		return neighbors;
 	}

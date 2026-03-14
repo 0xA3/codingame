@@ -40,7 +40,7 @@ class Ai3 {
 		mySnakebots  = [for( id in mySnakebotIds.toArray() ) allSnakebots[id]];
 		oppSnakebots = [for( id in oppSnakebotIds.toArray() ) allSnakebots[id]];
 
-		printErr( mySnakebotIds.toArray().join( "," ) );
+		// printErr( mySnakebotIds.toArray().join( "," ) );
 		
 		outputs.splice( 0, outputs.length );
 	}
@@ -53,7 +53,7 @@ class Ai3 {
 			// printErr( 'get path for snakebot ${snakebot.id} with head at ${outputPos( snakebot.bodyPositions[0] )}' );
 			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions.length );
 			if( path.length > 0 ) {
-				printErr( "path: " + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+				// printErr( "path: " + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 				
 				final nextPosition = path[0];
 				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
@@ -79,28 +79,25 @@ class Ai3 {
 		frontier.add( headNode );
 		visitedMap.set( headNode.pos, true );
 
-		var loops = 0;
 		while( !frontier.isEmpty() ) {
 			final current = frontier.pop();
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
 				printErr( 'found powerSource at ${outputPos( current.pos )}' );
 				return backtrack( current );
 			}
-
-			final neighbors = board.getNeighbors( current.pos );
+			// if( turn == 3 && currentSnakebotId == 1 ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth}' );
+			
+			final neighbors = board.getNeighbors( current.pos, current.depth + 1 );
 			// if( loops == 0 ) printErr( "neighbors " + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			for( neighbor in neighbors ) {
+				// if( turn == 3 && currentSnakebotId == 1 ) {
+					// printErr( 'next neighbor ${outputPos( neighbor )} cell ${board.getCell( neighbor, current.depth + 1 )}' );
+				// }
 				final isUpperNeighbor = neighbor.y < current.pos.y;
 				var cellBelowNeighbor = neighbor.y + 1 >= board.boardHeight ? Board.EMPTY : board.currentBoard[neighbor.y + 1][neighbor.x];
 
 				final isOnGround = cellBelowNeighbor != Board.EMPTY;
 				final groundDistance = isOnGround ? 0 : current.groundDistance + 1;
-
-				if( loops == 0 ) {
-					// printErr( 'neighbor at ${outputPos( neighbor )} isOnGround: $isOnGround, groundDistance: $groundDistance' );
-				}
-
-				loops++;
 
 				if( visitedMap.exists( neighbor )) continue;
 				if( isUpperNeighbor && groundDistance > length ) continue;

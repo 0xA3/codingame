@@ -91,7 +91,7 @@ class MainAi {
 
 			for( newSnakebot in newSnakebots ) snakebots[newSnakebot.id].updateBody( newSnakebot.bodyPositions );
 
-			board.populateGrid( powerSources, mySnakebotIds, snakebots );
+			board.populateBoard( powerSources, mySnakebotIds, snakebots );
 			
 			ai.setInputs( mySnakebotIds, oppSnakebotIds );
 			final output = ai.process();
