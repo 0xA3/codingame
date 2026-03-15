@@ -22,21 +22,21 @@ class MainAi {
 		final ai = new ai.versions.Ai5();
 		
 		final myId = parseInt( readline() ); // Your player id (0 or 1)
-		final gridWidth = parseInt( readline() ); // The width of the board
-		final gridHeight = parseInt( readline() ); // The height of the board
-		final grid = [for( i in 0...gridHeight ) readline().split( "" ).map( s -> s == "." ? Board.EMPTY : Board.WALL )]; // The current state of the board{
+		final boardWidth = parseInt( readline() ); // The width of the board
+		final boardHeight = parseInt( readline() ); // The height of the board
+		final grid = [for( i in 0...boardHeight ) readline().split( "" ).map( s -> s == "." ? Board.EMPTY : Board.WALL )]; // The current state of the board{
 
-		final marginX = gridWidth;
-		final marginY = gridHeight;
+		final marginX = boardWidth;
+		final marginY = boardHeight;
 
-		final boardWidth = marginX * 2 + gridWidth;
-		final boardHeight = marginY * 2 + gridHeight;
+		final marginBoardWidth = marginX * 2 + boardWidth;
+		final marginBoardHeight = marginY * 2 + boardHeight;
 		// printErr( 'boardWidth ${boardWidth} boardHeight ${boardHeight}' );
 
-		final positions = Pos.createPositions( boardWidth, boardHeight );
-		final marginGrid = createMarginGrid( gridWidth, gridHeight, marginX, marginY, grid );
+		final positions = Pos.createPositions( marginBoardWidth, marginBoardHeight );
+		final marginGrid = createMarginGrid( boardWidth, boardHeight, marginX, marginY, grid );
 
-		final board = new Board( gridWidth, gridHeight, marginX, marginY, boardWidth, boardHeight, positions, marginGrid );
+		final board = new Board( boardWidth, boardHeight, marginX, marginY, marginBoardWidth, marginBoardHeight, positions, marginGrid );
 
 		final snakebots:Map<Int, ai.data.Snakebot> = [];
 		var mySnakebotIds = new Set<Int>();

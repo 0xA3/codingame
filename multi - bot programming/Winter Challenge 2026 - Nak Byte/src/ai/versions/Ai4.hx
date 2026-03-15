@@ -121,7 +121,7 @@ class Ai4 {
 	}
 
 	function getIsOnGround( pos:Pos, headPos:Pos, currentDepth:Int ) {
-		final positionBelowNeighbor = pos.y + 1 >= board.boardHeight ? pos : board.positions[pos.y + 1][pos.x];
+		final positionBelowNeighbor = pos.y + 1 >= board.marginBoardHeight ? pos : board.positions[pos.y + 1][pos.x];
 		var cellBelowNeighbor = board.getCell( positionBelowNeighbor, currentDepth + 1 );
 
 		return positionBelowNeighbor == headPos ? false : cellBelowNeighbor != Board.EMPTY;

@@ -11,12 +11,12 @@ class Board {
 	public static inline var WALL = 100;
 	public static inline var POWER_SOURCE = 200;
 
-	public final gridWidth:Int;
-	public final gridHeight:Int;
-	public final marginX:Int;
-	public final marginY:Int;
 	public final boardWidth:Int;
 	public final boardHeight:Int;
+	public final marginX:Int;
+	public final marginY:Int;
+	public final marginBoardWidth:Int;
+	public final marginBoardHeight:Int;
 	public final positions:Array<Array<Pos>>;
 	public final emptyBoard:Array<Array<Int>>;
 	public final currentBoard:Array<Array<Int>>;
@@ -25,45 +25,44 @@ class Board {
 	public final thirdWidth:Int;
 
 	public final center:Pos;
-	final neighborOffsets = Pos.createNeighborOffsets();
+	public final neighborOffsets = Pos.createNeighborOffsets();
 
-	// final neighborsCache:Map<Pos, Array<Pos>> = [];
+	var turn = 0;
 
 	public function new(
-		gridWidth:Int,
-		gridHeight:Int,
-		marginX:Int,
-		marginY:Int,
 		boardWidth:Int,
 		boardHeight:Int,
+		marginX:Int,
+		marginY:Int,
+		marginBoardWidth:Int,
+		marginBoardHeight:Int,
 		positions:Array<Array<Pos>>,
 		marginGrid:Array<Array<Int>>
 	) {
-		this.gridWidth = gridWidth;
-		this.gridHeight = gridHeight;
-		this.marginX = marginX;
-		this.marginY = marginY;
 		this.boardWidth = boardWidth;
 		this.boardHeight = boardHeight;
+		this.marginX = marginX;
+		this.marginY = marginY;
+		this.marginBoardWidth = marginBoardWidth;
+		this.marginBoardHeight = marginBoardHeight;
 		this.positions = positions;
 		this.emptyBoard = marginGrid;
 
-		currentBoard = [for( y in 0...boardHeight ) []];
+		currentBoard = [for( y in 0...marginBoardHeight ) []];
 		
-		center = positions[int( boardHeight / 2 )][int( boardWidth / 2 )];
-		halfWidth = int( boardWidth / 2 );
-		thirdWidth = int( boardWidth / 3 );
+		center = positions[int( marginBoardHeight / 2 )][int( marginBoardWidth / 2 )];
+		halfWidth = int( marginBoardWidth / 2 );
+		thirdWidth = int( marginBoardWidth / 3 );
 	}
 
-	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
-	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= boardWidth || y < 0 || y >= boardHeight;
+	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < marginBoardWidth && y >= 0 && y < marginBoardHeight;
+	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= marginBoardWidth || y < 0 || y >= marginBoardHeight;
 	
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
 	public function populateBoard( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
-		// neighborsCache.clear();
 		
-		for( y in 0...boardHeight ) for( x in 0...boardWidth ) currentBoard[y][x] = emptyBoard[y][x];
+		for( y in 0...marginBoardHeight ) for( x in 0...marginBoardWidth ) currentBoard[y][x] = emptyBoard[y][x];
 		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
 		for( snakebot in snakebots ) {
 			final length = snakebot.bodyPositions.length;
@@ -73,6 +72,25 @@ class Board {
 			}
 		}
 		// outputBoard();
+
+		turn++;
+	}
+
+	public function getNeighbors( pos:Pos, depth:Int ) {
+		final neighbors = [];
+		
+		for( neighborOffset in neighborOffsets ) {
+			final nextX = pos.x + neighborOffset.x;
+			final nextY = pos.y + neighborOffset.y;
+			if( checkOutsideBoard( nextX, nextY ) ) continue;
+
+			final neighborPosition = positions[nextY][nextX];
+			final cell = getCell( neighborPosition, depth );
+
+			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
+		}
+
+		return neighbors;
 	}
 
 	public function getCell( pos:Pos, futureTurns:Int ) {
@@ -83,35 +101,20 @@ class Board {
 		else return cell - futureTurns;
 	}
 
-	public function getNeighbors( pos:Pos, depth:Int ) {
-		// if( neighborsCache.exists( pos )) return neighborsCache[pos];
-		final neighbors = [];
-		for( neighborOffset in neighborOffsets ) {
-			final nextX = pos.x + neighborOffset.x;
-			final nextY = pos.y + neighborOffset.y;
-			if( checkOutsideBoard( nextX, nextY ) ) continue;
-
-			final neighborPosition = positions[nextY][nextX];
-			final cell = getCell( neighborPosition, depth );
-			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
-		}
-		// neighborsCache.set( pos, neighbors );
-
-		return neighbors;
-	}
-
 	public function getDistance( start:Pos, end:Pos ) {
 		if( start.manhattanDistance( end ) <= 1 ) return 1;
 
 		// final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
 		// if( solveResult.result == Solved ) return solveResult.path.length - 1;
 
-		return boardWidth + boardHeight;
+		return marginBoardWidth + marginBoardHeight;
 	}
 
+	public inline function outputPos( pos:Pos ) return '${pos.x - marginX}:${pos.y - marginY}';
+
 	public function outputBoard() {
-		for( y in marginY...marginY + gridHeight ) {
-			final line = [for( x in marginX...marginX + gridWidth ) {
+		for( y in marginY...marginY + boardHeight ) {
+			final line = [for( x in marginX...marginX + boardWidth ) {
 				final cell = currentBoard[y][x];
 				switch( cell ) {
 					case EMPTY: ".";
