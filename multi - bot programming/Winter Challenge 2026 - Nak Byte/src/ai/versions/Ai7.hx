@@ -62,12 +62,12 @@ class Ai7 {
 			
 			// isLog = true;
 			// isLog = currentSnakebot.id == 0;
-			// isLog = currentSnakebot.id == 6 && turn == 13;
+			isLog = turn == 1 && currentSnakebot.id == 0;
 			
 			
 			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} tail ${outputPos( snakebot.bodyPositions[snakebot.bodyPositions.length - 1] )} length ${snakebot.bodyPositions.length}' );
 			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
-			if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+			// if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 			
 			if( path.length > 0 ) {
 				final nextPosition = path[0];
@@ -105,7 +105,7 @@ class Ai7 {
 			final current = frontier.pop();
 			if( current.depth > board.boardWidth ) break;
 			
-			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance} isHeadInsideBoard $isHeadInsideBoard' );
+			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
 				if( isLog ) printErr( 'found path to powerSource ${outputPos( current.pos )}' );
@@ -155,7 +155,7 @@ class Ai7 {
 			if( isHeadInsideBoard ) {
 				if( board.checkOutsideBoard( nextX, nextY ) ) continue;
 			} else {
-				if( board.checkOutsideMarginBoard( nextX, nextY ) ) continue;
+				if( board.checkOutsideMarginBoard( nextX, nextY ) ) continue; // TODO ensure bird reenters board
 			}
 
 			final neighborPosition = board.positions[nextY][nextX];
