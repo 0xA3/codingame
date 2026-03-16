@@ -10,9 +10,9 @@ import ai.data.TDirection;
 import xa3.math.Pos;
 import ya.Set;
 
-class Ai6 {
+class Ai7 {
 
-	public var aiId = "Ai6";
+	public var aiId = "Ai7";
 	final outputs:Array<String> = [];
 	
 	var board:Board;
