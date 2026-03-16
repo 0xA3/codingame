@@ -1,6 +1,7 @@
 package ai.versions;
 
 import CodinGame.printErr;
+import ai.algorithm.MinPriorityQueue;
 import ai.data.Board.EMPTY;
 import ai.data.Board.POWER_SOURCE;
 import ai.data.Board;
@@ -96,13 +97,13 @@ class Ai7 {
 
 		for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 		
-		final frontier = new List<PathNode>();
+		final frontier = new MinPriorityQueue<PathNode>( compareDepthAndGroundDistance );
 		final headNode = new PathNode( headPos, PathNode.NO_NODE, 0, max( 0, tailPos.y - headPos.y ));
-		frontier.add( headNode );
+		frontier.insert( headNode );
 		visitedMap.set( headNode.pos, true );
 
 		while( !frontier.isEmpty() ) {
-			final current = frontier.pop();
+			final current = frontier.delMin();
 			if( current.depth > board.boardWidth ) break;
 			
 			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
@@ -133,7 +134,7 @@ class Ai7 {
 				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
 
 				visitedMap.set( nextNode.pos, true );
-				frontier.add( nextNode );
+				frontier.insert( nextNode );
 			}
 		}
 		
@@ -204,6 +205,14 @@ class Ai7 {
 		return aPath;
 	}
 
+	inline function compareDepthAndGroundDistance( a:PathNode, b:PathNode ) {
+		if( a.depth > b.depth ) return true;
+		if( a.depth < b.depth ) return false;
+
+		if( a.groundDistance > b.groundDistance ) return true;
+		return false;
+	}
+	
 	inline function max( a:Int, b:Int ) return a > b ? a : b;
 	inline function min( a:Int, b:Int ) return a < b ? a : b;
 

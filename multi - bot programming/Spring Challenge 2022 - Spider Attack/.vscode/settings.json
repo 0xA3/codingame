@@ -1,6 +1,6 @@
 {
 	"editor.codeActionsOnSave": {
-	"source.sortImports": true
+		"source.sortImports": "explicit"
 	},
 	"liveServer.settings.root": "/bin/",
 	"liveServer.settings.AdvanceCustomBrowserCmdLine": "C:/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe"
