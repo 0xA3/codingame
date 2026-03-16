@@ -62,15 +62,14 @@ class Ai6 {
 			
 			// isLog = true;
 			// isLog = currentSnakebot.id == 0;
-			// isLog = turn == 1 && currentSnakebot.id == 0;
+			isLog = currentSnakebot.id == 6 && turn == 13;
 			
 			
-			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )}' );
+			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} tail ${outputPos( snakebot.bodyPositions[snakebot.bodyPositions.length - 1] )} length ${snakebot.bodyPositions.length}' );
 			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
+			if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 			
 			if( path.length > 0 ) {
-				// if( isLog ) printErr( "path: " + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
-				
 				final nextPosition = path[0];
 				targetCells.set( nextPosition, true );
 
@@ -91,6 +90,10 @@ class Ai6 {
 
 	function getPath( headPos:Pos, tailPos:Pos, length:Int ) {
 		visitedMap.clear();
+		pathToTail.splice( 0, pathToTail.length );
+		
+		final isHeadInsideBoard = board.checkInsideBoard( headPos.x, headPos.y );
+
 		for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 		
 		final frontier = new List<PathNode>();
@@ -98,13 +101,11 @@ class Ai6 {
 		frontier.add( headNode );
 		visitedMap.set( headNode.pos, true );
 
-		pathToTail.slice( 0, pathToTail.length );
-
 		while( !frontier.isEmpty() ) {
 			final current = frontier.pop();
 			if( current.depth > board.boardWidth ) break;
 			
-			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance} isHeadInsideBoard $isHeadInsideBoard' );
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
 				if( isLog ) printErr( 'found path to powerSource ${outputPos( current.pos )}' );
@@ -116,7 +117,7 @@ class Ai6 {
 				backtrack( current, pathToTail ); // add positions to pathToTail
 			}
 
-			final neighbors = getNeighbors( current.pos, current.depth + 1, tailPos );
+			final neighbors = getNeighbors( current.pos, current.depth + 1, tailPos, isHeadInsideBoard );
 			// if( isLog ) printErr( "neighbors " + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			
 			for( neighbor in neighbors ) {
@@ -127,7 +128,7 @@ class Ai6 {
 
 				if( isUpperNeighbor && groundDistance > length ) continue;
 
-				if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpperNeighbor $isUpperNeighbor groundDistance $groundDistance' );
+				if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} groundDistance $groundDistance' );
 
 				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
 
@@ -136,20 +137,26 @@ class Ai6 {
 			}
 		}
 		
-		printErr( 'path to power source not found' );
-		if( pathToTail.length == 0 ) printErr( 'pathToTail not found' );
-		else printErr( 'chasing tail' );
+		printErr( 'id ${currentSnakebot.id} path to power source not found' );
+		if( pathToTail.length == 0 ) printErr( 'id ${currentSnakebot.id} pathToTail not found' );
+		else {
+			printErr( 'id ${currentSnakebot.id} chasing tail' );
+		}
 
 		return pathToTail;
 	}
 	
-	function getNeighbors( pos:Pos, depth:Int, tailPos:Pos) {
+	function getNeighbors( pos:Pos, depth:Int, tailPos:Pos, isHeadInsideBoard:Bool ) {
 		final neighbors = [];
 		
 		for( neighborOffset in board.neighborOffsets ) {
 			final nextX = pos.x + neighborOffset.x;
 			final nextY = pos.y + neighborOffset.y;
-			if( board.checkOutsideBoard( nextX, nextY ) ) continue;
+			if( isHeadInsideBoard ) {
+				if( board.checkOutsideBoard( nextX, nextY ) ) continue;
+			} else {
+				if( board.checkOutsideMarginBoard( nextX, nextY ) ) continue;
+			}
 
 			final neighborPosition = board.positions[nextY][nextX];
 			final cell = board.getCell( neighborPosition, depth );

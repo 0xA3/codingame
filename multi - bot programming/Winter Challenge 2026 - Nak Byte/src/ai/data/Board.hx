@@ -55,8 +55,9 @@ class Board {
 		thirdWidth = int( marginBoardWidth / 3 );
 	}
 
-	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < marginBoardWidth && y >= 0 && y < marginBoardHeight;
-	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= marginBoardWidth || y < 0 || y >= marginBoardHeight;
+	public function checkInsideBoard( x:Int, y:Int ) return x >= marginX && x < marginX + boardWidth && y >= 0 && y < marginY + boardHeight;
+	public function checkOutsideBoard( x:Int, y:Int ) return x < marginX || x >= marginX + boardWidth || y < 0 || y >= marginY + boardHeight;
+	public function checkOutsideMarginBoard( x:Int, y:Int ) return x < 0 || x >= marginBoardWidth || y < 0 || y >= marginY + boardHeight;
 	
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
