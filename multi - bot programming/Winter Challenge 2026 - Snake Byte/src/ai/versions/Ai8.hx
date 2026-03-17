@@ -40,7 +40,6 @@ class Ai8 {
 		this.allSnakebots = allSnakebots;
 		this.marginX = marginX;
 		this.marginY = marginY;
-		
 	}
 
 	public function setInputs( mySnakebotIds:Set<Int>, oppSnakebotIds:Set<Int> ) {
@@ -61,9 +60,9 @@ class Ai8 {
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			
-			// isLog = true;
+			isLog = true;
 			// isLog = currentSnakebot.id == 0;
-			isLog = turn == 14 && currentSnakebot.id == 2;
+			// isLog = turn == 14 && currentSnakebot.id == 2;
 			
 			
 			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} tail ${outputPos( snakebot.bodyPositions[snakebot.bodyPositions.length - 1] )} length ${snakebot.bodyPositions.length}' );

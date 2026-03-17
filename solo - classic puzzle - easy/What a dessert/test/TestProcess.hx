@@ -9,7 +9,7 @@ using StringTools;
 using buddy.Should;
 
 @:access(Main)
-class TestProcess extends buddy.BuddySuite{
+class TestProcess extends buddy.BuddySuite {
 
 	public function new() {
 
