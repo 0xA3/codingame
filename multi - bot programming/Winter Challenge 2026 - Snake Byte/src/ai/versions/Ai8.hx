@@ -60,7 +60,7 @@ class Ai8 {
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			
-			isLog = true;
+			// isLog = true;
 			// isLog = currentSnakebot.id == 0;
 			// isLog = turn == 14 && currentSnakebot.id == 2;
 			
@@ -105,7 +105,7 @@ class Ai8 {
 			final current = frontier.delMin();
 			if( current.depth > board.boardWidth ) break;
 			
-			// if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
 				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
@@ -117,7 +117,10 @@ class Ai8 {
 				backtrack( current, pathToTail ); // add positions to pathToTail
 			}
 
-			final neighbors = getNeighbors( current.pos, current.depth + 1, tailPos, isHeadInsideBoard );
+			final neighbors = current.groundDistance < length
+				? getNeighbors( current.pos, current.depth + 1, tailPos, isHeadInsideBoard )
+				: []; // if cell is higher than length, no neighbors
+			
 			// if( isLog ) printErr( "neighbors " + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			
 			for( neighbor in neighbors ) {
@@ -125,13 +128,13 @@ class Ai8 {
 				
 				final isUpperNeighbor = neighbor.y < current.pos.y;
 				final groundDistance = getGroundDistance( neighbor, current.depth, current.groundDistance, length );
+				
+				if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
 
-				// if( isUpperNeighbor && groundDistance > length ) continue;
 				if( groundDistance > length ) continue;
 
-				// if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} groundDistance $groundDistance' );
-
 				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
+				if( isLog ) printErr( 'add' );
 
 				visitedMap.set( nextNode.pos, true );
 				frontier.insert( nextNode );

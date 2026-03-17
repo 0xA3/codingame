@@ -71,7 +71,7 @@ class Board {
 				currentBoard[pos.y][pos.x] = length - i;
 			}
 		}
-		outputBoard();
+		// printErr( outputBoard());
 
 		turn++;
 	}
