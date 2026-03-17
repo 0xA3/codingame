@@ -53,7 +53,7 @@ class TestSearch extends buddy.BuddySuite {
 				ai.process().should.be( "0 LEFT" );
 			});
 			
-			@include it( "step to power", {
+			it( "step to power", {
 				final ip = stepToPower;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 

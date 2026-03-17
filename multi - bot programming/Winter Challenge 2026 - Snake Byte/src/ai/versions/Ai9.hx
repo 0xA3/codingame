@@ -6,6 +6,7 @@ import ai.data.Board.EMPTY;
 import ai.data.Board.POWER_SOURCE;
 import ai.data.Board;
 import ai.data.PathNode;
+import ai.data.SnakePath;
 import ai.data.Snakebot;
 import ai.data.TDirection;
 import xa3.math.Pos;
@@ -55,19 +56,42 @@ class Ai9 {
 
 	public function process() {
 		printErr( 'turn: $turn' );
+		// isLog = true;
+		// isLog = currentSnakebot.id == 0;
+		// isLog = turn == 14 && currentSnakebot.id == 2;
 		final outputs = [];
 		
+		final maxPaths = mySnakebots.length;
+
+		final snakePaths = [];
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			
-			// isLog = true;
-			// isLog = currentSnakebot.id == 0;
-			// isLog = turn == 14 && currentSnakebot.id == 2;
-			
-			
 			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} tail ${outputPos( snakebot.bodyPositions[snakebot.bodyPositions.length - 1] )} length ${snakebot.bodyPositions.length}' );
-			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
-			if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+			final paths = getPaths( maxPaths, snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
+
+			for( path in paths ) {
+				final snakePath = new SnakePath( snakebot.id, path.length, path[path.length - 1], path );
+				snakePaths.push( snakePath );
+			}
+		}
+
+		snakePaths.sort(( a, b ) -> b.distance - a.distance );
+		final snakePathMap:Map<Int, Array<Pos>> = [];
+		final targetSet = new Set<Pos>();
+		
+		for( snakePath in snakePaths ) {
+			if( snakePathMap.exists( snakePath.snakeId )) continue;
+			if( targetSet.contains( snakePath.targetPos )) continue;
+			
+			snakePathMap.set( snakePath.snakeId, snakePath.path );
+			targetSet.add( snakePath.targetPos );
+
+		}
+
+		for( id => path in snakePathMap ) {
+			if( isLog ) printErr( 'Id $id path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+			final snakebot = allSnakebots[id];
 			
 			if( path.length > 0 ) {
 				final nextPosition = path[0];
@@ -81,6 +105,7 @@ class Ai9 {
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
 			// printErr( 'snakebot ${snakebot.id} ${snakebot.direction}' );
 		}
+
 		turn++;
 		
 		// return "";
@@ -88,14 +113,16 @@ class Ai9 {
 		return outputs.join( ";" );
 	}
 
-	function getPath( headPos:Pos, tailPos:Pos, length:Int ) {
+	function getPaths( maxPaths:Int, headPos:Pos, tailPos:Pos, length:Int ) {
 		visitedMap.clear();
 		pathToTail.splice( 0, pathToTail.length );
 		
 		final isHeadInsideBoard = board.checkInsideBoard( headPos.x, headPos.y );
 
 		for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
-		
+
+		final paths = [];
+
 		final frontier = new MinPriorityQueue<PathNode>( compareDepthAndGroundDistance );
 		final headNode = new PathNode( headPos, PathNode.NO_NODE, 0, max( 0, tailPos.y - headPos.y ));
 		frontier.insert( headNode );
@@ -109,7 +136,9 @@ class Ai9 {
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
 				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
-				return backtrack( current, [] ); // add backtrack positions to empty array
+				final path = backtrack( current, [] );
+				paths.push( path ); // add backtrack positions to empty array
+				if( path.length >= maxPaths ) break;
 			}
 
 			if( current.pos == tailPos ) {
@@ -141,15 +170,17 @@ class Ai9 {
 			}
 		}
 		
+		if( paths.length > 0 ) return paths;
+
 		printErr( 'id ${currentSnakebot.id} path to power source not found' );
 		if( pathToTail.length == 0 ) printErr( 'id ${currentSnakebot.id} pathToTail not found' );
 		else {
 			printErr( 'id ${currentSnakebot.id} chasing tail' );
-			return pathToTail;
+			return [pathToTail];
 		}
 
 		printErr( 'id ${currentSnakebot.id} go to any free neighbor' );
-		return getNeighbors( headPos, 0, tailPos, isHeadInsideBoard );
+		return [getNeighbors( headPos, 0, tailPos, isHeadInsideBoard )];
 	}
 	
 	function getNeighbors( pos:Pos, depth:Int, tailPos:Pos, isHeadInsideBoard:Bool ) {
