@@ -63,12 +63,12 @@ class Ai8 {
 			
 			// isLog = true;
 			// isLog = currentSnakebot.id == 0;
-			isLog = turn == 1 && currentSnakebot.id == 0;
+			isLog = turn == 14 && currentSnakebot.id == 2;
 			
 			
 			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} tail ${outputPos( snakebot.bodyPositions[snakebot.bodyPositions.length - 1] )} length ${snakebot.bodyPositions.length}' );
 			final path = getPath( snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
-			// if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+			if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 			
 			if( path.length > 0 ) {
 				final nextPosition = path[0];
@@ -106,15 +106,15 @@ class Ai8 {
 			final current = frontier.delMin();
 			if( current.depth > board.boardWidth ) break;
 			
-			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			// if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
-				if( isLog ) printErr( 'found path to powerSource ${outputPos( current.pos )}' );
+				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
 				return backtrack( current, [] ); // add backtrack positions to empty array
 			}
 
 			if( current.pos == tailPos ) {
-				if( isLog ) printErr( 'found tail at ${outputPos( current.pos )}' );
+				if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( current.pos )}' );
 				backtrack( current, pathToTail ); // add positions to pathToTail
 			}
 
@@ -127,9 +127,10 @@ class Ai8 {
 				final isUpperNeighbor = neighbor.y < current.pos.y;
 				final groundDistance = getGroundDistance( neighbor, current.depth, current.groundDistance, length );
 
-				if( isUpperNeighbor && groundDistance > length ) continue;
+				// if( isUpperNeighbor && groundDistance > length ) continue;
+				if( groundDistance > length ) continue;
 
-				if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} groundDistance $groundDistance' );
+				// if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} groundDistance $groundDistance' );
 
 				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
 
@@ -142,9 +143,11 @@ class Ai8 {
 		if( pathToTail.length == 0 ) printErr( 'id ${currentSnakebot.id} pathToTail not found' );
 		else {
 			printErr( 'id ${currentSnakebot.id} chasing tail' );
+			return pathToTail;
 		}
 
-		return pathToTail;
+		printErr( 'id ${currentSnakebot.id} go to any free neighbor' );
+		return getNeighbors( headPos, 0, tailPos, isHeadInsideBoard );
 	}
 	
 	function getNeighbors( pos:Pos, depth:Int, tailPos:Pos, isHeadInsideBoard:Bool ) {

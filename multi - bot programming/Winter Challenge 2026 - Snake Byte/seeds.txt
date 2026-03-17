@@ -5,3 +5,5 @@ seed=5624805695819020000 isOnGround Error
 seed=-2438856086292557300 small map suicide
 
 seed=2839399327959173600 ground distance and collision
+
+seed=-4820051622276445000 ground distance adjustment

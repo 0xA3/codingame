@@ -8,6 +8,7 @@ import Std.parseInt;
 import ai.data.Board;
 import ai.data.Cell;
 import ai.data.Snakebot;
+import ai.factory.BoardFactory;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -24,19 +25,9 @@ class MainAi {
 		final myId = parseInt( readline() ); // Your player id (0 or 1)
 		final boardWidth = parseInt( readline() ); // The width of the board
 		final boardHeight = parseInt( readline() ); // The height of the board
-		final grid = [for( i in 0...boardHeight ) readline().split( "" ).map( s -> s == "." ? Board.EMPTY : Board.WALL )]; // The current state of the board{
+		final lines = [for( i in 0...boardHeight ) readline()];
 
-		final marginX = boardWidth;
-		final marginY = boardHeight;
-
-		final marginBoardWidth = marginX * 2 + boardWidth;
-		final marginBoardHeight = marginY * 2 + boardHeight;
-		// printErr( 'boardWidth ${boardWidth} boardHeight ${boardHeight}' );
-
-		final positions = Pos.createPositions( marginBoardWidth, marginBoardHeight );
-		final marginGrid = createMarginGrid( boardWidth, boardHeight, marginX, marginY, grid );
-
-		final board = new Board( boardWidth, boardHeight, marginX, marginY, marginBoardWidth, marginBoardHeight, positions, marginGrid );
+		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines );
 
 		final snakebots:Map<Int, ai.data.Snakebot> = [];
 		var mySnakebotIds = new Set<Int>();
@@ -54,7 +45,7 @@ class MainAi {
 			snakebots.set( snakebotId, new Snakebot( snakebotId, [] ) );
 		}
 
-		ai.setGlobalInputs( board, snakebots, marginX, marginY );
+		ai.setGlobalInputs( board, snakebots, board.marginX, board.marginY );
 
 		// game loop
 		while( true ) {
@@ -62,9 +53,9 @@ class MainAi {
 			final powerSourceCount = parseInt( readline() ); // The number of power sources
 			final powerSources = [for( i in 0...powerSourceCount ) {
 				final inputs = readline().split(' ');
-				final x = parseInt(inputs[0]) + marginX;
-				final y = parseInt(inputs[1]) + marginY;
-				positions[y][x];
+				final x = parseInt(inputs[0]) + board.marginX;
+				final y = parseInt(inputs[1]) + board.marginY;
+				board.positions[y][x];
 			}];
 
 			final snakebotCount = parseInt(readline()); // The number of snakebots
@@ -75,9 +66,9 @@ class MainAi {
 				final positionStrings = body.split( ":" );
 				final bodyPositions = [for( p in positionStrings ) {
 					final parts = p.split( "," );
-					final x = parseInt( parts[0] ) + marginX;
-					final y = parseInt( parts[1] ) + marginY;
-					positions[y][x];
+					final x = parseInt( parts[0] ) + board.marginX;
+					final y = parseInt( parts[1] ) + board.marginY;
+					board.positions[y][x];
 				}];
 				snakebotId => new Snakebot( snakebotId, bodyPositions );
 			}];
@@ -99,55 +90,6 @@ class MainAi {
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
 
 			print( output );
-		}
-	}
-
-	static function createMarginGrid( gridWidth:Int, gridHeight:Int, marginX:Int, marginY:Int, grid:Array<Array<Int>> ) {
-		final marginGrid = [for( y in 0...gridHeight + marginY * 2 ) []];
-		
-		for( y in 0...marginY ) for( x in 0...marginX * 2 + gridWidth ) marginGrid[y].push( Board.EMPTY );
-		
-		for( y in 0...gridHeight ) {
-			for( x in 0...marginX ) marginGrid[y + marginY].push( Board.EMPTY );
-			for( x in 0...gridWidth ) marginGrid[y + marginY].push( grid[y][x] );
-			for( x in 0...marginX ) marginGrid[y + marginY].push( Board.EMPTY );
-		}
-		
-		for( y in 0...marginY ) for( x in 0...marginX * 2 + gridWidth ) marginGrid[y + marginY + gridHeight].push( Board.EMPTY );
-		// printErr( marginGrid.map( s -> s.join( "" ) ).join( "\n" ) );
-		
-		return marginGrid;
-	}
-
-	static function initNeighbors( width:Int, height:Int, positions:Array<Array<Pos>>, cells:Map<Pos, Cell>, tiles:Map<Pos, Int> ) {
-		for( cell in cells ) {
-			final pos = cell.pos;
-
-			final x1 = pos.x - 1;
-			final y1 = pos.y;
-			final x2 = pos.x + 1;
-			final y2 = pos.y;
-			final x3 = pos.x;
-			final y3 = pos.y - 1;
-			final x4 = pos.x;
-			final y4 = pos.y + 1;
-
-			if( x1 >= 0 ) {
-				final neighborPos = positions[y1][x1];
-				if( tiles[neighborPos] == 0 ) cell.addNeighbor( cells[neighborPos] );
-			}
-			if( x2 < width ) {
-				final neighborPos = positions[y2][x2];
-				if( tiles[neighborPos] == 0 ) cell.addNeighbor( cells[neighborPos] );
-			}
-			if( y3 >= 0 ) {
-				final neighborPos = positions[y3][x3];
-				if( tiles[neighborPos] == 0 ) cell.addNeighbor( cells[positions[y3][x3]] );
-			}
-			if( y4 < height ) {
-				final neighborPos = positions[y4][x4];
-				if( tiles[neighborPos] == 0 ) cell.addNeighbor( cells[positions[y4][x4]] );
-			}
 		}
 	}
 }

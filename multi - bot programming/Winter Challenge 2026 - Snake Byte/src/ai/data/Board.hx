@@ -62,7 +62,6 @@ class Board {
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
 	public function populateBoard( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
-		
 		for( y in 0...marginBoardHeight ) for( x in 0...marginBoardWidth ) currentBoard[y][x] = emptyBoard[y][x];
 		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
 		for( snakebot in snakebots ) {
@@ -72,7 +71,7 @@ class Board {
 				currentBoard[pos.y][pos.x] = length - i;
 			}
 		}
-		// outputBoard();
+		outputBoard();
 
 		turn++;
 	}
@@ -114,8 +113,8 @@ class Board {
 	public inline function outputPos( pos:Pos ) return '${pos.x - marginX}:${pos.y - marginY}';
 
 	public function outputBoard() {
-		for( y in marginY...marginY + boardHeight ) {
-			final line = [for( x in marginX...marginX + boardWidth ) {
+		final output = [for( y in marginY...marginY + boardHeight )
+			[for( x in marginX...marginX + boardWidth ) {
 				final cell = currentBoard[y][x];
 				switch( cell ) {
 					case EMPTY: ".";
@@ -123,8 +122,9 @@ class Board {
 					case POWER_SOURCE: "P";
 					default: '$cell';
 				}
-			}].join( "" );
-			printErr( line );
-		}
+			}].join( "" )
+		];
+		
+		return output.join( "\n" );
 	}
 }
