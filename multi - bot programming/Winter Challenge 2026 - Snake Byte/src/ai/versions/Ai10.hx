@@ -59,7 +59,7 @@ class Ai10 {
 		
 		// isLog = true;
 		// isLog = currentSnakebot.id == 0;
-		// isLog = turn == 1;
+		isLog = turn == 1;
 		// isLog = turn == 14 && currentSnakebot.id == 2;
 		
 		final outputs = [];
@@ -85,13 +85,13 @@ class Ai10 {
 		final targetSet = new Set<Pos>();
 		
 		for( snakePath in snakePaths ) {
-			if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
+			// if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
 			if( snakePathMap.exists( snakePath.snakeId )) continue;
 			if( snakePath.targetPos == Pos.NO_POS || targetSet.contains( snakePath.targetPos )) continue;
 			
 			snakePathMap.set( snakePath.snakeId, snakePath.path );
 			targetSet.add( snakePath.targetPos );
-			if( isLog ) printErr( 'snake ${snakePath.snakeId} go to ${outputPos( snakePath.targetPos )}' );
+			if( isLog ) printErr( 'snake ${snakePath.snakeId} target ${outputPos( snakePath.targetPos )}' );
 		}
 
 		for( id => path in snakePathMap ) {
@@ -99,9 +99,12 @@ class Ai10 {
 			final snakebot = allSnakebots[id];
 			
 			if( path.length > 0 ) {
-				final nextPosition = path[0];
+				final preferredNextPosition = path[0];
+				final nextPosition = getNextPosition( snakebot.bodyPositions[0], preferredNextPosition );
 				targetCells.set( nextPosition, true );
 
+				if( isLog ) printErr( 'snakebot ${snakebot.id} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
+				
 				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
 				if( nextPosition.x < snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Left );
 				if( nextPosition.y < snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Up );
@@ -207,6 +210,31 @@ class Ai10 {
 		}
 
 		return neighbors;
+	}
+
+	function getNextPosition( pos:Pos, preferredNextPos:Pos ) {
+		if( !targetCells.exists( preferredNextPos )) return preferredNextPos;
+		
+		final neighbors = [];
+		for( neighborOffset in board.neighborOffsets ) {
+			final nextX = pos.x + neighborOffset.x;
+			final nextY = pos.y + neighborOffset.y;
+
+			final neighborPosition = board.positions[nextY][nextX];
+			final cell = board.getCell( neighborPosition, 0 );
+
+			if( targetCells.exists( neighborPosition )) continue;
+			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
+		}
+
+		if( neighbors.length == 0 ) return Pos.NO_POS;
+		neighbors.sort(( a, b ) -> {
+			final distanceA = board.getDistance( a, preferredNextPos );
+			final distanceB = board.getDistance( b, preferredNextPos );
+			return distanceA - distanceB;
+		});
+
+		return neighbors[0];
 	}
 
 	inline function getGroundDistance( pos:Pos, currentDepth:Int, currentGroundDistance:Int, length:Int ) {
