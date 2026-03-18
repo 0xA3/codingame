@@ -12,7 +12,7 @@ import ai.data.TDirection;
 import xa3.math.Pos;
 import ya.Set;
 
-class Ai11 {
+class Ai12 {
 
 	final outputs:Array<String> = [];
 	
