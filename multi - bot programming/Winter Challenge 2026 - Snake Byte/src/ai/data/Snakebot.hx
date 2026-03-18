@@ -9,8 +9,9 @@ class Snakebot {
 	public final id:Int;
 	public final bodyPositions:Array<Pos> = [];
 	public final bodyPositionsMap:Map<Pos, Bool> = [];
-
+	
 	public var direction = TDirection.Up;
+	public var isFalling = true;
 
 	public function new( id:Int, bodyPositions:Array<Pos> ) {
 		this.id = id;

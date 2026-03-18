@@ -52,8 +52,22 @@ class Ai12 {
 		mySnakebots.sort(( a, b ) -> b.bodyPositions.length - a.bodyPositions.length );
 		for( snakebot in mySnakebots ) unassignedSnakebots.set( snakebot, true );
 
+		for( snakebot in mySnakebots ) snakebot.isFalling = checkSnakebotFalling( snakebot );
+		for( snakebot in oppSnakebots ) snakebot.isFalling = checkSnakebotFalling( snakebot );
+
 		outputs.splice( 0, outputs.length );
 		targetCells.clear();
+	}
+
+	function checkSnakebotFalling( snakebot:Snakebot ) {
+		for( i in 0...snakebot.bodyPositions.length - 1 ) { // check bodyPositions except tail
+			final groundDistance = getGroundDistance( snakebot, snakebot.bodyPositions[i], 0, 0, snakebot.bodyPositions.length );
+			// printErr( 'snakebot ${snakebot.id} pos ${outputPos( snakebot.bodyPositions[i] )} groundDistance $groundDistance' );
+			if( groundDistance == 0 ) return false;
+		}
+		// printErr( 'snakebot ${snakebot.id} is falling' );
+		
+		return true;
 	}
 
 	public function process() {
@@ -191,7 +205,7 @@ class Ai12 {
 				if( visitedMap.exists( neighbor )) continue;
 				
 				final isUpperNeighbor = neighbor.y < current.pos.y;
-				final groundDistance = getGroundDistance( neighbor, current.depth, current.groundDistance, length );
+				final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, current.groundDistance, length );
 				
 				// if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
 
@@ -264,7 +278,7 @@ class Ai12 {
 		return neighbors[0];
 	}
 
-	inline function getGroundDistance( pos:Pos, currentDepth:Int, currentGroundDistance:Int, length:Int ) {
+	inline function getGroundDistance( snakebot:Snakebot, pos:Pos, currentDepth:Int, currentGroundDistance:Int, length:Int ) {
 		var groundDistance = board.boardHeight;
 		
 		for( i in 0...length ) {
@@ -272,7 +286,7 @@ class Ai12 {
 			if( yBelow >= board.marginBoardHeight ) break;
 			final positionBelow = board.positions[yBelow][pos.x];
 
-			if( currentSnakebot.bodyPositionsMap.exists( positionBelow )) {
+			if( snakebot.bodyPositionsMap.exists( positionBelow )) {
 				continue;
 			}
 			
