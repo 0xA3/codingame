@@ -56,9 +56,12 @@ class Ai9 {
 
 	public function process() {
 		printErr( 'turn: $turn' );
+		
 		// isLog = true;
 		// isLog = currentSnakebot.id == 0;
+		// isLog = turn == 1;
 		// isLog = turn == 14 && currentSnakebot.id == 2;
+		
 		final outputs = [];
 		
 		final maxPaths = mySnakebots.length;
@@ -67,30 +70,32 @@ class Ai9 {
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			
-			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} tail ${outputPos( snakebot.bodyPositions[snakebot.bodyPositions.length - 1] )} length ${snakebot.bodyPositions.length}' );
+			// if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} tail ${outputPos( snakebot.bodyPositions[snakebot.bodyPositions.length - 1] )} length ${snakebot.bodyPositions.length}' );
 			final paths = getPaths( maxPaths, snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
 
 			for( path in paths ) {
-				final snakePath = new SnakePath( snakebot.id, path.length, path[path.length - 1], path );
+				final targetPos = path.length > 0 ? path[path.length - 1] : Pos.NO_POS;
+				final snakePath = new SnakePath( snakebot.id, path.length, targetPos, path );
 				snakePaths.push( snakePath );
 			}
 		}
 
-		snakePaths.sort(( a, b ) -> b.distance - a.distance );
+		snakePaths.sort(( a, b ) -> a.distance - b.distance );
 		final snakePathMap:Map<Int, Array<Pos>> = [];
 		final targetSet = new Set<Pos>();
 		
 		for( snakePath in snakePaths ) {
+			if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
 			if( snakePathMap.exists( snakePath.snakeId )) continue;
-			if( targetSet.contains( snakePath.targetPos )) continue;
+			if( snakePath.targetPos == Pos.NO_POS || targetSet.contains( snakePath.targetPos )) continue;
 			
 			snakePathMap.set( snakePath.snakeId, snakePath.path );
 			targetSet.add( snakePath.targetPos );
-
+			if( isLog ) printErr( 'snake ${snakePath.snakeId} go to ${outputPos( snakePath.targetPos )}' );
 		}
 
 		for( id => path in snakePathMap ) {
-			if( isLog ) printErr( 'Id $id path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+			// if( isLog ) printErr( 'Id $id path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 			final snakebot = allSnakebots[id];
 			
 			if( path.length > 0 ) {
@@ -132,17 +137,17 @@ class Ai9 {
 			final current = frontier.delMin();
 			if( current.depth > board.boardWidth ) break;
 			
-			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			// if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
-				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
+				// if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
 				final path = backtrack( current, [] );
 				paths.push( path ); // add backtrack positions to empty array
 				if( path.length >= maxPaths ) break;
 			}
 
 			if( current.pos == tailPos ) {
-				if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( current.pos )}' );
+				// if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( current.pos )}' );
 				backtrack( current, pathToTail ); // add positions to pathToTail
 			}
 
@@ -158,12 +163,12 @@ class Ai9 {
 				final isUpperNeighbor = neighbor.y < current.pos.y;
 				final groundDistance = getGroundDistance( neighbor, current.depth, current.groundDistance, length );
 				
-				if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
+				// if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
 
 				if( groundDistance > length ) continue;
 
 				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
-				if( isLog ) printErr( 'add' );
+				// if( isLog ) printErr( 'add' );
 
 				visitedMap.set( nextNode.pos, true );
 				frontier.insert( nextNode );
