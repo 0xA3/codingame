@@ -4,6 +4,8 @@ import xa3.math.Pos;
 
 class Snakebot {
 	
+	public static final NO_SNAKEBOT = new Snakebot( -1, [] );
+
 	public final id:Int;
 	public final bodyPositions:Array<Pos> = [];
 	public final bodyPositionsMap:Map<Pos, Bool> = [];

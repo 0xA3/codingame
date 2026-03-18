@@ -25,13 +25,15 @@ class Ai11 {
 	var oppSnakebots:Array<Snakebot> = [];
 
 	var turn = 1;
-	var currentSnakebot:Snakebot;
+	var currentSnakebot = Snakebot.NO_SNAKEBOT;
 
 	var isLog = false;
 
 	final visitedMap = new Map<Pos, Bool>();
 	final targetCells = new Map<Pos, Bool>();
 	final pathToTail:Array<Pos> = [];
+
+	final unassignedSnakebots:Map<Snakebot, Bool> = [];
 
 	public function new() { }
 
@@ -48,7 +50,8 @@ class Ai11 {
 		// printErr( mySnakebotIds.toArray().join( "," ) );
 
 		mySnakebots.sort(( a, b ) -> b.bodyPositions.length - a.bodyPositions.length );
-				
+		for( snakebot in mySnakebots ) unassignedSnakebots.set( snakebot, true );
+
 		outputs.splice( 0, outputs.length );
 		targetCells.clear();
 	}
@@ -57,58 +60,82 @@ class Ai11 {
 		printErr( 'turn: $turn' );
 		
 		// isLog = true;
-		// isLog = currentSnakebot.id == 0;
-		isLog = turn == 1;
+		// isLog = turn == 1;
+		// isLog = currentSnakebot.id == 5;
 		// isLog = turn == 14 && currentSnakebot.id == 2;
 		
 		final outputs = [];
 		
 		final maxPaths = mySnakebots.length;
 
+		//************************************
+		//Step 1 find paths for each snakebot
+		//************************************
 		final snakePaths = [];
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			
-			// if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} tail ${outputPos( snakebot.bodyPositions[snakebot.bodyPositions.length - 1] )} length ${snakebot.bodyPositions.length}' );
 			final paths = getPaths( maxPaths, snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
 
+			// if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )}' );
 			for( path in paths ) {
 				final targetPos = path.length > 0 ? path[path.length - 1] : Pos.NO_POS;
 				final snakePath = new SnakePath( snakebot.id, path.length, targetPos, path );
+				// if( isLog ) printErr( 'Id ${snakebot.id} targetPos ${outputPos( targetPos )}' );
 				snakePaths.push( snakePath );
 			}
 		}
 
+		//************************************
+		// Step 2 assign targets to snakebots
+		//************************************
 		snakePaths.sort(( a, b ) -> a.distance - b.distance );
-		final snakePathMap:Map<Int, Array<Pos>> = [];
+
+		final snakeSet = new Set<Int>();
 		final targetSet = new Set<Pos>();
 		
+		final assignedSnakebots = [];
 		for( snakePath in snakePaths ) {
-			// if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
-			if( snakePathMap.exists( snakePath.snakeId )) continue;
-			if( snakePath.targetPos == Pos.NO_POS || targetSet.contains( snakePath.targetPos )) continue;
+			currentSnakebot = allSnakebots[snakePath.snakeId];
+
+			if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
+			if( snakeSet.contains( snakePath.snakeId )) continue;
+			if( targetSet.contains( snakePath.targetPos )) continue;
 			
-			snakePathMap.set( snakePath.snakeId, snakePath.path );
+			snakeSet.add( snakePath.snakeId );
 			targetSet.add( snakePath.targetPos );
+			
+			assignedSnakebots.push( snakePath );
+			unassignedSnakebots.remove( currentSnakebot );
+
 			if( isLog ) printErr( 'snake ${snakePath.snakeId} target ${outputPos( snakePath.targetPos )}' );
 		}
 
-		for( id => path in snakePathMap ) {
-			// if( isLog ) printErr( 'Id $id path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
-			final snakebot = allSnakebots[id];
-			
-			if( path.length > 0 ) {
-				final preferredNextPosition = path[0];
-				final nextPosition = getNextPosition( snakebot.bodyPositions[0], preferredNextPosition );
-				targetCells.set( nextPosition, true );
+		for( snakebot in unassignedSnakebots.keys() ) assignedSnakebots.push( new SnakePath( snakebot.id, 0, Pos.NO_POS, [] ) );
+		unassignedSnakebots.clear();
 
-				if( isLog ) printErr( 'snakebot ${snakebot.id} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
-				
+		//*******************************************************
+		// Step 3 calculate next best position for each snakebot
+		//*******************************************************
+		for( snakePath in assignedSnakebots ) {
+			final snakebot = allSnakebots[snakePath.snakeId];
+			currentSnakebot = snakebot;
+			// if( isLog ) printErr( 'Id $id path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+			
+			final path = snakePath.path;
+			final preferredNextPosition = path.length > 0 ? path[0] : board.center;
+			final nextPosition = getNextPosition( snakebot.bodyPositions[0], preferredNextPosition );
+			targetCells.set( nextPosition, true );
+
+			if( isLog ) printErr( 'snakebot ${snakebot.id} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
+			
+			if( nextPosition != Pos.NO_POS ) {
 				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
-				if( nextPosition.x < snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Left );
-				if( nextPosition.y < snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Up );
-				if( nextPosition.x > snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Right );
+				else if( nextPosition.x < snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Left );
+				else if( nextPosition.y < snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Up );
+				else if( nextPosition.x > snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Right );
 			}
+
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
 			// printErr( 'snakebot ${snakebot.id} ${snakebot.direction}' );
 		}
@@ -212,7 +239,7 @@ class Ai11 {
 	}
 
 	function getNextPosition( pos:Pos, preferredNextPos:Pos ) {
-		if( !targetCells.exists( preferredNextPos )) return preferredNextPos;
+		if( preferredNextPos != board.center && !targetCells.exists( preferredNextPos )) return preferredNextPos;
 		
 		final neighbors = [];
 		for( neighborOffset in board.neighborOffsets ) {
