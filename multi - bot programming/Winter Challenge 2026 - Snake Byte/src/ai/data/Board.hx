@@ -103,11 +103,7 @@ class Board {
 
 	public function getDistance( start:Pos, end:Pos ) {
 		if( start.manhattanDistance( end ) <= 1 ) return 1;
-
-		// final solveResult = map2D.solve( start.x, start.y, end.x, end.y );
-		// if( solveResult.result == Solved ) return solveResult.path.length - 1;
-
-		return marginBoardWidth + marginBoardHeight;
+		return start.manhattanDistance( end );
 	}
 
 	public inline function outputPos( pos:Pos ) return '${pos.x - marginX}:${pos.y - marginY}';
