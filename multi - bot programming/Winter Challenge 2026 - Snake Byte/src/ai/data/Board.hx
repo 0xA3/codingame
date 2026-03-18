@@ -68,7 +68,7 @@ class Board {
 			final length = snakebot.bodyPositions.length;
 			for( i in 0...length ) {
 				final pos = snakebot.bodyPositions[i];
-				currentBoard[pos.y][pos.x] = snakebot.isFalling ? length : length - i;
+				currentBoard[pos.y][pos.x] = snakebot.isFalling ? 9 : length - i;
 			}
 		}
 		// printErr( outputBoard());

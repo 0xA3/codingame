@@ -13,7 +13,7 @@ class TestSearch extends buddy.BuddySuite {
 				final ip = powerAbove;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 
-				final ai = new ai.versions.Ai8();
+				final ai = new ai.versions.Ai13();
 				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
 				ai.setInputs( ip.myIds, ip.oppIds );
 				
@@ -24,7 +24,7 @@ class TestSearch extends buddy.BuddySuite {
 				final ip = power2Above;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 
-				final ai = new ai.versions.Ai8();
+				final ai = new ai.versions.Ai13();
 				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
 				ai.setInputs( ip.myIds, ip.oppIds );
 				
@@ -35,7 +35,7 @@ class TestSearch extends buddy.BuddySuite {
 				final ip = powerAboveRight;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 
-				final ai = new ai.versions.Ai8();
+				final ai = new ai.versions.Ai13();
 				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
 				ai.setInputs( ip.myIds, ip.oppIds );
 				
@@ -46,7 +46,7 @@ class TestSearch extends buddy.BuddySuite {
 				final ip = powerAboveRightOnPlatform;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 
-				final ai = new ai.versions.Ai8();
+				final ai = new ai.versions.Ai13();
 				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
 				ai.setInputs( ip.myIds, ip.oppIds );
 				
@@ -57,11 +57,22 @@ class TestSearch extends buddy.BuddySuite {
 				final ip = stepToPower;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 
-				final ai = new ai.versions.Ai8();
+				final ai = new ai.versions.Ai13();
 				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
 				ai.setInputs( ip.myIds, ip.oppIds );
 				
 				ai.process().should.be( "0 RIGHT" );
+			});
+			
+			@include it( "two on the left", {
+				final ip = twoOnTheLeft;
+				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
+
+				final ai = new ai.versions.Ai13();
+				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
+				ai.setInputs( ip.myIds, ip.oppIds );
+				
+				ai.process().should.be( "0 LEFT" );
 			});
 		});
 	}
@@ -120,5 +131,17 @@ class TestSearch extends buddy.BuddySuite {
 		.0#...
 		.0....
 		######"
+	);
+	
+	public final twoOnTheLeft = parseInput(
+		"0
+		8
+		6
+		........
+		....0...
+		..P.0...
+		#...0...
+		#...####
+		########"
 	);
 }

@@ -72,6 +72,7 @@ class Ai13 {
 
 	public function process() {
 		printErr( 'turn: $turn' );
+		// printErr( board.outputBoard());
 		
 		// isLog = true;
 		// isLog = turn == 1;
@@ -88,15 +89,15 @@ class Ai13 {
 		final snakePaths = [];
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
-			// final isLog = snakebot.id == 1;
+			// isLog = currentSnakebot.id == 5 && turn == 1;
 			
 			final paths = getPaths( maxPaths, snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
-
-			// if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )}' );
+			
+			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} paths: ${paths.length}' );
 			for( path in paths ) {
 				final targetPos = path.length > 0 ? path[path.length - 1] : Pos.NO_POS;
 				final snakePath = new SnakePath( snakebot.id, path.length, targetPos, path );
-				if( isLog ) printErr( 'Id ${snakebot.id} targetPos ${outputPos( targetPos )}' );
+				if( isLog ) printErr( 'Path for snakebot ${snakebot.id} ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 				snakePaths.push( snakePath );
 			}
 		}
@@ -112,8 +113,10 @@ class Ai13 {
 		final assignedSnakebots = [];
 		for( snakePath in snakePaths ) {
 			currentSnakebot = allSnakebots[snakePath.snakeId];
+			// isLog = false;
+			// isLog = currentSnakebot.id == 5;
 
-			if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
+			// if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
 			if( snakeSet.contains( snakePath.snakeId )) continue;
 			if( targetSet.contains( snakePath.targetPos )) continue;
 			
@@ -123,7 +126,7 @@ class Ai13 {
 			assignedSnakebots.push( snakePath );
 			unassignedSnakebots.remove( currentSnakebot );
 
-			if( isLog ) printErr( 'snake ${snakePath.snakeId} target ${outputPos( snakePath.targetPos )}' );
+			// if( isLog ) printErr( 'snake ${snakePath.snakeId} target ${outputPos( snakePath.targetPos )}' );
 		}
 
 		for( snakebot in unassignedSnakebots.keys() ) assignedSnakebots.push( new SnakePath( snakebot.id, 0, Pos.NO_POS, [] ) );
@@ -135,6 +138,9 @@ class Ai13 {
 		for( snakePath in assignedSnakebots ) {
 			final snakebot = allSnakebots[snakePath.snakeId];
 			currentSnakebot = snakebot;
+			isLog = false;
+			// isLog = currentSnakebot.id == 5;
+			
 			// if( isLog ) printErr( 'Id $id path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 			
 			final path = snakePath.path;
@@ -142,7 +148,7 @@ class Ai13 {
 			final nextPosition = getNextPosition( snakebot.bodyPositions[0], preferredNextPosition );
 			targetCells.set( nextPosition, true );
 
-			if( isLog ) printErr( 'snakebot ${snakebot.id} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
+			// if( isLog ) printErr( 'snakebot ${snakebot.id} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
 			
 			if( nextPosition != Pos.NO_POS ) {
 				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
@@ -165,53 +171,54 @@ class Ai13 {
 	function getPaths( maxPaths:Int, headPos:Pos, tailPos:Pos, length:Int ) {
 		visitedMap.clear();
 		pathToTail.splice( 0, pathToTail.length );
-		
-		final isHeadInsideBoard = board.checkInsideBoard( headPos.x, headPos.y );
-
 		for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
-		final paths = [];
+		if( isLog ) printErr( 'getPaths snakebot ${currentSnakebot.id} maxPaths $maxPaths headPos ${outputPos( headPos )} tailPos ${outputPos( tailPos )} length $length' );
 
 		final frontier = new MinPriorityQueue<PathNode>( compareDepthAndGroundDistance );
 		final headNode = new PathNode( headPos, PathNode.NO_NODE, 0, max( 0, tailPos.y - headPos.y ));
 		frontier.insert( headNode );
 		visitedMap.set( headNode.pos, true );
 
+		final paths = [];
 		while( !frontier.isEmpty() ) {
 			final current = frontier.delMin();
 			if( current.depth > board.boardWidth ) break;
 			
-			// if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
-				// if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
+				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
 				final path = backtrack( current, [] );
 				paths.push( path ); // add backtrack positions to empty array
 				if( path.length >= maxPaths ) break;
 			}
 
 			if( current.pos == tailPos ) {
-				// if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( current.pos )}' );
+				if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( current.pos )}' );
 				backtrack( current, pathToTail ); // add positions to pathToTail
 			}
 
 			final neighbors = current.groundDistance < length
-				? getNeighbors( current.pos, current.depth + 1, tailPos, isHeadInsideBoard )
-				: []; // if cell is higher than length, no neighbors
+				? getNeighbors( current.pos, current.depth + 1, tailPos )
+				: current.groundDistance == length ? getLowerNeighbor( current.pos, current.depth + 1, tailPos )
+					: []; // if cell is higher than length, no neighbors
 			
-			// if( isLog ) printErr( "neighbors " + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
+			if( isLog ) printErr( 'current ${outputPos( current.pos )} neighbors ' + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			
 			for( neighbor in neighbors ) {
 				if( visitedMap.exists( neighbor )) continue;
 				
 				final isUpperNeighbor = neighbor.y < current.pos.y;
 				final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, current.groundDistance, length );
-				
 				// if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
-
 				if( groundDistance > length ) continue;
 
-				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance );
+				final isOutside = board.checkOutsideBoard( neighbor.x, neighbor.y );
+				final outsideCount = isOutside ? current.outsideCount + 1 : 0;
+				if( outsideCount > length - 1 ) continue;
+
+				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance, outsideCount );
 				// if( isLog ) printErr( 'add' );
 
 				visitedMap.set( nextNode.pos, true );
@@ -229,20 +236,16 @@ class Ai13 {
 		}
 
 		printErr( 'id ${currentSnakebot.id} go to any free neighbor' );
-		return [getNeighbors( headPos, 0, tailPos, isHeadInsideBoard )];
+		return [getNeighbors( headPos, 0, tailPos )];
 	}
 	
-	function getNeighbors( pos:Pos, depth:Int, tailPos:Pos, isHeadInsideBoard:Bool ) {
+	function getNeighbors( pos:Pos, depth:Int, tailPos:Pos ) {
 		final neighbors = [];
 		
 		for( neighborOffset in board.neighborOffsets ) {
 			final nextX = pos.x + neighborOffset.x;
 			final nextY = pos.y + neighborOffset.y;
-			if( isHeadInsideBoard ) {
-				if( board.checkOutsideBoard( nextX, nextY ) ) continue;
-			} else {
-				if( board.checkOutsideMarginBoard( nextX, nextY ) ) continue; // TODO ensure bird reenters board
-			}
+			if( board.checkOutsideMarginBoard( nextX, nextY ) ) continue;
 
 			final neighborPosition = board.positions[nextY][nextX];
 			final cell = board.getCell( neighborPosition, depth );
@@ -251,6 +254,15 @@ class Ai13 {
 		}
 
 		return neighbors;
+	}
+
+	function getLowerNeighbor( pos:Pos, depth:Int, tailPos:Pos ) {
+		final nextY = pos.y + 1;
+		final neighborPosition = board.positions[nextY][pos.x];
+		final cell = board.getCell( neighborPosition, depth );
+		if( neighborPosition == tailPos || cell == EMPTY || cell == POWER_SOURCE ) return [neighborPosition];
+		
+		return [];
 	}
 
 	function getNextPosition( pos:Pos, preferredNextPos:Pos ) {

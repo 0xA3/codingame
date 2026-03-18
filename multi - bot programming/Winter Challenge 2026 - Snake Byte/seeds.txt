@@ -9,3 +9,5 @@ seed=2839399327959173600 ground distance and collision
 seed=-4820051622276445000 ground distance adjustment
 
 seed=5292805654677359000 snakebot falling
+
+seed=6105661493734886000 neighbor exclusion

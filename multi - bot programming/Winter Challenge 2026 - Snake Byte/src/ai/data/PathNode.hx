@@ -1,6 +1,5 @@
 package ai.data;
 
-import ai.data.PathNode;
 import xa3.math.Pos;
 
 class PathNode {
@@ -11,13 +10,16 @@ class PathNode {
 	public var previous:PathNode;
 	public var depth:Int;
 	public var groundDistance:Int;
+	public var outsideCount:Int;
 	
-	public function new( pos:Pos, previous:PathNode, depth:Int, groundDistance:Int ) {
+	public function new( pos:Pos, previous:PathNode, depth:Int, groundDistance:Int, outsideCount = 0 ) {
 		this.pos = pos;
 		this.previous = previous;
 		this.depth = depth;
 		this.groundDistance = groundDistance;
+		this.outsideCount = outsideCount;
 	}
 
-	public function toString() return 'pos: $pos, previous: ${previous.pos.x}:${previous.pos.y}';
+	// public function toString() return 'pos: $pos, previous: ${previous.pos.x}:${previous.pos.y}';
+	public function toString() return 'pos: $pos, outsideCount: $outsideCount';
 }

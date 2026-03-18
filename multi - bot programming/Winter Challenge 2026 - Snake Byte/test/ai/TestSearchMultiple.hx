@@ -4,7 +4,7 @@ import test.ai.ParseInput.parseInput;
 
 using buddy.Should;
 
-class TestSearch extends buddy.BuddySuite {
+class TestSearchMultiple extends buddy.BuddySuite {
 	
 	public function new() {
 		
