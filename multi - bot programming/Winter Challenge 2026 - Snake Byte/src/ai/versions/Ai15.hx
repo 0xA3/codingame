@@ -97,7 +97,7 @@ class Ai15 {
 			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} paths: ${paths.length}' );
 			for( path in paths ) {
 				final targetPos = path.length > 0 ? path[path.length - 1] : Pos.NO_POS;
-				final snakePath = new SnakePath( snakebot.id, path.length, targetPos, path );
+				final snakePath = new SnakePath( snakebot, path.length, targetPos, path );
 				if( isLog ) printErr( 'Path for snakebot ${snakebot.id} ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 				snakePaths.push( snakePath );
 			}
@@ -113,31 +113,35 @@ class Ai15 {
 		
 		final assignedSnakebots = [];
 		for( snakePath in snakePaths ) {
-			currentSnakebot = allSnakebots[snakePath.snakeId];
+			final snakebot = snakePath.snakebot;
+			currentSnakebot = snakebot;
+			final snakebotId = currentSnakebot.id;
 			// isLog = true;
 			// isLog = currentSnakebot.id == 5;
 
 			// if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
-			if( snakeSet.contains( snakePath.snakeId )) continue;
+			if( snakeSet.contains( snakebotId )) continue;
 			if( targetSet.contains( snakePath.targetPos )) continue;
 			
-			snakeSet.add( snakePath.snakeId );
+			snakeSet.add( snakebotId );
 			targetSet.add( snakePath.targetPos );
 			
 			assignedSnakebots.push( snakePath );
-			unassignedSnakebots.remove( currentSnakebot );
+			unassignedSnakebots.remove( snakebot );
 
-			if( isLog ) printErr( 'snake ${snakePath.snakeId} target ${outputPos( snakePath.targetPos )}' );
+			if( isLog ) printErr( 'snake ${snakebotId} target ${outputPos( snakePath.targetPos )}' );
 		}
 
-		for( snakebot in unassignedSnakebots.keys() ) assignedSnakebots.push( new SnakePath( snakebot.id, 0, Pos.NO_POS, [] ) );
+		for( snakebot in unassignedSnakebots.keys() ) assignedSnakebots.push( new SnakePath( snakebot, 0, Pos.NO_POS, [] ) );
 		unassignedSnakebots.clear();
+		
+		assignedSnakebots.sort(( a, b ) -> b.path.length - a.path.length );
 
 		//*******************************************************
 		// Step 3 calculate next best position for each snakebot
 		//*******************************************************
 		for( snakePath in assignedSnakebots ) {
-			final snakebot = allSnakebots[snakePath.snakeId];
+			final snakebot = snakePath.snakebot;
 			currentSnakebot = snakebot;
 			// isLog = true;
 			// isLog = currentSnakebot.id == 5;
