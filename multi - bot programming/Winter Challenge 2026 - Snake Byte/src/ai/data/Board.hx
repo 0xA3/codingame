@@ -107,6 +107,10 @@ class Board {
 	}
 
 	public inline function outputPos( pos:Pos ) return '${pos.x - marginX}:${pos.y - marginY}';
+	public function getBoardPos( pos:Pos ) {
+		if( pos.x > marginX && pos.x < marginX + boardWidth && pos.y > marginY && pos.y < marginY + boardHeight ) return positions[pos.y - marginY][pos.x - marginX];
+		return Pos.NO_POS;
+	}
 
 	public function outputBoard() {
 		final output = [for( y in marginY...marginY + boardHeight )

@@ -1,5 +1,6 @@
 package test.ai;
 
+import CodinGame.printErr;
 import test.ai.ParseInput.parseInput;
 
 using buddy.Should;
@@ -78,6 +79,8 @@ class TestSearch extends buddy.BuddySuite {
 			@include it( "over gap", {
 				final ip = overGap;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
+				printErr( ip.board.outputBoard() );
+				printErr( "Power sources " + ip.powerSources.map( p -> ip.board.outputPos( p )).join(",") );
 
 				final ai = new ai.versions.Ai17();
 				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );

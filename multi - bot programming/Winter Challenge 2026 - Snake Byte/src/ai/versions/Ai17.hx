@@ -89,8 +89,8 @@ class Ai17 {
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			// isLog = currentSnakebot.id == 1 && turn >= 21;
-			isLog = currentSnakebot.id == 5;
-			
+			// isLog = currentSnakebot.id == 5;
+
 			final paths = getPaths( maxPaths, snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
 			
 			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} paths: ${paths.length}' );
@@ -191,8 +191,10 @@ class Ai17 {
 			final current = frontier.delMin();
 			if( current.depth > board.boardWidth ) break;
 			
-			// if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
-			if( outputPos( current.pos ).indexOf( "18" ) != -1 ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			isLog = board.getBoardPos( current.pos ).x > 4;
+
+			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			// if( outputPos( current.pos ).indexOf( "18" ) != -1 ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
 				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
