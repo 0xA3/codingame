@@ -5,6 +5,8 @@ import test.ai.ParseInput.parseInput;
 import ya.Set;
 
 using StringTools;
+using buddy.Should;
+
 
 class TestBoard extends buddy.BuddySuite {
 	

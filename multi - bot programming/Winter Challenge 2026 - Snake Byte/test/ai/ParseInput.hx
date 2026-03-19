@@ -6,6 +6,15 @@ import test.Readline.readline;
 import xa3.math.Pos;
 import ya.Set;
 
+typedef ParsedInput = {
+	var myId: Int;
+	var board: ai.data.Board;
+	var powerSources: Array<Pos>;
+	var myIds: Set<Int>;
+	var oppIds: Set<Int>;
+	var snakebots: Map<Int, ai.data.Snakebot>;
+}
+
 class ParseInput {
 	
 	public static function parseInput( input:String ) {

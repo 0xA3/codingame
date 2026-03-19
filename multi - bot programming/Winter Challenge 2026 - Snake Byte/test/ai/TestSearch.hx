@@ -76,7 +76,7 @@ class TestSearch extends buddy.BuddySuite {
 				ai.process().should.be( "0 LEFT" );
 			});
 			
-			@include it( "over gap", {
+			it( "over gap", {
 				final ip = overGap;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 				printErr( ip.board.outputBoard() );

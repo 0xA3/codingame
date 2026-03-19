@@ -28,6 +28,7 @@ class Board {
 	public final neighborOffsets = Pos.createNeighborOffsets();
 
 	var turn = 0;
+	public var powerSources:Array<Pos> = [];
 
 	public function new(
 		boardWidth:Int,
@@ -62,6 +63,7 @@ class Board {
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
 	public function populateBoard( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
+		this.powerSources = powerSources;
 		for( y in 0...marginBoardHeight ) for( x in 0...marginBoardWidth ) currentBoard[y][x] = emptyBoard[y][x];
 		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
 		for( snakebot in snakebots ) {
