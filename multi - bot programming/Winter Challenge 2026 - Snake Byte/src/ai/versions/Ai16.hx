@@ -31,7 +31,6 @@ class Ai16 {
 
 	final visitedMap = new Map<Pos, Bool>();
 	final targetCells = new Map<Pos, Bool>();
-	final pathToTail:Array<Pos> = [];
 
 	final unassignedSnakebots:Map<Snakebot, Bool> = [];
 
@@ -90,7 +89,7 @@ class Ai16 {
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			// isLog = currentSnakebot.id == 1 && turn >= 21;
-			// isLog = currentSnakebot.id == 1;
+			// isLog = currentSnakebot.id == 0;
 			
 			final paths = getPaths( maxPaths, snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
 			
@@ -117,7 +116,8 @@ class Ai16 {
 			currentSnakebot = snakebot;
 			final snakebotId = currentSnakebot.id;
 			// isLog = true;
-			// isLog = currentSnakebot.id == 5;
+			// isLog = currentSnakebot.id == 0;
+			// if( isLog ) printErr( 'Id ${snakebotId} path: ' + [for( pos in snakePath.path ) '${outputPos( pos )}' ].join( "," ) );
 
 			// if( isLog ) printErr( 'snakePath snakeId ${snakePath.snakeId} distance ${snakePath.distance} targetPos ${outputPos( snakePath.targetPos )}' );
 			if( snakeSet.contains( snakebotId )) continue;
@@ -129,7 +129,7 @@ class Ai16 {
 			assignedSnakebots.push( snakePath );
 			unassignedSnakebots.remove( snakebot );
 
-			if( isLog ) printErr( 'snake ${snakebotId} target ${outputPos( snakePath.targetPos )}' );
+			// if( isLog ) printErr( 'Id ${snakebotId} path: ' + [for( pos in snakePath.path ) '${outputPos( pos )}' ].join( "," ) );
 		}
 
 		for( snakebot in unassignedSnakebots.keys() ) assignedSnakebots.push( new SnakePath( snakebot, 0, Pos.NO_POS, [] ) );
@@ -144,22 +144,23 @@ class Ai16 {
 			final snakebot = snakePath.snakebot;
 			currentSnakebot = snakebot;
 			// isLog = true;
-			// isLog = currentSnakebot.id == 5;
+			// isLog = currentSnakebot.id == 0;
 			
-			// if( isLog ) printErr( 'Id $id path: ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+			if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in snakePath.path ) '${outputPos( pos )}' ].join( "," ) );
 			
 			final path = snakePath.path;
 			final preferredNextPosition = path.length > 0 ? path[0] : board.center;
-			final nextPosition = getNextPosition( snakebot.bodyPositions[0], preferredNextPosition );
+			final headPos = snakebot.bodyPositions[0];
+			final nextPosition = getNextPosition( headPos, preferredNextPosition );
 			targetCells.set( nextPosition, true );
 
-			if( isLog ) printErr( 'snakebot ${snakebot.id} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
+			if( isLog ) printErr( 'snakebot ${snakebot.id} head ${outputPos( headPos )} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
 			
 			if( nextPosition != Pos.NO_POS ) {
-				if( nextPosition.y > snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Down );
-				else if( nextPosition.x < snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Left );
-				else if( nextPosition.y < snakebot.bodyPositions[0].y ) snakebot.changeDirection( TDirection.Up );
-				else if( nextPosition.x > snakebot.bodyPositions[0].x ) snakebot.changeDirection( TDirection.Right );
+				if( nextPosition.y > headPos.y ) snakebot.changeDirection( TDirection.Down );
+				else if( nextPosition.x < headPos.x ) snakebot.changeDirection( TDirection.Left );
+				else if( nextPosition.y < headPos.y ) snakebot.changeDirection( TDirection.Up );
+				else if( nextPosition.x > headPos.x ) snakebot.changeDirection( TDirection.Right );
 			}
 
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
@@ -175,7 +176,7 @@ class Ai16 {
 
 	function getPaths( maxPaths:Int, headPos:Pos, tailPos:Pos, length:Int ) {
 		visitedMap.clear();
-		pathToTail.splice( 0, pathToTail.length );
+		final pathToTail = [];
 		for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
 		// if( isLog ) printErr( 'getPaths snakebot ${currentSnakebot.id} maxPaths $maxPaths headPos ${outputPos( headPos )} tailPos ${outputPos( tailPos )} length $length' );
