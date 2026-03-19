@@ -11,3 +11,5 @@ seed=-4820051622276445000 ground distance adjustment
 seed=5292805654677359000 snakebot falling
 
 seed=6105661493734886000 neighbor exclusion
+
+seed=6458472659845361000 power up on the right not found

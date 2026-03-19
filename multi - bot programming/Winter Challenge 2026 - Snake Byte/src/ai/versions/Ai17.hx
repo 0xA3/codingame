@@ -12,7 +12,7 @@ import ai.data.TDirection;
 import xa3.math.Pos;
 import ya.Set;
 
-class Ai16 {
+class Ai17 {
 
 	final outputs:Array<String> = [];
 	
@@ -89,7 +89,7 @@ class Ai16 {
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			// isLog = currentSnakebot.id == 1 && turn >= 21;
-			// isLog = currentSnakebot.id == 0;
+			isLog = currentSnakebot.id == 5;
 			
 			final paths = getPaths( maxPaths, snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
 			
@@ -192,6 +192,7 @@ class Ai16 {
 			if( current.depth > board.boardWidth ) break;
 			
 			// if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			if( outputPos( current.pos ).indexOf( "18" ) != -1 ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
 			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
 				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
@@ -207,17 +208,23 @@ class Ai16 {
 
 			final neighbors = current.groundDistance < length
 				? getNeighbors( current.pos, current.depth + 1, tailPos )
-				: current.groundDistance == length ? getLowerNeighbor( current.pos, current.depth + 1, tailPos )
+				: current.groundDistance == length
+					? getLowerNeighbor( current.pos, current.depth + 1, tailPos )
 					: []; // if cell is higher than length, no neighbors
 			
-			// if( isLog ) printErr( 'current ${outputPos( current.pos )} neighbors ' + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
+
+			if( isLog ) printErr( 'current ${outputPos( current.pos )} neighbors ' + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			
 			for( neighbor in neighbors ) {
 				if( visitedMap.exists( neighbor )) continue;
 				
 				final isUpperNeighbor = neighbor.y < current.pos.y;
-				final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, current.groundDistance, length );
-				// if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
+				final isLowerNeighbor = neighbor.y > current.pos.y;
+				final currentGroundDistance = isLowerNeighbor ? current.groundDistance - 1 : current.groundDistance;
+				final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, currentGroundDistance, length );
+				// final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, current.groundDistance, length );
+				
+				if( outputPos( current.pos ) == "18:6" )  printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
 				if( groundDistance > length ) continue;
 
 				final isOutside = board.checkOutsideBoard( neighbor.x, neighbor.y );
