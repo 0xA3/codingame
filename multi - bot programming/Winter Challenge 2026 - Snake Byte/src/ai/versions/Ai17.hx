@@ -29,7 +29,7 @@ class Ai17 {
 
 	var isLog = false;
 
-	final visitedMap = new Map<Pos, Bool>();
+	final visitedMap = new Map<String, Bool>();
 	final targetCells = new Map<Pos, Bool>();
 
 	final unassignedSnakebots:Map<Snakebot, Bool> = [];
@@ -73,7 +73,7 @@ class Ai17 {
 		printErr( 'turn: $turn' );
 		// printErr( board.outputBoard());
 		
-		isLog = true;
+		// isLog = true;
 		// isLog = turn == 1;
 		// isLog = currentSnakebot.id == 5;
 		// isLog = turn == 14 && currentSnakebot.id == 2;
@@ -91,9 +91,7 @@ class Ai17 {
 			// isLog = currentSnakebot.id == 1 && turn >= 21;
 			// isLog = currentSnakebot.id == 5;
 
-			final head = snakebot.bodyPositions[0];
-			final tail = snakebot.bodyPositions[snakebot.bodyPositions.length - 1];
-			final paths = getPaths( maxPaths, head, tail, snakebot.bodyPositions.length );
+			final paths = getPaths( maxPaths, snakebot, snakebot.bodyPositions.length );
 			
 			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} paths: ${paths.length}' );
 			for( path in paths ) {
@@ -175,60 +173,71 @@ class Ai17 {
 		return outputs.join( ";" );
 	}
 
-	function getPaths( maxPaths:Int, headPos:Pos, tailPos:Pos, length:Int ) {
+	function getPaths( maxPaths:Int, snakebot:Snakebot, length:Int ) {
 		visitedMap.clear();
 		final pathToTail = [];
-		for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
+		// for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
-		if( isLog ) printErr( 'getPaths snakebot ${currentSnakebot.id} maxPaths $maxPaths headPos ${outputPos( headPos )} tailPos ${outputPos( tailPos )} length $length' );
+		final tailPos = snakebot.bodyPositions[snakebot.bodyPositions.length - 1];
+
+		// if( isLog ) printErr( 'getPaths snakebot ${snakebot.id} maxPaths $maxPaths headPos ${outputPos( snakebot.bodyPositions[0] )} tailPos ${outputPos( tailPos )} length $length' );
 
 		final frontier = new List<PathNode>();
-		final headNode = new PathNode( headPos, currentSnakebot.bodyPositions.copy(), headPos, PathNode.NO_NODE, 0, currentSnakebot.outsideCount );
+		final headNode = new PathNode( PathNode.createId(currentSnakebot.bodyPositions ), snakebot.bodyPositions[0], currentSnakebot.bodyPositions.copy(), PathNode.NO_NODE, 0, currentSnakebot.outsideCount );
 		frontier.add( headNode );
-		visitedMap.set( headNode.posOut, true );
+		visitedMap.set( headNode.id, true );
+		
+		var steps = 0;
 
 		final paths = [];
 		while( !frontier.isEmpty() ) {
+			steps++;
 			final current = frontier.pop();
-			if( current.depth > board.boardWidth ) break;
+			if( current.depth > board.boardWidth + 1 ) break;
 			
-			// isLog = board.getBoardPos( current.pos ).x > 4;
-
-			if( isLog ) printErr( 'current ${outputPos( current.posIn )} moved to ${outputPos( current.posOut )} depth ${current.depth}' );
-			if( isLog ) printErr( board.previewNextBoard( current.bodyPositions));
-			// if( outputPos( current.pos ).indexOf( "18" ) != -1 ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			// if( isLog ) printErr( 'current ${outputPos( current.posIn )} depth ${current.depth}' );
+			// if( isLog ) printErr( board.previewNextBoard( current.bodyPositions));
 			
-			if( board.currentBoard[current.posIn.y][current.posIn.x] == Board.POWER_SOURCE ) {
-				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.posOut )}' );
+			final headCell = board.currentBoard[current.posIn.y][current.posIn.x];
+			if( headCell == Board.POWER_SOURCE ) {
+				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.posIn )} in ${steps} steps' );
 				final path = backtrack( current, [] );
 				paths.push( path ); // add backtrack positions to empty array
 				if( path.length >= maxPaths ) break;
 			}
+			
+			final gravitatedBodyPositions = applyGravity( current.bodyPositions, current.depth + 1 );
+			current.bodyPositions = gravitatedBodyPositions;
 
-			if( current.posOut == tailPos ) {
-				if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( current.posOut )}' );
+			final currentHead = current.bodyPositions[0];
+			if( currentHead == tailPos ) {
+				if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( currentHead )} in $steps steps' );
 				backtrack( current, pathToTail ); // add positions to pathToTail
 			}
 
-			final neighbors = getNeighbors( current.posOut, current.depth + 1, tailPos );
+			final neighbors = getNeighbors( currentHead, current.depth + 1, tailPos );
 
 			// if( isLog ) printErr( 'current ${outputPos( current.posOut )} neighbors ' + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			
 			for( neighbor in neighbors ) {
 				final movedBodyPositions = moveBody( neighbor, current.bodyPositions, current.depth + 1 );
-				final nextHead = movedBodyPositions[0];
-				if( visitedMap.exists( nextHead )) continue;
+				final id = PathNode.createId( movedBodyPositions );
+				if( visitedMap.exists( id )) {
+					// printErr( 'visited ${id} exists' );
+					continue;
+				}
 				
-				// if( isLog ) printErr( 'next head ${outputPos( neighbor )}' );
+				// if( isLog ) printErr( 'neighbor ${outputPos( neighbor )}' );
+				// if( isLog ) printErr( board.previewNextBoard( movedBodyPositions));
 
 				final isOutside = board.checkOutsideBoard( neighbor.x, neighbor.y );
 				final outsideCount = isOutside ? current.outsideCount + 1 : 0;
 				if( outsideCount > length - 1 ) continue;
 
-				final nextNode = new PathNode( neighbor, movedBodyPositions, nextHead, current, current.depth + 1, outsideCount );
+				final nextNode = new PathNode( id, neighbor, movedBodyPositions, current, current.depth + 1, outsideCount );
 				// if( isLog ) printErr( 'add' );
 
-				visitedMap.set( nextHead, true );
+				visitedMap.set( id, true );
 				frontier.add( nextNode );
 			}
 		}
@@ -243,7 +252,7 @@ class Ai17 {
 		}
 
 		printErr( 'id ${currentSnakebot.id} go to any free neighbor' );
-		return [getNeighbors( headPos, 0, tailPos )];
+		return [getNeighbors( snakebot.bodyPositions[0], 0, tailPos )];
 	}
 	
 	function getNeighbors( pos:Pos, depth:Int, tailPos:Pos ) {
@@ -252,7 +261,8 @@ class Ai17 {
 		for( neighborOffset in board.neighborOffsets ) {
 			final nextX = pos.x + neighborOffset.x;
 			final nextY = pos.y + neighborOffset.y;
-			if( board.checkOutsideMarginBoard( nextX, nextY ) ) continue;
+			// if( board.checkOutsideMarginBoard( nextX, nextY ) ) continue;
+			if( board.checkOutsideBoard( nextX, nextY ) ) continue;
 
 			final neighborPosition = board.positions[nextY][nextX];
 			final cell = board.getCell( neighborPosition, depth );
@@ -267,9 +277,16 @@ class Ai17 {
 		final bodyAfterMove = [neighbor];
 		for( i in 0...bodyPositions.length - 1 ) bodyAfterMove.push( bodyPositions[i] );
 		// printErr( 'body after move ' + [for( pos in bodyAfterMove ) '${outputPos( pos )}' ].join( "," ) );
+
+		return bodyAfterMove;
+	}
+
+	function applyGravity( bodyPositions:Array<Pos>, depth:Int ) {
 		var minGroundHeight = -1;
 		for( i in 1...board.boardHeight ) {
-			for( bodyPosition in bodyAfterMove ) {
+			for( bodyPosition in bodyPositions ) {
+				if( bodyPosition.y + i >= board.marginBoardHeight ) break;
+				
 				final testPos = board.positions[bodyPosition.y + i][bodyPosition.x];
 				final testCell = board.getCell( testPos, depth );
 				if( !currentSnakebot.bodyPositionsMap.exists( testPos ) && testCell != EMPTY ) minGroundHeight = i - 1;
@@ -277,9 +294,13 @@ class Ai17 {
 			if( minGroundHeight != -1 ) break;
 		}
 
-		printErr( 'neighbor ${getDirection( bodyPositions[0], neighbor )} minGroundHeight $minGroundHeight' );
+		// printErr( 'neighbor ${getDirection( bodyPositions[0], neighbor )} ${outputPos( neighbor )} minGroundHeight $minGroundHeight' );
 		final bodyAfterGravity = [];
-		for( pos in bodyAfterMove ) bodyAfterGravity.push( board.positions[pos.y + minGroundHeight][pos.x] );
+		for( pos in bodyPositions ) {
+			final nextY = pos.y + minGroundHeight;
+			final clippedNextY = nextY > 0 && nextY < board.marginBoardHeight ? nextY : board.marginBoardHeight - 1;
+			bodyAfterGravity.push( board.positions[clippedNextY][pos.x] );
+		}
 
 		return bodyAfterGravity;
 	}
@@ -348,6 +369,7 @@ class Ai17 {
 		var tempNode = node;
 		while( tempNode.previous != PathNode.NO_NODE ) {
 			path.add( tempNode.posIn );
+			board.previewNextBoard( tempNode.bodyPositions );
 			tempNode = tempNode.previous;
 		}
 		

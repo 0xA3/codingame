@@ -38,7 +38,7 @@ class Snakebot {
 		} else {
 			direction = TDirection.Up;
 		}
-		printErr( 'snakebot ${id} direction ${direction}' );
+		// printErr( 'snakebot ${id} direction ${direction}' );
 
 		this.bodyPositions.splice( 0, this.bodyPositions.length );
 		bodyPositionsMap.clear();

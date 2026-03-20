@@ -1,6 +1,7 @@
 package test.ai;
 
 import CodinGame.printErr;
+import test.ai.ParseInput.ParsedInput;
 import test.ai.ParseInput.parseInput;
 
 using buddy.Should;
@@ -10,108 +11,74 @@ class TestSearch extends buddy.BuddySuite {
 	public function new() {
 		
 		describe( "Test search", {
-			@include it( "power above", {
-				final ip = powerAbove;
-				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-
-				final ai = new ai.versions.Ai17();
-				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
-				ai.setInputs( ip.myIds, ip.oppIds );
-				
+			it( "power above", {
+				final ai = createAi( powerAbove );
 				ai.process().should.be( "0 UP" );
 			});
 			
 			it( "power 2 above", {
-				final ip = power2Above;
-				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-
-				final ai = new ai.versions.Ai17();
-				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
-				ai.setInputs( ip.myIds, ip.oppIds );
-				
-				ai.process().should.be( "0 UP" );
+				final ai = createAi( power2Above );
+				ai.process().should.be( "0 LEFT" );
 			});
 			
 			it( "power above right", {
-				final ip = powerAboveRight;
-				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-
-				final ai = new ai.versions.Ai17();
-				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
-				ai.setInputs( ip.myIds, ip.oppIds );
-				
+				final ai = createAi( powerAboveRight );
 				ai.process().should.be( "0 RIGHT" );
 			});
 			
 			it( "power above right on platform", {
-				final ip = powerAboveRightOnPlatform;
-				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-
-				final ai = new ai.versions.Ai17();
-				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
-				ai.setInputs( ip.myIds, ip.oppIds );
-				
+				final ai = createAi( powerAboveRightOnPlatform );
 				ai.process().should.be( "0 LEFT" );
 			});
 			
 			it( "step to power", {
-				final ip = stepToPower;
-				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-
-				final ai = new ai.versions.Ai17();
-				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
-				ai.setInputs( ip.myIds, ip.oppIds );
-				
+				final ai = createAi( stepToPower );
 				ai.process().should.be( "0 RIGHT" );
 			});
 			
 			it( "two on the left", {
-				final ip = twoOnTheLeft;
-				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-
-				final ai = new ai.versions.Ai17();
-				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
-				ai.setInputs( ip.myIds, ip.oppIds );
-				
+				final ai = createAi( twoOnTheLeft );
 				ai.process().should.be( "0 LEFT" );
 			});
 			
-			it( "over gap", {
-				final ip = overGap;
-				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-				printErr( ip.board.outputBoard( ip.board.currentBoard ) );
-				printErr( "Power sources " + ip.powerSources.map( p -> ip.board.outputPos( p )).join(",") );
-
-				final ai = new ai.versions.Ai17();
-				ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
-				ai.setInputs( ip.myIds, ip.oppIds );
-				
+			@include it( "over gap", {
+				final ai = createAi( overGap );
 				ai.process().should.be( "0 RIGHT" );
 			});
 		});
 	}
 
+	public function createAi( ip:ParsedInput ) {
+		ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
+
+		final ai = new ai.versions.Ai17();
+		ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
+		ai.setInputs( ip.myIds, ip.oppIds );
+
+		return ai;
+	}
+
 	public final powerAbove = parseInput(
 		"0
-		1
+		3
 		5
-		P
-		0
-		0
-		0
-		#"
+		.P.
+		.0.
+		.0.
+		.0.
+		###"
 	);
 
 	public final power2Above = parseInput(
 		"0
-		1
+		3
 		6
-		P
-		.
-		0
-		0
-		0
-		#"
+		.P.
+		...
+		.0.
+		.0.
+		.0.
+		###"
 	);
 
 	public final powerAboveRight = parseInput(
