@@ -16,25 +16,25 @@ class TestBoard extends buddy.BuddySuite {
 			it( "create empty board", {
 				final ip = emptyBoard;
 				ip.board.populateBoard( [], new Set<Int>(), new Map<Int, ai.data.Snakebot>() );
-				printErr( "\n" + ip.board.outputBoard());
+				printErr( "\n" + ip.board.outputBoard( ip.board.currentBoard ));
 			});
 
 			it( "create board with power source", {
 				final ip = powerSourceBoard;
 				ip.board.populateBoard( ip.powerSources, new Set<Int>(), new Map<Int, ai.data.Snakebot>() );
-				printErr( "\n" + ip.board.outputBoard());
+				printErr( "\n" + ip.board.outputBoard( ip.board.currentBoard ));
 			});
 
 			it( "create board with snake", {
 				final ip = snakeBoard;
 				ip.board.populateBoard( [], ip.myIds, ip.snakebots );
-				printErr( "\n" + ip.board.outputBoard());
+				printErr( "\n" + ip.board.outputBoard( ip.board.currentBoard ));
 			});
 			
 			it( "create board with snakes and powerups", {
 				final ip = allBoard;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-				printErr( "\n" + ip.board.outputBoard());
+				printErr( "\n" + ip.board.outputBoard( ip.board.currentBoard ));
 			});
 		});
 	}

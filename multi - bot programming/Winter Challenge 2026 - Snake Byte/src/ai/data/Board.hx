@@ -21,7 +21,7 @@ class Board {
 	public final emptyBoard:Array<Array<Int>>;
 	public final currentBoard:Array<Array<Int>>;
 	
-	// public final nextBoard:Array<Array<Int>>;
+	public final nextBoard:Array<Array<Int>>;
 
 	public final halfWidth:Int;
 	public final thirdWidth:Int;
@@ -52,6 +52,7 @@ class Board {
 		this.emptyBoard = marginGrid;
 
 		currentBoard = [for( y in 0...marginBoardHeight ) []];
+		nextBoard = [for( y in 0...marginBoardHeight ) []];
 		
 		center = positions[int( marginBoardHeight / 2 )][int( marginBoardWidth / 2 )];
 		halfWidth = int( marginBoardWidth / 2 );
@@ -65,7 +66,6 @@ class Board {
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
 	public function populateBoard( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
-		printErr( 'populateBoard' );
 		this.powerSources = powerSources;
 		for( y in 0...marginBoardHeight ) for( x in 0...marginBoardWidth ) currentBoard[y][x] = emptyBoard[y][x];
 		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
@@ -76,7 +76,7 @@ class Board {
 				currentBoard[pos.y][pos.x] = snakebot.isFalling ? 9 : length - i;
 			}
 		}
-		// printErr( outputBoard());
+		// printErr( outputBoard( currentBoard ));
 
 		turn++;
 	}
@@ -117,10 +117,10 @@ class Board {
 		return Pos.NO_POS;
 	}
 
-	public function outputBoard() {
+	public function outputBoard( board:Array<Array<Int>> ) {
 		final output = [for( y in marginY...marginY + boardHeight )
 			[for( x in marginX...marginX + boardWidth ) {
-				final cell = currentBoard[y][x];
+				final cell = board[y][x];
 				switch( cell ) {
 					case EMPTY: ".";
 					case WALL: "#";
@@ -131,5 +131,16 @@ class Board {
 		];
 		
 		return output.join( "\n" );
+	}
+
+	public function previewNextBoard( bodyPositions:Array<Pos>) {
+		for( y in 0...marginBoardHeight ) for( x in 0...marginBoardWidth ) nextBoard[y][x] = emptyBoard[y][x];
+		for( powerSource in powerSources ) nextBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
+
+		for( i in 0...bodyPositions.length ) {
+			final pos = bodyPositions[i];
+			nextBoard[pos.y][pos.x] = bodyPositions.length - i;
+		}
+		return outputBoard( nextBoard );
 	}
 }

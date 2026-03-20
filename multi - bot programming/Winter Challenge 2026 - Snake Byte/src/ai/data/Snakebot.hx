@@ -13,6 +13,7 @@ class Snakebot {
 	public final bodyPositionsMap:Map<Pos, Bool> = [];
 	
 	public var direction = TDirection.Up;
+	public var outsideCount = 0;
 	public var isFalling = true;
 
 	public function new( id:Int, bodyPositions:Array<Pos> ) {

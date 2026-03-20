@@ -10,7 +10,7 @@ class TestSearch extends buddy.BuddySuite {
 	public function new() {
 		
 		describe( "Test search", {
-			it( "power above", {
+			@include it( "power above", {
 				final ip = powerAbove;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 
@@ -79,7 +79,7 @@ class TestSearch extends buddy.BuddySuite {
 			it( "over gap", {
 				final ip = overGap;
 				ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
-				printErr( ip.board.outputBoard() );
+				printErr( ip.board.outputBoard( ip.board.currentBoard ) );
 				printErr( "Power sources " + ip.powerSources.map( p -> ip.board.outputPos( p )).join(",") );
 
 				final ai = new ai.versions.Ai17();

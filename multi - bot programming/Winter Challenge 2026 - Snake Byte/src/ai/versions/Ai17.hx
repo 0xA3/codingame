@@ -73,7 +73,7 @@ class Ai17 {
 		printErr( 'turn: $turn' );
 		// printErr( board.outputBoard());
 		
-		// isLog = true;
+		isLog = true;
 		// isLog = turn == 1;
 		// isLog = currentSnakebot.id == 5;
 		// isLog = turn == 14 && currentSnakebot.id == 2;
@@ -147,7 +147,7 @@ class Ai17 {
 			// isLog = true;
 			// isLog = currentSnakebot.id == 0;
 			
-			if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in snakePath.path ) '${outputPos( pos )}' ].join( "," ) );
+			// if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in snakePath.path ) '${outputPos( pos )}' ].join( "," ) );
 			
 			final path = snakePath.path;
 			final preferredNextPosition = path.length > 0 ? path[0] : board.center;
@@ -180,65 +180,56 @@ class Ai17 {
 		final pathToTail = [];
 		for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
-		// if( isLog ) printErr( 'getPaths snakebot ${currentSnakebot.id} maxPaths $maxPaths headPos ${outputPos( headPos )} tailPos ${outputPos( tailPos )} length $length' );
+		if( isLog ) printErr( 'getPaths snakebot ${currentSnakebot.id} maxPaths $maxPaths headPos ${outputPos( headPos )} tailPos ${outputPos( tailPos )} length $length' );
 
-		final frontier = new MinPriorityQueue<PathNode>( compareDepthAndGroundDistance );
-		final headNode = new PathNode( headPos, PathNode.NO_NODE, 0, max( 0, tailPos.y - headPos.y ));
-		frontier.insert( headNode );
-		visitedMap.set( headNode.pos, true );
+		final frontier = new List<PathNode>();
+		final headNode = new PathNode( headPos, currentSnakebot.bodyPositions.copy(), headPos, PathNode.NO_NODE, 0, currentSnakebot.outsideCount );
+		frontier.add( headNode );
+		visitedMap.set( headNode.posOut, true );
 
 		final paths = [];
 		while( !frontier.isEmpty() ) {
-			final current = frontier.delMin();
+			final current = frontier.pop();
 			if( current.depth > board.boardWidth ) break;
 			
 			// isLog = board.getBoardPos( current.pos ).x > 4;
 
-			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
+			if( isLog ) printErr( 'current ${outputPos( current.posIn )} moved to ${outputPos( current.posOut )} depth ${current.depth}' );
+			if( isLog ) printErr( board.previewNextBoard( current.bodyPositions));
 			// if( outputPos( current.pos ).indexOf( "18" ) != -1 ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			
-			if( board.currentBoard[current.pos.y][current.pos.x] == Board.POWER_SOURCE ) {
-				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.pos )}' );
+			if( board.currentBoard[current.posIn.y][current.posIn.x] == Board.POWER_SOURCE ) {
+				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.posOut )}' );
 				final path = backtrack( current, [] );
 				paths.push( path ); // add backtrack positions to empty array
 				if( path.length >= maxPaths ) break;
 			}
 
-			if( current.pos == tailPos ) {
-				if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( current.pos )}' );
+			if( current.posOut == tailPos ) {
+				if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( current.posOut )}' );
 				backtrack( current, pathToTail ); // add positions to pathToTail
 			}
 
-			final neighbors = current.groundDistance < length
-				? getNeighbors( current.pos, current.depth + 1, tailPos )
-				: current.groundDistance == length
-					? getLowerNeighbor( current.pos, current.depth + 1, tailPos )
-					: []; // if cell is higher than length, no neighbors
-			
+			final neighbors = getNeighbors( current.posOut, current.depth + 1, tailPos );
 
-			if( isLog ) printErr( 'current ${outputPos( current.pos )} neighbors ' + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
+			// if( isLog ) printErr( 'current ${outputPos( current.posOut )} neighbors ' + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
 			
 			for( neighbor in neighbors ) {
-				if( visitedMap.exists( neighbor )) continue;
+				final movedBodyPositions = moveBody( neighbor, current.bodyPositions, current.depth + 1 );
+				final nextHead = movedBodyPositions[0];
+				if( visitedMap.exists( nextHead )) continue;
 				
-				final isUpperNeighbor = neighbor.y < current.pos.y;
-				final isLowerNeighbor = neighbor.y > current.pos.y;
-				final currentGroundDistance = isLowerNeighbor ? current.groundDistance - 1 : current.groundDistance;
-				final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, currentGroundDistance, length );
-				// final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, current.groundDistance, length );
-				
-				if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
-				if( groundDistance > length ) continue;
+				// if( isLog ) printErr( 'next head ${outputPos( neighbor )}' );
 
 				final isOutside = board.checkOutsideBoard( neighbor.x, neighbor.y );
 				final outsideCount = isOutside ? current.outsideCount + 1 : 0;
 				if( outsideCount > length - 1 ) continue;
 
-				final nextNode = new PathNode( neighbor, current, current.depth + 1, groundDistance, outsideCount );
+				final nextNode = new PathNode( neighbor, movedBodyPositions, nextHead, current, current.depth + 1, outsideCount );
 				// if( isLog ) printErr( 'add' );
 
-				visitedMap.set( nextNode.pos, true );
-				frontier.insert( nextNode );
+				visitedMap.set( nextHead, true );
+				frontier.add( nextNode );
 			}
 		}
 		
@@ -272,13 +263,35 @@ class Ai17 {
 		return neighbors;
 	}
 
-	function getLowerNeighbor( pos:Pos, depth:Int, tailPos:Pos ) {
-		final nextY = pos.y + 1;
-		final neighborPosition = board.positions[nextY][pos.x];
-		final cell = board.getCell( neighborPosition, depth );
-		if( neighborPosition == tailPos || cell == EMPTY || cell == POWER_SOURCE ) return [neighborPosition];
-		
-		return [];
+	function moveBody( neighbor:Pos, bodyPositions:Array<Pos>, depth:Int ) {
+		final bodyAfterMove = [neighbor];
+		for( i in 0...bodyPositions.length - 1 ) bodyAfterMove.push( bodyPositions[i] );
+		// printErr( 'body after move ' + [for( pos in bodyAfterMove ) '${outputPos( pos )}' ].join( "," ) );
+		var minGroundHeight = -1;
+		for( i in 1...board.boardHeight ) {
+			for( bodyPosition in bodyAfterMove ) {
+				final testPos = board.positions[bodyPosition.y + i][bodyPosition.x];
+				final testCell = board.getCell( testPos, depth );
+				if( !currentSnakebot.bodyPositionsMap.exists( testPos ) && testCell != EMPTY ) minGroundHeight = i - 1;
+			}
+			if( minGroundHeight != -1 ) break;
+		}
+
+		printErr( 'neighbor ${getDirection( bodyPositions[0], neighbor )} minGroundHeight $minGroundHeight' );
+		final bodyAfterGravity = [];
+		for( pos in bodyAfterMove ) bodyAfterGravity.push( board.positions[pos.y + minGroundHeight][pos.x] );
+
+		return bodyAfterGravity;
+	}
+
+	function getDirection( pos1:Pos, pos2:Pos ) {
+		return pos2.x < pos1.x
+			? TDirection.Left
+			: pos2.x > pos1.x
+				? TDirection.Right
+				: pos2.y < pos1.y
+					? TDirection.Up
+					: TDirection.Down;
 	}
 
 	function getNextPosition( pos:Pos, preferredNextPos:Pos ) {
@@ -334,7 +347,7 @@ class Ai17 {
 		final path = new List<Pos>();
 		var tempNode = node;
 		while( tempNode.previous != PathNode.NO_NODE ) {
-			path.add( tempNode.pos );
+			path.add( tempNode.posIn );
 			tempNode = tempNode.previous;
 		}
 		
@@ -343,14 +356,6 @@ class Ai17 {
 		return aPath;
 	}
 
-	inline function compareDepthAndGroundDistance( a:PathNode, b:PathNode ) {
-		if( a.depth > b.depth ) return true;
-		if( a.depth < b.depth ) return false;
-
-		if( a.groundDistance > b.groundDistance ) return true;
-		return false;
-	}
-	
 	inline function max( a:Int, b:Int ) return a > b ? a : b;
 	inline function min( a:Int, b:Int ) return a < b ? a : b;
 
