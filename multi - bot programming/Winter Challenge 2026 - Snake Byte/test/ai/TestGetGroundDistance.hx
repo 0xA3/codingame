@@ -20,8 +20,11 @@ class TestGetGroundDistance extends buddy.BuddySuite {
 			});
 			
 			@include it( "distance 1", {
+				printErr( "distance 1" );
 				final ai = createAi( distance1 );
 
+				trace( ai.mySnakebots[0] );
+				trace(  ai.board.powerSources[0] );
 				final groundDistance = ai.getGroundDistance( ai.mySnakebots[0], ai.board.powerSources[0], 0, 0, ai.board.boardHeight );
 				groundDistance.should.be( 1 );
 			});
@@ -29,11 +32,11 @@ class TestGetGroundDistance extends buddy.BuddySuite {
 	}
 
 	public function createAi( ip:ParsedInput ) {
-		
 		ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 
 		final ai = new ai.versions.Ai17();
 		ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
+		ai.setInputs( ip.myIds, ip.oppIds );
 
 		return ai;
 	}

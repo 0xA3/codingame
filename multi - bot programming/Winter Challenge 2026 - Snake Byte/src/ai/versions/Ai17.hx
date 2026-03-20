@@ -91,7 +91,9 @@ class Ai17 {
 			// isLog = currentSnakebot.id == 1 && turn >= 21;
 			// isLog = currentSnakebot.id == 5;
 
-			final paths = getPaths( maxPaths, snakebot.bodyPositions[0], snakebot.bodyPositions[snakebot.bodyPositions.length - 1], snakebot.bodyPositions.length );
+			final head = snakebot.bodyPositions[0];
+			final tail = snakebot.bodyPositions[snakebot.bodyPositions.length - 1];
+			final paths = getPaths( maxPaths, head, tail, snakebot.bodyPositions.length );
 			
 			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} paths: ${paths.length}' );
 			for( path in paths ) {
@@ -112,8 +114,7 @@ class Ai17 {
 		
 		final assignedSnakebots = [];
 		for( snakePath in snakePaths ) {
-			final snakebot = snakePath.snakebot;
-			currentSnakebot = snakebot;
+			currentSnakebot = snakePath.snakebot;
 			final snakebotId = currentSnakebot.id;
 			// isLog = true;
 			// isLog = currentSnakebot.id == 0;
@@ -127,7 +128,7 @@ class Ai17 {
 			targetSet.add( snakePath.targetPos );
 			
 			assignedSnakebots.push( snakePath );
-			unassignedSnakebots.remove( snakebot );
+			unassignedSnakebots.remove( currentSnakebot );
 
 			// if( isLog ) printErr( 'Id ${snakebotId} path: ' + [for( pos in snakePath.path ) '${outputPos( pos )}' ].join( "," ) );
 		}
@@ -191,7 +192,7 @@ class Ai17 {
 			final current = frontier.delMin();
 			if( current.depth > board.boardWidth ) break;
 			
-			isLog = board.getBoardPos( current.pos ).x > 4;
+			// isLog = board.getBoardPos( current.pos ).x > 4;
 
 			if( isLog ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
 			// if( outputPos( current.pos ).indexOf( "18" ) != -1 ) printErr( 'current ${outputPos( current.pos )} depth ${current.depth} groundDistance ${current.groundDistance}' );
@@ -226,7 +227,7 @@ class Ai17 {
 				final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, currentGroundDistance, length );
 				// final groundDistance = getGroundDistance( currentSnakebot, neighbor, current.depth, current.groundDistance, length );
 				
-				if( outputPos( current.pos ) == "18:6" )  printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
+				if( isLog ) printErr( 'next neighbor ${outputPos( neighbor )} isUpper $isUpperNeighbor groundDistance $groundDistance' );
 				if( groundDistance > length ) continue;
 
 				final isOutside = board.checkOutsideBoard( neighbor.x, neighbor.y );

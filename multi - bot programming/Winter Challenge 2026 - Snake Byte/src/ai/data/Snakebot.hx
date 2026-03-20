@@ -1,5 +1,7 @@
 package ai.data;
 
+import CodinGame.printErr;
+import haxe.display.Position;
 import xa3.math.Pos;
 
 class Snakebot {
@@ -15,10 +17,28 @@ class Snakebot {
 
 	public function new( id:Int, bodyPositions:Array<Pos> ) {
 		this.id = id;
-		updateBody( bodyPositions );
+		
+		for( pos in bodyPositions ) {
+			this.bodyPositions.push( pos );
+			this.bodyPositionsMap.set( pos, true );
+		}
+		// printErr( 'new id $id bodyPositions ${bodyPositions.length}' );
 	}
 
 	public function updateBody( newBodyPositions:Array<Pos> ) {
+		// printErr( 'update id $id newBodyPositions ${newBodyPositions.length}' );
+		if( bodyPositions.length > 0 ) {
+			final dx = newBodyPositions[0].x - bodyPositions[0].x;
+			final dy = newBodyPositions[0].y - bodyPositions[0].y;
+			if( dx == 1 ) direction = TDirection.Right;
+			else if( dx == -1 ) direction = TDirection.Left;
+			else if( dy >= 1 ) direction = TDirection.Down;
+			else direction = TDirection.Up;
+		} else {
+			direction = TDirection.Up;
+		}
+		printErr( 'snakebot ${id} direction ${direction}' );
+
 		this.bodyPositions.splice( 0, this.bodyPositions.length );
 		bodyPositionsMap.clear();
 		

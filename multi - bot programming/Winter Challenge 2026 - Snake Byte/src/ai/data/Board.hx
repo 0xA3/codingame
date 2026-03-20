@@ -20,6 +20,8 @@ class Board {
 	public final positions:Array<Array<Pos>>;
 	public final emptyBoard:Array<Array<Int>>;
 	public final currentBoard:Array<Array<Int>>;
+	
+	// public final nextBoard:Array<Array<Int>>;
 
 	public final halfWidth:Int;
 	public final thirdWidth:Int;
@@ -63,6 +65,7 @@ class Board {
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
 	public function populateBoard( powerSources:Array<Pos>, mySnakeBotIds:Set<Int>, snakebots:Map<Int, Snakebot> ) {
+		printErr( 'populateBoard' );
 		this.powerSources = powerSources;
 		for( y in 0...marginBoardHeight ) for( x in 0...marginBoardWidth ) currentBoard[y][x] = emptyBoard[y][x];
 		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;

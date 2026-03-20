@@ -70,6 +70,7 @@ class MainAi {
 					final y = parseInt( parts[1] ) + board.marginY;
 					board.positions[y][x];
 				}];
+				// printErr( 'new snakebot ${snakebotId}' );
 				snakebotId => new Snakebot( snakebotId, bodyPositions );
 			}];
 
@@ -78,9 +79,13 @@ class MainAi {
 				snakebots.remove( snakebotId );
 				mySnakebotIds.remove( snakebotId );
 				oppSnakebotIds.remove( snakebotId );
+				// printErr( 'remove snakebot ${snakebotId}' );
 			}
 
-			for( newSnakebot in newSnakebots ) snakebots[newSnakebot.id].updateBody( newSnakebot.bodyPositions );
+			for( newSnakebot in newSnakebots ) {
+				// printErr( 'update snakebot ${newSnakebot.id} ${snakebots[newSnakebot.id]}' );
+				snakebots[newSnakebot.id].updateBody( newSnakebot.bodyPositions );
+			}
 
 			board.populateBoard( powerSources, mySnakebotIds, snakebots );
 			
