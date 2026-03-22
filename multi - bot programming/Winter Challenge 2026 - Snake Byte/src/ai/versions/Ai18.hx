@@ -1,7 +1,6 @@
 package ai.versions;
 
 import CodinGame.printErr;
-import ai.algorithm.MinPriorityQueue;
 import ai.data.Board.EMPTY;
 import ai.data.Board.POWER_SOURCE;
 import ai.data.Board;
@@ -210,10 +209,11 @@ class Ai18 {
 			final gravitatedBodyPositions = applyGravity( current.bodyPositions, current.depth + 1 );
 			current.bodyPositions = gravitatedBodyPositions;
 
-			final posInAfterGravity = current.posIn;
-			if( posInAfterGravity != posInBeforeGravity ) {
+			final posAfterGravity = current.bodyPositions[0];
+			if( posAfterGravity != posInBeforeGravity ) {
 				visitedMap.set( posInBeforeGravity, false );
-				visitedMap.set( posInAfterGravity, true );
+				visitedMap.set( posAfterGravity, true );
+				if( isLog ) printErr( 'change isVisited ${outputPos( posInBeforeGravity )} to false and ${outputPos( posAfterGravity )} to true' );
 			}
 
 			final currentHead = current.bodyPositions[0];
@@ -228,13 +228,13 @@ class Ai18 {
 			
 			for( neighbor in neighbors ) {
 				final movedBodyPositions = moveBody( neighbor, current.bodyPositions, current.depth + 1 );
-				if( visitedMap.exists( neighbor )) {
-					// printErr( 'visited ${id} exists' );
+				if( visitedMap[neighbor] ) {
+					if( isLog ) printErr( 'visited $neighbor exists' );
 					continue;
 				}
 				
-				// if( isLog ) printErr( 'neighbor ${outputPos( neighbor )}' );
-				// if( isLog ) printErr( board.previewNextBoard( movedBodyPositions));
+				if( isLog ) printErr( 'neighbor ${outputPos( neighbor )}' );
+				if( isLog ) printErr( board.previewNextBoard( movedBodyPositions));
 
 				final isOutside = board.checkOutsideBoard( neighbor.x, neighbor.y );
 				final outsideCount = isOutside ? current.outsideCount + 1 : 0;

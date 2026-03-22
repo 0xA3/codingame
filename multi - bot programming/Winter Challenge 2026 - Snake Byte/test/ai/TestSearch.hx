@@ -21,7 +21,7 @@ class TestSearch extends buddy.BuddySuite {
 				ai.process().should.be( "0 LEFT" );
 			});
 			
-			@include it( "power above right", {
+			it( "power above right", {
 				final ai = createAi( powerAboveRight );
 				ai.process().should.be( "0 RIGHT" );
 			});
@@ -41,7 +41,7 @@ class TestSearch extends buddy.BuddySuite {
 				ai.process().should.be( "0 LEFT" );
 			});
 			
-			it( "over gap", {
+			@include it( "over gap", {
 				final ai = createAi( overGap );
 				ai.process().should.be( "0 RIGHT" );
 			});
