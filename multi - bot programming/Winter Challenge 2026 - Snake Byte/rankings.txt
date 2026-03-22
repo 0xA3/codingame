@@ -12,4 +12,4 @@ Ai14 383 13.49
 Ai15 397 12.16
 Ai16 287 16.32
 Ai17 is too slow
-Ai18 
+Ai18 470 14.56 - timeouts

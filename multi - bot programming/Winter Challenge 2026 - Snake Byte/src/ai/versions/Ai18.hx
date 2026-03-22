@@ -92,11 +92,11 @@ class Ai18 {
 
 			final paths = getPaths( maxPaths, snakebot, snakebot.bodyPositions.length );
 			
-			if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} paths: ${paths.length}' );
+			// if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} paths: ${paths.length}' );
 			for( path in paths ) {
 				final targetPos = path.length > 0 ? path[path.length - 1] : Pos.NO_POS;
 				final snakePath = new SnakePath( snakebot, path.length, targetPos, path );
-				if( isLog ) printErr( 'Path for snakebot ${snakebot.id} ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
+				// if( isLog ) printErr( 'Path for snakebot ${snakebot.id} ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
 				snakePaths.push( snakePath );
 			}
 		}
@@ -152,7 +152,7 @@ class Ai18 {
 			final nextPosition = getNextPosition( headPos, preferredNextPosition );
 			targetCells.set( nextPosition, true );
 
-			if( isLog ) printErr( 'snakebot ${snakebot.id} head ${outputPos( headPos )} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
+			// if( isLog ) printErr( 'snakebot ${snakebot.id} head ${outputPos( headPos )} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
 			
 			if( nextPosition != Pos.NO_POS ) {
 				if( nextPosition.y > headPos.y ) snakebot.changeDirection( TDirection.Down );
@@ -199,7 +199,7 @@ class Ai18 {
 			
 			final headCell = board.currentBoard[current.posIn.y][current.posIn.x];
 			if( headCell == Board.POWER_SOURCE ) {
-				if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.posIn )} in ${steps} steps' );
+				// if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.posIn )} in ${steps} steps' );
 				final path = backtrack( current, [] );
 				paths.push( path ); // add backtrack positions to empty array
 				if( path.length >= maxPaths ) break;
@@ -213,12 +213,12 @@ class Ai18 {
 			if( posAfterGravity != posInBeforeGravity ) {
 				visitedMap.set( posInBeforeGravity, false );
 				visitedMap.set( posAfterGravity, true );
-				if( isLog ) printErr( 'change isVisited ${outputPos( posInBeforeGravity )} to false and ${outputPos( posAfterGravity )} to true' );
+				// if( isLog ) printErr( 'change isVisited ${outputPos( posInBeforeGravity )} to false and ${outputPos( posAfterGravity )} to true' );
 			}
 
 			final currentHead = current.bodyPositions[0];
 			if( currentHead == tailPos ) {
-				if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( currentHead )} in $steps steps' );
+				// if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( currentHead )} in $steps steps' );
 				backtrack( current, pathToTail ); // add positions to pathToTail
 			}
 
@@ -229,12 +229,12 @@ class Ai18 {
 			for( neighbor in neighbors ) {
 				final movedBodyPositions = moveBody( neighbor, current.bodyPositions, current.depth + 1 );
 				if( visitedMap[neighbor] ) {
-					if( isLog ) printErr( 'visited $neighbor exists' );
+					// if( isLog ) printErr( 'visited $neighbor exists' );
 					continue;
 				}
 				
-				if( isLog ) printErr( 'neighbor ${outputPos( neighbor )}' );
-				if( isLog ) printErr( board.previewNextBoard( movedBodyPositions));
+				// if( isLog ) printErr( 'neighbor ${outputPos( neighbor )}' );
+				// if( isLog ) printErr( board.previewNextBoard( movedBodyPositions));
 
 				final isOutside = board.checkOutsideBoard( neighbor.x, neighbor.y );
 				final outsideCount = isOutside ? current.outsideCount + 1 : 0;
