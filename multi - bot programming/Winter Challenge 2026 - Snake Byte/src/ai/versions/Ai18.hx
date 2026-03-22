@@ -29,7 +29,7 @@ class Ai18 {
 
 	var isLog = false;
 
-	final visitedMap = new Map<String, Bool>();
+	final visitedMap = new Map<Pos, Bool>();
 	final targetCells = new Map<Pos, Bool>();
 
 	final unassignedSnakebots:Map<Snakebot, Bool> = [];
@@ -185,7 +185,7 @@ class Ai18 {
 		final frontier = new List<PathNode>();
 		final headNode = new PathNode( snakebot.bodyPositions[0], currentSnakebot.bodyPositions.copy(), PathNode.NO_NODE, 0, currentSnakebot.outsideCount );
 		frontier.add( headNode );
-		visitedMap.set( headNode.id, true );
+		visitedMap.set( headNode.posIn, true );
 		
 		var steps = 0;
 
@@ -205,9 +205,16 @@ class Ai18 {
 				paths.push( path ); // add backtrack positions to empty array
 				if( path.length >= maxPaths ) break;
 			}
+			final posInBeforeGravity = current.posIn;
 			
 			final gravitatedBodyPositions = applyGravity( current.bodyPositions, current.depth + 1 );
 			current.bodyPositions = gravitatedBodyPositions;
+
+			final posInAfterGravity = current.posIn;
+			if( posInAfterGravity != posInBeforeGravity ) {
+				visitedMap.set( posInBeforeGravity, false );
+				visitedMap.set( posInAfterGravity, true );
+			}
 
 			final currentHead = current.bodyPositions[0];
 			if( currentHead == tailPos ) {
@@ -233,10 +240,10 @@ class Ai18 {
 				final outsideCount = isOutside ? current.outsideCount + 1 : 0;
 				if( outsideCount > length - 1 ) continue;
 
-				final nextNode = new PathNode( id, neighbor, movedBodyPositions, current, current.depth + 1, outsideCount );
+				final nextNode = new PathNode( neighbor, movedBodyPositions, current, current.depth + 1, outsideCount );
 				// if( isLog ) printErr( 'add' );
 
-				visitedMap.set( id, true );
+				visitedMap.set( neighbor, true );
 				frontier.add( nextNode );
 			}
 		}

@@ -21,7 +21,7 @@ class TestSearch extends buddy.BuddySuite {
 				ai.process().should.be( "0 LEFT" );
 			});
 			
-			it( "power above right", {
+			@include it( "power above right", {
 				final ai = createAi( powerAboveRight );
 				ai.process().should.be( "0 RIGHT" );
 			});
@@ -41,7 +41,7 @@ class TestSearch extends buddy.BuddySuite {
 				ai.process().should.be( "0 LEFT" );
 			});
 			
-			@include it( "over gap", {
+			it( "over gap", {
 				final ai = createAi( overGap );
 				ai.process().should.be( "0 RIGHT" );
 			});
@@ -51,7 +51,7 @@ class TestSearch extends buddy.BuddySuite {
 	public function createAi( ip:ParsedInput ) {
 		ip.board.populateBoard( ip.powerSources, ip.myIds, ip.snakebots );
 
-		final ai = new ai.versions.Ai17();
+		final ai = new ai.versions.Ai18();
 		ai.setGlobalInputs( ip.board, ip.snakebots, ip.board.marginX, ip.board.marginY );
 		ai.setInputs( ip.myIds, ip.oppIds );
 
