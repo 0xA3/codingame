@@ -28,8 +28,8 @@ class Ai19 {
 
 	var isLog = false;
 
-	final visitedMap = new Map<Pos, Bool>();
-	final targetCells = new Map<Pos, Bool>();
+	final visited:Array<Array<Bool>> = [];
+	final targetCells:Array<Array<Bool>> = [];
 
 	final unassignedSnakebots:Map<Snakebot, Bool> = [];
 
@@ -40,6 +40,9 @@ class Ai19 {
 		this.allSnakebots = allSnakebots;
 		this.marginX = marginX;
 		this.marginY = marginY;
+
+		for( y in 0...board.marginBoardHeight ) visited.push( [for( x in 0...board.marginBoardWidth ) false] );
+		for( y in 0...board.marginBoardHeight ) targetCells.push( [for( x in 0...board.marginBoardWidth ) false] );
 	}
 
 	public function setInputs( mySnakebotIds:Set<Int>, oppSnakebotIds:Set<Int> ) {
@@ -54,7 +57,7 @@ class Ai19 {
 		for( snakebot in oppSnakebots ) snakebot.isFalling = checkSnakebotFalling( snakebot );
 
 		outputs.splice( 0, outputs.length );
-		targetCells.clear();
+		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) targetCells[y][x] = false;
 	}
 
 	function checkSnakebotFalling( snakebot:Snakebot ) {
@@ -150,7 +153,7 @@ class Ai19 {
 			final preferredNextPosition = path.length > 0 ? path[0] : board.center;
 			final headPos = snakebot.bodyPositions[0];
 			final nextPosition = getNextPosition( headPos, preferredNextPosition );
-			targetCells.set( nextPosition, true );
+			targetCells[nextPosition.y][nextPosition.x] = true;
 
 			// if( isLog ) printErr( 'snakebot ${snakebot.id} head ${outputPos( headPos )} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
 			
@@ -173,7 +176,7 @@ class Ai19 {
 	}
 
 	function getPaths( maxPaths:Int, snakebot:Snakebot, length:Int ) {
-		visitedMap.clear();
+		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) visited[y][x] = false;
 		final pathToTail = [];
 		// for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
@@ -184,7 +187,7 @@ class Ai19 {
 		final frontier = new List<PathNode>();
 		final headNode = new PathNode( snakebot.bodyPositions[0], currentSnakebot.bodyPositions.copy(), PathNode.NO_NODE, 0, currentSnakebot.outsideCount );
 		frontier.add( headNode );
-		visitedMap.set( headNode.posIn, true );
+		visited[headNode.posIn.y][headNode.posIn.x] = true;
 		
 		var steps = 0;
 
@@ -211,8 +214,8 @@ class Ai19 {
 
 			final posAfterGravity = current.bodyPositions[0];
 			if( posAfterGravity != posInBeforeGravity ) {
-				visitedMap.set( posInBeforeGravity, false );
-				visitedMap.set( posAfterGravity, true );
+				visited[posInBeforeGravity.y][posInBeforeGravity.x] = false;
+				visited[posAfterGravity.y][posAfterGravity.x] = true;
 				// if( isLog ) printErr( 'change isVisited ${outputPos( posInBeforeGravity )} to false and ${outputPos( posAfterGravity )} to true' );
 			}
 
@@ -228,7 +231,7 @@ class Ai19 {
 			
 			for( neighbor in neighbors ) {
 				final movedBodyPositions = moveBody( neighbor, current.bodyPositions, current.depth + 1 );
-				if( visitedMap[neighbor] ) {
+				if( visited[neighbor.y][neighbor.x] ) {
 					// if( isLog ) printErr( 'visited $neighbor exists' );
 					continue;
 				}
@@ -243,7 +246,7 @@ class Ai19 {
 				final nextNode = new PathNode( neighbor, movedBodyPositions, current, current.depth + 1, outsideCount );
 				// if( isLog ) printErr( 'add' );
 
-				visitedMap.set( neighbor, true );
+				visited[neighbor.y][neighbor.x] = true;
 				frontier.add( nextNode );
 			}
 		}
@@ -322,7 +325,7 @@ class Ai19 {
 	}
 
 	function getNextPosition( pos:Pos, preferredNextPos:Pos ) {
-		if( preferredNextPos != board.center && !targetCells.exists( preferredNextPos )) return preferredNextPos;
+		if( preferredNextPos != board.center && !targetCells[preferredNextPos.y][preferredNextPos.x] ) return preferredNextPos;
 		
 		final neighbors = [];
 		for( neighborOffset in board.neighborOffsets ) {
@@ -332,7 +335,7 @@ class Ai19 {
 			final neighborPosition = board.positions[nextY][nextX];
 			final cell = board.getCell( neighborPosition, 0 );
 
-			if( targetCells.exists( neighborPosition )) continue;
+			if( targetCells[neighborPosition.y][neighborPosition.x] ) continue;
 			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
 		}
 
