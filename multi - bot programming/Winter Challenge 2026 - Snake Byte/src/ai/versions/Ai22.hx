@@ -8,7 +8,6 @@ import ai.data.PathNode;
 import ai.data.SnakePath;
 import ai.data.Snakebot;
 import ai.data.TDirection;
-import haxe.io.Path;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -29,7 +28,7 @@ class Ai22 {
 
 	var isLog = false;
 
-	final visited:Array<Array<Bool>> = [];
+	final visited:Array<Array<Int>> = [];
 	final targetCells:Array<Array<Bool>> = [];
 
 	final unassignedSnakebots:Map<Snakebot, Bool> = [];
@@ -42,7 +41,7 @@ class Ai22 {
 		this.marginX = marginX;
 		this.marginY = marginY;
 
-		for( y in 0...board.marginBoardHeight ) visited.push( [for( x in 0...board.marginBoardWidth ) false] );
+		for( y in 0...board.marginBoardHeight ) visited.push( [for( x in 0...board.marginBoardWidth ) -1] );
 		for( y in 0...board.marginBoardHeight ) targetCells.push( [for( x in 0...board.marginBoardWidth ) false] );
 	}
 
@@ -58,18 +57,28 @@ class Ai22 {
 		for( snakebot in oppSnakebots ) snakebot.isFalling = checkSnakebotFalling( snakebot );
 
 		outputs.splice( 0, outputs.length );
+		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) visited[y][x] = -1;
 		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) targetCells[y][x] = false;
 	}
 
 	function checkSnakebotFalling( snakebot:Snakebot ) {
-		for( i in 0...snakebot.bodyPositions.length - 1 ) { // check bodyPositions except tail
-			final groundDistance = getGroundDistance( snakebot, snakebot.bodyPositions[i], 0, 0, snakebot.bodyPositions.length );
-			// printErr( 'snakebot ${snakebot.id} pos ${outputPos( snakebot.bodyPositions[i] )} groundDistance $groundDistance' );
-			if( groundDistance == 0 ) return false;
+		// Check if any body segment (except tail) has ground directly below it
+		for( i in 0...snakebot.bodyPositions.length - 1 ) {
+			final pos = snakebot.bodyPositions[i];
+			final yBelow = pos.y + 1;
+			
+			// If we're at the bottom of the board, this segment is supported
+			if( yBelow >= board.marginBoardHeight ) return false;
+			
+			final positionBelow = board.positions[yBelow][pos.x];
+			
+			// If the cell below is not empty and not part of this snake, it's ground
+			if( board.currentBoard[yBelow][pos.x] != Board.EMPTY && 
+				!snakebot.bodyPositionsMap.exists( positionBelow ) ) {
+				return false; // Found support, snake is NOT falling
+			}
 		}
-		// printErr( 'snakebot ${snakebot.id} is falling' );
-		
-		return true;
+		return true; // No segment has support, snake is falling
 	}
 
 	public function process() {
@@ -199,7 +208,6 @@ class Ai22 {
 	}
 
 	function getPaths( maxPaths:Int, snakebot:Snakebot, length:Int ) {
-		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) visited[y][x] = false;
 		// for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
 		final tailPos = snakebot.bodyPositions[snakebot.bodyPositions.length - 1];
@@ -209,7 +217,7 @@ class Ai22 {
 		final frontier = new List<PathNode>();
 		final headNode = new PathNode( snakebot.bodyPositions[0], currentSnakebot.bodyPositions.copy(), PathNode.NO_NODE, 0, currentSnakebot.outsideCount );
 		frontier.add( headNode );
-		visited[headNode.posIn.y][headNode.posIn.x] = true;
+		visited[headNode.posIn.y][headNode.posIn.x] = snakebot.id;
 		
 		var steps = 0;
 
@@ -238,8 +246,8 @@ class Ai22 {
 
 			final posAfterGravity = current.bodyPositions[0];
 			if( posAfterGravity != posInBeforeGravity ) {
-				visited[posInBeforeGravity.y][posInBeforeGravity.x] = false;
-				visited[posAfterGravity.y][posAfterGravity.x] = true;
+				visited[posInBeforeGravity.y][posInBeforeGravity.x] = -1;
+				visited[posAfterGravity.y][posAfterGravity.x] = snakebot.id;
 				// if( isLog ) printErr( 'change isVisited ${outputPos( posInBeforeGravity )} to false and ${outputPos( posAfterGravity )} to true' );
 			}
 
@@ -259,7 +267,7 @@ class Ai22 {
 			
 			for( neighbor in neighbors ) {
 				final movedBodyPositions = moveBody( neighbor, current.bodyPositions, current.depth + 1 );
-				if( visited[neighbor.y][neighbor.x] ) {
+				if( visited[neighbor.y][neighbor.x] == snakebot.id ) {
 					// if( isLog ) printErr( 'visited $neighbor exists' );
 					continue;
 				}
@@ -274,7 +282,7 @@ class Ai22 {
 				final nextNode = new PathNode( neighbor, movedBodyPositions, current, current.depth + 1, outsideCount );
 				// if( isLog ) printErr( 'add' );
 
-				visited[neighbor.y][neighbor.x] = true;
+				visited[neighbor.y][neighbor.x] = snakebot.id;
 				frontier.add( nextNode );
 			}
 		}

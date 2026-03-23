@@ -98,7 +98,7 @@ class Board {
 		return neighbors;
 	}
 
-	public function getCell( pos:Pos, futureTurns:Int ) {
+	public inline function getCell( pos:Pos, futureTurns:Int ) {
 		final cell = currentBoard[pos.y][pos.x];
 		if( cell == EMPTY ) return EMPTY;
 		if( cell == POWER_SOURCE ) return POWER_SOURCE;
