@@ -13,8 +13,6 @@ import ya.Set;
 
 class Ai22 {
 
-	final outputs:Array<String> = [];
-	
 	var board:Board;
 	var allSnakebots:Map<Int, ai.data.Snakebot> = [];
 	var marginX:Int;
@@ -29,7 +27,7 @@ class Ai22 {
 	var isLog = false;
 
 	final visited:Array<Array<Int>> = [];
-	final targetCells:Array<Array<Bool>> = [];
+	final targetCells:Array<Array<Int>> = [];
 
 	final unassignedSnakebots:Map<Snakebot, Bool> = [];
 
@@ -42,7 +40,7 @@ class Ai22 {
 		this.marginY = marginY;
 
 		for( y in 0...board.marginBoardHeight ) visited.push( [for( x in 0...board.marginBoardWidth ) -1] );
-		for( y in 0...board.marginBoardHeight ) targetCells.push( [for( x in 0...board.marginBoardWidth ) false] );
+		for( y in 0...board.marginBoardHeight ) targetCells.push( [for( x in 0...board.marginBoardWidth ) 0] );
 	}
 
 	public function setInputs( mySnakebotIds:Set<Int>, oppSnakebotIds:Set<Int> ) {
@@ -56,9 +54,7 @@ class Ai22 {
 		for( snakebot in mySnakebots ) snakebot.isFalling = checkSnakebotFalling( snakebot );
 		for( snakebot in oppSnakebots ) snakebot.isFalling = checkSnakebotFalling( snakebot );
 
-		outputs.splice( 0, outputs.length );
 		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) visited[y][x] = -1;
-		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) targetCells[y][x] = false;
 	}
 
 	function checkSnakebotFalling( snakebot:Snakebot ) {
@@ -189,7 +185,7 @@ class Ai22 {
 			// if( isLog ) printErr( board.outputBoard( board.currentBoard ));
 
 			if( nextPosition != Pos.NO_POS ) {
-				targetCells[nextPosition.y][nextPosition.x] = true;
+				targetCells[nextPosition.y][nextPosition.x] = turn;
 				if( nextPosition.y > headPos.y ) snakebot.changeDirection( TDirection.Down );
 				else if( nextPosition.x < headPos.x ) snakebot.changeDirection( TDirection.Left );
 				else if( nextPosition.y < headPos.y ) snakebot.changeDirection( TDirection.Up );
@@ -211,13 +207,14 @@ class Ai22 {
 		// for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
 		final tailPos = snakebot.bodyPositions[snakebot.bodyPositions.length - 1];
+		final mark = (turn << 16) | snakebot.id;
 
 		// if( isLog ) printErr( 'getPaths snakebot ${snakebot.id} maxPaths $maxPaths headPos ${outputPos( snakebot.bodyPositions[0] )} tailPos ${outputPos( tailPos )} length $length' );
 
 		final frontier = new List<PathNode>();
 		final headNode = new PathNode( snakebot.bodyPositions[0], currentSnakebot.bodyPositions.copy(), PathNode.NO_NODE, 0, currentSnakebot.outsideCount );
 		frontier.add( headNode );
-		visited[headNode.posIn.y][headNode.posIn.x] = snakebot.id;
+		visited[headNode.posIn.y][headNode.posIn.x] = mark;
 		
 		var steps = 0;
 
@@ -247,7 +244,7 @@ class Ai22 {
 			final posAfterGravity = current.bodyPositions[0];
 			if( posAfterGravity != posInBeforeGravity ) {
 				visited[posInBeforeGravity.y][posInBeforeGravity.x] = -1;
-				visited[posAfterGravity.y][posAfterGravity.x] = snakebot.id;
+				visited[posAfterGravity.y][posAfterGravity.x] = mark;
 				// if( isLog ) printErr( 'change isVisited ${outputPos( posInBeforeGravity )} to false and ${outputPos( posAfterGravity )} to true' );
 			}
 
@@ -267,7 +264,7 @@ class Ai22 {
 			
 			for( neighbor in neighbors ) {
 				final movedBodyPositions = moveBody( neighbor, current.bodyPositions, current.depth + 1 );
-				if( visited[neighbor.y][neighbor.x] == snakebot.id ) {
+				if( visited[neighbor.y][neighbor.x] == mark ) {
 					// if( isLog ) printErr( 'visited $neighbor exists' );
 					continue;
 				}
@@ -282,7 +279,7 @@ class Ai22 {
 				final nextNode = new PathNode( neighbor, movedBodyPositions, current, current.depth + 1, outsideCount );
 				// if( isLog ) printErr( 'add' );
 
-				visited[neighbor.y][neighbor.x] = snakebot.id;
+				visited[neighbor.y][neighbor.x] = mark;
 				frontier.add( nextNode );
 			}
 		}
@@ -310,7 +307,7 @@ class Ai22 {
 			final cell = board.getCell( neighborPosition, depth );
 
 			if( neighborPosition == tailPos || cell == EMPTY || cell == POWER_SOURCE ) {
-				// if( isLog ) printErr( 'depth $depth  neighbor ${outputPos( neighborPosition )} cell $cell' );
+				// if( isLog ) printErr( 'depth $depth  neighbor ${outputPos( neighborPosition )} cell $adjustedCell' );
 				neighbors.push( neighborPosition );
 			}
 		}
@@ -364,7 +361,7 @@ class Ai22 {
 	}
 
 	function getNextPosition( pos:Pos, preferredNextPos:Pos ) {
-		if( !targetCells[preferredNextPos.y][preferredNextPos.x] ) return preferredNextPos;
+		if( targetCells[preferredNextPos.y][preferredNextPos.x] != turn ) return preferredNextPos;
 		
 		final neighbors = [];
 		for( neighborOffset in board.neighborOffsets ) {
@@ -374,7 +371,7 @@ class Ai22 {
 			final neighborPosition = board.positions[nextY][nextX];
 			final cell = board.getCell( neighborPosition, 0 );
 			// if( isLog ) printErr( 'neighbor ${outputPos( neighborPosition )} cell $cell inTargetCells ${targetCells[neighborPosition.y][neighborPosition.x]}' );
-			if( targetCells[neighborPosition.y][neighborPosition.x] ) continue;
+			if( targetCells[neighborPosition.y][neighborPosition.x] == turn ) continue;
 			if( cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
 		}
 
@@ -417,7 +414,7 @@ class Ai22 {
 		var tempNode = node;
 		while( tempNode.previous != PathNode.NO_NODE ) {
 			path.add( tempNode.posIn );
-			board.previewNextBoard( tempNode.bodyPositions );
+			// board.previewNextBoard( tempNode.bodyPositions );
 			tempNode = tempNode.previous;
 		}
 		
