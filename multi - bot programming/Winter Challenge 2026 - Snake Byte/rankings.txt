@@ -10,6 +10,6 @@ Gold
 Ai12 358 13.44
 Ai14 383 13.49
 Ai15 397 12.16
-Ai16 287 16.32
-Ai17 is too slow
+Ai16 343 17.56
+Ai17 timeouts
 Ai18 470 14.56 - timeouts
