@@ -70,10 +70,22 @@ class Board {
 		for( y in 0...marginBoardHeight ) for( x in 0...marginBoardWidth ) currentBoard[y][x] = emptyBoard[y][x];
 		for( powerSource in powerSources ) currentBoard[powerSource.y][powerSource.x] = POWER_SOURCE;
 		for( snakebot in snakebots ) {
-			final length = snakebot.bodyPositions.length;
-			for( i in 0...length ) {
+			final headPosition = snakebot.bodyPositions[0];
+			var isNextToPowerSource = false;
+			for( pos in neighborOffsets ) {
+				final nx = headPosition.x + pos.x;
+				final ny = headPosition.y + pos.y;
+				if( checkOutsideMarginBoard( nx, ny ) ) continue;
+				final nPos = positions[ny][nx];
+				if( currentBoard[nPos.y][nPos.x] == POWER_SOURCE ) {
+					isNextToPowerSource = true;
+				}
+			}
+			
+			final nextLength = isNextToPowerSource ? snakebot.bodyPositions.length + 1 : snakebot.bodyPositions.length;
+			for( i in 0...snakebot.bodyPositions.length ) {
 				final pos = snakebot.bodyPositions[i];
-				currentBoard[pos.y][pos.x] = snakebot.isFalling ? 9 : length - i;
+				currentBoard[pos.y][pos.x] = snakebot.isFalling ? 99 : nextLength - i;
 			}
 		}
 		// printErr( outputBoard( currentBoard ));
