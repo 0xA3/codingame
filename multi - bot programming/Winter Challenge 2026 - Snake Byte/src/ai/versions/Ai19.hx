@@ -153,11 +153,11 @@ class Ai19 {
 			final preferredNextPosition = path.length > 0 ? path[0] : board.center;
 			final headPos = snakebot.bodyPositions[0];
 			final nextPosition = getNextPosition( headPos, preferredNextPosition );
-			targetCells[nextPosition.y][nextPosition.x] = true;
 
 			// if( isLog ) printErr( 'snakebot ${snakebot.id} head ${outputPos( headPos )} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
 			
 			if( nextPosition != Pos.NO_POS ) {
+				targetCells[nextPosition.y][nextPosition.x] = true;
 				if( nextPosition.y > headPos.y ) snakebot.changeDirection( TDirection.Down );
 				else if( nextPosition.x < headPos.x ) snakebot.changeDirection( TDirection.Left );
 				else if( nextPosition.y < headPos.y ) snakebot.changeDirection( TDirection.Up );
@@ -298,7 +298,10 @@ class Ai19 {
 				
 				final testPos = board.positions[bodyPosition.y + i][bodyPosition.x];
 				final testCell = board.getCell( testPos, depth );
-				if( !currentSnakebot.bodyPositionsMap.exists( testPos ) && testCell != EMPTY ) minGroundHeight = i - 1;
+				if( !currentSnakebot.bodyPositionsMap.exists( testPos ) && testCell != EMPTY ) {
+					minGroundHeight = i - 1;
+					break;
+				}
 			}
 			if( minGroundHeight != -1 ) break;
 		}
