@@ -94,12 +94,13 @@ class Ai21 {
 		for( snakebot in mySnakebots ) {
 			currentSnakebot = snakebot;
 			// isLog = currentSnakebot.id == 3;
-			isLog = currentSnakebot.id == 3 && turn == 8;
+			// isLog = currentSnakebot.id == 3 && turn == 8;
+			// if( isLog ) printErr( board.outputBoard( board.currentBoard ));
 
 			final paths = getPaths( maxPaths, snakebot, snakebot.bodyPositions.length );
 			
 			// if( isLog ) printErr( 'Id ${snakebot.id} head ${outputPos( snakebot.bodyPositions[0] )} paths: ${paths.length}' );
-			for( path in paths.paths ) {
+			for( path in paths.pathsToPowerups ) {
 				final targetPos = path.length > 0 ? path[path.length - 1] : Pos.NO_POS;
 				final snakePath = new SnakePath( snakebot, path.length, targetPos, path );
 				// if( isLog ) printErr( 'Path for snakebot ${snakebot.id} ' + [for( pos in path ) '${outputPos( pos )}' ].join( "," ) );
@@ -108,11 +109,11 @@ class Ai21 {
 			
 			if( paths.pathToTail.length > 0 ) {
 				tailPaths.set( snakebot, paths.pathToTail );
-				if( isLog ) printErr( 'Path to tail for snakebot ${snakebot.id} ' + [for( pos in paths.pathToTail ) '${outputPos( pos )}' ].join( "," ) );
+				// if( isLog ) printErr( 'Path to tail for snakebot ${snakebot.id} ' + [for( pos in paths.pathToTail ) '${outputPos( pos )}' ].join( "," ) );
 			}
 			if( paths.backupPath.length > 0 ) {
 				backupPaths.set( snakebot, paths.backupPath );
-				if( isLog ) printErr( 'Backup path for snakebot ${snakebot.id} ' + [for( pos in paths.backupPath ) '${outputPos( pos )}' ].join( "," ) );
+				// if( isLog ) printErr( 'Backup path for snakebot ${snakebot.id} ' + [for( pos in paths.backupPath ) '${outputPos( pos )}' ].join( "," ) );
 			}
 		}
 
@@ -164,18 +165,18 @@ class Ai21 {
 		for( snakePath in assignedSnakebots ) {
 			final snakebot = snakePath.snakebot;
 			currentSnakebot = snakebot;
-			isLog = true;
+			// isLog = true;
 			// isLog = currentSnakebot.id == 0;
 			// isLog = currentSnakebot.id == 1 && turn == 7;
 			
-			if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in snakePath.path ) '${outputPos( pos )}' ].join( "," ) );
+			// if( isLog ) printErr( 'Id ${snakebot.id} path: ' + [for( pos in snakePath.path ) '${outputPos( pos )}' ].join( "," ) );
 			
 			final path = snakePath.path;
 			final preferredNextPosition = path.length > 0 ? path[0] : board.center;
 			final headPos = snakebot.bodyPositions[0];
 			final nextPosition = getNextPosition( headPos, preferredNextPosition );
 
-			if( isLog ) printErr( 'snakebot ${snakebot.id} head ${outputPos( headPos )} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
+			// if( isLog ) printErr( 'snakebot ${snakebot.id} head ${outputPos( headPos )} preferredNextPosition ${outputPos( preferredNextPosition )} nextPosition ${outputPos( nextPosition )}' );
 			// if( isLog ) printErr( board.outputBoard( board.currentBoard ));
 
 			if( nextPosition != Pos.NO_POS ) {
@@ -199,7 +200,6 @@ class Ai21 {
 
 	function getPaths( maxPaths:Int, snakebot:Snakebot, length:Int ) {
 		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) visited[y][x] = false;
-		final pathToTail = [];
 		// for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
 		final tailPos = snakebot.bodyPositions[snakebot.bodyPositions.length - 1];
@@ -213,14 +213,13 @@ class Ai21 {
 		
 		var steps = 0;
 
+		final pathsToPowerups = [];
 		var backupPath = [];
-		final paths = [];
+		var pathToTail = [];
 		while( !frontier.isEmpty() ) {
 			steps++;
 			final current = frontier.pop();
 			if( current.depth > board.boardWidth + 1 ) break;
-			
-			if( current.depth > length && backupPath.length == 0 ) backupPath = backtrack( current, [] );
 			
 			// if( isLog ) printErr( 'current ${outputPos( current.posIn )} depth ${current.depth}' );
 			// if( isLog ) printErr( board.previewNextBoard( current.bodyPositions));
@@ -228,9 +227,9 @@ class Ai21 {
 			final headCell = board.currentBoard[current.posIn.y][current.posIn.x];
 			if( headCell == Board.POWER_SOURCE ) {
 				// if( isLog ) printErr( 'id ${currentSnakebot.id} found path to powerSource ${outputPos( current.posIn )} in ${steps} steps' );
-				final path = backtrack( current, [] );
-				paths.push( path ); // add backtrack positions to empty array
-				if( path.length >= maxPaths ) break;
+				final pathToPowerup = backtrack( current );
+				pathsToPowerups.push( pathToPowerup ); // add backtrack positions to array
+				if( pathToPowerup.length >= maxPaths ) break;
 			}
 			final posInBeforeGravity = current.posIn;
 			
@@ -244,11 +243,15 @@ class Ai21 {
 				// if( isLog ) printErr( 'change isVisited ${outputPos( posInBeforeGravity )} to false and ${outputPos( posAfterGravity )} to true' );
 			}
 
+			// path to tail
 			final currentHead = current.bodyPositions[0];
 			if( currentHead == tailPos ) {
 				// if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( currentHead )} in $steps steps' );
-				backtrack( current, pathToTail ); // add positions to pathToTail
+				pathToTail = backtrack( current ); // add positions to pathToTail
 			}
+
+			// backup path
+			if( current.depth > length && backupPath.length == 0 ) backupPath = backtrack( current );
 
 			final neighbors = getNeighbors( currentHead, current.depth + 1, tailPos );
 
@@ -276,13 +279,14 @@ class Ai21 {
 			}
 		}
 		
-		if( paths.length == 0 ) printErr( 'id ${currentSnakebot.id} path to power source not found' );
+		if( pathsToPowerups.length == 0 ) printErr( 'id ${currentSnakebot.id} path to power source not found' );
 		if( pathToTail.length == 0 ) printErr( 'id ${currentSnakebot.id} pathToTail not found' );
-		if( backupPath.length == 0 ) printErr( 'id ${currentSnakebot.id} backupPath not found' );
+		if( backupPath.length == 0 ) {
+			printErr( 'id ${currentSnakebot.id} backupPath not found' );
+			backupPath = getNeighbors( snakebot.bodyPositions[0], 0, tailPos );
+		}
 
-		backupPath = getNeighbors( snakebot.bodyPositions[0], 0, tailPos );
-
-		return { paths: paths, pathToTail: pathToTail, backupPath: backupPath };
+		return { pathsToPowerups: pathsToPowerups, pathToTail: pathToTail, backupPath: backupPath };
 	}
 	
 	function getNeighbors( pos:Pos, depth:Int, tailPos:Pos ) {
@@ -297,7 +301,10 @@ class Ai21 {
 			final neighborPosition = board.positions[nextY][nextX];
 			final cell = board.getCell( neighborPosition, depth );
 
-			if( neighborPosition == tailPos || cell == EMPTY || cell == POWER_SOURCE ) neighbors.push( neighborPosition );
+			if( neighborPosition == tailPos || cell == EMPTY || cell == POWER_SOURCE ) {
+				// if( isLog ) printErr( 'depth $depth  neighbor ${outputPos( neighborPosition )} cell $cell' );
+				neighbors.push( neighborPosition );
+			}
 		}
 
 		return neighbors;
@@ -397,7 +404,7 @@ class Ai21 {
 		return min( groundDistance, currentGroundDistance + 1 );
 	}
 
-	function backtrack( node:PathNode, aPath:Array<Pos> ) {
+	function backtrack( node:PathNode ) {
 		final path = new List<Pos>();
 		var tempNode = node;
 		while( tempNode.previous != PathNode.NO_NODE ) {
@@ -406,6 +413,7 @@ class Ai21 {
 			tempNode = tempNode.previous;
 		}
 		
+		final aPath = [];
 		for( pos in path ) aPath.push( pos );
 		aPath.reverse();
 		return aPath;
