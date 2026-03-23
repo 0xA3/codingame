@@ -14,4 +14,4 @@ Ai16 425 17.56
 Ai17 timeouts
 Ai18 470 14.56 - timeouts
 Ai19 318 19.14
-Ai20
+Ai20 376 17.72
