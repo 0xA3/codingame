@@ -160,8 +160,9 @@ class Ai20 {
 				targetCells[nextPosition.y][nextPosition.x] = true;
 				if( nextPosition.y > headPos.y ) snakebot.changeDirection( TDirection.Down );
 				else if( nextPosition.x < headPos.x ) snakebot.changeDirection( TDirection.Left );
-				else if( nextPosition.y < headPos.y ) snakebot.changeDirection( TDirection.Up );
 				else if( nextPosition.x > headPos.x ) snakebot.changeDirection( TDirection.Right );
+				// else if( nextPosition.y < headPos.y ) snakebot.changeDirection( TDirection.Up );
+				else snakebot.changeDirection( TDirection.Up );
 			}
 
 			outputs.push( '${snakebot.id} ${snakebot.direction}' );
@@ -177,7 +178,6 @@ class Ai20 {
 
 	function getPaths( maxPaths:Int, snakebot:Snakebot, length:Int ) {
 		for( y in 0...board.marginBoardHeight ) for( x in 0...board.marginBoardWidth ) visited[y][x] = false;
-		final pathToTail = [];
 		// for( targetCell in targetCells.keys()) visitedMap.set( targetCell, true );
 
 		final tailPos = snakebot.bodyPositions[snakebot.bodyPositions.length - 1];
@@ -190,6 +190,9 @@ class Ai20 {
 		visited[headNode.posIn.y][headNode.posIn.x] = true;
 		
 		var steps = 0;
+		var mostDistantNode = PathNode.NO_NODE;
+		var deepestDepth = -1;
+		var highestPosition = board.marginBoardHeight;
 
 		final paths = [];
 		while( !frontier.isEmpty() ) {
@@ -197,6 +200,12 @@ class Ai20 {
 			final current = frontier.pop();
 			if( current.depth > board.boardWidth + 1 ) break;
 			
+			if( current.posIn.y < highestPosition ) {
+				mostDistantNode = current;
+				deepestDepth = current.depth;
+				highestPosition = current.posIn.y;
+			}
+
 			// if( isLog ) printErr( 'current ${outputPos( current.posIn )} depth ${current.depth}' );
 			// if( isLog ) printErr( board.previewNextBoard( current.bodyPositions));
 			
@@ -220,11 +229,6 @@ class Ai20 {
 			}
 
 			final currentHead = current.bodyPositions[0];
-			if( currentHead == tailPos ) {
-				// if( isLog ) printErr( 'id ${currentSnakebot.id} found tail at ${outputPos( currentHead )} in $steps steps' );
-				backtrack( current, pathToTail ); // add positions to pathToTail
-			}
-
 			final neighbors = getNeighbors( currentHead, current.depth + 1, tailPos );
 
 			// if( isLog ) printErr( 'current ${outputPos( current.posOut )} neighbors ' + [for( neighbor in neighbors ) '${outputPos( neighbor )}' ].join( "," ) );
@@ -254,10 +258,11 @@ class Ai20 {
 		if( paths.length > 0 ) return paths;
 
 		printErr( 'id ${currentSnakebot.id} path to power source not found' );
-		if( pathToTail.length == 0 ) printErr( 'id ${currentSnakebot.id} pathToTail not found' );
+		if( deepestDepth == 0 ) printErr( 'id ${currentSnakebot.id} has nowhere to go' );
 		else {
-			printErr( 'id ${currentSnakebot.id} chasing tail' );
-			return [pathToTail];
+			printErr( 'id ${currentSnakebot.id} move to most distant cell' );
+			final path = backtrack( mostDistantNode, [] );
+			return [path];
 		}
 
 		printErr( 'id ${currentSnakebot.id} go to any free neighbor' );
