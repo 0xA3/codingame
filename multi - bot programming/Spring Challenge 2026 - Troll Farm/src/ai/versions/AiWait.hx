@@ -28,6 +28,9 @@ class AiWait {
 	}
 
 	public function process() {
+
+		turn++;
+
 		return "Wait";
 	}
 }

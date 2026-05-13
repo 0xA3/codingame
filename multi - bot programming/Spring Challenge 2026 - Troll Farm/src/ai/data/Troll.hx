@@ -7,6 +7,7 @@ class Troll {
 	public final id:Int;
 	public final player:Int;
 
+	public var pos = Pos.NO_POS;
 	public var movementSpeed = 0;
 	public var carryCapacity = 0;
 	public var harvestPower = 0;
@@ -17,6 +18,8 @@ class Troll {
 	public var carryBanana = 0;
 	public var carryIron = 0;
 	public var carryWood = 0;
+
+	public var carrySum = 0;
 
 	public function new( id:Int, player:Int ) {
 		this.id = id;
@@ -36,6 +39,7 @@ class Troll {
 		carryIron:Int,
 		carryWood:Int
 	) {
+		this.pos = pos;
 		this.movementSpeed = movementSpeed;
 		this.carryCapacity = carryCapacity;
 		this.harvestPower = harvestPower;
@@ -46,5 +50,7 @@ class Troll {
 		this.carryBanana = carryBanana;
 		this.carryIron = carryIron;
 		this.carryWood = carryWood;
+
+		carrySum = carryPlum + carryLemon + carryApple + carryBanana + carryIron + carryWood;
 	}
 }

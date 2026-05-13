@@ -22,7 +22,7 @@ class MainAi {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
 		
-		final ai = new ai.versions.AiWait();
+		final ai = new ai.versions.AiWood2();
 		final inputs = readline().split(" ");
 		final boardWidth = parseInt( inputs[0] ); // The width of the board
 		final boardHeight = parseInt( inputs[1] ); // The height of the board
@@ -35,7 +35,8 @@ class MainAi {
 		ai.setGlobalInputs( board );
 
 		final inventories = [for( i in 0...2 ) new Inventory() ];
-		final trees:Map<Pos, Tree> = [];
+		
+		final trees = [];
 		final trolls:Map<Int, Troll> = [];
 		// game loop
 		while( true ) {
@@ -43,7 +44,9 @@ class MainAi {
 			
 			for( i in 0...2 ) updateInventory( inventories[i], readline().split(" ") );
 			
-			final trees:Map<Pos, Tree> = [];
+			final treesMap:Map<Pos, Tree> = [];
+			trees.splice( 0, trees.length );
+
 			final treesCount = parseInt( readline() );
 
 			for( _ in 0...treesCount ) {
@@ -57,8 +60,10 @@ class MainAi {
 				final cooldown = parseInt( inputs[6] );
 
 				final pos = board.positions[y][x];
-				if( !trees.exists( pos )) trees.set( pos, new Tree( type, pos ) );
-				trees[pos].update( size, health, fruits, cooldown );
+				if( !treesMap.exists( pos )) treesMap.set( pos, new Tree( type, pos ) );
+				final tree = treesMap[pos];
+				tree.update( size, health, fruits, cooldown );
+				trees.push( tree );
 			}
 
 			final trollsCount = parseInt( readline() );
@@ -84,12 +89,12 @@ class MainAi {
 				trolls[id].update( board.positions[y][x], movementSpeed, carryCapacity, harvestPower, chopPower, carryPlum, carryLemon, carryApple, carryBanana, carryIron, carryWood );
 			}
 
-			final myTrolls:Set<Int> = [for( id => troll in trolls ) if( troll.player == myId ) id];
-			final oppTrolls:Set<Int> = [for( id => troll in trolls ) if( troll.player != myId ) id];
+			final myTrolls = [for( id => troll in trolls ) if( troll.player == myId ) troll];
+			final oppTrolls = [for( id => troll in trolls ) if( troll.player != myId ) troll];
 
-			board.populateBoard( trees, trolls );
+			board.populateBoard( treesMap, trolls );
 			
-			ai.setInputs( myTrolls, oppTrolls, trees );
+			ai.setInputs( myTrolls, trees );
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );

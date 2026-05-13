@@ -1,8 +1,11 @@
 package ai.data;
 
+import ai.data.TTree;
 import xa3.math.Pos;
 
 class Tree {
+	
+	public static final NO_TREE = new Tree( "NONE", Pos.NO_POS );
 	
 	public final type:TTree;
 	public final pos:Pos;
@@ -22,6 +25,7 @@ class Tree {
 
 	public function convertType( sType:String ) {
 		switch( sType ) {
+			case "NONE": return TTree.NONE;
 			case "PLUM": return TTree.PLUM;
 			case "LEMON": return TTree.LEMON;
 			case "APPLE": return TTree.APPLE;

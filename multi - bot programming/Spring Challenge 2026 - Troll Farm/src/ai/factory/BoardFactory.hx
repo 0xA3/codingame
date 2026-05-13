@@ -9,9 +9,22 @@ class BoardFactory {
 	public static function createBoard( boardWidth:Int, boardHeight:Int, lines:Array<String >) {
 		final positions = Pos.createPositions( boardWidth, boardHeight );
 		
-		final grid = [for( i in 0...boardHeight ) lines[i].split( "" ).map( Board.getCellType )]; // The current state of the board{
+		final myShacks = [];
+		final oppShacks = [];
+
+		final grid = [];
+		for( y in 0...boardHeight ) {
+			grid.push( [] );
+			final line = lines[y].split( "" );
+			for( x in 0...boardWidth ) {
+				final cell = line[x];
+				if( cell == "0" ) myShacks.push( positions[y][x] );
+				else if( cell == "1" ) oppShacks.push( positions[y][x] );
+				grid[y].push( Board.getCellType( cell ) );
+			}
+		}
 		
-		final board = new Board( boardWidth, boardHeight, positions, grid );
+		final board = new Board( boardWidth, boardHeight, positions, grid, myShacks, oppShacks );
 
 		return board;
 	}
