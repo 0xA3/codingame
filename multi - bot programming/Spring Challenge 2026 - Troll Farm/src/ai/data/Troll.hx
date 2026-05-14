@@ -53,4 +53,12 @@ class Troll {
 
 		carrySum = carryPlum + carryLemon + carryApple + carryBanana + carryIron + carryWood;
 	}
+
+	public function getFruit() {
+		if( carryPlum > 0 ) return TFruit.PLUM;
+		if( carryLemon > 0 ) return TFruit.LEMON;
+		if( carryApple > 0 ) return TFruit.APPLE;
+		if( carryBanana > 0 ) return TFruit.BANANA;
+		return TFruit.NONE;
+	}
 }

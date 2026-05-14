@@ -48,14 +48,14 @@ class AiWood2 {
 				}
 			} else {
 				// got to tree and harvest
-				final closestTree = findClosestTree( troll );
-				if( closestTree != Tree.NO_TREE ) {
-					if( closestTree.pos == troll.pos ) {
+				final closesTFruit = findClosesTFruit( troll );
+				if( closesTFruit != Tree.NO_TREE ) {
+					if( closesTFruit.pos == troll.pos ) {
 						printErr( 'troll ${troll.id} harvest' );
 						c = 'HARVEST ${troll.id}';
 					} else {
-						printErr( 'troll ${troll.id} move to tree ${closestTree.pos.x} ${closestTree.pos.y}' );
-						c = 'MOVE ${troll.id} ${closestTree.pos.x} ${closestTree.pos.y}';
+						printErr( 'troll ${troll.id} move to tree ${closesTFruit.pos.x} ${closesTFruit.pos.y}' );
+						c = 'MOVE ${troll.id} ${closesTFruit.pos.x} ${closesTFruit.pos.y}';
 					}
 				}
 	
@@ -82,18 +82,18 @@ class AiWood2 {
 		return closestShack;
 	}
 
-	function findClosestTree( troll:Troll ) {
-		var closestTree = Tree.NO_TREE;
+	function findClosesTFruit( troll:Troll ) {
+		var closesTFruit = Tree.NO_TREE;
 		var closestDistance = board.boardWidth * board.boardHeight;
 		for( tree in trees ) {
 			if( tree.fruits == 0 ) continue;
 			final distance = troll.pos.manhattanDistance( tree.pos );
 			if( distance < closestDistance ) {
-				closestTree = tree;
+				closesTFruit = tree;
 				closestDistance = distance;
 			}
 		}
 
-		return closestTree;
+		return closesTFruit;
 	}
 }

@@ -36,15 +36,17 @@ class MainAi {
 
 		final inventories = [for( i in 0...2 ) new Inventory()];
 
+		final treesMap:Map<Pos, Tree> = [];
 		final trees = [];
 		final trolls:Map<Int, Troll> = [];
 		// game loop
 		while( true ) {
 			final startTime = haxe.Timer.stamp();
 			
-			for( i in 0...inventories.length ) updateInventory( inventories[i], readline().split(" ") );
-			final treesMap:Map<Pos, Tree> = [];
+			treesMap.clear();
 			trees.splice( 0, trees.length );
+			
+			for( i in 0...inventories.length ) updateInventory( inventories[i], readline().split(" ") );
 
 			final treesCount = parseInt( readline() );
 
@@ -93,7 +95,7 @@ class MainAi {
 
 			board.populateBoard( treesMap, trolls );
 			
-			ai.setInputs( inventories[myId], myTrolls, trees );
+			ai.setInputs( inventories[myId], myTrolls, trees, treesMap );
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );

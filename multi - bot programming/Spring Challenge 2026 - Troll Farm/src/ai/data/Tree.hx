@@ -1,13 +1,13 @@
 package ai.data;
 
-import ai.data.TTree;
+import ai.data.TFruit;
 import xa3.math.Pos;
 
 class Tree {
 	
 	public static final NO_TREE = new Tree( "NONE", Pos.NO_POS );
 	
-	public final type:TTree;
+	public final type:TFruit;
 	public final pos:Pos;
 	public var size:Int;
 	public var health:Int;
@@ -25,11 +25,11 @@ class Tree {
 
 	public function convertType( sType:String ) {
 		switch( sType ) {
-			case "NONE": return TTree.NONE;
-			case "PLUM": return TTree.PLUM;
-			case "LEMON": return TTree.LEMON;
-			case "APPLE": return TTree.APPLE;
-			case "BANANA": return TTree.BANANA;
+			case "NONE": return TFruit.NONE;
+			case "PLUM": return TFruit.PLUM;
+			case "LEMON": return TFruit.LEMON;
+			case "APPLE": return TFruit.APPLE;
+			case "BANANA": return TFruit.BANANA;
 			default: throw 'Error: Unknown tree type: $sType';
 		}
 	}

@@ -29,10 +29,10 @@ class AiWood1 {
 	var myInventory:Inventory;
 	var myTrolls:Array<Troll>;
 	var trees:Array<Tree>;
-	var treePositions:Set<Pos>;
+	var treesMap:Map<Pos, Tree>;
 	
 	var turn = 1;
-	final targetTrees:Map<Pos, Bool> = [];
+	final targeTFruits:Map<Pos, Bool> = [];
 
 	public function new() { }
 
@@ -40,13 +40,13 @@ class AiWood1 {
 		this.board = board;
 	}
 
-	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treePositions:Set<Pos> ) {
+	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treesMap:Map<Pos, Tree> ) {
 		this.myInventory = myInventory;
 		this.myTrolls = myTrolls;
 		this.trees = trees;
-		this.treePositions = treePositions;
+		this.treesMap = treesMap;
 		outputs.splice( 0, outputs.length );
-		targetTrees.clear();
+		targeTFruits.clear();
 	}
 
 	public function process() {
@@ -61,21 +61,32 @@ class AiWood1 {
 						printErr( 'troll ${troll.id} return to shack ${closestShackPos.x} ${closestShackPos.y}' );
 						c = 'MOVE ${troll.id} ${closestShackPos.x} ${closestShackPos.y}';
 					} else {
-						printErr( 'troll ${troll.id} drop' );
-						c = 'DROP ${troll.id}';
+						if( !treesMap.exists( troll.pos ) ) {
+							final fruit = troll.getFruit();
+							if( fruit != NONE ) {
+								printErr( 'troll ${troll.id} plant $fruit' );
+								c = 'PLANT ${troll.id} ${fruit}';
+							} else {
+								printErr( 'troll ${troll.id} drop' );
+								c = 'DROP ${troll.id}';
+							}
+						} else {
+							printErr( 'troll ${troll.id} drop' );
+							c = 'DROP ${troll.id}';
+						}
 					}
 				}
 			} else {
 				// got to tree and harvest
-				final closestTree = findClosestTree( troll );
-				if( closestTree != Tree.NO_TREE ) {
-					targetTrees.set( closestTree.pos, true );
-					if( closestTree.pos == troll.pos ) {
+				final closesTFruit = findClosesTFruit( troll );
+				if( closesTFruit != Tree.NO_TREE ) {
+					targeTFruits.set( closesTFruit.pos, true );
+					if( closesTFruit.pos == troll.pos ) {
 						printErr( 'troll ${troll.id} harvest' );
 						c = 'HARVEST ${troll.id}';
 					} else {
-						printErr( 'troll ${troll.id} move to tree ${closestTree.pos.x} ${closestTree.pos.y}' );
-						c = 'MOVE ${troll.id} ${closestTree.pos.x} ${closestTree.pos.y}';
+						printErr( 'troll ${troll.id} move to tree ${closesTFruit.pos.x} ${closesTFruit.pos.y}' );
+						c = 'MOVE ${troll.id} ${closesTFruit.pos.x} ${closesTFruit.pos.y}';
 					}
 				}
 	
@@ -83,13 +94,15 @@ class AiWood1 {
 			if( c != "" ) outputs.push( c );
 		}
 		
-		final maxSpeed = int( Math.sqrt( myInventory.plum - myTrolls.length ));
-		final maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
-		final maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
-		// final maxChop = int( Math.sqrt( myInventory.banana - myTrolls.length ));
-		if( maxSpeed > 0 && maxCarry > 0 && maxHarvest > 0 ) {
-			final c = 'TRAIN $maxSpeed $maxCarry $maxHarvest 0';
-			outputs.push( c );
+		if( myTrolls.length < 3 ) {
+			final maxSpeed = int( Math.sqrt( myInventory.plum - myTrolls.length ));
+			final maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
+			final maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
+			// final maxChop = int( Math.sqrt( myInventory.banana - myTrolls.length ));
+			if( maxSpeed > 0 && maxCarry > 0 && maxHarvest > 0 ) {
+				final c = 'TRAIN $maxSpeed $maxCarry $maxHarvest 0';
+				outputs.push( c );
+			}
 		}
 
 		turn++;
@@ -111,20 +124,20 @@ class AiWood1 {
 		return closestShack;
 	}
 
-	function findClosestTree( troll:Troll ) {
-		var closestTree = Tree.NO_TREE;
+	function findClosesTFruit( troll:Troll ) {
+		var closesTFruit = Tree.NO_TREE;
 		var closestDistance = board.boardWidth * board.boardHeight;
 		for( tree in trees ) {
 			if( tree.fruits == 0 ) continue;
-			if( targetTrees.exists( tree.pos ) ) continue;
+			if( targeTFruits.exists( tree.pos ) ) continue;
 
 			final distance = troll.pos.manhattanDistance( tree.pos );
 			if( distance < closestDistance ) {
-				closestTree = tree;
+				closesTFruit = tree;
 				closestDistance = distance;
 			}
 		}
 
-		return closestTree;
+		return closesTFruit;
 	}
 }
