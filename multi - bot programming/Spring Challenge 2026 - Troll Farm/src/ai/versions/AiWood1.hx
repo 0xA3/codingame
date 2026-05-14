@@ -1,11 +1,24 @@
 package ai.versions;
 
 import CodinGame.printErr;
+import Std.int;
 import ai.data.Board;
+import ai.data.Inventory;
 import ai.data.Tree;
 import ai.data.Troll;
 import xa3.math.Pos;
 import ya.Set;
+
+using xa3.math.IntMath;
+
+// MOVE id x y Move troll id to cell (x, y).
+// HARVEST id Make troll id harvest on its current cell.
+// PLANT id type Make troll id plant a type on its current cell: PLUM, LEMON, APPLE or BANANA.
+// PICK id type Make troll id pick one type from the shack: PLUM, LEMON, APPLE or BANANA.
+// DROP id Make troll id drop all carried items at the shack.
+// TRAIN moveSpeed carryCapacity harvestPower chopPower Train a new troll with the given attributes.
+// WAIT to do nothing.
+// MSG text to display a message in the replay.
 
 class AiWood1 {
 
@@ -13,10 +26,13 @@ class AiWood1 {
 	final outputs:Array<String> = [];
 	
 	var board:Board;
+	var myInventory:Inventory;
 	var myTrolls:Array<Troll>;
 	var trees:Array<Tree>;
+	var treePositions:Set<Pos>;
 	
 	var turn = 1;
+	final targetTrees:Map<Pos, Bool> = [];
 
 	public function new() { }
 
@@ -24,10 +40,13 @@ class AiWood1 {
 		this.board = board;
 	}
 
-	public function setInputs( myTrolls:Array<Troll>, trees:Array<Tree> ) {
+	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treePositions:Set<Pos> ) {
+		this.myInventory = myInventory;
 		this.myTrolls = myTrolls;
 		this.trees = trees;
+		this.treePositions = treePositions;
 		outputs.splice( 0, outputs.length );
+		targetTrees.clear();
 	}
 
 	public function process() {
@@ -50,6 +69,7 @@ class AiWood1 {
 				// got to tree and harvest
 				final closestTree = findClosestTree( troll );
 				if( closestTree != Tree.NO_TREE ) {
+					targetTrees.set( closestTree.pos, true );
 					if( closestTree.pos == troll.pos ) {
 						printErr( 'troll ${troll.id} harvest' );
 						c = 'HARVEST ${troll.id}';
@@ -61,6 +81,15 @@ class AiWood1 {
 	
 			}
 			if( c != "" ) outputs.push( c );
+		}
+		
+		final maxSpeed = int( Math.sqrt( myInventory.plum - myTrolls.length ));
+		final maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
+		final maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
+		// final maxChop = int( Math.sqrt( myInventory.banana - myTrolls.length ));
+		if( maxSpeed > 0 && maxCarry > 0 && maxHarvest > 0 ) {
+			final c = 'TRAIN $maxSpeed $maxCarry $maxHarvest 0';
+			outputs.push( c );
 		}
 
 		turn++;
@@ -87,6 +116,8 @@ class AiWood1 {
 		var closestDistance = board.boardWidth * board.boardHeight;
 		for( tree in trees ) {
 			if( tree.fruits == 0 ) continue;
+			if( targetTrees.exists( tree.pos ) ) continue;
+
 			final distance = troll.pos.manhattanDistance( tree.pos );
 			if( distance < closestDistance ) {
 				closestTree = tree;

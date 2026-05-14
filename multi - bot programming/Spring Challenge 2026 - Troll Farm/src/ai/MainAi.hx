@@ -22,7 +22,7 @@ class MainAi {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
 		
-		final ai = new ai.versions.AiWood2();
+		final ai = new ai.versions.AiWood1();
 		final inputs = readline().split(" ");
 		final boardWidth = parseInt( inputs[0] ); // The width of the board
 		final boardHeight = parseInt( inputs[1] ); // The height of the board
@@ -34,16 +34,15 @@ class MainAi {
 
 		ai.setGlobalInputs( board );
 
-		final inventories = [for( i in 0...2 ) new Inventory() ];
-		
+		final inventories = [for( i in 0...2 ) new Inventory()];
+
 		final trees = [];
 		final trolls:Map<Int, Troll> = [];
 		// game loop
 		while( true ) {
 			final startTime = haxe.Timer.stamp();
 			
-			for( i in 0...2 ) updateInventory( inventories[i], readline().split(" ") );
-			
+			for( i in 0...inventories.length ) updateInventory( inventories[i], readline().split(" ") );
 			final treesMap:Map<Pos, Tree> = [];
 			trees.splice( 0, trees.length );
 
@@ -94,7 +93,7 @@ class MainAi {
 
 			board.populateBoard( treesMap, trolls );
 			
-			ai.setInputs( myTrolls, trees );
+			ai.setInputs( inventories[myId], myTrolls, trees );
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
@@ -104,12 +103,12 @@ class MainAi {
 	}
 
 	static function updateInventory( inventory:Inventory, values:Array<String> ) {
-		final lemon = parseInt( values[0] );
-		final plum = parseInt( values[1] );
+		final plum = parseInt( values[0] );
+		final lemon = parseInt( values[1] );
 		final apple = parseInt( values[2] );
 		final banana = parseInt( values[3] );
 		final iron = parseInt( values[4] );
 		final wood = parseInt( values[5] );
-		inventory.update( lemon, plum, apple, banana, iron, wood );
+		inventory.update( plum, lemon, apple, banana, iron, wood );
 	}
 }

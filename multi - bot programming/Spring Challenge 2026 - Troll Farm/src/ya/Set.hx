@@ -1,7 +1,7 @@
 package ya;
 
-import haxe.ds.*;
 import haxe.Constraints.IMap;
+import haxe.ds.*;
 
 @:transitive
 @:multiType(@:followWithAbstracts K)
@@ -32,6 +32,7 @@ abstract Set<T>(IMap<T, Bool>) {
 	}
 
 	public function add(val:T) this.set(val, true);
+	public function clear(val:T) this.clear();
 	public function remove(val:T) this.remove(val);
 	public function contains(val:T):Bool return this.exists(val);
 	public function toString() return toArray().toString();
