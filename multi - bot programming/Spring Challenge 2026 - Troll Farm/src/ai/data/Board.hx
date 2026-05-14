@@ -2,6 +2,8 @@ package ai.data;
 
 import CodinGame.printErr;
 import Std.int;
+import astar.map2d.Map2D;
+import astar.map2d.types.MovementDirection;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -22,6 +24,8 @@ class Board {
 	public final myShack:Pos;
 	public final oppShack:Pos;
 	
+	final map2d:Map2D;
+
 	public final currentBoard:Array<Array<Int>>;
 	
 	public final nextBoard:Array<Array<Int>>;
@@ -58,6 +62,15 @@ class Board {
 		thirdWidth = int( boardWidth / 3 );
 		
 		center = positions[int( boardHeight / 2 )][halfWidth];
+
+		final movementDirection = FourWay;
+		
+		map2d = new Map2D( boardWidth, boardHeight, movementDirection );
+		final costs = [0 => Map2D.defaultCosts];
+		
+		map2d.setMap( [for( y in 0...boardHeight ) for( x in 0...boardWidth ) grid[y][x]] );
+		map2d.setCosts( costs );
+		map2d.configureCache( true, 1024 );
 	}
 
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
@@ -80,13 +93,45 @@ class Board {
 		else return cell;
 	}
 
-	public function getDistance( start:Pos, end:Pos ) {
-		final path = paths[pos2Index( start )][pos2Index( end )];
+	public function getDistance( startPos:Pos, endPos:Pos ) {
+		final path = getPath( startPos, endPos );
 		return path.length - 1;
 	}
 
-	public function getPath( start:Pos, end:Pos ) {
-		return paths[pos2Index( start )][pos2Index( end )];
+	public function getPath( startPos:Pos, endPos:Pos ) {
+		final startIndex = pos2Index( startPos );
+		final endIndex = pos2Index( endPos );
+		
+		if( paths[startIndex][endIndex].length == 0 ) {
+			if( startIndex == endIndex ) {
+				final path = [startPos];
+				paths[startIndex][endIndex] = path;
+				// printErr( 'getPath $startPos -> $endPos: $path' );
+				return path;
+			}
+			
+			final solution = map2d.solve( startPos.x, startPos.y, endPos.x, endPos.y );
+			
+			if( solution.result == Solved ) {
+				final path = solution.path.map( point2D -> positions[point2D.y][point2D.x] );
+				paths[startIndex][endIndex] = path;
+				
+				final reversePath = path.copy();
+				reversePath.reverse();
+				paths[endIndex][startIndex] = reversePath;
+				
+				// printErr( 'getPath $startPos -> $endPos: $path' );
+				return path;
+			
+			} else {
+				// printErr( 'getPath $startPos -> $endPos: notfound' );
+				return [];
+			}
+		}
+
+		final path = paths[startIndex][endIndex];
+		// printErr( 'getPath $startPos -> $endPos: $path' );
+		return path;
 	}
 
 	public function outputBoard( board:Array<Array<Int>> ) {
@@ -113,6 +158,7 @@ class Board {
 		return outputBoard( nextBoard );
 	}
 
+	inline function index2Pos( index:Int ) return positions[int( index / boardWidth )][index % boardWidth];
 	inline function pos2Index( pos:Pos ) return pos.y * boardWidth + pos.x;
 
 }

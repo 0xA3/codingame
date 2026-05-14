@@ -30,10 +30,10 @@ class BoardFactory {
 			}
 		}
 		
-		final pathsFactory = new ai.factory.PathsFactory( boardWidth, boardHeight, grid, positions );
-		final paths = pathsFactory.createPaths();
+		final pathFactory = new PathsFactory( boardWidth, boardHeight, grid, positions, myShack );
+		final shackPaths = pathFactory.createShackPaths();
 
-		final board = new Board( boardWidth, boardHeight, positions, grid, paths, myShack, oppShack );
+		final board = new Board( boardWidth, boardHeight, positions, grid, shackPaths, myShack, oppShack );
 		MainAi.seed = seed;
 		
 		return board;
