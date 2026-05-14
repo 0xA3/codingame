@@ -2,6 +2,7 @@ package ai.versions;
 
 import CodinGame.printErr;
 import Std.int;
+import ai.contexts.WarCry;
 import ai.data.Board;
 import ai.data.Inventory;
 import ai.data.Tree;
@@ -22,9 +23,9 @@ using xa3.math.IntMath;
 
 class Ai1 {
 
-	public var aiId = "AiWood1";
+	public var aiId = "Ai1";
 	final outputs:Array<String> = [];
-	
+
 	var board:Board;
 	var myInventory:Inventory;
 	var myTrolls:Array<Troll>;
@@ -33,8 +34,9 @@ class Ai1 {
 	
 	var turn = 1;
 	final targeTFruits:Map<Pos, Bool> = [];
-
-	public function new() { }
+	final warCry = new WarCry();
+	
+	public function new() {	}
 
 	public function setGlobalInputs( board:Board ) {
 		this.board = board;
@@ -53,27 +55,24 @@ class Ai1 {
 		for( troll in myTrolls ) {
 			var c = "";
 			if( troll.carrySum == troll.carryCapacity ) {
-				final closestShackPos = findClosestShackPos( troll );
-				if( closestShackPos != Pos.NO_POS ) {
-					// return to shack and drop
-					final shackDistance = closestShackPos.manhattanDistance( troll.pos );
-					if( shackDistance > 1 ) {
-						printErr( 'troll ${troll.id} return to shack ${closestShackPos.x} ${closestShackPos.y}' );
-						c = 'MOVE ${troll.id} ${closestShackPos.x} ${closestShackPos.y}';
-					} else {
-						if( !treesMap.exists( troll.pos ) ) {
-							final fruit = troll.getFruit();
-							if( fruit != NONE ) {
-								printErr( 'troll ${troll.id} plant $fruit' );
-								c = 'PLANT ${troll.id} ${fruit}';
-							} else {
-								printErr( 'troll ${troll.id} drop' );
-								c = 'DROP ${troll.id}';
-							}
+				// return to shack and drop
+				final shackDistance = troll.pos.manhattanDistance( board.myShack );
+				if( shackDistance > 1 ) {
+					printErr( 'troll ${troll.id} return to shack ${board.myShack.x} ${board.myShack.y}' );
+					c = 'MOVE ${troll.id} ${board.myShack.x} ${board.myShack.y}';
+				} else {
+					if( !treesMap.exists( troll.pos ) ) {
+						final fruit = troll.getFruit();
+						if( fruit != NONE ) {
+							printErr( 'troll ${troll.id} plant $fruit' );
+							c = 'PLANT ${troll.id} ${fruit}';
 						} else {
 							printErr( 'troll ${troll.id} drop' );
 							c = 'DROP ${troll.id}';
 						}
+					} else {
+						printErr( 'troll ${troll.id} drop' );
+						c = 'DROP ${troll.id}';
 					}
 				}
 			} else {
@@ -105,23 +104,11 @@ class Ai1 {
 			}
 		}
 
+		final warcry = warCry.get();
+
 		turn++;
 
-		return outputs.length == 0 ? "WAIT" : outputs.join(";");
-	}
-
-	function findClosestShackPos( troll:Troll ) {
-		var closestShack = Pos.NO_POS;
-		var closestDistance = board.boardWidth * board.boardHeight;
-		for( shack in board.myShacks ) {
-			final distance = troll.pos.manhattanDistance( shack );
-			if( distance < closestDistance ) {
-				closestShack = shack;
-				closestDistance = distance;
-			}
-		}
-
-		return closestShack;
+		return ( warcry != "" ? 'MSG $warcry;' : "" ) + ( outputs.length == 0 ? "WAIT" : outputs.join(";"));
 	}
 
 	function findClosesTFruit( troll:Troll ) {

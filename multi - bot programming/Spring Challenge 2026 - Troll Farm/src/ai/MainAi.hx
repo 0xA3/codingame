@@ -11,12 +11,16 @@ import ai.data.Inventory;
 import ai.data.Tree;
 import ai.data.Troll;
 import ai.factory.BoardFactory;
+import xa3.MTRandom;
 import xa3.math.Pos;
 import ya.Set;
 
 using StringTools;
 
 class MainAi {
+
+	public static var seed = 0;
+	public static var mtRandom:MTRandom;
 
 	static function main() {
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
@@ -31,6 +35,7 @@ class MainAi {
 		final myId = 0; // Your player id
 
 		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines );
+		mtRandom = new MTRandom( seed );
 
 		ai.setGlobalInputs( board );
 

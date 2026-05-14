@@ -15,8 +15,8 @@ class Board {
 	public final boardHeight:Int;
 	public final positions:Array<Array<Pos>>;
 	public final emptyBoard:Array<Array<Int>>;
-	public final myShacks:Array<Pos>;
-	public final oppShacks:Array<Pos>;
+	public final myShack:Pos;
+	public final oppShack:Pos;
 	
 	public final currentBoard:Array<Array<Int>>;
 	
@@ -35,15 +35,15 @@ class Board {
 		boardHeight:Int,
 		positions:Array<Array<Pos>>,
 		grid:Array<Array<Int>>,
-		myShacks:Array<Pos>,
-		oppShacks:Array<Pos>
+		myShack:Pos,
+		oppShack:Pos
 	) {
 		this.boardWidth = boardWidth;
 		this.boardHeight = boardHeight;
 		this.positions = positions;
 		this.emptyBoard = grid;
-		this.myShacks = myShacks;
-		this.oppShacks = oppShacks;
+		this.myShack = myShack;
+		this.oppShack = oppShack;
 
 		currentBoard = [for( y in 0...boardHeight ) []];
 		nextBoard = [for( y in 0...boardHeight ) []];
