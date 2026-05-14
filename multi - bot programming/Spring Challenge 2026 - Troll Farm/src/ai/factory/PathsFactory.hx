@@ -30,7 +30,7 @@ class PathsFactory {
 		
 		map2d.setMap( [for( y in 0...boardHeight ) for( x in 0...boardWidth ) grid[y][x]] );
 		map2d.setCosts( costs );
-		// map2d.configureCache( true, boardWidth * boardHeight );
+		map2d.configureCache( true, 1024 );
 
 		var searchCounter = 0;
 		for( startIndex in 0...boardWidth * boardHeight ) {
@@ -49,7 +49,7 @@ class PathsFactory {
 				final startCell = grid[startPos.y][startPos.x];
 				if( startCell == Board.WATER || startCell == Board.ROCK ) continue; // skip when startCell is water or rock
 
-				final endCell = grid[startPos.y][startPos.x];
+				final endCell = grid[endPos.y][endPos.x];
 				if( endCell == Board.WATER || endCell == Board.ROCK ) continue; // skip when endCell is water or rock
 				
 				final solution = map2d.solve( startPos.x, startPos.y, endPos.x, endPos.y );
