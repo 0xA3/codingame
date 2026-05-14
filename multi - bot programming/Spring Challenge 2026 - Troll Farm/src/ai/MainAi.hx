@@ -5,15 +5,12 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
-import ai.data.Board;
-import ai.data.Cell;
 import ai.data.Inventory;
 import ai.data.Tree;
 import ai.data.Troll;
 import ai.factory.BoardFactory;
 import xa3.MTRandom;
 import xa3.math.Pos;
-import ya.Set;
 
 using StringTools;
 

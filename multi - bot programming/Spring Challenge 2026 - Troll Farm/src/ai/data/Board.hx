@@ -8,13 +8,17 @@ import ya.Set;
 class Board {
 	
 	public static inline var GRASS = 0;
-	public static inline var MY_SHACK = 1;
-	public static inline var OPP_SHACK = 2;
+	public static inline var WATER = 1;
+	public static inline var ROCK = 2;
+	public static inline var IRON = 3;
+	public static inline var MY_SHACK = 4;
+	public static inline var OPP_SHACK = 5;
 
 	public final boardWidth:Int;
 	public final boardHeight:Int;
 	public final positions:Array<Array<Pos>>;
-	public final emptyBoard:Array<Array<Int>>;
+	public final paths:Array<Array<Array<Pos>>>;
+	public final grid:Array<Array<Int>>;
 	public final myShack:Pos;
 	public final oppShack:Pos;
 	
@@ -35,13 +39,15 @@ class Board {
 		boardHeight:Int,
 		positions:Array<Array<Pos>>,
 		grid:Array<Array<Int>>,
+		paths:Array<Array<Array<Pos>>>,
 		myShack:Pos,
 		oppShack:Pos
 	) {
 		this.boardWidth = boardWidth;
 		this.boardHeight = boardHeight;
 		this.positions = positions;
-		this.emptyBoard = grid;
+		this.grid = grid;
+		this.paths = paths;
 		this.myShack = myShack;
 		this.oppShack = oppShack;
 
@@ -54,41 +60,16 @@ class Board {
 		center = positions[int( boardHeight / 2 )][halfWidth];
 	}
 
-	public static function getCellType( s:String ) {
-		switch( s ) {
-			case "0": return MY_SHACK;
-			case "1": return OPP_SHACK;
-			default: return GRASS;
-		}
-	}
-
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
 	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= boardWidth || y < 0 || y >= boardHeight;
 	
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
 	public function populateBoard( trees:Map<Pos, Tree>, trolls:Map<Int, Troll> ) {
-		for( y in 0...boardHeight ) for( x in 0...boardWidth ) currentBoard[y][x] = emptyBoard[y][x];
+		for( y in 0...boardHeight ) for( x in 0...boardWidth ) currentBoard[y][x] = grid[y][x];
 		// printErr( outputBoard( currentBoard ));
 
 		turn++;
-	}
-
-	public function getNeighbors( pos:Pos, depth:Int ) {
-		final neighbors = [];
-		
-		for( neighborOffset in neighborOffsets ) {
-			final nextX = pos.x + neighborOffset.x;
-			final nextY = pos.y + neighborOffset.y;
-			if( checkOutsideBoard( nextX, nextY ) ) continue;
-
-			final neighborPosition = positions[nextY][nextX];
-			final cell = getCell( neighborPosition, depth );
-
-			neighbors.push( neighborPosition );
-		}
-
-		return neighbors;
 	}
 
 	public inline function getCell( pos:Pos, futureTurns:Int ) {
@@ -100,8 +81,12 @@ class Board {
 	}
 
 	public function getDistance( start:Pos, end:Pos ) {
-		if( start.manhattanDistance( end ) <= 1 ) return 1;
-		return start.manhattanDistance( end );
+		final path = paths[pos2Index( start )][pos2Index( end )];
+		return path.length - 1;
+	}
+
+	public function getPath( start:Pos, end:Pos ) {
+		return paths[pos2Index( start )][pos2Index( end )];
 	}
 
 	public function outputBoard( board:Array<Array<Int>> ) {
@@ -109,10 +94,12 @@ class Board {
 			[for( x in 0...boardWidth ) {
 				final cell = board[y][x];
 				switch( cell ) {
-					case GRASS: ".";
-					case MY_SHACK: "0";
-					case OPP_SHACK: "1";
-					default: '$cell';
+					case WATER: return "~";
+					case ROCK: return "#";
+					case IRON: return "+";
+					case MY_SHACK: return "0";
+					case OPP_SHACK: return "1";
+					default: return ".";
 				}
 			}].join( "" )
 		];
@@ -121,8 +108,11 @@ class Board {
 	}
 
 	public function previewNextBoard() {
-		for( y in 0...boardHeight ) for( x in 0...boardWidth ) nextBoard[y][x] = emptyBoard[y][x];
+		for( y in 0...boardHeight ) for( x in 0...boardWidth ) nextBoard[y][x] = grid[y][x];
 
 		return outputBoard( nextBoard );
 	}
+
+	inline function pos2Index( pos:Pos ) return pos.y * boardWidth + pos.x;
+
 }

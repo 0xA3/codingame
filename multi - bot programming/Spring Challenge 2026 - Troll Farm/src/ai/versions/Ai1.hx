@@ -56,22 +56,23 @@ class Ai1 {
 			var c = "";
 			if( troll.carrySum == troll.carryCapacity ) {
 				// return to shack and drop
-				final shackDistance = troll.pos.manhattanDistance( board.myShack );
-				if( shackDistance > 1 ) {
-					printErr( 'troll ${troll.id} return to shack ${board.myShack.x} ${board.myShack.y}' );
+				final shackPath = board.getPath( troll.pos, board.myShack );
+				if( shackPath.length == 0 ) throw 'Error: no path from troll ${troll.id}: ${troll.pos} to ${board.myShack}';
+				else if( shackPath.length > 2 ) {
+					printErr( 'troll ${troll.id} pos ${troll.pos} return to shack ${board.myShack.x} ${board.myShack.y}' );
 					c = 'MOVE ${troll.id} ${board.myShack.x} ${board.myShack.y}';
 				} else {
 					if( !treesMap.exists( troll.pos ) ) {
 						final fruit = troll.getFruit();
 						if( fruit != NONE ) {
-							printErr( 'troll ${troll.id} plant $fruit' );
+							printErr( 'troll ${troll.id} pos ${troll.pos} plant $fruit' );
 							c = 'PLANT ${troll.id} ${fruit}';
 						} else {
-							printErr( 'troll ${troll.id} drop' );
+							printErr( 'troll ${troll.id} pos ${troll.pos} drop' );
 							c = 'DROP ${troll.id}';
 						}
 					} else {
-						printErr( 'troll ${troll.id} drop' );
+						printErr( 'troll ${troll.id} pos ${troll.pos} drop' );
 						c = 'DROP ${troll.id}';
 					}
 				}
@@ -118,8 +119,9 @@ class Ai1 {
 			if( tree.fruits == 0 ) continue;
 			if( targeTFruits.exists( tree.pos ) ) continue;
 
-			final distance = troll.pos.manhattanDistance( tree.pos );
-			if( distance < closestDistance ) {
+			final distance = board.getDistance( troll.pos, tree.pos );
+			if( distance == -1 ) throw 'Error: no path from troll ${troll.id}: ${troll.pos} to tree ${tree.pos}';
+			else if( distance < closestDistance ) {
 				closesTFruit = tree;
 				closestDistance = distance;
 			}

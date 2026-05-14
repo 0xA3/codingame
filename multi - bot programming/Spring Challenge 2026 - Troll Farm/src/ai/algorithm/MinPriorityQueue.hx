@@ -14,7 +14,7 @@ class MinPriorityQueue<T> {
 	* @param  initCapacity the initial capacity of this priority queue
 	*/
 	public function new( compare:( a:T, b:T ) -> Bool ) {
-		this.compare = compare;
+		this.compare = compare; 
 		pq = new Vector<T>( 1 );
 		n = 0;
 	}
@@ -25,7 +25,7 @@ class MinPriorityQueue<T> {
 	* Takes time proportional to the number of keys, using sink-based heap construction.
 	*
 	* @param  keys the array of keys
-	*/
+	*/	
 	public function init( keys:Array<T>) {
 		n = keys.length;
 		pq = new Vector<T>( keys.length + 1 );
@@ -72,7 +72,7 @@ class MinPriorityQueue<T> {
 	*
 	* @param  x the key to add to this priority queue
 	*/
-	public function insert( x:T ) {
+	public function add( x:T ) {
 		// double size of array if necessary
 		if( n == pq.length - 1 ) resize( 2 * pq.length );
 		pq[++n] = x;
@@ -87,7 +87,7 @@ class MinPriorityQueue<T> {
 	 * @throws NoSuchElementException if this priority queue is empty
 	*/
 	
-	public function delMin() {
+	public function pop() {
 		if( isEmpty()) throw "Priority queue underflow";
 		final min = pq[1];
 		exch( 1, n-- );
@@ -96,7 +96,7 @@ class MinPriorityQueue<T> {
 		if(( n > 0 ) && ( n == ( pq.length - 1 ) / 4 )) resize( Std.int( pq.length / 2 ));
 		return min;
 	}
-	
+
 	/**
 	 * sorts the priority queue.
 	 *
@@ -159,4 +159,15 @@ class MinPriorityQueue<T> {
 		if( right <= n  && greater( k, right )) return false;
 		return isMinHeapOrdered( left ) && isMinHeapOrdered( right );
 	}
+
+	public function toString() {
+		return [for( i in 1...n + 1 ) pq[i]].toString();
+
+	}
+	
+	public static function compareInt( a:Int, b:Int ) {
+		if( a > b ) return true;
+		return false;
+	}
+
 }
