@@ -120,7 +120,7 @@ class Board {
 				reversePath.reverse();
 				paths[endIndex][startIndex] = reversePath;
 				
-				// printErr( 'getPath $startPos -> $endPos: $path' );
+				// printErr( 'new path $startPos -> $endPos: $path' );
 				return path;
 			
 			} else {
