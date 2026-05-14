@@ -20,9 +20,11 @@ class MainAi {
 	public static var mtRandom:MTRandom;
 
 	static function main() {
+		var turn = 1;
 		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
-		
+		var startTime = haxe.Timer.stamp();
+
 		final ai = new ai.versions.Ai1();
 		final inputs = readline().split(" ");
 		final boardWidth = parseInt( inputs[0] ); // The width of the board
@@ -43,7 +45,7 @@ class MainAi {
 		final trolls:Map<Int, Troll> = [];
 		// game loop
 		while( true ) {
-			final startTime = haxe.Timer.stamp();
+			if( turn > 1 ) startTime = haxe.Timer.stamp();
 			
 			treesMap.clear();
 			trees.splice( 0, trees.length );
@@ -101,7 +103,8 @@ class MainAi {
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
-
+			
+			turn++;
 			print( output );
 		}
 	}

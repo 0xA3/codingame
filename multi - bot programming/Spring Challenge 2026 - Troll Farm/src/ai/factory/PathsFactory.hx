@@ -30,8 +30,9 @@ class PathsFactory {
 		
 		map2d.setMap( [for( y in 0...boardHeight ) for( x in 0...boardWidth ) grid[y][x]] );
 		map2d.setCosts( costs );
-		map2d.configureCache( true, boardWidth * boardHeight );
+		// map2d.configureCache( true, boardWidth * boardHeight );
 
+		var searchCounter = 0;
 		for( startIndex in 0...boardWidth * boardHeight ) {
 			for( i in -boardWidth * boardHeight + 1...1 ) {
 				final endIndex = -i;
@@ -52,7 +53,8 @@ class PathsFactory {
 				if( endCell == Board.WATER || endCell == Board.ROCK ) continue; // skip when endCell is water or rock
 				
 				final solution = map2d.solve( startPos.x, startPos.y, endPos.x, endPos.y );
-				
+				searchCounter++;
+
 				if( solution.result == Solved ) {
 					final forwardPath = solution.path.map( point2D -> positions[point2D.y][point2D.x] );
 					final backwardPath = forwardPath.copy();
@@ -60,12 +62,28 @@ class PathsFactory {
 
 					paths[startIndex][endIndex] = forwardPath;
 					paths[endIndex][startIndex] = backwardPath;
+
+					// create sub path for each intermediate position
+					for( start in 0...forwardPath.length - 1 ) {
+						for( end in start + 1...forwardPath.length ) {
+							final subPath = forwardPath.slice( start, end );
+							final index1 = pos2Index( subPath[0] );
+							final index2 = pos2Index( subPath[subPath.length - 1] );
+							
+							paths[index1][index2] = subPath;
+							final reverseSubPath = subPath.copy();
+							reverseSubPath.reverse();
+							paths[index2][index1] = reverseSubPath;
+						}
+					}
 				}
 			}
 		}
+		printErr( 'searchCounter: $searchCounter' );
 
 		return paths;
 	}
 
 	function index2Pos( index:Int ) return positions[int( index / boardWidth )][index % boardWidth];
+	function pos2Index( pos:Pos ) return pos.y * boardWidth + pos.x;
 }
