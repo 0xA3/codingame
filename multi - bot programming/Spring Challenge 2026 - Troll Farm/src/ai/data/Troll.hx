@@ -1,11 +1,14 @@
 package ai.data;
 
+import ai.data.TrollState;
 import xa3.math.Pos;
 
 class Troll {
 	
 	public final id:Int;
+	public final index:Int;
 	public final player:Int;
+	public final board:Board;
 
 	public var pos = Pos.NO_POS;
 	public var movementSpeed = 0;
@@ -20,10 +23,15 @@ class Troll {
 	public var carryWood = 0;
 
 	public var carrySum = 0;
+	
+	public var job = Idle;
+	public var state = Idle;
 
-	public function new( id:Int, player:Int ) {
+	public function new( id:Int, index:Int, player:Int, board:Board ) {
 		this.id = id;
+		this.index = index;
 		this.player = player;
+		this.board = board;
 	}
 
 	public function update(

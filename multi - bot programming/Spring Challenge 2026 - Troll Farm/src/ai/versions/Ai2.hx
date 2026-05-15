@@ -37,6 +37,11 @@ class Ai2 {
 	final targetCells:Set<Pos> = [];
 	final warCry = new WarCry();
 	
+	var maxSpeed = 0;
+	var maxCarry = 0;
+	var maxHarvest = 0;
+	var maxChop = 0;
+
 	public function new() {	}
 
 	public function setGlobalInputs( board:Board ) {
@@ -54,6 +59,15 @@ class Ai2 {
 	}
 
 	public function process() {
+		maxSpeed = int( Math.sqrt( myInventory.plum - myTrolls.length ));
+		maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
+		maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
+		maxChop = int( Math.sqrt( myInventory.iron - myTrolls.length ));
+
+		if( myTrolls.length == 1 ) { // find ressources for second troll
+			
+		}
+
 		for( troll in myTrolls ) {
 			var c = "";
 			if( troll.carrySum == troll.carryCapacity ) {
@@ -110,10 +124,6 @@ class Ai2 {
 		}
 		
 		if( turn < 150 ) {
-			final maxSpeed = int( Math.sqrt( myInventory.plum - myTrolls.length ));
-			final maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
-			final maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
-			// final maxChop = int( Math.sqrt( myInventory.banana - myTrolls.length ));
 			if( maxSpeed > 0 && maxCarry > 0 && maxHarvest > 0 ) {
 				final c = 'TRAIN $maxSpeed $maxCarry $maxHarvest 0';
 				outputs.push( c );

@@ -43,6 +43,8 @@ class MainAi {
 		final treesMap:Map<Pos, Tree> = [];
 		final trees = [];
 		final trolls:Map<Int, Troll> = [];
+		final myTrolls = [];
+		final oppTrolls = [];
 		// game loop
 		while( true ) {
 			if( turn > 1 ) startTime = haxe.Timer.stamp();
@@ -90,12 +92,20 @@ class MainAi {
 				final carryIron = parseInt( inputs[12] );
 				final carryWood = parseInt( inputs[13] );
 				
-				if( !trolls.exists( id )) trolls.set( id, new Troll( id, player ));
+				if( !trolls.exists( id )) {
+					if( player == myId ) {
+						final troll = new Troll( id, myTrolls.length, player, board );
+						myTrolls.push( troll );
+						trolls.set( id, troll );
+					} else {
+						final troll = new Troll( id, oppTrolls.length, player, board );
+						oppTrolls.push( troll );
+						trolls.set( id, troll );
+					}
+				}
+				
 				trolls[id].update( board.positions[y][x], movementSpeed, carryCapacity, harvestPower, chopPower, carryPlum, carryLemon, carryApple, carryBanana, carryIron, carryWood );
 			}
-
-			final myTrolls = [for( id => troll in trolls ) if( troll.player == myId ) troll];
-			final oppTrolls = [for( id => troll in trolls ) if( troll.player != myId ) troll];
 
 			// board.populateBoard( treesMap, trolls );
 			
