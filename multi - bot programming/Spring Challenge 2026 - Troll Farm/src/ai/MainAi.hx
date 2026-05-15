@@ -97,7 +97,7 @@ class MainAi {
 			final myTrolls = [for( id => troll in trolls ) if( troll.player == myId ) troll];
 			final oppTrolls = [for( id => troll in trolls ) if( troll.player != myId ) troll];
 
-			board.populateBoard( treesMap, trolls );
+			// board.populateBoard( treesMap, trolls );
 			
 			ai.setInputs( inventories[myId], myTrolls, trees, treesMap );
 			final output = ai.process();

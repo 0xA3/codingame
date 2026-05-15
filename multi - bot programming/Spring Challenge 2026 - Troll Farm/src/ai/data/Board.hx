@@ -23,6 +23,9 @@ class Board {
 	public final grid:Array<Array<Int>>;
 	public final myShack:Pos;
 	public final oppShack:Pos;
+
+	public final ironNeighbors:Array<Pos> = [];
+	public final waterNeighbors:Array<Pos> = [];
 	
 	final map2d:Map2D;
 
@@ -73,24 +76,59 @@ class Board {
 		map2d.configureCache( true, 1024 );
 	}
 
+	public function addWaterAndIronNeighbors() {
+		for( y in 0...boardHeight ) {
+			for( x in 0...boardWidth ) {
+				final pos = positions[y][x];
+				var isIronNeighbor = false;
+				var isWaterNeighbor = false;
+				final neighbors = getAllNeighbors( pos );
+				for( neighbor in neighbors ) {
+					if( getCell( neighbor ) == Board.IRON ) isIronNeighbor = true;
+					if( getCell( neighbor ) == Board.WATER ) isWaterNeighbor = true;
+				}
+				if( isIronNeighbor ) ironNeighbors.push( pos );
+				if( isWaterNeighbor ) waterNeighbors.push( pos );
+			}
+		}
+	}
+
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
 	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= boardWidth || y < 0 || y >= boardHeight;
 	
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
-	public function populateBoard( trees:Map<Pos, Tree>, trolls:Map<Int, Troll> ) {
-		for( y in 0...boardHeight ) for( x in 0...boardWidth ) currentBoard[y][x] = grid[y][x];
-		// printErr( outputBoard( currentBoard ));
+	public inline function getCell( pos:Pos ) {
+		final cell = currentBoard[pos.y][pos.x];
 
-		turn++;
+		return cell;
 	}
 
-	public inline function getCell( pos:Pos, futureTurns:Int ) {
-		final cell = currentBoard[pos.y][pos.x];
-		if( cell == GRASS ) return GRASS;
-		if( cell == MY_SHACK ) return MY_SHACK;
+	public function getWalkableNeighbors( pos:Pos ) {
+		final neighbors = [];
+		for( neighborOffset in neighborOffsets ) {
+			final neighborX = pos.x + neighborOffset.x;
+			final neighborY = pos.y + neighborOffset.y;
+			if( checkOutsideBoard( neighborX, neighborY ) ) continue;
+			
+			final neighbor = positions[neighborY][neighborX];
+			final cell = getCell( neighbor );
+			if( cell == WATER || cell == ROCK || cell == IRON ) continue;
+			neighbors.push( neighbor );
+		}
+		return neighbors;
+	}
 
-		else return cell;
+	public function getAllNeighbors( pos:Pos ) {
+		final neighbors = [];
+		for( neighborOffset in neighborOffsets ) {
+			final neighborX = pos.x + neighborOffset.x;
+			final neighborY = pos.y + neighborOffset.y;
+			if( checkOutsideBoard( neighborX, neighborY ) ) continue;
+			final neighbor = positions[neighborY][neighborX];
+			neighbors.push( neighbor );
+		}
+		return neighbors;
 	}
 
 	public function getDistance( startPos:Pos, endPos:Pos ) {

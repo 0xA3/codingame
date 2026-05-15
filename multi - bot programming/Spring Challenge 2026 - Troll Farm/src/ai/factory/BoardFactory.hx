@@ -1,10 +1,7 @@
 package ai.factory;
 
 import CodinGame.printErr;
-import Std.int;
 import ai.data.Board;
-import haxe.io.Path;
-import xa3.MTRandom;
 import xa3.math.Pos;
 
 class BoardFactory {
@@ -22,11 +19,12 @@ class BoardFactory {
 			final line = lines[y].split( "" );
 			for( x in 0...boardWidth ) {
 				final cell = line[x];
-				if( cell == "0" ) myShack = positions[y][x];
-				else if( cell == "1" ) oppShack = positions[y][x];
-				seed += cell.charCodeAt( 0 );
-
+				final pos = positions[y][x];
+				if( cell == "0" ) myShack = pos;
+				else if( cell == "1" ) oppShack = pos;
 				grid[y].push( getCellType( cell ) );
+
+				seed += cell.charCodeAt( 0 );
 			}
 		}
 		
@@ -34,6 +32,8 @@ class BoardFactory {
 		final shackPaths = pathFactory.createShackPaths();
 
 		final board = new Board( boardWidth, boardHeight, positions, grid, shackPaths, myShack, oppShack );
+		board.addWaterAndIronNeighbors();
+		
 		MainAi.seed = seed;
 		
 		return board;
