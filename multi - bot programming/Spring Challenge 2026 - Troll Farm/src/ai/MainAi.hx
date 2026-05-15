@@ -25,7 +25,7 @@ class MainAi {
 		printErr( CompileTime.buildDateString());
 		var startTime = haxe.Timer.stamp();
 
-		final ai = new ai.versions.Ai1();
+		final ai = new ai.versions.Ai2();
 		final inputs = readline().split(" ");
 		final boardWidth = parseInt( inputs[0] ); // The width of the board
 		final boardHeight = parseInt( inputs[1] ); // The height of the board
