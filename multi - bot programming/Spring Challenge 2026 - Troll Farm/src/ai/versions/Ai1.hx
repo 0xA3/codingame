@@ -30,7 +30,7 @@ class Ai1 {
 	var myInventory:Inventory;
 	var myTrolls:Array<Troll>;
 	var trees:Array<Tree>;
-	var treesMap:Map<Pos, Tree>;
+	var treePositionsMap:Map<Pos, Tree>;
 	
 	var turn = 1;
 	final targetTrees:Map<Pos, Bool> = [];
@@ -43,11 +43,11 @@ class Ai1 {
 		this.board = board;
 	}
 
-	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treesMap:Map<Pos, Tree> ) {
+	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
 		this.myInventory = myInventory;
 		this.myTrolls = myTrolls;
 		this.trees = trees;
-		this.treesMap = treesMap;
+		this.treePositionsMap = treePositionsMap;
 		outputs.splice( 0, outputs.length );
 		targetTrees.clear();
 		targetCells.clear();
@@ -68,7 +68,7 @@ class Ai1 {
 					printErr( 'troll ${troll.id} pos ${troll.pos} return to shack ${nextPos.x} ${nextPos.y}' );
 					c = 'MOVE ${troll.id} ${nextPos.x} ${nextPos.y}';
 				} else {
-					if( !treesMap.exists( troll.pos ) ) {
+					if( !treePositionsMap.exists( troll.pos ) ) {
 						final fruit = troll.getFruit();
 						if( fruit != NONE ) {
 							printErr( 'troll ${troll.id} pos ${troll.pos} plant $fruit' );

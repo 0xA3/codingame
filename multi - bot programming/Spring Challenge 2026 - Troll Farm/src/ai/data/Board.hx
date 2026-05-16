@@ -25,6 +25,7 @@ class Board {
 	public final oppShack:Pos;
 
 	public final ironNeighbors:Array<Pos> = [];
+	public final ironNeighborPosSet:Set<Pos> = [];
 	public final waterNeighbors:Array<Pos> = [];
 	
 	final map2d:Map2D;
@@ -38,6 +39,11 @@ class Board {
 
 	public final center:Pos;
 	public final neighborOffsets = Pos.createNeighborOffsets();
+	
+	public var trees:Array<Tree>;
+	public var treePositionsMap:Map<Pos, Tree>;
+	public final targetTrees:Map<Pos, Bool> = [];
+	public final targetCells:Set<Pos> = [];
 
 	var turn = 0;
 
@@ -76,6 +82,13 @@ class Board {
 		map2d.configureCache( true, 1024 );
 	}
 
+	public function reset( trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
+		this.trees = trees;
+		this.treePositionsMap = treePositionsMap;
+		targetTrees.clear();
+		targetCells.clear();
+	}
+
 	public function addWaterAndIronNeighbors() {
 		for( y in 0...boardHeight ) {
 			for( x in 0...boardWidth ) {
@@ -87,7 +100,10 @@ class Board {
 					if( getCell( neighbor ) == Board.IRON ) isIronNeighbor = true;
 					if( getCell( neighbor ) == Board.WATER ) isWaterNeighbor = true;
 				}
-				if( isIronNeighbor ) ironNeighbors.push( pos );
+				if( isIronNeighbor ) {
+					ironNeighbors.push( pos );
+					ironNeighborPosSet.add( pos );
+				}
 				if( isWaterNeighbor ) waterNeighbors.push( pos );
 			}
 		}

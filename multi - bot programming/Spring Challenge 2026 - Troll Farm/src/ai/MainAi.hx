@@ -40,7 +40,7 @@ class MainAi {
 
 		final inventories = [for( i in 0...2 ) new Inventory()];
 
-		final treesMap:Map<Pos, Tree> = [];
+		final treePositionsMap:Map<Pos, Tree> = [];
 		final trees = [];
 		final trolls:Map<Int, Troll> = [];
 		final myTrolls = [];
@@ -49,7 +49,7 @@ class MainAi {
 		while( true ) {
 			if( turn > 1 ) startTime = haxe.Timer.stamp();
 			
-			treesMap.clear();
+			treePositionsMap.clear();
 			trees.splice( 0, trees.length );
 			
 			for( i in 0...inventories.length ) updateInventory( inventories[i], readline().split(" ") );
@@ -67,8 +67,8 @@ class MainAi {
 				final cooldown = parseInt( inputs[6] );
 
 				final pos = board.positions[y][x];
-				if( !treesMap.exists( pos )) treesMap.set( pos, new Tree( type, pos ) );
-				final tree = treesMap[pos];
+				if( !treePositionsMap.exists( pos )) treePositionsMap.set( pos, new Tree( type, pos ) );
+				final tree = treePositionsMap[pos];
 				tree.update( size, health, fruits, cooldown );
 				trees.push( tree );
 			}
@@ -107,9 +107,9 @@ class MainAi {
 				trolls[id].update( board.positions[y][x], movementSpeed, carryCapacity, harvestPower, chopPower, carryPlum, carryLemon, carryApple, carryBanana, carryIron, carryWood );
 			}
 
-			// board.populateBoard( treesMap, trolls );
+			// board.populateBoard( treePositionsMap, trolls );
 			
-			ai.setInputs( inventories[myId], myTrolls, trees, treesMap );
+			ai.setInputs( inventories[myId], myTrolls, trees, treePositionsMap );
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
