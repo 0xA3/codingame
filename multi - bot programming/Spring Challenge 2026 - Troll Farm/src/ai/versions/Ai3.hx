@@ -7,9 +7,7 @@ import ai.data.Board;
 import ai.data.Inventory;
 import ai.data.Tree;
 import ai.data.Troll;
-import js.html.LegendElement;
 import xa3.math.Pos;
-import ya.Set;
 
 using xa3.math.IntMath;
 
