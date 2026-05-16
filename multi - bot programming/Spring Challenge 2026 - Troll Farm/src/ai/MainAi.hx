@@ -67,9 +67,12 @@ class MainAi {
 				final cooldown = parseInt( inputs[6] );
 
 				final pos = board.positions[y][x];
-				if( !treePositionsMap.exists( pos )) treePositionsMap.set( pos, new Tree( type, pos ) );
+				if( !treePositionsMap.exists( pos )) treePositionsMap.set( pos, new Tree( type, pos ));
+				
 				final tree = treePositionsMap[pos];
 				tree.update( size, health, fruits, cooldown );
+				// printErr( 'add tree at $pos  size $size health $health fruits $fruits cooldown $cooldown' );
+				
 				trees.push( tree );
 			}
 
@@ -94,11 +97,11 @@ class MainAi {
 				
 				if( !trolls.exists( id )) {
 					if( player == myId ) {
-						final troll = new Troll( id, myTrolls.length, player, board );
+						final troll = new Troll( id, myTrolls.length, player, board, inventories[player] );
 						myTrolls.push( troll );
 						trolls.set( id, troll );
 					} else {
-						final troll = new Troll( id, oppTrolls.length, player, board );
+						final troll = new Troll( id, oppTrolls.length, player, board, inventories[player] );
 						oppTrolls.push( troll );
 						trolls.set( id, troll );
 					}

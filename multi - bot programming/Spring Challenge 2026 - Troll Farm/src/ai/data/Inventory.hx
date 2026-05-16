@@ -20,5 +20,22 @@ class Inventory {
 		this.wood = wood;
 	}
 
+	public function getFruit( fruit:TFruit ) {
+		switch fruit {
+			case PLUM: return plum;
+			case LEMON: return lemon;
+			case APPLE: return apple;
+			case BANANA: return banana;
+			default: return plum + lemon + apple + banana;
+		}
+	}
+	public function getAnyFruit() {
+		if( plum > 0 ) return TFruit.PLUM;
+		if( lemon > 0 ) return TFruit.LEMON;
+		if( apple > 0 ) return TFruit.APPLE;
+		if( banana > 0 ) return TFruit.BANANA;
+		return TFruit.NONE;
+	}
+
 	public function toString() return 'plum $plum lemon $lemon apple $apple banana $banana iron $iron wood $wood';
 }

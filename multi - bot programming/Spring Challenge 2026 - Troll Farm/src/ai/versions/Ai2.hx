@@ -7,6 +7,7 @@ import ai.data.Board;
 import ai.data.Inventory;
 import ai.data.Tree;
 import ai.data.Troll;
+import js.html.LegendElement;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -49,8 +50,17 @@ class Ai2 {
 	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
 		this.myInventory = myInventory;
 		this.myTrolls = myTrolls;
+		// for( pos in treePositionsMap.keys() ) printErr( 'tree at $pos' );
 		board.reset( trees, treePositionsMap );
 		outputs.splice( 0, outputs.length );
+	}
+
+	public function testJobs() {
+		final troll = myTrolls[0];
+		troll.setJob( Planting( ANY ));
+		final action = troll.go();
+		if( action != "" ) return action else return "WAIT";
+
 	}
 
 	public function process() {
@@ -58,6 +68,13 @@ class Ai2 {
 		maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
 		maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
 		maxChop = int( Math.sqrt( myInventory.iron - myTrolls.length ));
+
+		var chopSum = 0;
+		var plantSum = 0;
+		for( troll in myTrolls ) {
+			chopSum += troll.chopCounter;
+			plantSum += troll.plantCounter;
+		}
 
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
@@ -67,10 +84,16 @@ class Ai2 {
 			else if( maxChop < 2 ) troll.setJob( Mining );
 			else {
 				troll.setJob( Harvesting( ANY ));
+				printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
 				outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
 			}
 		} else {
-			myTrolls[0].setJob( Harvesting( ANY ));
+			printErr( 'chopSum $chopSum plantSum $plantSum' );
+			if( chopSum > plantSum ) {
+				myTrolls[0].setJob( Planting( ANY ));
+			} else {
+				myTrolls[0].setJob( Harvesting( ANY ));
+			}
 			myTrolls[1].setJob( Chopping );
 		}
 

@@ -32,7 +32,9 @@ class BoardFactory {
 		final shackPaths = pathFactory.createShackPaths();
 
 		final board = new Board( boardWidth, boardHeight, positions, grid, shackPaths, myShack, oppShack );
+		
 		board.addWaterAndIronNeighbors();
+		board.addPlantPositions();
 		
 		MainAi.seed = seed;
 		

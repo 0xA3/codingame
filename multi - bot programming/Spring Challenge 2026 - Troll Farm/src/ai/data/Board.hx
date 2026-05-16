@@ -27,12 +27,12 @@ class Board {
 	public final ironNeighbors:Array<Pos> = [];
 	public final ironNeighborPosSet:Set<Pos> = [];
 	public final waterNeighbors:Array<Pos> = [];
+	public final plantPositions:Array<Pos> = [];
 	
 	final map2d:Map2D;
 
-	public final currentBoard:Array<Array<Int>>;
-	
-	public final nextBoard:Array<Array<Int>>;
+	// public final currentBoard:Array<Array<Int>>;
+	// public final nextBoard:Array<Array<Int>>;
 
 	public final halfWidth:Int;
 	public final thirdWidth:Int;
@@ -64,8 +64,8 @@ class Board {
 		this.myShack = myShack;
 		this.oppShack = oppShack;
 
-		currentBoard = [for( y in 0...boardHeight ) []];
-		nextBoard = [for( y in 0...boardHeight ) []];
+		// currentBoard = [for( y in 0...boardHeight ) []];
+		// nextBoard = [for( y in 0...boardHeight ) []];
 		
 		halfWidth = int( boardWidth / 2 );
 		thirdWidth = int( boardWidth / 3 );
@@ -90,9 +90,14 @@ class Board {
 	}
 
 	public function addWaterAndIronNeighbors() {
+		// printErr( 'addWaterAndIronNeighbors' );
 		for( y in 0...boardHeight ) {
 			for( x in 0...boardWidth ) {
 				final pos = positions[y][x];
+				final cell = getCell( pos );
+				// printErr( 'pos $pos cell $cell' );
+				if( cell != Board.GRASS ) continue;
+
 				var isIronNeighbor = false;
 				var isWaterNeighbor = false;
 				final neighbors = getAllNeighbors( pos );
@@ -100,6 +105,7 @@ class Board {
 					if( getCell( neighbor ) == Board.IRON ) isIronNeighbor = true;
 					if( getCell( neighbor ) == Board.WATER ) isWaterNeighbor = true;
 				}
+				// printErr( 'pos $pos isIronNeighbor $isIronNeighbor isWaterNeighbor $isWaterNeighbor' );
 				if( isIronNeighbor ) {
 					ironNeighbors.push( pos );
 					ironNeighborPosSet.add( pos );
@@ -109,14 +115,26 @@ class Board {
 		}
 	}
 
+	public function addPlantPositions() {
+		for( y in 0...positions.length ) for( pos in positions[y] ) if( getCell( pos ) == Board.GRASS ) plantPositions.push( pos );
+		if( myShack == Pos.NO_POS ) throw 'Error: no myShack';
+		
+		plantPositions.sort(( a, b ) -> {
+			final aDistance = getDistance( myShack, a );
+			final bDistance = getDistance( myShack, b );
+			if( aDistance < bDistance ) return -1;
+			else if( aDistance > bDistance ) return 1;
+			else return 0;
+		});
+	}
+
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
 	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= boardWidth || y < 0 || y >= boardHeight;
 	
 	public function centerDistance( pos:Pos ) return center.manhattanDistance( pos );
 
 	public inline function getCell( pos:Pos ) {
-		final cell = currentBoard[pos.y][pos.x];
-
+		final cell = grid[pos.y][pos.x];
 		return cell;
 	}
 
@@ -206,11 +224,11 @@ class Board {
 		return output.join( "\n" );
 	}
 
-	public function previewNextBoard() {
-		for( y in 0...boardHeight ) for( x in 0...boardWidth ) nextBoard[y][x] = grid[y][x];
+	// public function previewNextBoard() {
+	// 	for( y in 0...boardHeight ) for( x in 0...boardWidth ) nextBoard[y][x] = grid[y][x];
 
-		return outputBoard( nextBoard );
-	}
+	// 	return outputBoard( nextBoard );
+	// }
 
 	inline function index2Pos( index:Int ) return positions[int( index / boardWidth )][index % boardWidth];
 	inline function pos2Index( pos:Pos ) return pos.y * boardWidth + pos.x;
