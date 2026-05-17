@@ -8,7 +8,7 @@ class Troll {
 	
 	public final id:Int;
 	public final index:Int;
-	public final player:Int;
+	public final player:Player;
 	public final board:Board;
 	public final inventory:Inventory;
 
@@ -32,7 +32,7 @@ class Troll {
 	public final todos = [];
 	public var state = Idle;
 
-	public function new( id:Int, index:Int, player:Int, board:Board, inventory:Inventory ) {
+	public function new( id:Int, index:Int, player:Player, board:Board, inventory:Inventory ) {
 		this.id = id;
 		this.index = index;
 		this.player = player;
@@ -95,14 +95,14 @@ class Troll {
 	}
 
 	function goChopping() {
-		if( carrySum == carryCapacity ) return returnToShack();
-		else { // go to to tree
-			final closestTree = findClosestTree( TFruit.ANY, 0, carryCapacity );
+		if( carrySum == carryCapacity ) {
+			return returnToShack();
+		} else { // go to to tree
+			final closestTree = findClosestTree( TFruit.ANY, Opp, 0, carryCapacity );
 			if( closestTree != Tree.NO_TREE ) {
 				if( closestTree.pos == pos ) {
 					printErr( 'troll $id chop' );
-					chopCounter++;
-					finishTask();
+					if( closestTree.health <= chopPower ) chopCounter++;
 					return 'CHOP $id';
 				} else {
 					final pathToTree = board.getPath( pos, closestTree.pos );
@@ -117,14 +117,14 @@ class Troll {
 	function goHarvesting( fruit:TFruit ) {
 		if( carrySum == carryCapacity ) return returnToShack();
 		else { // go to to tree
-			final closestTree = findClosestTree( fruit, 1 );
+			final closestTree = findClosestTree( fruit, AnyPlayer, 1 );
 			if( closestTree != Tree.NO_TREE ) {
 				if( closestTree.pos == pos ) {
 					printErr( 'troll $id harvest' );
 					return 'HARVEST $id';
 				} else {
 					final pathToTree = board.getPath( pos, closestTree.pos );
-					printErr( 'troll $id path to tree ' + pathToTree.join( "," ));
+					printErr( 'troll $id path to tree ${closestTree.pos}' );
 					return evaluatePath( pathToTree, "Tree" );
 				}
 			} else {
@@ -144,7 +144,7 @@ class Troll {
 					return 'MINE $id';
 				} else {
 					final pathToIron = board.getPath( pos, closestIron );
-					printErr( 'troll $id to to mine ' + pathToIron.join( "," ) );
+					printErr( 'troll $id to to mine $closestIron' );
 					return evaluatePath( pathToIron, "Iron" );
 				}
 			}
@@ -182,11 +182,12 @@ class Troll {
 							return "";
 						}
 						finishTask();
+						plantCounter++;
 						return 'PLANT $id $fruitToPlant';
 					}
 					
 					final pathToPlant = board.getPath( pos, plantPos );
-					printErr( 'troll $id go to plant location ' + pathToPlant.join( "," ) );
+					printErr( 'troll $id go to plant location $plantPos' );
 					return evaluatePath( pathToPlant, "Plant" );
 				}
 			}
@@ -198,7 +199,7 @@ class Troll {
 	function getFruit( fruit:TFruit ) {
 		printErr( 'troll $id has fruit in inventory' );
 		final shackDistance = board.getDistance( pos, board.myShack );
-		final closestTree = findClosestTree( fruit, 1 );
+		final closestTree = findClosestTree( fruit, AnyPlayer, 1 );
 		
 		if( closestTree == Tree.NO_TREE ) return getFruitFromShack( fruit );
 		final treeDistance = board.getDistance( pos, closestTree.pos );
@@ -219,7 +220,7 @@ class Troll {
 			return fruitToPick == NONE ? "" : 'PICK $id $fruitToPick';
 		} else {
 			final pathToShack = board.getPath( pos, board.myShack );
-			printErr( 'troll $id path to shack ' + pathToShack.join( "," ) );
+			printErr( 'troll $id go to my shack' );
 			return evaluatePath( pathToShack, "Shack" );
 		}
 	}
@@ -230,7 +231,7 @@ class Troll {
 			finishTask();
 			return 'DROP $id';
 		} else {
-			printErr( 'troll $id path to shack ' + pathToShack.join( "," ) );
+			printErr( 'troll $id return to my shack' );
 			return evaluatePath( pathToShack, "Shack" );
 		}
 	}
@@ -267,13 +268,19 @@ class Troll {
 		return neighbors[0];
 	}
 	
-	function findClosestTree( fruit:TFruit, minFruits = 1, minSize = 1 ) {
+	function findClosestTree( fruit:TFruit, nearPlayer:Player, minFruits = 1, minSize = 1 ) {
 		var closestTree = Tree.NO_TREE;
 		var closestDistance = board.boardWidth * board.boardHeight;
 		for( tree in board.trees ) {
 			if( fruit != TFruit.ANY && tree.type != fruit ) continue;
 			if( board.targetTrees.exists( tree.pos )) continue;
 			
+			switch nearPlayer {
+				case Me: if( tree.isNearPlayer != Me ) continue;
+				case Opp: if( tree.isNearPlayer != Opp ) continue;
+				default: // no_op
+			}
+
 			final distance = board.getDistance( pos, tree.pos );
 			if( distance == -1 ) {
 				printErr( 'Error: no path from troll $id: ${pos} to tree ${tree.pos}' );

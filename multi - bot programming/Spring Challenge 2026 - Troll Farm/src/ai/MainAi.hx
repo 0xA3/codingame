@@ -6,6 +6,7 @@ import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
 import ai.data.Inventory;
+import ai.data.Player;
 import ai.data.Tree;
 import ai.data.Troll;
 import ai.factory.BoardFactory;
@@ -31,15 +32,12 @@ class MainAi {
 		final boardHeight = parseInt( inputs[1] ); // The height of the board
 		final lines = [for( i in 0...boardHeight ) readline()];
 
-		final myId = 0; // Your player id
-		final oppId = 1; // Opponent player id
-
 		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines );
 		mtRandom = new MTRandom( seed );
 
 		ai.setGlobalInputs( board );
 
-		final inventories = [for( i in 0...2 ) new Inventory()];
+		final inventories = [Me => new Inventory(), Opp => new Inventory()];
 
 		final treePositionsMap:Map<Pos, Tree> = [];
 		final trees = [];
@@ -53,7 +51,8 @@ class MainAi {
 			treePositionsMap.clear();
 			trees.splice( 0, trees.length );
 			
-			for( i in 0...inventories.length ) updateInventory( inventories[i], readline().split(" ") );
+			inventories[Me].update( readline().split(" ") );
+			inventories[Opp].update( readline().split(" ") );
 
 			final treesCount = parseInt( readline() );
 
@@ -74,7 +73,7 @@ class MainAi {
 				final isNearWater = board.waterNeighborPosSet.contains( pos );
 				final myDistance = board.getDistance( pos, board.myShack );
 				final oppDistance = board.getDistance( pos, board.oppShack );
-				tree.update( size, health, fruits, cooldown, isNearWater, myDistance < oppDistance ? myId : oppId );
+				tree.update( size, health, fruits, cooldown, isNearWater, myDistance < oppDistance ? Me : Opp );
 				// printErr( 'add tree at $pos  myDistance $myDistance oppDistance $oppDistance' );
 				
 				trees.push( tree );
@@ -85,7 +84,7 @@ class MainAi {
 			for( _ in 0...trollsCount ) {
 				final inputs = readline().split(" ");
 				final id = parseInt( inputs[0] );
-				final player = parseInt( inputs[1] );
+				final player = parseInt( inputs[1] ) == 0 ? Me : Opp;
 				final x = parseInt( inputs[2] );
 				final y = parseInt( inputs[3] );
 				final movementSpeed = parseInt( inputs[4] );
@@ -100,7 +99,7 @@ class MainAi {
 				final carryWood = parseInt( inputs[13] );
 				
 				if( !trolls.exists( id )) {
-					if( player == myId ) {
+					if( player == Me ) {
 						final troll = new Troll( id, myTrolls.length, player, board, inventories[player] );
 						myTrolls.push( troll );
 						trolls.set( id, troll );
@@ -116,7 +115,7 @@ class MainAi {
 
 			// board.populateBoard( treePositionsMap, trolls );
 			
-			ai.setInputs( inventories[myId], myTrolls, trees, treePositionsMap );
+			ai.setInputs( inventories[Me], myTrolls, trees, treePositionsMap );
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
@@ -124,15 +123,5 @@ class MainAi {
 			turn++;
 			print( output );
 		}
-	}
-
-	static function updateInventory( inventory:Inventory, values:Array<String> ) {
-		final plum = parseInt( values[0] );
-		final lemon = parseInt( values[1] );
-		final apple = parseInt( values[2] );
-		final banana = parseInt( values[3] );
-		final iron = parseInt( values[4] );
-		final wood = parseInt( values[5] );
-		inventory.update( plum, lemon, apple, banana, iron, wood );
 	}
 }

@@ -38,7 +38,6 @@ class Ai3 {
 	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
 		this.myInventory = myInventory;
 		this.myTrolls = myTrolls;
-		// for( pos in treePositionsMap.keys() ) printErr( 'tree at $pos' );
 		board.reset( trees, treePositionsMap );
 		outputs.splice( 0, outputs.length );
 	}
@@ -67,6 +66,7 @@ class Ai3 {
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
 			if( troll.state == Idle ) {
+				printErr( 'maxSpeed $maxSpeed maxCarry $maxCarry maxHarvest $maxHarvest maxChop $maxChop' );
 				if( maxSpeed < 2 ) troll.addTask( Harvesting( PLUM ));
 				if( maxCarry < 2 ) troll.addTask( Harvesting( LEMON ));
 				if( maxHarvest < 2 ) troll.addTask( Harvesting( APPLE ));

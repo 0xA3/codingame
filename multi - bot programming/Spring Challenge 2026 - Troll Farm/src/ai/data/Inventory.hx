@@ -1,4 +1,5 @@
 package ai.data;
+import Std.parseInt;
 
 class Inventory {
 	
@@ -11,13 +12,13 @@ class Inventory {
 
 	public function new() {	}
 
-	public function update( plum:Int, lemon:Int, apple:Int, banana:Int, iron:Int, wood:Int ) {
-		this.plum = plum;
-		this.lemon = lemon;
-		this.apple = apple;
-		this.banana = banana;
-		this.iron = iron;
-		this.wood = wood;
+	public function update( values:Array<String> ) {
+		plum = parseInt( values[0] );
+		lemon = parseInt( values[1] );
+		apple = parseInt( values[2] );
+		banana = parseInt( values[3] );
+		iron = parseInt( values[4] );
+		wood = parseInt( values[5] );
 	}
 
 	public function getFruit( fruit:TFruit ) {

@@ -1,6 +1,7 @@
 package ai.data;
 
 import Std.int;
+import ai.data.Player;
 import ai.data.TFruit;
 import xa3.math.Pos;
 
@@ -33,7 +34,7 @@ class Tree {
 	public var fruits = 0;
 	public var cooldown = 0;
 	public var isNearWater = false;
-	public var isNearPlayer = 0;
+	public var isNearPlayer = AnyPlayer;
 
 	public function new( sType:String, pos:Pos ) {
 		this.type = convertType( sType );
@@ -52,7 +53,7 @@ class Tree {
 		}
 	}
 
-	public function update( size:Int, health:Int, fruits:Int, cooldown:Int, isNearWater:Bool, isNearPlayer:Int ) {
+	public function update( size:Int, health:Int, fruits:Int, cooldown:Int, isNearWater:Bool, isNearPlayer:Player ) {
 		this.size = size;
 		this.health = health;
 		this.fruits = fruits;
