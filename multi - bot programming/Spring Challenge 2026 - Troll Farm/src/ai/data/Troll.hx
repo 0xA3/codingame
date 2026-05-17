@@ -264,7 +264,7 @@ class Troll {
 			final framesToTree = Math.ceil( distance / movementSpeed );
 			final futureSize = tree.getSizeAfter( framesToTree );
 			final futureFruits = tree.getFruitsAfter( framesToTree );
-			printErr( 'tree at ${tree.pos} distance $distance size ${tree.size} fruits ${tree.fruits} futureSize $futureSize futureFruits $futureFruits' );
+			// printErr( 'tree at ${tree.pos} distance $distance size ${tree.size} fruits ${tree.fruits} futureSize $futureSize futureFruits $futureFruits' );
 			if( futureSize < minSize ) continue;
 			if( futureFruits < minFruits ) continue;
 
