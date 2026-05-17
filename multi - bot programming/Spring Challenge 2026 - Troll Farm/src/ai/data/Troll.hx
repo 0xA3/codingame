@@ -86,7 +86,7 @@ class Troll {
 		}
 
 		switch state {
-			case Chopping: return goChopping();
+			case Chopping( player ): return goChopping( player );
 			case Idle: return "";
 			case Harvesting ( fruit ): return goHarvesting( fruit);
 			case Mining: return goMining();
@@ -94,11 +94,11 @@ class Troll {
 		}
 	}
 
-	function goChopping() {
+	function goChopping( player:Player ) {
 		if( carrySum == carryCapacity ) {
 			return returnToShack();
 		} else { // go to to tree
-			final closestTree = findClosestTree( TFruit.ANY, Opp, 0, carryCapacity );
+			final closestTree = findClosestTree( TFruit.ANY, player, 0, carryCapacity );
 			if( closestTree != Tree.NO_TREE ) {
 				if( closestTree.pos == pos ) {
 					printErr( 'troll $id chop' );
@@ -124,11 +124,13 @@ class Troll {
 					return 'HARVEST $id';
 				} else {
 					final pathToTree = board.getPath( pos, closestTree.pos );
-					printErr( 'troll $id path to tree ${closestTree.pos}' );
+					printErr( 'troll $id $state path to tree ${closestTree.pos}' );
 					return evaluatePath( pathToTree, "Tree" );
 				}
 			} else {
 				printErr( 'troll $id no $fruit tree to harvest' );
+				state = Harvesting( ANY );
+				go();
 			}
 		}
 		return "";

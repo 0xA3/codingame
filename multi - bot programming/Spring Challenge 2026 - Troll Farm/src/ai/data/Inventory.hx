@@ -1,5 +1,6 @@
 package ai.data;
 import Std.parseInt;
+import ai.data.TFruit;
 
 class Inventory {
 	
@@ -10,6 +11,8 @@ class Inventory {
 	public var iron = 0;
 	public var wood = 0;
 
+	public var fruitSum = 0;
+
 	public function new() {	}
 
 	public function update( values:Array<String> ) {
@@ -19,6 +22,8 @@ class Inventory {
 		banana = parseInt( values[3] );
 		iron = parseInt( values[4] );
 		wood = parseInt( values[5] );
+
+		fruitSum = plum + lemon + apple + banana;
 	}
 
 	public function getFruit( fruit:TFruit ) {
@@ -36,6 +41,19 @@ class Inventory {
 		if( apple > 0 ) return TFruit.APPLE;
 		if( banana > 0 ) return TFruit.BANANA;
 		return TFruit.NONE;
+	}
+
+	public function getMostRareFruit() {
+		final fruits = [
+			{ fruit: PLUM, amount: plum },
+			{ fruit: LEMON, amount: lemon },
+			{ fruit: APPLE, amount: apple },
+			{ fruit: BANANA, amount: banana }
+		];
+		
+		fruits.sort(( a, b ) -> a.amount - b.amount );
+
+		return fruits[0];
 	}
 
 	public function toString() return 'plum $plum lemon $lemon apple $apple banana $banana iron $iron wood $wood';

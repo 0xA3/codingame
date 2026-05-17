@@ -5,6 +5,7 @@ import Std.int;
 import ai.contexts.WarCry;
 import ai.data.Board;
 import ai.data.Inventory;
+import ai.data.TFruit;
 import ai.data.Tree;
 import ai.data.Troll;
 import xa3.math.Pos;
@@ -78,14 +79,49 @@ class Ai3 {
 					outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
 				}
 			}
-		} else {
+		} else if( myTrolls.length == 2 ) {
 			printErr( 'chopSum $chopSum plantSum $plantSum' );
-			if( chopSum > plantSum ) {
-				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Planting( ANY ));
-			} else {
-				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvesting( ANY ));
+			final treesAroundBase = [
+				{ tree: PLUM, amount: 0 },
+				{ tree: LEMON, amount: 0 },
+				{ tree: APPLE, amount: 0 },
+				{ tree: BANANA, amount: 0 }
+			];
+			
+			var treesNum = 0;
+			for( i in 0...16 ) {
+				final pos = board.plantPositions[i];
+				if( board.treePositionsMap.exists( pos ) ) {
+					final tree = board.treePositionsMap[pos];
+					if( tree.type == PLUM ) treesAroundBase[0].amount++;
+					if( tree.type == LEMON ) treesAroundBase[1].amount++;
+					if( tree.type == APPLE ) treesAroundBase[2].amount++;
+					if( tree.type == BANANA ) treesAroundBase[3].amount++;
+
+					treesNum++;
+				}
 			}
-			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping );
+			
+			treesAroundBase.sort(( a, b ) -> a.amount - b.amount );
+			final mostRareTreeType = treesAroundBase[0].tree;
+			final mostRareFruit = myInventory.getMostRareFruit();
+			printErr( 'treesNum $treesNum mostRareTreeType $mostRareTreeType mostRareFruit ${mostRareFruit.fruit} fruitSum ${myInventory.fruitSum} ' );
+			if( treesNum < 8 ) {
+				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Planting( mostRareTreeType ));
+			} else {
+				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvesting( mostRareFruit.fruit ));
+			}
+
+			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( Opp ));
+
+			if( maxSpeed >= 1 && maxCarry >= 1 && maxHarvest >= 1 ) {
+				printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
+				outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
+			}
+		} else {
+			if( myTrolls[0].state == Idle ) myTrolls[1].addTask( Harvesting( ANY ));
+			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( AnyPlayer ));
+			if( myTrolls[2].state == Idle ) myTrolls[1].addTask( Harvesting( ANY ));
 		}
 
 		for( troll in myTrolls ) {
