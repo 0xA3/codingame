@@ -32,6 +32,7 @@ class MainAi {
 		final lines = [for( i in 0...boardHeight ) readline()];
 
 		final myId = 0; // Your player id
+		final oppId = 1; // Opponent player id
 
 		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines );
 		mtRandom = new MTRandom( seed );
@@ -71,8 +72,10 @@ class MainAi {
 				
 				final tree = treePositionsMap[pos];
 				final isNearWater = board.waterNeighborPosSet.contains( pos );
-				tree.update( size, health, fruits, cooldown, isNearWater );
-				// printErr( 'add tree at $pos  size $size health $health fruits $fruits cooldown $cooldown' );
+				final myDistance = board.getDistance( pos, board.myShack );
+				final oppDistance = board.getDistance( pos, board.oppShack );
+				tree.update( size, health, fruits, cooldown, isNearWater, myDistance < oppDistance ? myId : oppId );
+				// printErr( 'add tree at $pos  myDistance $myDistance oppDistance $oppDistance' );
 				
 				trees.push( tree );
 			}

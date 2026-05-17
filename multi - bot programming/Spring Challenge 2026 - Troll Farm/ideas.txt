@@ -10,14 +10,7 @@
 // MSG text to display a message in the replay.
 
 DONE beim Ernten und abholzen in die Zukunft schauen, wann der Baum so weit ist
-
-
-Liste mit Jobs
-Bot entfernt Job wenn er fertig ist
-mehrere Jobs vergeben mit Priorität - z.b. sammle Pflaumen, Bananen und Eisen
-
-
-
+DONE Todo Liste für Trolle
 
 beste Plätze zum Pflanzen finden
 - Abstand zum Shack

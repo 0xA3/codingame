@@ -63,13 +63,23 @@ class PathsFactory {
 
 				paths[startIndex][endIndex] = forwardPath;
 				paths[endIndex][startIndex] = backwardPath;
+
+				// mirror path
+				final mStartIndex = pos2Index( mirrorPos( index2Pos( startIndex )));
+				final mEndIndex = pos2Index( mirrorPos( index2Pos( endIndex )));
+				final mForwardPath = forwardPath.map( pos -> mirrorPos( pos ));
+				final mBackwardPath = backwardPath.map( pos -> mirrorPos( pos ));
+				paths[mStartIndex][mEndIndex] = mForwardPath;
+				paths[mEndIndex][mStartIndex] = mBackwardPath;
+
+				// printErr( 'sendPos $endPos mEndPos ${mirrorPos( endPos )}' );
 			}
 		}
 		printErr( 'searchCounter: $searchCounter' );
 
 		return paths;
 	}
-
 	function index2Pos( index:Int ) return positions[int( index / boardWidth )][index % boardWidth];
 	function pos2Index( pos:Pos ) return pos.y * boardWidth + pos.x;
+	function mirrorPos( pos:Pos ) return positions[boardHeight - pos.y - 1][boardWidth - pos.x - 1];
 }

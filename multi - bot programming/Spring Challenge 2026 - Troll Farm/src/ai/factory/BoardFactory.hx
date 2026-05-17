@@ -4,6 +4,8 @@ import CodinGame.printErr;
 import ai.data.Board;
 import xa3.math.Pos;
 
+using Lambda;
+
 class BoardFactory {
 	
 	public static function createBoard( boardWidth:Int, boardHeight:Int, lines:Array<String >) {

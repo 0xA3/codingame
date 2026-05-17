@@ -45,7 +45,7 @@ class Ai3 {
 
 	public function testJobs() {
 		final troll = myTrolls[0];
-		troll.setJob( Planting( ANY ));
+		troll.addTask( Planting( ANY ));
 		final action = troll.go();
 		if( action != "" ) return action else return "WAIT";
 
@@ -66,23 +66,26 @@ class Ai3 {
 
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
-			if( maxSpeed < 2 ) troll.setJob( Harvesting( PLUM ));
-			else if( maxCarry < 2 ) troll.setJob( Harvesting( LEMON ));
-			else if( maxHarvest < 2 ) troll.setJob( Harvesting( APPLE ));
-			else if( maxChop < 2 ) troll.setJob( Mining );
-			else {
-				troll.setJob( Harvesting( ANY ));
-				printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
-				outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
+			if( troll.state == Idle ) {
+				if( maxSpeed < 2 ) troll.addTask( Harvesting( PLUM ));
+				if( maxCarry < 2 ) troll.addTask( Harvesting( LEMON ));
+				if( maxHarvest < 2 ) troll.addTask( Harvesting( APPLE ));
+				if( maxChop < 2 ) troll.addTask( Mining );
+				
+				if( maxSpeed >= 2 && maxCarry >= 2 && maxHarvest >= 2 && maxChop >= 2 ) {
+					troll.addTask( Harvesting( ANY ));
+					printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
+					outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
+				}
 			}
 		} else {
 			printErr( 'chopSum $chopSum plantSum $plantSum' );
 			if( chopSum > plantSum ) {
-				myTrolls[0].setJob( Planting( ANY ));
+				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Planting( ANY ));
 			} else {
-				myTrolls[0].setJob( Harvesting( ANY ));
+				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvesting( ANY ));
 			}
-			myTrolls[1].setJob( Chopping );
+			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping );
 		}
 
 		for( troll in myTrolls ) {
