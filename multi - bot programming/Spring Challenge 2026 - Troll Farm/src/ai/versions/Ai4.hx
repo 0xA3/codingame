@@ -56,6 +56,7 @@ class Ai4 {
 		maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
 		maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
 		maxChop = int( Math.sqrt( myInventory.iron - myTrolls.length ));
+		printErr( 'maxSpeed $maxSpeed maxCarry $maxCarry maxHarvest $maxHarvest maxChop $maxChop' );
 
 		var chopSum = 0;
 		var plantSum = 0;
@@ -67,7 +68,6 @@ class Ai4 {
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
 			if( troll.state == Idle ) {
-				printErr( 'maxSpeed $maxSpeed maxCarry $maxCarry maxHarvest $maxHarvest maxChop $maxChop' );
 				if( maxSpeed < 2 ) troll.addTask( Harvesting( PLUM ));
 				if( maxCarry < 2 ) troll.addTask( Harvesting( LEMON ));
 				if( maxHarvest < 2 ) troll.addTask( Harvesting( APPLE ));
@@ -107,12 +107,12 @@ class Ai4 {
 			final mostRareFruit = myInventory.getMostRareFruit();
 			printErr( 'treesNum $treesNum mostRareTreeType $mostRareTreeType mostRareFruit ${mostRareFruit.fruit} fruitSum ${myInventory.fruitSum} ' );
 			if( treesNum < 8 ) {
-				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Planting( mostRareTreeType ));
+				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Planting( ANY ));
 			} else {
-				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvesting( mostRareFruit.fruit ));
+				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvesting( ANY ));
 			}
 
-			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( Opp ));
+			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( AnyPlayer ));
 
 			if( maxSpeed >= 1 && maxCarry >= 1 && maxHarvest >= 1 ) {
 				printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
