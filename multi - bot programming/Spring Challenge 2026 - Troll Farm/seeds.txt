@@ -1,2 +1,4 @@
+Seed=-1496396499970442500 - warten auf Pflaumen
+
 Replay mit Illedan und aCat
 https://www.codingame.com/replay/887555655

@@ -11,16 +11,6 @@ import xa3.math.Pos;
 
 using xa3.math.IntMath;
 
-// MOVE id x y Move troll id to cell (x, y).
-// HARVEST id Make troll id harvest on its current cell.
-// PLANT id type Make troll id plant a type on its current cell: PLUM, LEMON, APPLE or BANANA.
-// CHOP id Make troll id chop on its current cell.
-// PICK id type Make troll id pick one type from the shack: PLUM, LEMON, APPLE or BANANA.
-// DROP id Make troll id drop all carried items at the shack.
-// TRAIN moveSpeed carryCapacity harvestPower chopPower Train a new troll with the given attributes.
-// MINE id Make troll id mine a nearby IRON.
-// WAIT to do nothing.
-// MSG text to display a message in the replay.
 
 class Ai3 {
 

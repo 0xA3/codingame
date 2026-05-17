@@ -70,7 +70,8 @@ class MainAi {
 				if( !treePositionsMap.exists( pos )) treePositionsMap.set( pos, new Tree( type, pos ));
 				
 				final tree = treePositionsMap[pos];
-				tree.update( size, health, fruits, cooldown );
+				final isNearWater = board.waterNeighborPosSet.contains( pos );
+				tree.update( size, health, fruits, cooldown, isNearWater );
 				// printErr( 'add tree at $pos  size $size health $health fruits $fruits cooldown $cooldown' );
 				
 				trees.push( tree );

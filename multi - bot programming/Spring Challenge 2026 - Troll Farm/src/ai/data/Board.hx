@@ -27,6 +27,7 @@ class Board {
 	public final ironNeighbors:Array<Pos> = [];
 	public final ironNeighborPosSet:Set<Pos> = [];
 	public final waterNeighbors:Array<Pos> = [];
+	public final waterNeighborPosSet:Set<Pos> = [];
 	public final plantPositions:Array<Pos> = [];
 	
 	final map2d:Map2D;
@@ -110,7 +111,10 @@ class Board {
 					ironNeighbors.push( pos );
 					ironNeighborPosSet.add( pos );
 				}
-				if( isWaterNeighbor ) waterNeighbors.push( pos );
+				if( isWaterNeighbor ) {
+					waterNeighbors.push( pos );
+					waterNeighborPosSet.add( pos );
+				}
 			}
 		}
 	}

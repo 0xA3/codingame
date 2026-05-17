@@ -252,14 +252,23 @@ class Troll {
 		var closestTree = Tree.NO_TREE;
 		var closestDistance = board.boardWidth * board.boardHeight;
 		for( tree in board.trees ) {
-			if( tree.size < minSize ) continue;
-			if( tree.fruits < minFruits ) continue;
-			if( board.targetTrees.exists( tree.pos )) continue;
 			if( fruit != TFruit.ANY && tree.type != fruit ) continue;
-
+			if( board.targetTrees.exists( tree.pos )) continue;
+			
 			final distance = board.getDistance( pos, tree.pos );
-			if( distance == -1 ) printErr( 'Error: no path from troll $id: ${pos} to tree ${tree.pos}' );
-			else if( distance < closestDistance ) {
+			if( distance == -1 ) {
+				printErr( 'Error: no path from troll $id: ${pos} to tree ${tree.pos}' );
+				continue;
+			}
+			
+			final framesToTree = Math.ceil( distance / movementSpeed );
+			final futureSize = tree.getSizeAfter( framesToTree );
+			final futureFruits = tree.getFruitsAfter( framesToTree );
+			printErr( 'tree at ${tree.pos} distance $distance size ${tree.size} fruits ${tree.fruits} futureSize $futureSize futureFruits $futureFruits' );
+			if( futureSize < minSize ) continue;
+			if( futureFruits < minFruits ) continue;
+
+			if( distance < closestDistance ) {
 				closestTree = tree;
 				closestDistance = distance;
 			}
