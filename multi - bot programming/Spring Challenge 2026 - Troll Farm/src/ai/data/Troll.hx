@@ -177,37 +177,22 @@ class Troll {
 			}
 		} else {
 			printErr( 'troll $id is carrying $fruit' );
-			for( depth in 0...board.plantPositions.length ) {
-				final plantPositionsOfDepth = board.plantPositions[depth];
-				plantPositionsOfDepth.sort(( a, b ) -> {
-					final d1 = board.getDistance( pos, a );
-					final d2 = board.getDistance( pos, b );
-					if( d1 < d2 ) return -1;
-					else if( d1 > d2 ) return 1;
-					else return 0;
-				});
-
-				for( plantPos in plantPositionsOfDepth ) {
-					// printErr( 'plantPos $plantPos distance ${board.getDistance( pos, plantPos )}' );
-					if( !board.treePositionsMap.exists( plantPos )) {
-						if( pos == plantPos ) {
-							final fruitToPlant = fruit == TFruit.ANY ? getAnyFruit() : fruit;
-							printErr( 'troll $id plant $fruitToPlant' );
-							if( fruitToPlant == TFruit.NONE ) {
-								printErr( 'Error: troll $id has no fruit to plant' );
-								return "";
-							}
-							finishTask();
-							plantCounter++;
-							return 'PLANT $id $fruitToPlant';
-						}
-						
-						printErr( 'troll $id plant $plantPos distance ${board.getDistance( pos, plantPos )}' );
-						final pathToPlant = board.getPath( pos, plantPos );
-						return evaluatePath( pathToPlant, "Plant" );
-					}
+			final plantPos = board.getPlantPosition( pos );
+			if( pos == plantPos ) {
+				final fruitToPlant = fruit == TFruit.ANY ? getAnyFruit() : fruit;
+				printErr( 'troll $id plant $fruitToPlant' );
+				if( fruitToPlant == TFruit.NONE ) {
+					printErr( 'Error: troll $id has no fruit to plant' );
+					return "";
 				}
+				finishTask();
+				plantCounter++;
+				return 'PLANT $id $fruitToPlant';
 			}
+			
+			printErr( 'troll $id plant $plantPos distance ${board.getDistance( pos, plantPos )}' );
+			final pathToPlant = board.getPath( pos, plantPos );
+			return evaluatePath( pathToPlant, "Plant" );
 		}
 
 		return "";

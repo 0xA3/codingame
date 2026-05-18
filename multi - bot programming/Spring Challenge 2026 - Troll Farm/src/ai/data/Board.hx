@@ -134,6 +134,28 @@ class Board {
 		// for( depth in 0...3 ) for( pos in plantPositions[depth] ) printErr( 'depth $depth pos $pos' );
 	}
 
+	public function getPlantPosition( trollPos:Pos ) {
+		for( depth in 0...plantPositions.length ) {
+			final plantPositionsOfDepth = plantPositions[depth];
+			plantPositionsOfDepth.sort(( a, b ) -> {
+				final d1 = getDistance( trollPos, a );
+				final d2 = getDistance( trollPos, b );
+				if( d1 < d2 ) return -1;
+				else if( d1 > d2 ) return 1;
+				else return 0;
+			});
+
+			for( plantPos in plantPositionsOfDepth ) {
+				// printErr( 'plantPos $plantPos distance ${getDistance( pos, plantPos )}' );
+				if( !treePositionsMap.exists( plantPos )) {
+					return plantPos;
+				}
+			}
+		}
+
+		return Pos.NO_POS;
+	}
+
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
 	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= boardWidth || y < 0 || y >= boardHeight;
 	
