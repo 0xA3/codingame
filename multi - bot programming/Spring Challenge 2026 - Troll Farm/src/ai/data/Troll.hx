@@ -4,6 +4,8 @@ import CodinGame.printErr;
 import ai.data.TrollState;
 import xa3.math.Pos;
 
+using xa3.math.IntMath;
+
 class Troll {
 	
 	public final id:Int;
@@ -250,8 +252,10 @@ class Troll {
 			printErr( 'Error: troll is already at $target' );
 			return "";
 		} else {
-			final nextPathPos = path[1];
-			final nextPos = findNextPos( pos, nextPathPos, board.myShack );
+			final step = movementSpeed.min( path.length - 1 );
+			final nextPathPos = path[step];
+			// final nextPos = findNextPos( pos, nextPathPos, board.myShack );
+			final nextPos = nextPathPos;
 			printErr( 'troll $id nextPos $nextPos' );
 			return 'MOVE $id ${nextPos.x} ${nextPos.y}';
 		}

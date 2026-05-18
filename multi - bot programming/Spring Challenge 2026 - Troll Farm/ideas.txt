@@ -14,6 +14,8 @@ DONE Todo Liste für Trolle
 
 DONE beste Plätze zum Pflanzen finden
 
-XXXX beim Gegner abholzen
+XXX beim Gegner abholzen
+
+Nicht aufs gleiche Feld springen
 
 Strategie überlegen welche Fähigkeiten die neuen Trolle am besten haben sollen
