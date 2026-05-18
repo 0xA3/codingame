@@ -90,6 +90,8 @@ class Board {
 		this.treePositionsMap = treePositionsMap;
 		targetTrees.clear();
 		targetCells.clear();
+		for( type in treeTypesAroundBase.keys() ) treeTypesAroundBase[type] = 0;
+		for( fruit in fruitsAroundBase.keys() ) fruitsAroundBase[fruit] = 0;
 	}
 
 	public function addWaterAndIronNeighbors() {

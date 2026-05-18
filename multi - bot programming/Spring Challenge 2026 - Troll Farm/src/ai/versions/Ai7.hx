@@ -5,7 +5,6 @@ import Std.int;
 import ai.contexts.WarCry;
 import ai.data.Board;
 import ai.data.Inventory;
-import ai.data.TFruit;
 import ai.data.Tree;
 import ai.data.Troll;
 import xa3.math.Pos;
@@ -70,8 +69,11 @@ class Ai7 {
 			plantSum += troll.plantCounter;
 		}
 
+		final numTreesAroundBase = board.countTreesAroundBase( 4 );
 		final treeTypesAroundBase = board.getTreeTypesAroundBase( 4 );
 		final fruitsAroundBase = board.getFruitsAroundBase( 4 );
+		printErr( 'numTreesAroundBase $numTreesAroundBase' );
+		printErr( [for( tt in treeTypesAroundBase ) '${tt.type} ${tt.amount}'].join(",") );
 
 		treeTypesAroundBase.sort(( a, b ) -> a.amount - b.amount );
 		final plant1 = treeTypesAroundBase[0].type;
@@ -133,10 +135,8 @@ class Ai7 {
 			final troll1 = myTrolls[1];
 			final troll2 = myTrolls[2];
 			
-			final treesNumAroundBase = board.countTreesAroundBase( 4 );
-
 			if( troll0.state == Idle ) {
-				if( treesNumAroundBase < 4 ) troll0.addTask( Planting( ANY ));
+				if( numTreesAroundBase < 4 ) troll0.addTask( Planting( ANY ));
 				else if( fruitsAroundBase[mostRareFruit] == 0 ) {
 					troll0.addTask( Planting( plant1 ));
 				} else {
@@ -144,7 +144,7 @@ class Ai7 {
 				}
 			}
 			if( troll1.state == Idle ) {
-				if( treesNumAroundBase < 6 ) troll0.addTask( Planting( ANY ));
+				if( numTreesAroundBase < 6 ) troll1.addTask( Planting( ANY ));
 				else if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
 					troll1.addTask( Planting( plant2 ));
 				} else {
