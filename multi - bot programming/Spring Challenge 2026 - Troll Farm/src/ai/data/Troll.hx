@@ -173,24 +173,26 @@ class Troll {
 			}
 		} else {
 			printErr( 'troll $id is carrying $fruit' );
-			for( plantPos in board.plantPositions ) {
-				// printErr( 'plantPos $plantPos hasTree ${board.treePositionsMap.exists( pos )}' );
-				if( !board.treePositionsMap.exists( plantPos )) {
-					if( pos == plantPos ) {
-						final fruitToPlant = fruit == TFruit.ANY ? getAnyFruit() : fruit;
-						printErr( 'troll $id plant $fruitToPlant' );
-						if( fruitToPlant == TFruit.NONE ) {
-							printErr( 'Error: troll $id has no fruit to plant' );
-							return "";
+			for( depth in 0...board.plantPositions.length ) {
+				for( plantPos in board.plantPositions[depth] ) {
+					// printErr( 'plantPos $plantPos hasTree ${board.treePositionsMap.exists( pos )}' );
+					if( !board.treePositionsMap.exists( plantPos )) {
+						if( pos == plantPos ) {
+							final fruitToPlant = fruit == TFruit.ANY ? getAnyFruit() : fruit;
+							printErr( 'troll $id plant $fruitToPlant' );
+							if( fruitToPlant == TFruit.NONE ) {
+								printErr( 'Error: troll $id has no fruit to plant' );
+								return "";
+							}
+							finishTask();
+							plantCounter++;
+							return 'PLANT $id $fruitToPlant';
 						}
-						finishTask();
-						plantCounter++;
-						return 'PLANT $id $fruitToPlant';
+						
+						final pathToPlant = board.getPath( pos, plantPos );
+						printErr( 'troll $id go to plant location $plantPos' );
+						return evaluatePath( pathToPlant, "Plant" );
 					}
-					
-					final pathToPlant = board.getPath( pos, plantPos );
-					printErr( 'troll $id go to plant location $plantPos' );
-					return evaluatePath( pathToPlant, "Plant" );
 				}
 			}
 		}

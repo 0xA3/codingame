@@ -43,7 +43,7 @@ class Ai5 {
 		outputs.splice( 0, outputs.length );
 	}
 
-	public function testJobs() {
+	public function process() {
 		final troll = myTrolls[0];
 		troll.addTask( Planting( ANY ));
 		final action = troll.go();
@@ -51,7 +51,7 @@ class Ai5 {
 
 	}
 
-	public function process() {
+	public function xxx() {
 		maxSpeed = int( Math.sqrt( myInventory.plum - myTrolls.length ));
 		maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
 		maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
@@ -89,16 +89,17 @@ class Ai5 {
 			];
 			
 			var treesNum = 0;
-			for( i in 0...16 ) {
-				final pos = board.plantPositions[i];
-				if( board.treePositionsMap.exists( pos ) ) {
-					final tree = board.treePositionsMap[pos];
-					if( tree.type == PLUM ) treesAroundBase[0].amount++;
-					if( tree.type == LEMON ) treesAroundBase[1].amount++;
-					if( tree.type == APPLE ) treesAroundBase[2].amount++;
-					if( tree.type == BANANA ) treesAroundBase[3].amount++;
-
-					treesNum++;
+			for( depth in 0...4 ) {
+				for( pos in board.plantPositions[depth] ) {
+					if( board.treePositionsMap.exists( pos ) ) {
+						final tree = board.treePositionsMap[pos];
+						if( tree.type == PLUM ) treesAroundBase[0].amount++;
+						if( tree.type == LEMON ) treesAroundBase[1].amount++;
+						if( tree.type == APPLE ) treesAroundBase[2].amount++;
+						if( tree.type == BANANA ) treesAroundBase[3].amount++;
+	
+						treesNum++;
+					}
 				}
 			}
 			

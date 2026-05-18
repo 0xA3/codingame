@@ -28,7 +28,7 @@ class Board {
 	public final ironNeighborPosSet:Set<Pos> = [];
 	public final waterNeighbors:Array<Pos> = [];
 	public final waterNeighborPosSet:Set<Pos> = [];
-	public final plantPositions:Array<Pos> = [];
+	public final plantPositions:Array<Array<Pos>> = [];
 	
 	final map2d:Map2D;
 
@@ -120,16 +120,18 @@ class Board {
 	}
 
 	public function addPlantPositions() {
-		for( y in 0...positions.length ) for( pos in positions[y] ) if( getCell( pos ) == Board.GRASS ) plantPositions.push( pos );
 		if( myShack == Pos.NO_POS ) throw 'Error: no myShack';
+		for( _ in 0...boardWidth + boardHeight ) plantPositions.push( [] );
 		
-		plantPositions.sort(( a, b ) -> {
-			final aDistance = getDistance( myShack, a );
-			final bDistance = getDistance( myShack, b );
-			if( aDistance < bDistance ) return -1;
-			else if( aDistance > bDistance ) return 1;
-			else return 0;
-		});
+		for( y in 0...positions.length ) for( pos in positions[y] ) if( getCell( pos ) == Board.GRASS ) {
+			final distance = pos.manhattanDistance( myShack );
+			final depth = distance - ( waterNeighborPosSet.contains( pos ) ? 1 : 0 );
+			// printErr( 'pos $pos distance $distance depth $depth ${plantPositions[depth]}' );
+			if( plantPositions[depth] == null ) plantPositions[depth] = [];
+			
+			plantPositions[depth].push( pos );
+		}
+		// for( depth in 0...3 ) for( pos in plantPositions[depth] ) printErr( 'depth $depth pos $pos' );
 	}
 
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
