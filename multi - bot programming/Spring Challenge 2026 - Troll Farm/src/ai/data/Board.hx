@@ -158,6 +158,19 @@ class Board {
 		return Pos.NO_POS;
 	}
 
+	public function countTreesAroundBase( maxDepth:Int ) {
+		var count = 0;
+		for( depth in 0...maxDepth ) {
+			for( treePos in plantPositions[depth] ) {
+				if( treePositionsMap.exists( treePos ) ) {
+					count++;
+				}
+			}
+		}
+		
+		return count;
+	}
+
 	public function getTreeTypesAroundBase( maxDepth:Int ) {
 		for( depth in 0...maxDepth ) {
 			for( treePos in plantPositions[depth] ) {
