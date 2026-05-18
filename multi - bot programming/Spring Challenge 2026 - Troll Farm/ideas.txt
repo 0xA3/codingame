@@ -18,4 +18,8 @@ XXX beim Gegner abholzen
 
 Nicht aufs gleiche Feld springen
 
+Wenn gegner mein Baum hackt, dann dazustellen
+
+Wenn troll baum gefällt hat Weg checken zurück oder zum nächsten Baum
+
 Strategie überlegen welche Fähigkeiten die neuen Trolle am besten haben sollen
