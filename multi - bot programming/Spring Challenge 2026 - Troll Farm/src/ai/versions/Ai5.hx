@@ -43,15 +43,20 @@ class Ai5 {
 		outputs.splice( 0, outputs.length );
 	}
 
-	public function process() {
+	public function processx() {
 		final troll = myTrolls[0];
-		troll.addTask( Planting( ANY ));
+		final treeTypesAroundBase = board.getTreeTypesAroundBase( 4 );
+		treeTypesAroundBase.sort(( a, b ) -> a.amount - b.amount );
+		final mostRareTreeType = treeTypesAroundBase[0].type;
+		printErr( [for( tt in treeTypesAroundBase ) '${tt.type} ${tt.amount}'].join(",") );
+
+		if( troll.state == Idle ) troll.addTask( Planting( mostRareTreeType ));
 		final action = troll.go();
 		if( action != "" ) return action else return "WAIT";
 
 	}
 
-	public function xxx() {
+	public function process() {
 		maxSpeed = int( Math.sqrt( myInventory.plum - myTrolls.length ));
 		maxCarry = int( Math.sqrt( myInventory.lemon - myTrolls.length ));
 		maxHarvest = int( Math.sqrt( myInventory.apple - myTrolls.length ));
@@ -68,57 +73,77 @@ class Ai5 {
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
 			if( troll.state == Idle ) {
-				if( maxSpeed < 2 ) troll.addTask( Harvesting( PLUM ));
-				if( maxCarry < 2 ) troll.addTask( Harvesting( LEMON ));
-				if( maxHarvest < 2 ) troll.addTask( Harvesting( APPLE ));
-				if( maxChop < 2 ) troll.addTask( Mining );
+				if( maxSpeed < 1 ) troll.addTask( Harvesting( PLUM ));
+				if( maxCarry < 1 ) troll.addTask( Harvesting( LEMON ));
+				if( maxHarvest < 1 ) troll.addTask( Harvesting( APPLE ));
+				if( maxChop < 1 ) troll.addTask( Mining );
 				
-				if( maxSpeed >= 2 && maxCarry >= 2 && maxHarvest >= 2 && maxChop >= 2 ) {
+				if( maxSpeed >= 1 && maxCarry >= 1 && maxHarvest >= 1 && maxChop >= 1 ) {
 					troll.addTask( Harvesting( ANY ));
-					printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
-					outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
+					final speed = maxSpeed.min( 3 );
+					final carry = maxCarry.min( 3 );
+					final harvest = maxHarvest.min( 3 );
+					final chop = maxChop.min( 3 );
+					printErr( 'Train Troll $speed $carry $harvest $chop' );
+					outputs.push( 'TRAIN $speed $carry $harvest $chop' );
 				}
 			}
 		} else if( myTrolls.length == 2 ) {
-			printErr( 'chopSum $chopSum plantSum $plantSum' );
-			final treesAroundBase = [
-				{ tree: PLUM, amount: 0 },
-				{ tree: LEMON, amount: 0 },
-				{ tree: APPLE, amount: 0 },
-				{ tree: BANANA, amount: 0 }
-			];
+
+			final treeTypesAroundBase = board.getTreeTypesAroundBase( 4 );
+			final fruitsAroundBase = board.getFruitsAroundBase( 4 );
+
+			treeTypesAroundBase.sort(( a, b ) -> a.amount - b.amount );
+			final plant1 = treeTypesAroundBase[0].type;
+			final plant2 = treeTypesAroundBase[1].type;
+
+			final rareFruits = myInventory.getFruitAmounts();
+			final mostRareFruit = rareFruits[0].fruit;
+			final secondMostRareFruit = rareFruits[1].fruit;
+			// printErr( 'mostRareTreeType $mostRareTreeType mostRareFruit ${mostRareFruit} fruitSum ${myInventory.fruitSum} ' );
 			
-			var treesNum = 0;
-			for( depth in 0...4 ) {
-				for( pos in board.plantPositions[depth] ) {
-					if( board.treePositionsMap.exists( pos ) ) {
-						final tree = board.treePositionsMap[pos];
-						if( tree.type == PLUM ) treesAroundBase[0].amount++;
-						if( tree.type == LEMON ) treesAroundBase[1].amount++;
-						if( tree.type == APPLE ) treesAroundBase[2].amount++;
-						if( tree.type == BANANA ) treesAroundBase[3].amount++;
-	
-						treesNum++;
-					}
+			if( myTrolls[0].state == Idle ) {
+				if( fruitsAroundBase[mostRareFruit] == 0 ) {
+					myTrolls[0].addTask( Planting( plant1 ));
+				} else {
+					myTrolls[0].addTask( Harvesting( mostRareFruit ));
 				}
 			}
+			if( myTrolls[1].state == Idle ) {
+				if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
+					myTrolls[1].addTask( Planting( plant2 ));
+				} else {
+					myTrolls[1].addTask( Harvesting( secondMostRareFruit ));
+				}
+			}
+
+
+		// } else if( myTrolls.length == 3 ) {
+		// 	printErr( 'chopSum $chopSum plantSum $plantSum' );
+
+		// 	final treeTypesAroundBase = board.getTreeTypesAroundBase( 4 );
+
+		// 	treeTypesAroundBase.sort(( a, b ) -> a.amount - b.amount );
+		// 	final mostRareTreeType = treeTypesAroundBase[0].type;
+		// 	final mostRareFruit = myInventory.getMostRareFruit().fruit;
+		// 	printErr( 'mostRareTreeType $mostRareTreeType mostRareFruit ${mostRareFruit} fruitSum ${myInventory.fruitSum} ' );
 			
-			treesAroundBase.sort(( a, b ) -> a.amount - b.amount );
-			final mostRareTreeType = treesAroundBase[0].tree;
-			final mostRareFruit = myInventory.getMostRareFruit();
-			printErr( 'treesNum $treesNum mostRareTreeType $mostRareTreeType mostRareFruit ${mostRareFruit.fruit} fruitSum ${myInventory.fruitSum} ' );
-			if( treesNum < 8 ) {
-				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Planting( ANY ));
-			} else {
-				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvesting( ANY ));
-			}
+		// 	if( myTrolls[0].state == Idle ) {
+		// 		myTrolls[0].addTask( Planting( mostRareTreeType ));
+		// 		myTrolls[0].addTask( Harvesting( mostRareFruit ));
+		// 	}
+		// 	// if( treesNum < 8 ) {
+		// 		// if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Planting( ANY ));
+		// 	// } else {
+		// 		// if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvesting( ANY ));
+		// 	// }
 
-			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( AnyPlayer ));
+		// 	if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( AnyPlayer ));
 
-			if( maxSpeed >= 1 && maxCarry >= 1 && maxHarvest >= 1 ) {
-				printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
-				outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
-			}
+		// 	if( maxSpeed >= 1 && maxCarry >= 1 && maxHarvest >= 1 ) {
+		// 		printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
+		// 		outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
+		// 	}
 		} else {
 			if( myTrolls[0].state == Idle ) myTrolls[1].addTask( Harvesting( ANY ));
 			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( AnyPlayer ));

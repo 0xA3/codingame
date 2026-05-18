@@ -29,7 +29,9 @@ class Board {
 	public final waterNeighbors:Array<Pos> = [];
 	public final waterNeighborPosSet:Set<Pos> = [];
 	public final plantPositions:Array<Array<Pos>> = [];
-	
+	final treeTypesAroundBase:Map<TFruit, Int> = [PLUM => 0, LEMON => 0, APPLE => 0, BANANA => 0];
+	final fruitsAroundBase:Map<TFruit, Int> = [PLUM => 0, LEMON => 0, APPLE => 0, BANANA => 0];
+
 	final map2d:Map2D;
 
 	// public final currentBoard:Array<Array<Int>>;
@@ -154,6 +156,38 @@ class Board {
 		}
 
 		return Pos.NO_POS;
+	}
+
+	public function getTreeTypesAroundBase( maxDepth:Int ) {
+		for( depth in 0...maxDepth ) {
+			for( treePos in plantPositions[depth] ) {
+				if( treePositionsMap.exists( treePos ) ) {
+					final tree = treePositionsMap[treePos];
+					treeTypesAroundBase[tree.type]++;
+				}
+			}
+		}
+
+		final typeAmounts:Array<TreeTypeAmount> = [
+			for( treeType => amount in treeTypesAroundBase )
+			{ type: treeType, amount: amount }
+		];
+
+		return typeAmounts;
+	}
+
+	public function getFruitsAroundBase( maxDepth:Int ) {
+		for( depth in 0...maxDepth ) {
+			for( treePos in plantPositions[depth] ) {
+				if( treePositionsMap.exists( treePos ) ) {
+					final tree = treePositionsMap[treePos];
+					final fruits = tree.fruits;
+					fruitsAroundBase[tree.type] += fruits;
+				}
+			}
+		}
+
+		return fruitsAroundBase;
 	}
 
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;

@@ -43,7 +43,7 @@ class Inventory {
 		return TFruit.NONE;
 	}
 
-	public function getMostRareFruit() {
+	public function getFruitAmounts() {
 		final fruits = [
 			{ fruit: PLUM, amount: plum },
 			{ fruit: LEMON, amount: lemon },
@@ -53,7 +53,7 @@ class Inventory {
 		
 		fruits.sort(( a, b ) -> a.amount - b.amount );
 
-		return fruits[0];
+		return fruits;
 	}
 
 	public function toString() return 'plum $plum lemon $lemon apple $apple banana $banana iron $iron wood $wood';
