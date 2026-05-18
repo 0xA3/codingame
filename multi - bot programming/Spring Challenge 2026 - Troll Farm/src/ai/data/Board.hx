@@ -124,7 +124,7 @@ class Board {
 		for( _ in 0...boardWidth + boardHeight ) plantPositions.push( [] );
 		
 		for( y in 0...positions.length ) for( pos in positions[y] ) if( getCell( pos ) == Board.GRASS ) {
-			final distance = pos.manhattanDistance( myShack );
+			final distance = getDistance( pos, myShack );
 			final depth = distance - ( waterNeighborPosSet.contains( pos ) ? 1 : 0 );
 			// printErr( 'pos $pos distance $distance depth $depth ${plantPositions[depth]}' );
 			if( plantPositions[depth] == null ) plantPositions[depth] = [];

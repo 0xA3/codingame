@@ -32,6 +32,8 @@ class Troll {
 	public final todos = [];
 	public var state = Idle;
 
+	var turn = 0;
+
 	public function new( id:Int, index:Int, player:Player, board:Board, inventory:Inventory ) {
 		this.id = id;
 		this.index = index;
@@ -67,6 +69,8 @@ class Troll {
 
 		carryFruitSum = carryPlum + carryLemon + carryApple + carryBanana;
 		carrySum = carryPlum + carryLemon + carryApple + carryBanana + carryIron + carryWood;
+
+		turn++;
 	}
 
 	public function addTask( task:TrollState ) {
@@ -174,8 +178,17 @@ class Troll {
 		} else {
 			printErr( 'troll $id is carrying $fruit' );
 			for( depth in 0...board.plantPositions.length ) {
-				for( plantPos in board.plantPositions[depth] ) {
-					// printErr( 'plantPos $plantPos hasTree ${board.treePositionsMap.exists( pos )}' );
+				final plantPositionsOfDepth = board.plantPositions[depth];
+				plantPositionsOfDepth.sort(( a, b ) -> {
+					final d1 = board.getDistance( pos, a );
+					final d2 = board.getDistance( pos, b );
+					if( d1 < d2 ) return -1;
+					else if( d1 > d2 ) return 1;
+					else return 0;
+				});
+
+				for( plantPos in plantPositionsOfDepth ) {
+					// printErr( 'plantPos $plantPos distance ${board.getDistance( pos, plantPos )}' );
 					if( !board.treePositionsMap.exists( plantPos )) {
 						if( pos == plantPos ) {
 							final fruitToPlant = fruit == TFruit.ANY ? getAnyFruit() : fruit;
@@ -189,8 +202,8 @@ class Troll {
 							return 'PLANT $id $fruitToPlant';
 						}
 						
+						printErr( 'troll $id plant $plantPos distance ${board.getDistance( pos, plantPos )}' );
 						final pathToPlant = board.getPath( pos, plantPos );
-						printErr( 'troll $id go to plant location $plantPos' );
 						return evaluatePath( pathToPlant, "Plant" );
 					}
 				}
