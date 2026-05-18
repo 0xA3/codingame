@@ -133,8 +133,12 @@ class Troll {
 				}
 			} else {
 				printErr( 'troll $id no $fruit tree to harvest' );
-				state = Harvesting( ANY );
-				go();
+				switch state {
+				case Harvesting( ANY ): return "";
+				default:
+					state = Harvesting( ANY );
+					go();
+				}
 			}
 		}
 		return "";
