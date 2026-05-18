@@ -2,6 +2,7 @@ package ai.versions;
 
 import CodinGame.printErr;
 import ai.data.Board;
+import ai.data.Inventory;
 import ai.data.Tree;
 import ai.data.Troll;
 import xa3.math.Pos;
@@ -22,7 +23,7 @@ class AiWait {
 		this.board = board;
 	}
 
-	public function setInputs( myTrolls:Set<Int>, oppTrolls:Set<Int>, trees:Map<Pos, Tree> ) {
+	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
 		
 		outputs.splice( 0, outputs.length );
 	}
