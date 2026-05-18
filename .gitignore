@@ -1,23 +1,39 @@
+compete - bot programming/Spring Challenge 2022/res/spider_attack/HUD_background.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_glint.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_ball.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_gust.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/heroes.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/beam.json
+compete - bot programming/Spring Challenge 2022/res/spider_attack/main.json
+multi - bot programming/Spring Challenge 2026 - Troll Farm/dest/cgarena.log
+/multi - bot programming/Winter Challenge 2024 - Cellularena/log.txt
+solo - classic puzzle - easy/Squash Pi/bin/pi_295k_encoded.txt
+/compete - clash of code/reverse/reverse.md
+contests/Fall Challenge 2020/dest/app.hl
+contests/Spring Challenge 2020/ideas.txt
+/games/Coders Strike Back - Magusgeek
 _GeneratedFiles.txt
+*.code-workspace
 !*manual*.js
 !*manual*.py
-.tmp
+node_modules
+*.cpuprofile
 .unittest
+*.ffs_gui
+/SyncToy*
+*.ffs_db
+incoming
+*.db-shm
+*.db-wal
 *.bfnt
 *.blob
-*.code-workspace
 *.cpp
 *.dat
 *.exe
-*.ffs_db
-*.ffs_gui
-*.h
-*.hl
 *.jar
 *.jar
 *.jpg
 *.jpg
-*.js
 *.lua
 *.map
 *.ods
@@ -26,24 +42,12 @@ _GeneratedFiles.txt
 *.png
 *.psd
 *.psd
-*.py
 *.url
-/compete - clash of code/reverse/reverse.md
-/games/Coders Strike Back - Magusgeek
-/multi - bot programming/Winter Challenge 2024 - Cellularena/log.txt
-/SyncToy*
-compete - bot programming/Spring Challenge 2022/res/spider_attack/beam.json
-compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_ball.json
-compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_glint.json
-compete - bot programming/Spring Challenge 2022/res/spider_attack/fx_gust.json
-compete - bot programming/Spring Challenge 2022/res/spider_attack/heroes.json
-compete - bot programming/Spring Challenge 2022/res/spider_attack/HUD_background.json
-compete - bot programming/Spring Challenge 2022/res/spider_attack/main.json
-contests/Fall Challenge 2020/dest/app.hl
-contests/Spring Challenge 2020/ideas.txt
-dump
-incoming
 links
-node_modules
-solo - classic puzzle - easy/Squash Pi/bin/pi_295k_encoded.txt
-*.cpuprofile
+.tmp
+*.hl
+*.js
+*.py
+dump
+*.db
+*.h
