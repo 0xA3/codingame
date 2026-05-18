@@ -254,8 +254,9 @@ class Troll {
 		} else {
 			final step = movementSpeed.min( path.length - 1 );
 			final nextPathPos = path[step];
-			final nextPos = findNextPos( pos, nextPathPos, board.myShack );
-			if( board.occupiedPositions.contains( nextPathPos ) ) printErr( 'troll $id $nextPathPos is OCCUPIED change to $nextPos' );
+			final nextPos = nextPathPos;
+			// final nextPos = findNextPos( pos, nextPathPos, board.myShack );
+			// if( board.occupiedPositions.contains( nextPathPos ) ) printErr( 'troll $id $nextPathPos is OCCUPIED change to $nextPos' );
 
 			board.occupiedPositions.add( nextPos );
 			printErr( 'troll $id nextPos $nextPos' );
