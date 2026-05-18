@@ -4,6 +4,7 @@ import CodinGame.printErr;
 import Std.int;
 import astar.map2d.Map2D;
 import astar.map2d.types.MovementDirection;
+import xa3.math.IntMath;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -46,7 +47,7 @@ class Board {
 	public var trees:Array<Tree>;
 	public var treePositionsMap:Map<Pos, Tree>;
 	public final targetTrees:Map<Pos, Bool> = [];
-	public final targetCells:Set<Pos> = [];
+	public final occupiedPositions:Set<Pos> = [];
 
 	var turn = 0;
 
@@ -89,7 +90,7 @@ class Board {
 		this.trees = trees;
 		this.treePositionsMap = treePositionsMap;
 		targetTrees.clear();
-		targetCells.clear();
+		occupiedPositions.clear();
 		for( type in treeTypesAroundBase.keys() ) treeTypesAroundBase[type] = 0;
 		for( fruit in fruitsAroundBase.keys() ) fruitsAroundBase[fruit] = 0;
 	}
@@ -226,6 +227,32 @@ class Board {
 			final cell = getCell( neighbor );
 			if( cell == WATER || cell == ROCK || cell == IRON ) continue;
 			neighbors.push( neighbor );
+		}
+		return neighbors;
+	}
+
+	public function getReacheableNeighbors( pos:Pos, maxDistance:Int ) {
+		final neighbors = [];
+		final minY = pos.y - maxDistance;
+		final maxY = pos.y + maxDistance;
+		for( y in minY...maxY + 1 ) {
+			if( y < 0 || y >= boardHeight ) continue;
+			final dy = IntMath.abs( y - pos.y );
+			final remainingDistance = maxDistance - dy;
+			final minX = pos.x - remainingDistance;
+			final maxX = pos.x + remainingDistance;
+			for( x in minX...maxX + 1 ) {
+				if( x < 0 || x >= boardWidth ) continue;
+				// neighbors.push( positions[y][x] );
+
+				final neighbor = positions[y][x];
+				final cell = getCell( neighbor );
+				if( cell == WATER || cell == ROCK || cell == IRON ) continue;
+				if( neighbor == myShack || neighbor == oppShack ) continue;
+				if( occupiedPositions.contains( neighbor )) continue;
+				
+				neighbors.push( neighbor );
+			}
 		}
 		return neighbors;
 	}

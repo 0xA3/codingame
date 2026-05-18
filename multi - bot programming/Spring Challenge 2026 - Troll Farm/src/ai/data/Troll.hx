@@ -254,17 +254,19 @@ class Troll {
 		} else {
 			final step = movementSpeed.min( path.length - 1 );
 			final nextPathPos = path[step];
-			// final nextPos = findNextPos( pos, nextPathPos, board.myShack );
-			final nextPos = nextPathPos;
+			final nextPos = findNextPos( pos, nextPathPos, board.myShack );
+			if( board.occupiedPositions.contains( nextPathPos ) ) printErr( 'troll $id $nextPathPos is OCCUPIED change to $nextPos' );
+
+			board.occupiedPositions.add( nextPos );
 			printErr( 'troll $id nextPos $nextPos' );
 			return 'MOVE $id ${nextPos.x} ${nextPos.y}';
 		}
 	}
 
 	function findNextPos( trollPos:Pos, desiredPos:Pos, target:Pos ) {
-		if( !board.targetCells.contains( desiredPos )) return desiredPos;
+		if( !board.occupiedPositions.contains( desiredPos )) return desiredPos;
 
-		final neighbors = board.getWalkableNeighbors( trollPos );
+		final neighbors = board.getReacheableNeighbors( trollPos, movementSpeed );
 		if( neighbors.length == 0 ) return trollPos;
 
 		neighbors.sort(( a, b ) -> {
@@ -274,7 +276,7 @@ class Troll {
 			else if( d1 > d2 ) return 1;
 			else return 0;
 		});
-		
+
 		return neighbors[0];
 	}
 	
@@ -284,6 +286,7 @@ class Troll {
 		for( tree in board.trees ) {
 			if( fruit != TFruit.ANY && tree.type != fruit ) continue;
 			if( board.targetTrees.exists( tree.pos )) continue;
+			if( board.occupiedPositions.contains( tree.pos )) continue;
 			
 			switch nearPlayer {
 				case Me: if( tree.isNearPlayer != Me ) continue;
