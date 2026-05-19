@@ -49,7 +49,7 @@ class Ai7 {
 		final mostRareTreeType = treeTypesAroundBase[0].type;
 		printErr( [for( tt in treeTypesAroundBase ) '${tt.type} ${tt.amount}'].join(",") );
 
-		if( troll.currentTask == NoTask ) troll.addTask( Plant( mostRareTreeType ));
+		if( troll.isDoing == Nothing ) troll.addTask( Plant( mostRareTreeType ));
 		final action = troll.go();
 		if( action != "" ) return action else return "WAIT";
 
@@ -85,7 +85,7 @@ class Ai7 {
 
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
-			if( troll.currentTask == NoTask ) {
+			if( troll.isDoing == Nothing ) {
 				if( maxSpeed < 1 ) troll.addTask( Harvest( PLUM ));
 				if( maxCarry < 1 ) troll.addTask( Harvest( LEMON ));
 				if( maxHarvest < 1 ) troll.addTask( Harvest( APPLE ));
@@ -105,14 +105,14 @@ class Ai7 {
 			final troll0 = myTrolls[0];
 			final troll1 = myTrolls[1];
 			
-			if( troll0.currentTask == NoTask ) {
+			if( troll0.isDoing == Nothing ) {
 				if( fruitsAroundBase[mostRareFruit] == 0 ) {
 					troll0.addTask( Plant( plant1 ));
 				} else {
 					troll0.addTask( Harvest( mostRareFruit ));
 				}
 			}
-			if( troll1.currentTask == NoTask ) {
+			if( troll1.isDoing == Nothing ) {
 				if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
 					troll1.addTask( Plant( plant2 ));
 				} else {
@@ -135,7 +135,7 @@ class Ai7 {
 			final troll1 = myTrolls[1];
 			final troll2 = myTrolls[2];
 			
-			if( troll0.currentTask == NoTask ) {
+			if( troll0.isDoing == Nothing ) {
 				if( numTreesAroundBase < 4 ) troll0.addTask( Plant( ANY ));
 				else if( fruitsAroundBase[mostRareFruit] == 0 ) {
 					troll0.addTask( Plant( plant1 ));
@@ -143,7 +143,7 @@ class Ai7 {
 					troll0.addTask( Harvest( mostRareFruit ));
 				}
 			}
-			if( troll1.currentTask == NoTask ) {
+			if( troll1.isDoing == Nothing ) {
 				if( numTreesAroundBase < 6 ) troll1.addTask( Plant( ANY ));
 				else if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
 					troll1.addTask( Plant( plant2 ));
@@ -152,7 +152,7 @@ class Ai7 {
 				}
 			}
 
-			if( troll2.currentTask == NoTask ) {
+			if( troll2.isDoing == Nothing ) {
 				troll2.addTask( Chop( AnyPlayer ));
 			}
 		}

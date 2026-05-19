@@ -32,7 +32,7 @@ class Troll {
 	public var chopCounter = 0;
 
 	public final tasks = [];
-	public var currentTask = NoTask;
+	public var isDoing = Nothing;
 
 	var turn = 0;
 
@@ -82,28 +82,34 @@ class Troll {
 
 	public function insertTask( task:Task ) {
 		printErr( 'troll $id insertTask $task' );
-		tasks.unshift( currentTask );
-		currentTask = task;
+		tasks.unshift( isDoing );
+		isDoing = task;
 	}
 
 	public function go() {
-		if( currentTask == NoTask ) {
+		if( isDoing == Nothing ) {
 			if( tasks.length > 0 ) {
-				currentTask = tasks.shift();
-				printErr( 'troll $id change currentTask to $currentTask' );
+				isDoing = tasks.shift();
+				printErr( 'troll $id change isDoing to $isDoing' );
 			} else {
 				printErr( 'troll $id has no tasks' );
 				return "";
 			}
 		}
 
-		switch currentTask {
+		switch isDoing {
 			case Chop( player ): return goChopping( player );
-			case NoTask: return "";
+			case Drop: return drop();
 			case Harvest ( fruit ): return goHarvesting( fruit);
 			case Mine: return goMining();
+			case Nothing: return "";
 			case Plant( fruit ): return goPlanting( fruit );
 		}
+	}
+
+	function drop() {
+		printErr( 'troll $id drop' );
+		return 'DROP $id';
 	}
 
 	function goChopping( player:Player ) {
@@ -136,15 +142,15 @@ class Troll {
 					return 'HARVEST $id';
 				} else {
 					final pathToTree = board.getPath( pos, closestTree.pos );
-					printErr( 'troll $id $currentTask path to tree ${closestTree.pos}' );
+					printErr( 'troll $id $isDoing path to tree ${closestTree.pos}' );
 					return evaluatePath( pathToTree, "Tree" );
 				}
 			} else {
 				printErr( 'troll $id no $fruit tree to harvest' );
-				switch currentTask {
+				switch isDoing {
 				case Harvest( ANY ): return "";
 				default:
-					currentTask = Harvest( ANY );
+					isDoing = Harvest( ANY );
 					go();
 				}
 			}
@@ -349,7 +355,7 @@ class Troll {
 	}
 
 	inline function finishTask() {
-		printErr( 'troll $id completed task $currentTask' );
-		currentTask = NoTask;
+		printErr( 'troll $id completed task $isDoing' );
+		isDoing = Nothing;
 	}
 }
