@@ -1,4 +1,5 @@
 package ai.data;
+import CodinGame.printErr;
 import Std.parseInt;
 import ai.data.TFruit;
 
@@ -24,6 +25,19 @@ class Inventory {
 		wood = parseInt( values[5] );
 
 		fruitSum = plum + lemon + apple + banana;
+	}
+
+	public function reduceTrainingCosts( trollCount:Int, speed:Int, carry:Int, harvest:Int, chop:Int ) {
+		final plumCost = trollCount + speed * speed;
+		final lemonCost = trollCount + carry * carry;
+		final appleCost = trollCount + harvest * harvest;
+		final ironCost = trollCount + chop * chop;
+		
+		this.plum -= plumCost;
+		this.lemon -= lemonCost;
+		this.apple -= appleCost;
+		this.iron -= ironCost;
+		printErr( 'training costs: plums $plumCost lemons $lemonCost apples $appleCost iron $ironCost' );
 	}
 
 	public function getFruit( fruit:TFruit ) {

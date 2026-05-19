@@ -1,7 +1,7 @@
 package ai.data;
 
-enum TrollState {
-	Idle;
+enum Task {
+	Wait;
 	Harvest( fruit:TFruit );
 	Plant( fruit:TFruit );
 	Chop( player:Player );

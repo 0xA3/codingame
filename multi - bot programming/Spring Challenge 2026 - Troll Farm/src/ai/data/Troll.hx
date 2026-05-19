@@ -1,7 +1,7 @@
 package ai.data;
 
 import CodinGame.printErr;
-import ai.data.TrollState;
+import ai.data.Task;
 import xa3.math.Pos;
 
 using xa3.math.IntMath;
@@ -31,8 +31,8 @@ class Troll {
 	public var plantCounter = 0;
 	public var chopCounter = 0;
 
-	public final todos = [];
-	public var state = Idle;
+	public final tasks = [];
+	public var currentTask = Wait;
 
 	var turn = 0;
 
@@ -75,25 +75,31 @@ class Troll {
 		turn++;
 	}
 
-	public function addTask( task:TrollState ) {
+	public function addTask( task:Task ) {
 		printErr( 'troll $id addTask $task' );
-		todos.push( task );
+		tasks.push( task );
+	}
+
+	public function insertTask( task:Task ) {
+		printErr( 'troll $id insertTask $task' );
+		tasks.unshift( currentTask );
+		currentTask = task;
 	}
 
 	public function go() {
-		if( state == Idle ) {
-			if( todos.length > 0 ) {
-				state = todos.shift();
-				printErr( 'troll $id change state to $state' );
+		if( currentTask == Wait ) {
+			if( tasks.length > 0 ) {
+				currentTask = tasks.shift();
+				printErr( 'troll $id change currentTask to $currentTask' );
 			} else {
-				printErr( 'troll $id has no todos' );
+				printErr( 'troll $id has no tasks' );
 				return "";
 			}
 		}
 
-		switch state {
+		switch currentTask {
 			case Chop( player ): return goChopping( player );
-			case Idle: return "";
+			case Wait: return "";
 			case Harvest ( fruit ): return goHarvesting( fruit);
 			case Mine: return goMining();
 			case Plant( fruit ): return goPlanting( fruit );
@@ -130,15 +136,15 @@ class Troll {
 					return 'HARVEST $id';
 				} else {
 					final pathToTree = board.getPath( pos, closestTree.pos );
-					printErr( 'troll $id $state path to tree ${closestTree.pos}' );
+					printErr( 'troll $id $currentTask path to tree ${closestTree.pos}' );
 					return evaluatePath( pathToTree, "Tree" );
 				}
 			} else {
 				printErr( 'troll $id no $fruit tree to harvest' );
-				switch state {
+				switch currentTask {
 				case Harvest( ANY ): return "";
 				default:
-					state = Harvest( ANY );
+					currentTask = Harvest( ANY );
 					go();
 				}
 			}
@@ -343,7 +349,7 @@ class Troll {
 	}
 
 	inline function finishTask() {
-		printErr( 'troll $id completed task $state' );
-		state = Idle;
+		printErr( 'troll $id completed task $currentTask' );
+		currentTask = Wait;
 	}
 }
