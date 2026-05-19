@@ -57,7 +57,7 @@ class Ai2 {
 
 	public function testJobs() {
 		final troll = myTrolls[0];
-		troll.setJob( Planting( ANY ));
+		troll.setJob( Plant( ANY ));
 		final action = troll.go();
 		if( action != "" ) return action else return "WAIT";
 
@@ -78,23 +78,23 @@ class Ai2 {
 
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
-			if( maxSpeed < 2 ) troll.setJob( Harvesting( PLUM ));
-			else if( maxCarry < 2 ) troll.setJob( Harvesting( LEMON ));
-			else if( maxHarvest < 2 ) troll.setJob( Harvesting( APPLE ));
-			else if( maxChop < 2 ) troll.setJob( Mining );
+			if( maxSpeed < 2 ) troll.setJob( Harvest( PLUM ));
+			else if( maxCarry < 2 ) troll.setJob( Harvest( LEMON ));
+			else if( maxHarvest < 2 ) troll.setJob( Harvest( APPLE ));
+			else if( maxChop < 2 ) troll.setJob( Mine );
 			else {
-				troll.setJob( Harvesting( ANY ));
+				troll.setJob( Harvest( ANY ));
 				printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
 				outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
 			}
 		} else {
 			printErr( 'chopSum $chopSum plantSum $plantSum' );
 			if( chopSum > plantSum ) {
-				myTrolls[0].setJob( Planting( ANY ));
+				myTrolls[0].setJob( Plant( ANY ));
 			} else {
-				myTrolls[0].setJob( Harvesting( ANY ));
+				myTrolls[0].setJob( Harvest( ANY ));
 			}
-			myTrolls[1].setJob( Chopping );
+			myTrolls[1].setJob( Chop );
 		}
 
 		for( troll in myTrolls ) {

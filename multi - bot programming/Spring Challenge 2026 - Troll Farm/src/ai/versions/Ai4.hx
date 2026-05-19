@@ -45,7 +45,7 @@ class Ai4 {
 
 	public function testJobs() {
 		final troll = myTrolls[0];
-		troll.addTask( Planting( ANY ));
+		troll.addTask( Plant( ANY ));
 		final action = troll.go();
 		if( action != "" ) return action else return "WAIT";
 
@@ -68,13 +68,13 @@ class Ai4 {
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
 			if( troll.state == Idle ) {
-				if( maxSpeed < 2 ) troll.addTask( Harvesting( PLUM ));
-				if( maxCarry < 2 ) troll.addTask( Harvesting( LEMON ));
-				if( maxHarvest < 2 ) troll.addTask( Harvesting( APPLE ));
-				if( maxChop < 2 ) troll.addTask( Mining );
+				if( maxSpeed < 2 ) troll.addTask( Harvest( PLUM ));
+				if( maxCarry < 2 ) troll.addTask( Harvest( LEMON ));
+				if( maxHarvest < 2 ) troll.addTask( Harvest( APPLE ));
+				if( maxChop < 2 ) troll.addTask( Mine );
 				
 				if( maxSpeed >= 2 && maxCarry >= 2 && maxHarvest >= 2 && maxChop >= 2 ) {
-					troll.addTask( Harvesting( ANY ));
+					troll.addTask( Harvest( ANY ));
 					printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
 					outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
 				}
@@ -107,21 +107,21 @@ class Ai4 {
 			final mostRareFruit = myInventory.getMostRareFruit();
 			printErr( 'treesNum $treesNum mostRareTreeType $mostRareTreeType mostRareFruit ${mostRareFruit.fruit} fruitSum ${myInventory.fruitSum} ' );
 			if( treesNum < 8 ) {
-				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Planting( ANY ));
+				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Plant( ANY ));
 			} else {
-				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvesting( ANY ));
+				if( myTrolls[0].state == Idle ) myTrolls[0].addTask( Harvest( ANY ));
 			}
 
-			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( AnyPlayer ));
+			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chop( AnyPlayer ));
 
 			if( maxSpeed >= 1 && maxCarry >= 1 && maxHarvest >= 1 ) {
 				printErr( 'Train Troll $maxSpeed $maxCarry $maxHarvest $maxChop' );
 				outputs.push( 'TRAIN $maxSpeed $maxCarry $maxHarvest $maxChop' );
 			}
 		} else {
-			if( myTrolls[0].state == Idle ) myTrolls[1].addTask( Harvesting( ANY ));
-			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chopping( AnyPlayer ));
-			if( myTrolls[2].state == Idle ) myTrolls[1].addTask( Harvesting( ANY ));
+			if( myTrolls[0].state == Idle ) myTrolls[1].addTask( Harvest( ANY ));
+			if( myTrolls[1].state == Idle ) myTrolls[1].addTask( Chop( AnyPlayer ));
+			if( myTrolls[2].state == Idle ) myTrolls[1].addTask( Harvest( ANY ));
 		}
 
 		for( troll in myTrolls ) {

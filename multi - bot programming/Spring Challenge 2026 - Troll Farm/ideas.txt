@@ -14,7 +14,12 @@ DONE Todo Liste für Trolle
 
 DONE beste Plätze zum Pflanzen finden
 
-XXX beim Gegner abholzen
+
+Aufbau optimieren
+Troll eine Seite zuweisen so dass sie sich nicht im Weg stehen
+gleich vom inventory pflanzen
+
+Ausrechnen wie lange ich zum Abholzen aller restlichen Bäume brauche
 
 Nicht aufs gleiche Feld springen
 
@@ -23,3 +28,5 @@ Wenn gegner mein Baum hackt, dann dazustellen
 Wenn troll baum gefällt hat Weg checken zurück oder zum nächsten Baum
 
 Strategie überlegen welche Fähigkeiten die neuen Trolle am besten haben sollen
+
+beim Gegner abholzen

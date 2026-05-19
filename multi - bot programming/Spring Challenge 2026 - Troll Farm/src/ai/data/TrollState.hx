@@ -2,8 +2,8 @@ package ai.data;
 
 enum TrollState {
 	Idle;
-	Harvesting( fruit:TFruit );
-	Planting( fruit:TFruit );
-	Chopping( player:Player );
-	Mining;
+	Harvest( fruit:TFruit );
+	Plant( fruit:TFruit );
+	Chop( player:Player );
+	Mine;
 }

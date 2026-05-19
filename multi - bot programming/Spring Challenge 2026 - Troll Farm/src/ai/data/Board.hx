@@ -30,6 +30,7 @@ class Board {
 	public final waterNeighbors:Array<Pos> = [];
 	public final waterNeighborPosSet:Set<Pos> = [];
 	public final plantPositions:Array<Array<Pos>> = [];
+	public final maxTreesAroundBase:Array<Array<Int>> = [];
 	final treeTypesAroundBase:Map<TFruit, Int> = [PLUM => 0, LEMON => 0, APPLE => 0, BANANA => 0];
 	final fruitsAroundBase:Map<TFruit, Int> = [PLUM => 0, LEMON => 0, APPLE => 0, BANANA => 0];
 
@@ -91,8 +92,6 @@ class Board {
 		this.treePositionsMap = treePositionsMap;
 		targetTrees.clear();
 		occupiedPositions.clear();
-		for( type in treeTypesAroundBase.keys() ) treeTypesAroundBase[type] = 0;
-		for( fruit in fruitsAroundBase.keys() ) fruitsAroundBase[fruit] = 0;
 	}
 
 	public function addWaterAndIronNeighbors() {
@@ -161,20 +160,8 @@ class Board {
 		return Pos.NO_POS;
 	}
 
-	public function countTreesAroundBase( maxDepth:Int ) {
-		var count = 0;
-		for( depth in 0...maxDepth ) {
-			for( treePos in plantPositions[depth] ) {
-				if( treePositionsMap.exists( treePos ) ) {
-					count++;
-				}
-			}
-		}
-		
-		return count;
-	}
-
 	public function getTreeTypesAroundBase( maxDepth:Int ) {
+		for( type in treeTypesAroundBase.keys() ) treeTypesAroundBase[type] = 0;
 		for( depth in 0...maxDepth ) {
 			for( treePos in plantPositions[depth] ) {
 				if( treePositionsMap.exists( treePos ) ) {
@@ -192,7 +179,21 @@ class Board {
 		return typeAmounts;
 	}
 
+	public function countTreesAroundBase( maxDepth:Int ) {
+		var count = 0;
+		for( depth in 0...maxDepth ) {
+			for( treePos in plantPositions[depth] ) {
+				if( treePositionsMap.exists( treePos ) ) {
+					count++;
+				}
+			}
+		}
+		
+		return count;
+	}
+
 	public function getFruitsAroundBase( maxDepth:Int ) {
+		for( fruit in fruitsAroundBase.keys() ) fruitsAroundBase[fruit] = 0;
 		for( depth in 0...maxDepth ) {
 			for( treePos in plantPositions[depth] ) {
 				if( treePositionsMap.exists( treePos ) ) {
@@ -204,6 +205,13 @@ class Board {
 		}
 
 		return fruitsAroundBase;
+	}
+	
+	public function countFruits( fruitTypes:Map<TFruit, Int> ) {
+		var count = 0;
+		for( amount in fruitTypes ) count += amount;
+		
+		return count;
 	}
 
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;

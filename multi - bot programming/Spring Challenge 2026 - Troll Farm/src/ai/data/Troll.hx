@@ -92,11 +92,11 @@ class Troll {
 		}
 
 		switch state {
-			case Chopping( player ): return goChopping( player );
+			case Chop( player ): return goChopping( player );
 			case Idle: return "";
-			case Harvesting ( fruit ): return goHarvesting( fruit);
-			case Mining: return goMining();
-			case Planting( fruit ): return goPlanting( fruit );
+			case Harvest ( fruit ): return goHarvesting( fruit);
+			case Mine: return goMining();
+			case Plant( fruit ): return goPlanting( fruit );
 		}
 	}
 
@@ -136,9 +136,9 @@ class Troll {
 			} else {
 				printErr( 'troll $id no $fruit tree to harvest' );
 				switch state {
-				case Harvesting( ANY ): return "";
+				case Harvest( ANY ): return "";
 				default:
-					state = Harvesting( ANY );
+					state = Harvest( ANY );
 					go();
 				}
 			}
