@@ -49,7 +49,7 @@ class Ai10 {
 		final mostRareTreeType = treeTypesAroundBase[0].type;
 		printErr( [for( tt in treeTypesAroundBase ) '${tt.type} ${tt.amount}'].join(",") );
 
-		if( troll.currentTask == Wait ) troll.addTask( Plant( mostRareTreeType ));
+		if( troll.currentTask == NoTask ) troll.addTask( Plant( mostRareTreeType ));
 		final action = troll.go();
 		if( action != "" ) return action else return "WAIT";
 
@@ -104,7 +104,7 @@ class Ai10 {
 				outputs.push( 'TRAIN $speed $carry $harvest $chop' );
 			}
 			
-			if( troll0.currentTask == Wait ) {
+			if( troll0.currentTask == NoTask ) {
 				if( maxSpeed < MIN_SPEED_SECOND_TROLL ) troll0.addTask( Harvest( PLUM ));
 				if( maxCarry < MIN_CARRY_CAPACITY_SECOND_TROLL ) troll0.addTask( Harvest( LEMON ));
 				if( maxHarvest < 1 ) troll0.addTask( Harvest( APPLE ));
@@ -115,14 +115,14 @@ class Ai10 {
 			final troll0 = myTrolls[0];
 			final troll1 = myTrolls[1];
 			
-			if( troll0.currentTask == Wait ) {
+			if( troll0.currentTask == NoTask ) {
 				if( fruitsAroundBase[mostRareFruit] == 0 ) {
 					troll0.addTask( Plant( plant1 ));
 				} else {
 					troll0.addTask( Harvest( mostRareFruit ));
 				}
 			}
-			if( troll1.currentTask == Wait ) {
+			if( troll1.currentTask == NoTask ) {
 				if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
 					troll1.addTask( Plant( plant2 ));
 				} else {
@@ -145,7 +145,7 @@ class Ai10 {
 			final troll1 = myTrolls[1];
 			final troll2 = myTrolls[2];
 			
-			if( troll0.currentTask == Wait ) {
+			if( troll0.currentTask == NoTask ) {
 				if( numTreesAroundBase < 4 ) troll0.addTask( Plant( ANY ));
 				else if( fruitsAroundBase[mostRareFruit] == 0 ) {
 					troll0.addTask( Plant( plant1 ));
@@ -153,7 +153,7 @@ class Ai10 {
 					troll0.addTask( Harvest( mostRareFruit ));
 				}
 			}
-			if( troll1.currentTask == Wait ) {
+			if( troll1.currentTask == NoTask ) {
 				if( numTreesAroundBase < 6 ) troll1.addTask( Plant( ANY ));
 				else if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
 					troll1.addTask( Plant( plant2 ));
@@ -162,7 +162,7 @@ class Ai10 {
 				}
 			}
 
-			if( troll2.currentTask == Wait ) {
+			if( troll2.currentTask == NoTask ) {
 				troll2.addTask( Chop( AnyPlayer ));
 			}
 		}

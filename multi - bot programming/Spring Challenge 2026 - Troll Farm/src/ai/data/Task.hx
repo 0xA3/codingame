@@ -1,7 +1,7 @@
 package ai.data;
 
 enum Task {
-	Wait;
+	NoTask;
 	Harvest( fruit:TFruit );
 	Plant( fruit:TFruit );
 	Chop( player:Player );

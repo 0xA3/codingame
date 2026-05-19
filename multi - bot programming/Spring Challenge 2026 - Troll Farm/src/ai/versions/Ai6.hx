@@ -50,7 +50,7 @@ class Ai6 {
 		final mostRareTreeType = treeTypesAroundBase[0].type;
 		printErr( [for( tt in treeTypesAroundBase ) '${tt.type} ${tt.amount}'].join(",") );
 
-		if( troll.currentTask == Wait ) troll.addTask( Plant( mostRareTreeType ));
+		if( troll.currentTask == NoTask ) troll.addTask( Plant( mostRareTreeType ));
 		final action = troll.go();
 		if( action != "" ) return action else return "WAIT";
 
@@ -83,7 +83,7 @@ class Ai6 {
 
 		if( myTrolls.length == 1 ) { // find ressources for second troll
 			final troll = myTrolls[0];
-			if( troll.currentTask == Wait ) {
+			if( troll.currentTask == NoTask ) {
 				if( maxSpeed < 1 ) troll.addTask( Harvest( PLUM ));
 				if( maxCarry < 1 ) troll.addTask( Harvest( LEMON ));
 				if( maxHarvest < 1 ) troll.addTask( Harvest( APPLE ));
@@ -103,14 +103,14 @@ class Ai6 {
 			final troll0 = myTrolls[0];
 			final troll1 = myTrolls[1];
 			
-			if( troll0.currentTask == Wait ) {
+			if( troll0.currentTask == NoTask ) {
 				if( fruitsAroundBase[mostRareFruit] == 0 ) {
 					troll0.addTask( Plant( plant1 ));
 				} else {
 					troll0.addTask( Harvest( mostRareFruit ));
 				}
 			}
-			if( troll1.currentTask == Wait ) {
+			if( troll1.currentTask == NoTask ) {
 				if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
 					troll1.addTask( Plant( plant2 ));
 				} else {
@@ -135,7 +135,7 @@ class Ai6 {
 			
 			final treesNumAroundBase = board.countTreesAroundBase( 4 );
 
-			if( troll0.currentTask == Wait ) {
+			if( troll0.currentTask == NoTask ) {
 				if( treesNumAroundBase < 4 ) troll0.addTask( Plant( ANY ));
 				else if( fruitsAroundBase[mostRareFruit] == 0 ) {
 					troll0.addTask( Plant( plant1 ));
@@ -143,7 +143,7 @@ class Ai6 {
 					troll0.addTask( Harvest( mostRareFruit ));
 				}
 			}
-			if( troll1.currentTask == Wait ) {
+			if( troll1.currentTask == NoTask ) {
 				if( treesNumAroundBase < 6 ) troll0.addTask( Plant( ANY ));
 				else if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
 					troll1.addTask( Plant( plant2 ));
@@ -152,7 +152,7 @@ class Ai6 {
 				}
 			}
 
-			if( troll2.currentTask == Wait ) {
+			if( troll2.currentTask == NoTask ) {
 				troll2.addTask( Chop( AnyPlayer ));
 			}
 		}

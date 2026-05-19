@@ -32,7 +32,7 @@ class Troll {
 	public var chopCounter = 0;
 
 	public final tasks = [];
-	public var currentTask = Wait;
+	public var currentTask = NoTask;
 
 	var turn = 0;
 
@@ -87,7 +87,7 @@ class Troll {
 	}
 
 	public function go() {
-		if( currentTask == Wait ) {
+		if( currentTask == NoTask ) {
 			if( tasks.length > 0 ) {
 				currentTask = tasks.shift();
 				printErr( 'troll $id change currentTask to $currentTask' );
@@ -99,7 +99,7 @@ class Troll {
 
 		switch currentTask {
 			case Chop( player ): return goChopping( player );
-			case Wait: return "";
+			case NoTask: return "";
 			case Harvest ( fruit ): return goHarvesting( fruit);
 			case Mine: return goMining();
 			case Plant( fruit ): return goPlanting( fruit );
@@ -350,6 +350,6 @@ class Troll {
 
 	inline function finishTask() {
 		printErr( 'troll $id completed task $currentTask' );
-		currentTask = Wait;
+		currentTask = NoTask;
 	}
 }
