@@ -156,18 +156,17 @@ class Troll {
 				}
 			} else {
 				printErr( 'troll $id no $fruit tree to harvest' );
-				// if( tasks.length > 0 ) {
-				// 	tasks.push( isDoing );
-				// 	isDoing = tasks.shift();
-				// 	go();
-				// } else {
+				if( tasks.length > 0 ) {
+					isDoing = tasks.shift();
+					go();
+				} else {
 					switch isDoing {
 					case Harvest( ANY ): return "";
 					default:
 						isDoing = Harvest( ANY );
 						go();
 					}
-				// }
+				}
 			}
 		}
 		return "";
