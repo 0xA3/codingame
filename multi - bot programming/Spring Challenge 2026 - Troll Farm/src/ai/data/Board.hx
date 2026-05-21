@@ -8,6 +8,8 @@ import xa3.math.IntMath;
 import xa3.math.Pos;
 import ya.Set;
 
+using xa3.math.IntMath;
+
 class Board {
 	
 	public static inline var GRASS = 0;
@@ -31,8 +33,9 @@ class Board {
 	public final waterNeighborPosSet:Set<Pos> = [];
 	public final plantPositions:Array<Array<Pos>> = [];
 	public final maxTreesAroundBase:Array<Array<Int>> = [];
-	final treeTypesAroundBase:Map<TFruit, Int> = [PLUM => 0, LEMON => 0, APPLE => 0, BANANA => 0];
-	final fruitsAroundBase:Map<TFruit, Int> = [PLUM => 0, LEMON => 0, APPLE => 0, BANANA => 0];
+	final treeTypesAroundBase:Map<TResource, Int> = [PLUM => 0, LEMON => 0, APPLE => 0];
+	final treeTypeDistances:Map<TResource, Int> = [PLUM => 0, LEMON => 0, APPLE => 0];
+	final fruitsAroundBase:Map<TResource, Int> = [PLUM => 0, LEMON => 0, APPLE => 0, BANANA => 0];
 
 	final map2d:Map2D;
 
@@ -150,7 +153,7 @@ class Board {
 			});
 
 			for( plantPos in plantPositionsOfDepth ) {
-				// printErr( 'plantPos $plantPos distance ${getDistance( pos, plantPos )}' );
+				printErr( 'plantPos $plantPos distance ${getDistance( trollPos, plantPos )}' );
 				if( !treePositionsMap.exists( plantPos )) {
 					return plantPos;
 				}
@@ -160,18 +163,47 @@ class Board {
 		return Pos.NO_POS;
 	}
 
+	public function getIronDistance( pos:Pos ) {
+		var closestDistance = boardWidth * boardHeight;
+		// printErr( 'ironNeighbors ' + board.ironNeighbors.join( "," ) );
+		for( ironNeighborPos in ironNeighbors ) {
+			final distance = getDistance( pos, ironNeighborPos );
+			// printErr( 'ironNeighbor $ironNeighborPos distance $distance' );
+			if( distance == -1 ) printErr( 'Error: no path from pos ${pos} to ironNeighbor $ironNeighborPos' );
+			else if( distance < closestDistance ) {
+				closestDistance = distance;
+			}
+		}
+		// printErr( 'troll $id closestIronNeighborPos $closestIronNeighborPos' );
+		return closestDistance;
+	}
+
+	public function getTreeTypeDistances() {
+		for( type in treeTypeDistances.keys() ) treeTypeDistances[type] = boardWidth * boardHeight;
+
+		for( tree in trees ) {
+			if( tree.type == BANANA ) continue; // ignore bananas
+			final distance = getDistance( tree.pos, myShack );
+			treeTypeDistances[tree.type] = distance.min( treeTypeDistances[tree.type] );
+		}
+
+		return treeTypeDistances;
+	}
+
 	public function getTreeTypesAroundBase( maxDepth:Int ) {
 		for( type in treeTypesAroundBase.keys() ) treeTypesAroundBase[type] = 0;
 		for( depth in 0...maxDepth ) {
 			for( treePos in plantPositions[depth] ) {
 				if( treePositionsMap.exists( treePos ) ) {
 					final tree = treePositionsMap[treePos];
+					if( tree.type == BANANA ) continue; // ignore bananas
+
 					treeTypesAroundBase[tree.type]++;
 				}
 			}
 		}
 
-		final typeAmounts:Array<TreeTypeAmount> = [
+		final typeAmounts:Array<TypeAmount> = [
 			for( treeType => amount in treeTypesAroundBase )
 			{ type: treeType, amount: amount }
 		];
@@ -207,7 +239,7 @@ class Board {
 		return fruitsAroundBase;
 	}
 	
-	public function countFruits( fruitTypes:Map<TFruit, Int> ) {
+	public function countFruits( fruitTypes:Map<TResource, Int> ) {
 		var count = 0;
 		for( amount in fruitTypes ) count += amount;
 		

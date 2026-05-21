@@ -2,7 +2,7 @@ package ai.data;
 
 import Std.int;
 import ai.data.Player;
-import ai.data.TFruit;
+import ai.data.TResource;
 import xa3.math.Pos;
 
 using xa3.math.IntMath;
@@ -17,7 +17,7 @@ class Tree {
 	
 	public static final NO_TREE = new Tree( "NONE", Pos.NO_POS );
 	
-	final treesProperties:Map<TFruit, TreeProperties> = [
+	final treesProperties:Map<TResource, TreeProperties> = [
 		NONE => { cooldown: 0, cooldownNearWater: 0, healths: [0, 0, 0, 0] },
 		PLUM => { cooldown: 8, cooldownNearWater: 3, healths: [6, 8, 10, 12] },
 		LEMON => { cooldown: 8, cooldownNearWater: 3, healths: [6, 8, 10, 12] },
@@ -25,7 +25,7 @@ class Tree {
 		BANANA => { cooldown: 6, cooldownNearWater: 4, healths: [3, 4, 5, 6] }
 	];
 
-	public final type:TFruit;
+	public final type:TResource;
 	public final pos:Pos;
 	final properties:TreeProperties;
 
@@ -44,11 +44,11 @@ class Tree {
 
 	public function convertType( sType:String ) {
 		switch( sType ) {
-			case "NONE": return TFruit.NONE;
-			case "PLUM": return TFruit.PLUM;
-			case "LEMON": return TFruit.LEMON;
-			case "APPLE": return TFruit.APPLE;
-			case "BANANA": return TFruit.BANANA;
+			case "NONE": return TResource.NONE;
+			case "PLUM": return TResource.PLUM;
+			case "LEMON": return TResource.LEMON;
+			case "APPLE": return TResource.APPLE;
+			case "BANANA": return TResource.BANANA;
 			default: throw 'Error: Unknown tree type: $sType';
 		}
 	}

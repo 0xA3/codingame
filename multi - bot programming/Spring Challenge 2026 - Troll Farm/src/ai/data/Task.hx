@@ -1,10 +1,13 @@
 package ai.data;
 
+import xa3.math.Pos;
+
 enum Task {
 	Chop( player:Player );
 	Drop;
-	Harvest( fruit:TFruit );
+	Harvest( fruit:TResource );
 	Mine;
+	Move( pos:Pos );
 	Nothing;
-	Plant( fruit:TFruit );
+	Plant( fruit:TResource );
 }

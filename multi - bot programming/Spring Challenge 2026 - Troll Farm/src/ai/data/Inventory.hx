@@ -1,7 +1,7 @@
 package ai.data;
 import CodinGame.printErr;
 import Std.parseInt;
-import ai.data.TFruit;
+import ai.data.TResource;
 
 class Inventory {
 	
@@ -27,7 +27,7 @@ class Inventory {
 		fruitSum = plum + lemon + apple + banana;
 	}
 
-	public function reduceTrainingCosts( trollCount:Int, speed:Int, carry:Int, harvest:Int, chop:Int ) {
+	public function subtractTrainingCosts( trollCount:Int, speed:Int, carry:Int, harvest:Int, chop:Int ) {
 		final plumCost = trollCount + speed * speed;
 		final lemonCost = trollCount + carry * carry;
 		final appleCost = trollCount + harvest * harvest;
@@ -40,7 +40,7 @@ class Inventory {
 		printErr( 'training costs: plums $plumCost lemons $lemonCost apples $appleCost iron $ironCost' );
 	}
 
-	public function getFruit( fruit:TFruit ) {
+	public function getFruit( fruit:TResource ) {
 		switch fruit {
 			case PLUM: return plum;
 			case LEMON: return lemon;
@@ -50,11 +50,11 @@ class Inventory {
 		}
 	}
 	public function getAnyFruit() {
-		if( plum > 0 ) return TFruit.PLUM;
-		if( lemon > 0 ) return TFruit.LEMON;
-		if( apple > 0 ) return TFruit.APPLE;
-		if( banana > 0 ) return TFruit.BANANA;
-		return TFruit.NONE;
+		if( plum > 0 ) return TResource.PLUM;
+		if( lemon > 0 ) return TResource.LEMON;
+		if( apple > 0 ) return TResource.APPLE;
+		if( banana > 0 ) return TResource.BANANA;
+		return TResource.NONE;
 	}
 
 	public function getFruitAmounts() {
@@ -62,7 +62,6 @@ class Inventory {
 			{ fruit: PLUM, amount: plum },
 			{ fruit: LEMON, amount: lemon },
 			{ fruit: APPLE, amount: apple },
-			{ fruit: BANANA, amount: banana }
 		];
 		
 		fruits.sort(( a, b ) -> a.amount - b.amount );

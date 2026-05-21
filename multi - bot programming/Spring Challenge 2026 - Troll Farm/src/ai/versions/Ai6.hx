@@ -5,7 +5,7 @@ import Std.int;
 import ai.contexts.WarCry;
 import ai.data.Board;
 import ai.data.Inventory;
-import ai.data.TFruit;
+import ai.data.TResource;
 import ai.data.Tree;
 import ai.data.Troll;
 import xa3.math.Pos;
