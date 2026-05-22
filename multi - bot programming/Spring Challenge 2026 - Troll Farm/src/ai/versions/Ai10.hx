@@ -22,6 +22,7 @@ class Ai10 {
 	var board:Board;
 	var myInventory:Inventory;
 	var myTrolls:Array<Troll>;
+	var oppTrolls:Array<Troll>;
 	
 	final warCry = new WarCry();
 	
@@ -53,9 +54,10 @@ class Ai10 {
 		this.board = board;
 	}
 
-	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
+	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, oppTrolls:Array<Troll> ) {
 		this.myInventory = myInventory;
 		this.myTrolls = myTrolls;
+		this.oppTrolls = oppTrolls;
 		board.reset();
 		outputs.splice( 0, outputs.length );
 	}
@@ -80,7 +82,7 @@ class Ai10 {
 
 		printErr( 'turn $turn myTrolls.length ${myTrolls.length}' );
 
-		if( myTrolls.length == 1 ) process1();
+		if( myTrolls.length == 1 ) process1( myTrolls[0], 2, 2, 1, 1 );
 		else if( myTrolls.length == 2 ) process2();
 		// else if( myTrolls.length == 3 ) process3();
 
@@ -132,15 +134,11 @@ class Ai10 {
 		// printErr( 'required ' + [for( resource in requiredResources ) 'type ${resource.type}: ${resource.amount}'].join(",") );
 	}
 
-	static inline var SECOND_TROLL_SPEED = 2;
-	static inline var SECOND_TROLL_CARRY = 2;
-
-	function process1() { // find ressources for second troll
-		final troll0 = myTrolls[0];
+	function process1( troll:Troll, nextTrollSpeed:Int, nextTrollCarry:Int, nextTrollHarvest:Int, nextTrollChop:Int ) { // find ressources for second troll
 		
 		calculateMaxTrainValues();
 		var isTrainingSecondTroll = false;
-		if( maxSpeed >= SECOND_TROLL_SPEED && maxCarry >= SECOND_TROLL_CARRY && maxHarvest >= 1 && maxChop >= 1 ) {
+		if( maxSpeed >= nextTrollSpeed && maxCarry >= nextTrollCarry && maxHarvest >= nextTrollHarvest && maxChop >= nextTrollChop ) {
 			final speed = maxSpeed;
 			final carry = maxCarry;
 			final harvest = maxHarvest;
@@ -154,9 +152,9 @@ class Ai10 {
 			isTrainingSecondTroll = true;
 
 			if( turn == 1 ) { // move away from shack
-				final plantPosition = board.getPlantPosition( troll0.pos );
+				final plantPosition = board.getPlantPosition( troll.pos );
 				if( plantPosition != Pos.NO_POS ) {
-					troll0.addTask( Move( plantPosition ));
+					troll.addTask( Move( plantPosition ));
 				}
 			}
 		}
@@ -164,8 +162,8 @@ class Ai10 {
 		final myFruits = myInventory.getFruitAmounts();
 		myFruits.sort(( a, b ) -> a.amount - b.amount ); // sort by amount in inventory
 
-		if( troll0.isDoing == Nothing ) {
-			calculateRequiredResources( SECOND_TROLL_SPEED, SECOND_TROLL_CARRY, 1, 1 );
+		if( troll.isDoing == Nothing ) {
+			calculateRequiredResources( nextTrollSpeed, nextTrollCarry, nextTrollHarvest, nextTrollChop );
 			requiredResources.sort( TypeAmount.sortReverse );
 
 			final treeTypesAroundBase = board.getTreeTypesAroundBase( 2 );
@@ -175,14 +173,14 @@ class Ai10 {
 				
 				printErr( 'requiredResource ${requiredResource.type} ${requiredResource.amount}' );
 				if( requiredResource.type == IRON ) {
-					troll0.addTask( Mine );
+					troll.addTask( Mine );
 					break;
 				} else if( requiredResource.amount > 2 && myInventory.getFruitAmount( requiredResource.type ) > 0 && treeTypesAroundBase[requiredResource.type] < 2 ) {
-					troll0.addTask( Plant( requiredResource.type ));
+					troll.addTask( Plant( requiredResource.type ));
 					break;
 				} else {
-					printErr( 'troll ${troll0.id} harvest ${requiredResource.type}' );
-					troll0.addTask( Harvest( requiredResource.type ));
+					printErr( 'troll ${troll.id} harvest ${requiredResource.type}' );
+					troll.addTask( Harvest( requiredResource.type ));
 					break;
 				}
 			}
@@ -193,20 +191,33 @@ class Ai10 {
 		final troll0 = myTrolls[0];
 		final troll1 = myTrolls[1];
 
-		if( troll0.isDoing == Nothing ) {
-			troll0.addTask( Harvest( ANY ));
+		if( troll1.chopPower >= 3 ) {
+			if( oppTrolls.length < 2 ) {
+				printErr( 'process2 harvestAndAttack' );
+				process1( troll0, 2, 2, 1, 1 );
+				attack( troll1 );
+			} else {
+				printErr( 'process2 harvestAndChop' );
+				process1( troll0, 2, 2, 1, 1 );
+				chop( troll1 );
+			}
+		} else {
+			printErr( 'process2 harvestForThirdTroll' );
+			harvestForThirdTroll();
 		}
 
-		if( !board.treePositionsMap.exists( troll1.pos ) ) troll1.finishTask();
-		
-		if( troll1.isDoing == Nothing ) {
-			final sortedOppTrees = board.getSortedTreesAround( board.oppShack, troll1.pos );
-			printErr( "trees " + [for( tree in sortedOppTrees ) '${tree.pos} distance ${board.getDistance( board.oppShack, tree.pos )}'].join(",") );
-			if( sortedOppTrees.length > 0 ) troll1.addTask( Attack( sortedOppTrees[0] ));
-		}
 	}
 
-	function process2x() {
+	function attack( troll1:Troll ) {
+		if( !board.treePositionsMap.exists( troll1.pos ) ) troll1.finishTask();
+		if( troll1.isDoing == Nothing ) troll1.addTask( Attack );
+	}
+
+	function chop( troll1:Troll ) {
+		if( troll1.isDoing == Nothing ) troll1.addTask( Chop( Opp ));
+	}
+
+	function harvestForThirdTroll() {
 		final slowTroll = myTrolls[0];
 		final fastTroll = myTrolls[1];
 		

@@ -98,7 +98,7 @@ class Troll {
 		}
 
 		switch isDoing {
-			case Attack( tree ): return goAndAttack( tree );
+			case Attack: return goAndAttack();
 			case Chop( player ): return goChopping( player );
 			case Drop: return drop();
 			case Harvest( resource ):
@@ -125,7 +125,11 @@ class Troll {
 		return 'MOVE $id ${targetPos.x} ${targetPos.y}';
 	}
 
-	function goAndAttack( targetTree:Tree ) {
+	function goAndAttack() {
+		final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
+		if( sortedOppTrees.length == 0 ) return "";
+		// printErr( "trees " + [for( tree in sortedOppTrees ) '${tree.pos} distance ${board.getDistance( board.oppShack, tree.pos )}'].join(",") );
+		final targetTree = sortedOppTrees[0];
 		if( pos == targetTree.pos ) {
 			printErr( 'troll $id attack tree health ${targetTree.health} chop power $chopPower' );
 			return 'CHOP $id';
@@ -138,7 +142,14 @@ class Troll {
 		if( carrySum == carryCapacity ) {
 			return returnToShack();
 		} else { // go to to tree
-			final closestTree = findClosestTree( TResource.ANY, player, 0, carryCapacity );
+			final closestTree = player == Me
+			? findClosestTree( TResource.ANY, player, 0, carryCapacity )
+			: {
+				final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
+				if( sortedOppTrees.length == 0 ) return "";
+				sortedOppTrees[0];
+			}
+			
 			if( closestTree != Tree.NO_TREE ) {
 				if( closestTree.pos == pos ) {
 					printErr( 'troll $id chop' );
@@ -389,7 +400,7 @@ class Troll {
 
 	function outputTask( task:Task ) {
 		switch task {
-			case Attack(tree): return 'ATTACK $id ${tree.pos}';
+			// case Attack(tree): return 'ATTACK $id ${tree.pos}';
 			default: return '$task';
 		}
 	}

@@ -120,7 +120,7 @@ class MainAi {
 
 			// board.populateBoard( treePositionsMap, trolls );
 			
-			ai.setInputs( inventories[Me], myTrolls, trees, treePositionsMap );
+			ai.setInputs( inventories[Me], myTrolls, oppTrolls );
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
