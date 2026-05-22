@@ -48,8 +48,8 @@ class Board {
 	public final center:Pos;
 	public final neighborOffsets = Pos.createNeighborOffsets();
 	
-	public var trees:Array<Tree>;
-	public var treePositionsMap:Map<Pos, Tree>;
+	public var trees:Array<Tree> = [];
+	public var treePositionsMap:Map<Pos, Tree> = [];
 	public final targetTrees:Map<Pos, Bool> = [];
 	public final occupiedPositions:Set<Pos> = [];
 
@@ -62,7 +62,9 @@ class Board {
 		grid:Array<Array<Int>>,
 		paths:Array<Array<Array<Pos>>>,
 		myShack:Pos,
-		oppShack:Pos
+		oppShack:Pos,
+		trees:Array<Tree>,
+		treePositionsMap:Map<Pos, Tree>
 	) {
 		this.boardWidth = boardWidth;
 		this.boardHeight = boardHeight;
@@ -71,6 +73,8 @@ class Board {
 		this.paths = paths;
 		this.myShack = myShack;
 		this.oppShack = oppShack;
+		this.trees = trees;
+		this.treePositionsMap = treePositionsMap;
 
 		// currentBoard = [for( y in 0...boardHeight ) []];
 		// nextBoard = [for( y in 0...boardHeight ) []];
@@ -90,9 +94,7 @@ class Board {
 		map2d.configureCache( true, 1024 );
 	}
 
-	public function reset( trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
-		this.trees = trees;
-		this.treePositionsMap = treePositionsMap;
+	public function reset() {
 		targetTrees.clear();
 		occupiedPositions.clear();
 	}
@@ -202,13 +204,8 @@ class Board {
 				}
 			}
 		}
-
-		final typeAmounts:Array<TypeAmount> = [
-			for( treeType => amount in treeTypesAroundBase )
-			{ type: treeType, amount: amount }
-		];
-
-		return typeAmounts;
+		
+		return treeTypesAroundBase;
 	}
 
 	public function countTreesAroundBase( maxDepth:Int ) {
@@ -224,14 +221,34 @@ class Board {
 		return count;
 	}
 
-	public function getFruitsAroundBase( maxDepth:Int ) {
+	public function getSortedTreesAround( shackPos:Pos, trollPos:Pos ) {
+		trees.sort(( a, b ) -> {
+			final d1 = getDistance( shackPos, a.pos );
+			final d2 = getDistance( shackPos, b.pos );
+			if( d1 < d2 ) return -1;
+			if( d1 > d2 ) return 1;
+				
+			final t1 = getDistance( trollPos, a.pos );
+			final t2 = getDistance( trollPos, b.pos );
+			if( t1 < t2 ) return -1;
+			if( t1 > t2 ) return 1;
+			
+			return 0;
+		});
+		
+		return trees;
+	}
+
+	public function getFruitsAroundBase( maxDepth:Int, trollSpeed:Int ) {
 		for( fruit in fruitsAroundBase.keys() ) fruitsAroundBase[fruit] = 0;
 		for( depth in 0...maxDepth ) {
 			for( treePos in plantPositions[depth] ) {
 				if( treePositionsMap.exists( treePos ) ) {
 					final tree = treePositionsMap[treePos];
-					final fruits = tree.fruits;
-					fruitsAroundBase[tree.type] += fruits;
+					final distance = getDistance( myShack, tree.pos );
+					final futureFruits = tree.getFruitsAfter( int( distance / trollSpeed ) );
+					
+					fruitsAroundBase[tree.type] += futureFruits;
 				}
 			}
 		}

@@ -32,15 +32,16 @@ class MainAi {
 		final boardHeight = parseInt( inputs[1] ); // The height of the board
 		final lines = [for( i in 0...boardHeight ) readline()];
 
-		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines );
+		final trees = [];
+		final treePositionsMap:Map<Pos, Tree> = [];
+
+		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines, trees, treePositionsMap );
 		mtRandom = new MTRandom( seed );
 
 		ai.setGlobalInputs( board );
 
 		final inventories = [Me => new Inventory(), Opp => new Inventory()];
 
-		final treePositionsMap:Map<Pos, Tree> = [];
-		final trees = [];
 		final trolls:Map<Int, Troll> = [];
 		final myTrolls = [];
 		final oppTrolls = [];
@@ -48,8 +49,10 @@ class MainAi {
 		while( true ) {
 			if( turn > 1 ) startTime = haxe.Timer.stamp();
 			
-			treePositionsMap.clear();
 			trees.splice( 0, trees.length );
+			final treesLastTurn:Map<Pos, Tree> = [for( pos => tree in treePositionsMap ) pos => tree];
+			treePositionsMap.clear();
+			
 			
 			inventories[Me].update( readline().split(" ") );
 			inventories[Opp].update( readline().split(" ") );
@@ -67,13 +70,15 @@ class MainAi {
 				final cooldown = parseInt( inputs[6] );
 
 				final pos = board.positions[y][x];
-				if( !treePositionsMap.exists( pos )) treePositionsMap.set( pos, new Tree( type, pos ));
+				if( treesLastTurn.exists( pos )) treePositionsMap.set( pos, treesLastTurn[pos] );
+				else treePositionsMap.set( pos, new Tree( type, pos ));
 				
 				final tree = treePositionsMap[pos];
 				final isNearWater = board.waterNeighborPosSet.contains( pos );
 				final myDistance = board.getDistance( pos, board.myShack );
 				final oppDistance = board.getDistance( pos, board.oppShack );
 				tree.update( size, health, fruits, cooldown, isNearWater, myDistance < oppDistance ? Me : Opp );
+				// if( '$pos' == "10:2" ) printErr( 'tree at $pos health $health' );
 				// printErr( 'add tree at $pos  myDistance $myDistance oppDistance $oppDistance' );
 				
 				trees.push( tree );

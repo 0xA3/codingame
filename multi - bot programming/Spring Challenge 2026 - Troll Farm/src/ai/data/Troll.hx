@@ -76,12 +76,12 @@ class Troll {
 	}
 
 	public function addTask( task:Task ) {
-		printErr( 'troll $id addTask $task' );
+		printErr( 'troll $id addTask ${outputTask( task )}' );
 		tasks.push( task );
 	}
 
 	public function insertTask( task:Task ) {
-		printErr( 'troll $id insertTask $task' );
+		printErr( 'troll $id insertTask ${outputTask( task )}' );
 		tasks.unshift( isDoing );
 		isDoing = task;
 	}
@@ -90,8 +90,7 @@ class Troll {
 		if( isDoing == Nothing ) {
 			if( tasks.length > 0 ) {
 				isDoing = tasks.shift();
-				printErr( 'troll $id change isDoing to $isDoing' );
-				printErr( 'troll $id remaining tasks ' + tasks.join( "," ) );
+				printErr( 'troll $id do ${outputTask( isDoing )} remaining [' + tasks.join( "," ) + "]" );
 			} else {
 				printErr( 'troll $id has no tasks' );
 				return "";
@@ -99,9 +98,14 @@ class Troll {
 		}
 
 		switch isDoing {
+			case Attack( tree ): return goAndAttack( tree );
 			case Chop( player ): return goChopping( player );
 			case Drop: return drop();
-			case Harvest ( fruit ): return goHarvesting( fruit);
+			case Harvest( resource ):
+				switch resource {
+				case TResource.IRON: return goMining();
+				default: return goHarvesting( resource);
+				}
 			case Mine: return goMining();
 			case Move( targetPos ): return moveTo( targetPos );
 			case Nothing: return "";
@@ -119,6 +123,15 @@ class Troll {
 		final distance = board.getDistance( pos, targetPos );
 		if( distance <= movementSpeed ) finishTask();
 		return 'MOVE $id ${targetPos.x} ${targetPos.y}';
+	}
+
+	function goAndAttack( targetTree:Tree ) {
+		if( pos == targetTree.pos ) {
+			printErr( 'troll $id attack tree health ${targetTree.health} chop power $chopPower' );
+			return 'CHOP $id';
+		} else {
+			return evaluatePath( board.getPath( pos, targetTree.pos ), "Tree" );
+		}
 	}
 
 	function goChopping( player:Player ) {
@@ -141,10 +154,10 @@ class Troll {
 		return "";
 	}
 
-	function goHarvesting( fruit:TResource ) {
+	function goHarvesting( resource:TResource ) {
 		if( carrySum == carryCapacity ) return returnToShack();
 		else { // go to to tree
-			final closestTree = findClosestTree( fruit, AnyPlayer, 1 );
+			final closestTree = findClosestTree( resource, AnyPlayer, 1 );
 			if( closestTree != Tree.NO_TREE ) {
 				if( closestTree.pos == pos ) {
 					printErr( 'troll $id harvest' );
@@ -155,7 +168,7 @@ class Troll {
 					return evaluatePath( pathToTree, "Tree" );
 				}
 			} else {
-				printErr( 'troll $id no $fruit tree to harvest' );
+				printErr( 'troll $id no $resource tree to harvest' );
 				if( tasks.length > 0 ) {
 					isDoing = tasks.shift();
 					go();
@@ -202,7 +215,7 @@ class Troll {
 		}
 
 		if( carryFruit == 0 ) { // get fruit
-			if( inventory.getFruit( fruit ) == 0 ) { // no fruit in inventory
+			if( inventory.getFruitAmount( fruit ) == 0 ) { // no fruit in inventory
 				printErr( 'troll $id no $fruit fruit in inventory' );
 				return goHarvesting( fruit );
 			} else {
@@ -369,8 +382,15 @@ class Troll {
 		return TResource.NONE;
 	}
 
-	inline function finishTask() {
-		printErr( 'troll $id completed task $isDoing' );
+	public inline function finishTask() {
+		printErr( 'troll $id completed task ${outputTask( isDoing )}' );
 		isDoing = Nothing;
+	}
+
+	function outputTask( task:Task ) {
+		switch task {
+			case Attack(tree): return 'ATTACK $id ${tree.pos}';
+			default: return '$task';
+		}
 	}
 }

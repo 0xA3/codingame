@@ -42,6 +42,8 @@ class Tree {
 		this.properties = treesProperties[this.type];
 	}
 
+	public function toString() return '$type $pos';
+
 	public function convertType( sType:String ) {
 		switch( sType ) {
 			case "NONE": return TResource.NONE;

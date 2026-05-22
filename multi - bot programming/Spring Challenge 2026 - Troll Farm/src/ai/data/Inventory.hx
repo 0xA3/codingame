@@ -40,7 +40,7 @@ class Inventory {
 		printErr( 'training costs: plums $plumCost lemons $lemonCost apples $appleCost iron $ironCost' );
 	}
 
-	public function getFruit( fruit:TResource ) {
+	public function getFruitAmount( fruit:TResource ) {
 		switch fruit {
 			case PLUM: return plum;
 			case LEMON: return lemon;

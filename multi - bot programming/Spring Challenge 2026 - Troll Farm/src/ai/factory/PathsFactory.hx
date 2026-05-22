@@ -75,7 +75,7 @@ class PathsFactory {
 				// printErr( 'sendPos $endPos mEndPos ${mirrorPos( endPos )}' );
 			}
 		}
-		printErr( 'searchCounter: $searchCounter' );
+		// printErr( 'searchCounter: $searchCounter' );
 
 		return paths;
 	}

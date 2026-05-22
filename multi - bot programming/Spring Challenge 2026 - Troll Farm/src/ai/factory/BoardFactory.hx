@@ -2,13 +2,14 @@ package ai.factory;
 
 import CodinGame.printErr;
 import ai.data.Board;
+import ai.data.Tree;
 import xa3.math.Pos;
 
 using Lambda;
 
 class BoardFactory {
 	
-	public static function createBoard( boardWidth:Int, boardHeight:Int, lines:Array<String >) {
+	public static function createBoard( boardWidth:Int, boardHeight:Int, lines:Array<String>, trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
 		final positions = Pos.createPositions( boardWidth, boardHeight );
 		
 		var myShack = Pos.NO_POS;
@@ -33,7 +34,7 @@ class BoardFactory {
 		final pathFactory = new PathsFactory( boardWidth, boardHeight, grid, positions, myShack );
 		final shackPaths = pathFactory.createShackPaths();
 
-		final board = new Board( boardWidth, boardHeight, positions, grid, shackPaths, myShack, oppShack );
+		final board = new Board( boardWidth, boardHeight, positions, grid, shackPaths, myShack, oppShack, trees, treePositionsMap );
 		
 		board.addWaterAndIronNeighbors();
 		board.addPlantPositions();

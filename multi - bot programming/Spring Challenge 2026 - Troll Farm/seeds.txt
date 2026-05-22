@@ -2,3 +2,9 @@ Seed=-1496396499970442500 - warten auf Pflaumen
 
 Replay mit Illedan und aCat
 https://www.codingame.com/replay/887555655
+
+
+seed=-5174667777246212000 plum needed at start
+seed=-7235710658578688000 plum needed at start
+seed=-9117404783493225000 2 lemons needed at start
+seed=2173216099101477000 3 lemons needed at start
