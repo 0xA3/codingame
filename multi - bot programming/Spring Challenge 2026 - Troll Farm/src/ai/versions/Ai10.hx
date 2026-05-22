@@ -286,30 +286,17 @@ class Ai10 {
 		final myFruits = myInventory.getFruitAmounts();
 		myFruits.sort(( a, b ) -> a.amount - b.amount );
 		final mostRareFruit = myFruits[0].fruit;
-		final secondMostRareFruit = myFruits[1].fruit;
-
-		final plant1 = treeTypesAroundBase[0].type;
-		final plant2 = treeTypesAroundBase[1].type;
-
+		
 		if( troll0.isDoing == Nothing ) {
-			if( numTreesAroundBase < 4 ) troll0.addTask( Plant( ANY ));
-			else if( fruitsAroundBase[mostRareFruit] == 0 ) {
-				troll0.addTask( Plant( plant1 ));
-			} else {
-				troll0.addTask( Harvest( mostRareFruit ));
-			}
-		}
-		if( troll1.isDoing == Nothing ) {
-			if( numTreesAroundBase < 6 ) troll1.addTask( Plant( ANY ));
-			else if( fruitsAroundBase[secondMostRareFruit] == 0 ) {
-				troll1.addTask( Plant( plant2 ));
-			} else {
-				troll1.addTask( Harvest( secondMostRareFruit ));
-			}
+			troll0.addTask( Plant( mostRareFruit ));
 		}
 
+		if( troll1.isDoing == Nothing ) {
+			troll0.addTask( Harvest( mostRareFruit ));
+		}
+		
 		if( troll2.isDoing == Nothing ) {
-			troll2.addTask( Chop( AnyPlayer ));
+			troll2.addTask( Chop( Opp ));
 		}
 	}
 }
