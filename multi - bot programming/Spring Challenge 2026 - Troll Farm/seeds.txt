@@ -8,3 +8,6 @@ seed=-5174667777246212000 plum needed at start
 seed=-7235710658578688000 plum needed at start
 seed=-9117404783493225000 2 lemons needed at start
 seed=2173216099101477000 3 lemons needed at start
+
+seed=6149395424067722000 only one tile ajacent to the shack
+seed=5298516408928117000 only one tile ajacent to the shack

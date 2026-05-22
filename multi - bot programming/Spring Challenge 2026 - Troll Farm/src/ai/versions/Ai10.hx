@@ -6,7 +6,6 @@ import ai.contexts.WarCry;
 import ai.data.Board;
 import ai.data.Inventory;
 import ai.data.TResource;
-import ai.data.Tree;
 import ai.data.Troll;
 import ai.data.TypeAmount;
 import xa3.math.Pos;
@@ -83,7 +82,8 @@ class Ai10 {
 
 		if( myTrolls.length == 1 ) process1( myTrolls[0], 2, 2, 1, 1 );
 		else if( myTrolls.length == 2 ) process2();
-		else if( myTrolls.length == 3 ) process3();
+		else if( myTrolls.length == 3 ) process3( 2, 2, 2, 2 );
+		else process4();
 
 		for( troll in myTrolls ) {
 			final action = troll.go();
@@ -136,7 +136,6 @@ class Ai10 {
 	function process1( troll:Troll, nextTrollSpeed:Int, nextTrollCarry:Int, nextTrollHarvest:Int, nextTrollChop:Int ) { // find ressources for second troll
 		
 		calculateMaxTrainValues();
-		var isTrainingSecondTroll = false;
 		if( maxSpeed >= nextTrollSpeed && maxCarry >= nextTrollCarry && maxHarvest >= nextTrollHarvest && maxChop >= nextTrollChop ) {
 			final speed = maxSpeed;
 			final carry = maxCarry;
@@ -148,8 +147,6 @@ class Ai10 {
 			myInventory.subtractTrainingCosts( myTrolls.length, speed, carry, harvest, chop );
 			calculateMaxTrainValues();
 			
-			isTrainingSecondTroll = true;
-
 			if( turn == 1 ) { // move away from shack
 				final plantPosition = board.getPlantPosition( troll.pos );
 				if( plantPosition != Pos.NO_POS ) {
@@ -199,7 +196,7 @@ class Ai10 {
 			}
 		} else {
 			printErr( 'process2 harvestForThirdTroll' );
-			harvestForThirdTroll();
+			harvestForThirdTroll( 2, 3, 1, 3);
 		}
 
 	}
@@ -213,18 +210,12 @@ class Ai10 {
 		if( troll1.isDoing == Nothing ) troll1.addTask( Chop( Opp ));
 	}
 
-	function harvestForThirdTroll() {
-		final nextTrollSpeed = 2;
-		final nextTrollCarry = 3;
-		final nextTrollHarvest = 1;
-		final nextTrollChop = 3;
-		
+	function harvestForThirdTroll( speed:Int, carry:Int, harvest:Int, chop:Int ) {
 		final slowTroll = myTrolls[0];
 		final fastTroll = myTrolls[1];
 
 		calculateMaxTrainValues();
-		var isTrainingThirdTroll = false;
-		if( maxSpeed >= nextTrollSpeed && maxCarry >= nextTrollCarry && maxHarvest >= nextTrollHarvest && maxChop >= nextTrollChop ) {
+		if( maxSpeed >= speed && maxCarry >= carry && maxHarvest >= harvest && maxChop >= chop ) {
 			final speed = maxSpeed;
 			final carry = maxCarry;
 			final harvest = maxHarvest;
@@ -234,12 +225,12 @@ class Ai10 {
 
 			myInventory.subtractTrainingCosts( myTrolls.length, speed, carry, harvest, chop );
 			calculateMaxTrainValues();
-			
-			isTrainingThirdTroll = true;
 		}
 		
-		calculateRequiredResources( nextTrollSpeed, nextTrollCarry, nextTrollHarvest, nextTrollChop );
+		calculateRequiredResources( speed, carry, harvest, chop );
 		requiredResources.sort( TypeAmount.sortReverse );
+
+		printErr( 'requiredResources ' + [for( requiredResource in requiredResources ) '${requiredResource.type} ${requiredResource.amount}'].join(",") );
 
 		final mostNeeded = requiredResources[0];
 		final secondMostNeeded = requiredResources[1];
@@ -253,10 +244,10 @@ class Ai10 {
 		final nearResource = resourceTypeDistances[0];
 		final farResource = resourceTypeDistances[1];
 	
-		final treeTypesAroundBaseMap = board.getTreeTypesAroundBase( 2 );
+		final treeTypesAroundBaseMap = board.getTreeTypesAroundBase( 4 );
 		final treeTypesAroundBase:Array<TypeAmount> = [for( type => amount in treeTypesAroundBaseMap ) new TypeAmount( type, amount )];
 		treeTypesAroundBase.sort( TypeAmount.sortReverse );
-		
+		printErr( 'tree types around base ' + [for( ta in treeTypesAroundBase ) '${ta.type} ${ta.amount}' ].join(",") );
 		final plant1 = treeTypesAroundBase[0].type;
 		final plant2 = treeTypesAroundBase[1].type;
 		
@@ -278,25 +269,82 @@ class Ai10 {
 		}
 	}
 
-	function process3() {
-		final troll0 = myTrolls[0];
-		final troll1 = myTrolls[1];
-		final troll2 = myTrolls[2];
+	function process3( speed:Int, carry:Int, harvest:Int, chop:Int ) {
+		final slowTroll = myTrolls[0];
+		final fastTroll = myTrolls[1];
+		final chopTroll = myTrolls[2];
+
+		calculateMaxTrainValues();
+		var isTrainingFourthTroll = false;
+		if( maxSpeed >= speed && maxCarry >= carry && maxHarvest >= harvest && maxChop >= chop ) {
+			final speed = maxSpeed;
+			final carry = maxCarry;
+			final harvest = maxHarvest;
+			final chop = maxChop;
+			printErr( 'Train Troll $speed $carry $harvest $chop' );
+			outputs.push( 'TRAIN $speed $carry $harvest $chop' );
+
+			myInventory.subtractTrainingCosts( myTrolls.length, speed, carry, harvest, chop );
+			calculateMaxTrainValues();
+			
+			isTrainingFourthTroll = true;
+		}
 		
-		final myFruits = myInventory.getFruitAmounts();
-		myFruits.sort(( a, b ) -> a.amount - b.amount );
-		final mostRareFruit = myFruits[0].fruit;
+		calculateRequiredResources( speed, carry, harvest, chop );
+		requiredResources.sort( TypeAmount.sortReverse );
+
+		printErr( 'requiredResources ' + [for( requiredResource in requiredResources ) '${requiredResource.type} ${requiredResource.amount}'].join(",") );
+
+		final mostNeeded = requiredResources[0];
+		final secondMostNeeded = requiredResources[1];
+
+		final treeTypeDistances = board.getTreeTypeDistances();
+		final resourceTypeDistances = [
+			{ type: mostNeeded.type, amount: mostNeeded.amount, distance: mostNeeded.type == IRON ? board.getIronDistance( board.myShack ) : treeTypeDistances[mostNeeded.type] },
+			{ type: secondMostNeeded.type, amount: secondMostNeeded.amount, distance: secondMostNeeded.type == IRON ? board.getIronDistance( board.myShack ) : treeTypeDistances[secondMostNeeded.type] }
+		];
+		resourceTypeDistances.sort(( a, b ) -> a.distance - b.distance );
+		final nearResource = resourceTypeDistances[0];
+		final farResource = resourceTypeDistances[1];
 		
-		if( troll0.isDoing == Nothing ) {
-			troll0.addTask( Plant( mostRareFruit ));
+		final treeTypesAroundBaseMap = board.getTreeTypesAroundBase( 4 );
+		final treeTypesAroundBase:Array<TypeAmount> = [for( type => amount in treeTypesAroundBaseMap ) new TypeAmount( type, amount )];
+		treeTypesAroundBase.sort( TypeAmount.sortReverse );
+		printErr( 'tree types around base ' + [for( ta in treeTypesAroundBase ) '${ta.type} ${ta.amount}' ].join(",") );
+		final plant1 = treeTypesAroundBase[0].type;
+		final plant2 = treeTypesAroundBase[1].type;
+		
+		if( slowTroll.isDoing == Nothing ) {
+			if( nearResource.type == IRON ) slowTroll.addTask( Mine );
+			else if( nearResource.amount > 2 && myInventory.getFruitAmount( nearResource.type ) > 0 && treeTypesAroundBaseMap[nearResource.type] < 2 ) {
+				slowTroll.addTask( Plant( nearResource.type ));
+			} else {
+				slowTroll.addTask( Harvest( nearResource.type ));
+			}
+		}
+		if( fastTroll.isDoing == Nothing ) {
+			if( farResource.type == IRON ) fastTroll.addTask( Mine );
+			else if( farResource.amount > 2 && myInventory.getFruitAmount( farResource.type ) > 0 && treeTypesAroundBaseMap[farResource.type] < 2 ) {
+				fastTroll.addTask( Plant( farResource.type ));
+			} else {
+				fastTroll.addTask( Harvest( farResource.type ));
+			}
 		}
 
-		if( troll1.isDoing == Nothing ) {
-			troll0.addTask( Harvest( mostRareFruit ));
+		if( chopTroll.isDoing == Nothing ) {
+			chopTroll.addTask( Chop( Opp ));
 		}
-		
-		if( troll2.isDoing == Nothing ) {
-			troll2.addTask( Chop( Opp ));
-		}
+	}
+	
+	function process4() {
+		final slowTroll = myTrolls[0];
+		final fastTroll = myTrolls[1];
+		final chopTroll = myTrolls[2];
+		final fourthTroll = myTrolls[3];
+
+		if( slowTroll.isDoing == Nothing ) slowTroll.addTask( Plant( BANANA ));
+		if( fastTroll.isDoing == Nothing ) fastTroll.addTask( Chop( AnyPlayer ));
+		if( chopTroll.isDoing == Nothing ) chopTroll.addTask( Chop( Opp ));
+		if( fourthTroll.isDoing == Nothing ) fourthTroll.addTask( Plant( BANANA ));
 	}
 }
