@@ -344,7 +344,7 @@ class Ai11 {
 
 		if( slowTroll.isDoing == Nothing ) slowTroll.addTask( Plant( BANANA ));
 		if( fastTroll.isDoing == Nothing ) fastTroll.addTask( Chop( AnyPlayer ));
-		if( chopTroll.isDoing == Nothing ) chopTroll.addTask( Chop( Opp ));
+		if( chopTroll.isDoing == Nothing ) chopTroll.addTask( Chop( AnyPlayer ));
 		if( fourthTroll.isDoing == Nothing ) fourthTroll.addTask( Plant( BANANA ));
 	}
 }

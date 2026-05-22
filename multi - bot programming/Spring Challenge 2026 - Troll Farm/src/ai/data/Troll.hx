@@ -142,9 +142,9 @@ class Troll {
 		if( carrySum == carryCapacity ) {
 			return returnToShack();
 		} else { // go to to tree
-			final closestTree = player == Me
-			? findClosestTree( TResource.ANY, player, 0, carryCapacity )
-			: {
+			final closestTree = switch player {
+				case Me, AnyPlayer: findClosestTree( TResource.ANY, player, 0, carryCapacity );
+				case Opp:
 				final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
 				if( sortedOppTrees.length == 0 ) return "";
 				sortedOppTrees[0];

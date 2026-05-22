@@ -155,7 +155,7 @@ class Board {
 			});
 
 			for( plantPos in plantPositionsOfDepth ) {
-				printErr( 'plantPos $plantPos distance ${getDistance( trollPos, plantPos )}' );
+				// printErr( 'plantPos $plantPos distance ${getDistance( trollPos, plantPos )}' );
 				if( !treePositionsMap.exists( plantPos )) {
 					return plantPos;
 				}
