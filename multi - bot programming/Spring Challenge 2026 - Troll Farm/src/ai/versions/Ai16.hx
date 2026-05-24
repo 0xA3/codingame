@@ -91,6 +91,13 @@ class Ai16 {
 
 		printErr( 'turn $turn myTrolls.length ${myTrolls.length}' );
 
+		for( troll in myTrolls ) {
+			switch troll.isDoing {
+				case CoChop( tree ): board.targetTrees.set( tree.pos, true );
+				default: // no-op
+			}
+		}
+
 		if( myTrolls.length == 1 ) process1( myTrolls[0], 2, 2, 1, 1 );
 		else if( myTrolls.length == 2 ) process2();
 		else if( myTrolls.length == 3 ) process3( 2, 2, 2, 2 );
@@ -244,7 +251,7 @@ class Ai16 {
 			printErr( 'Troll ${oppTroll.id} hacks at tree ${tree.pos}. healthDecline ${tree.healthDecline} remainingHealth ${tree.health} remainingDuration $remainingHackDuration Finished at turn ${turn + remainingHackDuration}' );
 			
 			for( myTroll in myTrollsByCarryCapacity ) {
-				final turnsToReach = int( board.getDistance( myTroll.pos, tree.pos ) / oppTroll.movementSpeed );
+				final turnsToReach = int( board.getDistance( myTroll.pos, tree.pos ) / myTroll.movementSpeed );
 				
 				if( turnsToReach <= remainingHackDuration ) {
 					switch myTroll.isDoing {
@@ -429,9 +436,9 @@ class Ai16 {
 
 		checkOppAttack();
 
-		final myFruitAmounts = myInventory.getFruitAmounts();
-		myFruitAmounts.sort(( a, b ) -> b.amount - a.amount );
-		final productiveFruitPriorities = myFruitAmounts.map( typeAmount -> typeAmount.fruit );
+		// final myFruitAmounts = myInventory.getFruitAmounts();
+		// myFruitAmounts.sort(( a, b ) -> b.amount - a.amount );
+		// final productiveFruitPriorities = myFruitAmounts.map( typeAmount -> typeAmount.fruit );
 
 		// final treePriorities = [ BANANA ].concat( productiveFruitPriorities );
 

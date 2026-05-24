@@ -82,8 +82,10 @@ class Troll {
 	}
 
 	public function insertTask( task:Task ) {
-		printErr( 'troll $id insertTask ${outputTask( task )}' );
-		if( isDoing != Nothing ) tasks.unshift( isDoing );
+		if( isDoing != Nothing ) {
+			printErr( 'troll $id insertTask ${outputTask( task )} before ${outputTask( isDoing )}' );
+			tasks.unshift( isDoing );
+		}
 		isDoing = task;
 	}
 
@@ -197,10 +199,11 @@ class Troll {
 		if( !board.treePositionsMap.exists( targetTree.pos )) {
 			isDoing = tasks.length > 0 ? tasks.shift() : Nothing;
 			printErr( 'troll $id continue with previous task $isDoing' );
-			return go();
+			if( isDoing != Nothing ) return go();
 		}
 
 		if( carrySum == carryCapacity ) {
+			if( isDoing != Nothing ) isDoing = Harvest( TResource.ANY );
 			return returnToShack();
 		} else { // go to to tree
 			if( targetTree.pos == pos ) {
