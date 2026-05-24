@@ -4,7 +4,6 @@ import CodinGame.printErr;
 import Std.int;
 import astar.map2d.Map2D;
 import astar.map2d.types.MovementDirection;
-import xa3.math.IntMath;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -18,6 +17,8 @@ class Board {
 	public static inline var IRON = 3;
 	public static inline var MY_SHACK = 4;
 	public static inline var OPP_SHACK = 5;
+
+	public static final NO_BOARD = new Board( 0, 0, [], [], [], Pos.NO_POS, Pos.NO_POS, [], [] );
 
 	public final boardWidth:Int;
 	public final boardHeight:Int;
@@ -52,6 +53,7 @@ class Board {
 	public var treePositionsMap:Map<Pos, Tree> = [];
 	public final targetTrees:Map<Pos, Bool> = [];
 	public final occupiedPositions:Set<Pos> = [];
+	public var shacksDistance = 0;
 
 	var turn = 0;
 
@@ -82,16 +84,18 @@ class Board {
 		halfWidth = int( boardWidth / 2 );
 		thirdWidth = int( boardWidth / 3 );
 		
-		center = positions[int( boardHeight / 2 )][halfWidth];
+		center = positions.length == 0 ? Pos.NO_POS : positions[int( boardHeight / 2 )][halfWidth];
 
 		final movementDirection = FourWay;
 		
-		map2d = new Map2D( boardWidth, boardHeight, movementDirection );
-		final costs = [0 => Map2D.defaultCosts];
+		if( boardWidth > 0 && boardHeight > 0 ) {
+			map2d = new Map2D( boardWidth, boardHeight, movementDirection );
+			final costs = [0 => Map2D.defaultCosts];
 		
-		map2d.setMap( [for( y in 0...boardHeight ) for( x in 0...boardWidth ) grid[y][x]] );
-		map2d.setCosts( costs );
-		map2d.configureCache( true, 1024 );
+			map2d.setMap( [for( y in 0...boardHeight ) for( x in 0...boardWidth ) grid[y][x]] );
+			map2d.setCosts( costs );
+			map2d.configureCache( true, 1024 );
+		}
 	}
 
 	public function reset() {
@@ -141,6 +145,16 @@ class Board {
 			plantPositions[depth].push( pos );
 		}
 		// for( depth in 0...3 ) for( pos in plantPositions[depth] ) printErr( 'depth $depth pos $pos' );
+	}
+	
+	public function addShacksDistance() {
+		final oppShackNeighbors = getReacheableNeighbors( oppShack, 1 );
+		var minDistance = boardWidth * boardHeight;
+		for( oppShackNeighbor in oppShackNeighbors ) {
+			final distance = getDistance( myShack, oppShackNeighbor );
+			if( distance < minDistance ) minDistance = distance;
+		}
+		shacksDistance = minDistance + 1;
 	}
 
 	public function getPlantPosition( trollPos:Pos ) {
@@ -194,7 +208,7 @@ class Board {
 
 	public function getTreeTypesAroundBase( maxDepth:Int ) {
 		for( type in treeTypesAroundBase.keys() ) treeTypesAroundBase[type] = 0;
-		for( depth in 0...maxDepth ) {
+		for( depth in 0...maxDepth + 1 ) {
 			for( treePos in plantPositions[depth] ) {
 				if( treePositionsMap.exists( treePos ) ) {
 					final tree = treePositionsMap[treePos];
@@ -210,7 +224,7 @@ class Board {
 
 	public function countTreesAroundBase( maxDepth:Int ) {
 		var count = 0;
-		for( depth in 0...maxDepth ) {
+		for( depth in 0...maxDepth + 1 ) {
 			for( treePos in plantPositions[depth] ) {
 				if( treePositionsMap.exists( treePos ) ) {
 					count++;
@@ -241,7 +255,7 @@ class Board {
 
 	public function getFruitsAroundBase( maxDepth:Int, trollSpeed:Int ) {
 		for( fruit in fruitsAroundBase.keys() ) fruitsAroundBase[fruit] = 0;
-		for( depth in 0...maxDepth ) {
+		for( depth in 0...maxDepth + 1 ) {
 			for( treePos in plantPositions[depth] ) {
 				if( treePositionsMap.exists( treePos ) ) {
 					final tree = treePositionsMap[treePos];

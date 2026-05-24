@@ -5,6 +5,8 @@ import ai.data.TResource;
 
 class Inventory {
 	
+	public static final NO_INVENTORY = new Inventory();
+
 	public var plum = 0;
 	public var lemon = 0;
 	public var apple = 0;

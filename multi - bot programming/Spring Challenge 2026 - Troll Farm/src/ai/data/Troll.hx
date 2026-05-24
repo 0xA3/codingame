@@ -8,6 +8,8 @@ using xa3.math.IntMath;
 
 class Troll {
 	
+	public static final NO_TROLL = new Troll( -1, -1, Player.AnyPlayer, Board.NO_BOARD, Inventory.NO_INVENTORY );
+
 	public final id:Int;
 	public final index:Int;
 	public final player:Player;
@@ -29,8 +31,7 @@ class Troll {
 	public var carryFruitSum = 0;
 	public var carrySum = 0;
 	public var plantCounter = 0;
-	public var chopCounter = 0;
-
+	
 	public final tasks = [];
 	public var isDoing = Nothing;
 
@@ -100,6 +101,7 @@ class Troll {
 		switch isDoing {
 			case Attack: return goAndAttack();
 			case Chop( player ): return goChopping( player );
+			case CoChop( tree ): return goCoChopping( tree );
 			case Drop: return drop();
 			case Harvest( resource ):
 				switch resource {
@@ -153,12 +155,31 @@ class Troll {
 			if( closestTree != Tree.NO_TREE ) {
 				if( closestTree.pos == pos ) {
 					printErr( 'troll $id chop' );
-					if( closestTree.health <= chopPower ) chopCounter++;
 					return 'CHOP $id';
 				} else {
 					final pathToTree = board.getPath( pos, closestTree.pos );
 					return evaluatePath( pathToTree, "Tree" );
 				}
+			}
+		}
+
+		return "";
+	}
+
+	function goCoChopping( targetTree:Tree ) {
+		if( !board.treePositionsMap.exists( pos )) {
+			isDoing = tasks.length > 0 ? tasks.shift() : Nothing;
+			printErr( 'troll $id continue with previous task $isDoing' );
+		}
+		if( carrySum == carryCapacity ) {
+			return returnToShack();
+		} else { // go to to tree
+			if( targetTree.pos == pos ) {
+				printErr( 'troll $id chop' );
+				return 'CHOP $id';
+			} else {
+				final pathToTree = board.getPath( pos, targetTree.pos );
+				return evaluatePath( pathToTree, "CoChop" );
 			}
 		}
 
@@ -400,7 +421,8 @@ class Troll {
 
 	function outputTask( task:Task ) {
 		switch task {
-			// case Attack(tree): return 'ATTACK $id ${tree.pos}';
+			// case Attack: return 'ATTACK $id';
+			case CoChop( tree ): return 'ATTACK $id ${tree.pos}';
 			default: return '$task';
 		}
 	}

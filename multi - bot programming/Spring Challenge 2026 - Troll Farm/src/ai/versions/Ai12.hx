@@ -22,7 +22,11 @@ class Ai12 {
 	var myInventory:Inventory;
 	var myTrolls:Array<Troll>;
 	var oppTrolls:Array<Troll>;
-	
+
+	final myTrollsMap:Map<Pos, Troll> = [];
+	final oppTrollsMap:Map<Pos, Troll> = [];
+
+
 	final warCry = new WarCry();
 	
 	var maxSpeed = 0;
@@ -59,6 +63,10 @@ class Ai12 {
 		this.oppTrolls = oppTrolls;
 		board.reset();
 		outputs.splice( 0, outputs.length );
+		myTrollsMap.clear();
+		oppTrollsMap.clear();
+		for( troll in myTrolls ) myTrollsMap.set( troll.pos, troll );
+		for( troll in oppTrolls ) oppTrollsMap.set( troll.pos, troll );
 	}
 
 	public function processx() { // test tasks
@@ -164,7 +172,7 @@ class Ai12 {
 			for( requiredResource in requiredResources ) {
 				if( requiredResource.amount <= 0 ) continue;
 				
-				printErr( 'requiredResource ${requiredResource.type} ${requiredResource.amount}' );
+				printErr( 'requiredResource ${requiredResource.type} ${requiredResource.amount} treeTypesAroundBase ${treeTypesAroundBase[requiredResource.type]}' );
 				if( requiredResource.type == IRON ) {
 					troll.addTask( Mine );
 					break;
@@ -183,8 +191,15 @@ class Ai12 {
 	function process2() {
 		final troll0 = myTrolls[0];
 		final troll1 = myTrolls[1];
+		checkOppAttack();
 
-		if( troll1.chopPower >= 3 ) {
+		if( troll1.chopPower < 3 ) {
+			printErr( 'process2 harvestForThirdTroll' );
+			harvestForThirdTroll( 2, 3, 1, 3);
+		// } else if( board.shacksDistance > 5 ) {
+		// 	printErr( 'process2 shack distance == ${board.getDistance( board.myShack, board.oppShack )} harvestForThirdTroll' );
+		// 	harvestForThirdTroll( 2, 3, 1, 3);
+		} else {
 			if( oppTrolls.length < 2 ) {
 				printErr( 'process2 harvestAndAttack' );
 				process1( troll0, 2, 2, 1, 1 );
@@ -194,11 +209,61 @@ class Ai12 {
 				process1( troll0, 2, 2, 1, 1 );
 				chop( troll1 );
 			}
-		} else {
-			printErr( 'process2 harvestForThirdTroll' );
-			harvestForThirdTroll( 2, 3, 1, 3);
+		}
+	}
+
+	function checkOppAttack() {
+		// detect opp troll hacking at my trees
+		final attackedTrees = [];
+		for( tree in board.trees ) {
+			if( board.targetTrees.exists( tree.pos )) continue;
+			
+			if( tree.isNearPlayer == Me ) {
+				if( tree.healthDecline > 0 ) {
+					// final troll = myTrollsMap.exists( tree.pos )
+					// 	? myTrollsMap[tree.pos]
+					// 	: oppTrollsMap.exists( tree.pos )
+					// 		? oppTrollsMap[tree.pos]
+					// 		: {
+					// 			printErr( 'Error: no troll at tree ${tree.pos}' );
+					// 			Troll.NO_TROLL;
+					// 		}
+					if( oppTrollsMap.exists( tree.pos ) ) attackedTrees.push( tree );
+				}
+			}
 		}
 
+		if( attackedTrees.length == 0 ) return;
+
+		final myTrollsByCarryCapacity = myTrolls.copy();
+		myTrollsByCarryCapacity.sort(( a, b ) -> b.carryCapacity - a.carryCapacity);
+
+		attackedTrees.sort(( a, b ) -> {
+			final distanceA = board.getDistance( a.pos, board.myShack );
+			final distanceB = board.getDistance( b.pos, board.myShack );
+			return distanceA - distanceB;
+		});
+
+
+		for( tree in attackedTrees ) {
+			final oppTroll = oppTrollsMap[tree.pos];
+			final remainingHackDuration = int( tree.health / oppTroll.chopPower );
+			printErr( 'Troll ${oppTroll.id} hacks at tree ${tree.pos}. healthDecline ${tree.healthDecline} remainingHealth ${tree.health} remainingDuration $remainingHackDuration Finished at turn ${turn + remainingHackDuration}' );
+			
+			for( myTroll in myTrollsByCarryCapacity ) {
+				final turnsToReach = int( board.getDistance( myTroll.pos, tree.pos ) / oppTroll.movementSpeed );
+				
+				if( turnsToReach <= remainingHackDuration ) {
+					switch myTroll.isDoing {
+						case CoChop( _ ): // no-op
+						default:
+						printErr( 'troll ${myTroll.id} cochop tree ${tree.pos}' );
+						myTroll.insertTask( CoChop( tree ));
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	function attack( troll1:Troll ) {
@@ -274,6 +339,8 @@ class Ai12 {
 		final fastTroll = myTrolls[1];
 		final chopTroll = myTrolls[2];
 
+		checkOppAttack();
+
 		calculateMaxTrainValues();
 		var isTrainingFourthTroll = false;
 		if( maxSpeed >= speed && maxCarry >= carry && maxHarvest >= harvest && maxChop >= chop ) {
@@ -341,6 +408,8 @@ class Ai12 {
 		final fastTroll = myTrolls[1];
 		final chopTroll = myTrolls[2];
 		final fourthTroll = myTrolls[3];
+
+		checkOppAttack();
 
 		if( slowTroll.isDoing == Nothing ) slowTroll.addTask( Plant( BANANA ));
 		if( fastTroll.isDoing == Nothing ) fastTroll.addTask( Chop( AnyPlayer ));

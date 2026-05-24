@@ -38,6 +38,7 @@ class BoardFactory {
 		
 		board.addWaterAndIronNeighbors();
 		board.addPlantPositions();
+		board.addShacksDistance();
 		
 		MainAi.seed = seed;
 		

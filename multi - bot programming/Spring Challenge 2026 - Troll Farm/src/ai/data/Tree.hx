@@ -36,6 +36,9 @@ class Tree {
 	public var isNearWater = false;
 	public var isNearPlayer = AnyPlayer;
 
+	public var previousHealth = 0;
+	public var healthDecline = 0;
+
 	public function new( sType:String, pos:Pos ) {
 		this.type = convertType( sType );
 		this.pos = pos;
@@ -56,12 +59,16 @@ class Tree {
 	}
 
 	public function update( size:Int, health:Int, fruits:Int, cooldown:Int, isNearWater:Bool, isNearPlayer:Player ) {
+		previousHealth = this.health;
+
 		this.size = size;
 		this.health = health;
 		this.fruits = fruits;
 		this.cooldown = cooldown;
 		this.isNearWater = isNearWater;
 		this.isNearPlayer = isNearPlayer;
+
+		healthDecline = previousHealth - health;
 	}
 
 	/**
