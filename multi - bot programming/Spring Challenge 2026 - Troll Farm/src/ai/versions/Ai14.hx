@@ -274,7 +274,13 @@ class Ai14 {
 		oppFruitAmounts.sort(( a, b ) -> a.amount - b.amount );
 		final treePriorities = oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ]);
 
-		if( troll.isDoing == Nothing ) troll.addTask( Chop( Opp, treePriorities ));
+		switch troll.isDoing {
+			case Attack( _ ):
+				printErr( 'Change troll ${troll.id} task from attack to chop' );
+				troll.isDoing = Chop( Opp, treePriorities );
+			case Nothing: troll.addTask( Chop( Opp, treePriorities ));
+			default: // no-op
+		}
 	}
 
 	function harvestForThirdTroll( speed:Int, carry:Int, harvest:Int, chop:Int ) {

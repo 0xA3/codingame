@@ -131,7 +131,7 @@ class Troll {
 		final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
 		if( sortedOppTrees.length == 0 ) return "";
 		// printErr( "trees " + [for( tree in sortedOppTrees ) '${tree.pos} distance ${board.getDistance( board.oppShack, tree.pos )}'].join(",") );
-		final targetTree = getClosestTreeWithFruitPriorities( priorities, sortedOppTrees );
+		final targetTree = getClosestTreeWithFruitPriorities( Opp, priorities, sortedOppTrees );
 		
 		if( pos == targetTree.pos ) {
 			printErr( 'troll $id attack tree health ${targetTree.health} chop power $chopPower' );
@@ -150,7 +150,7 @@ class Troll {
 				case Opp:
 				final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
 				if( sortedOppTrees.length == 0 ) return "";
-				getClosestTreeWithFruitPriorities( priorities, sortedOppTrees );
+				getClosestTreeWithFruitPriorities( player, priorities, sortedOppTrees );
 			}
 			
 			if( closestTree != Tree.NO_TREE ) {
@@ -167,12 +167,17 @@ class Troll {
 		return "";
 	}
 
-	function getClosestTreeWithFruitPriorities( priorities:Array<TResource>, sortedTreesAroundShack:Array<Tree> ) {
+	function getClosestTreeWithFruitPriorities( player:Player, priorities:Array<TResource>, sortedTreesAroundShack:Array<Tree> ) {
 		var closestTreeOfType = Tree.NO_TREE;
 		
 		for( fruit in priorities ) {
 			for( tree in sortedTreesAroundShack ) {
 				if( tree.type == fruit ) {
+					switch player {
+						case Me: if( tree.isNearPlayer != Me ) continue;
+						case Opp: if( tree.isNearPlayer != Opp ) continue;
+						default: // no_op
+					}
 					closestTreeOfType = tree;
 					break;
 				}
