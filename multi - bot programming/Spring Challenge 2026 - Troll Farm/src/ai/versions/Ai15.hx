@@ -264,15 +264,19 @@ class Ai15 {
 		
 		final oppFruitAmounts = oppInventory.getFruitAmounts();
 		oppFruitAmounts.sort(( a, b ) -> a.amount - b.amount );
-		final treePriorities = oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ]);
-		
+		final treePriorities = oppFruitAmounts[0].amount < 5
+		? oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ])
+		: [];
+
 		if( troll.isDoing == Nothing ) troll.addTask( Attack( treePriorities ));
 	}
 
 	function chop( troll:Troll, targetPlayer:Player ) {
 		final oppFruitAmounts = oppInventory.getFruitAmounts();
 		oppFruitAmounts.sort(( a, b ) -> a.amount - b.amount );
-		final treePriorities = oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ]);
+		final treePriorities = oppFruitAmounts[0].amount < 5
+		? oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ])
+		: [];
 
 		switch troll.isDoing {
 			case Attack( _ ):
@@ -409,7 +413,9 @@ class Ai15 {
 		if( chopTroll.isDoing == Nothing ) {
 			final oppFruitAmounts = oppInventory.getFruitAmounts();
 			oppFruitAmounts.sort(( a, b ) -> a.amount - b.amount );
-			final treePriorities = oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ]);
+			final treePriorities = oppFruitAmounts[0].amount < 5
+				? oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ])
+				: [];
 			
 			chopTroll.addTask( Chop( Opp, treePriorities ));
 		}
@@ -427,11 +433,11 @@ class Ai15 {
 		myFruitAmounts.sort(( a, b ) -> b.amount - a.amount );
 		final productiveFruitPriorities = myFruitAmounts.map( typeAmount -> typeAmount.fruit );
 
-		final treePriorities = [ BANANA ].concat( productiveFruitPriorities );
+		// final treePriorities = [ BANANA ].concat( productiveFruitPriorities );
 
 		if( slowTroll.isDoing == Nothing ) slowTroll.addTask( Plant( BANANA ));
-		if( fastTroll.isDoing == Nothing ) fastTroll.addTask( Chop( AnyPlayer, treePriorities ));
-		if( chopTroll.isDoing == Nothing ) chopTroll.addTask( Chop( AnyPlayer, treePriorities ));
+		if( fastTroll.isDoing == Nothing ) fastTroll.addTask( Chop( AnyPlayer, [] ));
+		if( chopTroll.isDoing == Nothing ) chopTroll.addTask( Chop( AnyPlayer, [] ));
 		if( fourthTroll.isDoing == Nothing ) fourthTroll.addTask( Plant( BANANA ));
 	}
 }

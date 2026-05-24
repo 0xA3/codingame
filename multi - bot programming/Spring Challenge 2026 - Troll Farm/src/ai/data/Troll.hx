@@ -83,7 +83,7 @@ class Troll {
 
 	public function insertTask( task:Task ) {
 		printErr( 'troll $id insertTask ${outputTask( task )}' );
-		tasks.unshift( isDoing );
+		if( isDoing != Nothing ) tasks.unshift( isDoing );
 		isDoing = task;
 	}
 
@@ -91,7 +91,7 @@ class Troll {
 		if( isDoing == Nothing ) {
 			if( tasks.length > 0 ) {
 				isDoing = tasks.shift();
-				printErr( 'troll $id do ${outputTask( isDoing )} remaining [' + tasks.join( "," ) + "]" );
+				printErr( 'troll $id do ${outputTask( isDoing )} remaining [' + tasks.map( outputTask ).join( "," ) + "]" );
 			} else {
 				printErr( 'troll $id has no tasks' );
 				return "";
@@ -131,7 +131,7 @@ class Troll {
 		final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
 		if( sortedOppTrees.length == 0 ) return "";
 		// printErr( "trees " + [for( tree in sortedOppTrees ) '${tree.pos} distance ${board.getDistance( board.oppShack, tree.pos )}'].join(",") );
-		final targetTree = getClosestTreeWithFruitPriorities( Opp, priorities, sortedOppTrees );
+		final targetTree = priorities.length == 0 ? sortedOppTrees[0] : getClosestTreeWithFruitPriorities( Opp, priorities, sortedOppTrees );
 		
 		if( pos == targetTree.pos ) {
 			printErr( 'troll $id attack tree health ${targetTree.health} chop power $chopPower' );
@@ -150,7 +150,7 @@ class Troll {
 				case Opp:
 				final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
 				if( sortedOppTrees.length == 0 ) return "";
-				getClosestTreeWithFruitPriorities( player, priorities, sortedOppTrees );
+				if( priorities.length == 0 ) sortedOppTrees[0] else	getClosestTreeWithFruitPriorities( player, priorities, sortedOppTrees );
 			}
 			
 			if( closestTree != Tree.NO_TREE ) {
@@ -193,10 +193,13 @@ class Troll {
 	}
 
 	function goCoChopping( targetTree:Tree ) {
-		if( !board.treePositionsMap.exists( pos )) {
+		// printErr( 'goCoChopping to ${targetTree.pos}  exists ${board.treePositionsMap.exists( targetTree.pos )}' );
+		if( !board.treePositionsMap.exists( targetTree.pos )) {
 			isDoing = tasks.length > 0 ? tasks.shift() : Nothing;
 			printErr( 'troll $id continue with previous task $isDoing' );
+			return go();
 		}
+
 		if( carrySum == carryCapacity ) {
 			return returnToShack();
 		} else { // go to to tree
@@ -448,7 +451,7 @@ class Troll {
 	function outputTask( task:Task ) {
 		switch task {
 			// case Attack: return 'ATTACK $id';
-			case CoChop( tree ): return 'ATTACK $id ${tree.pos}';
+			case CoChop( tree ): return 'CoChop $id ${tree.pos}';
 			default: return '$task';
 		}
 	}
