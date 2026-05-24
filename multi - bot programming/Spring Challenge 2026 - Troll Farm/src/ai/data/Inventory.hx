@@ -66,8 +66,6 @@ class Inventory {
 			{ fruit: APPLE, amount: apple },
 		];
 		
-		fruits.sort(( a, b ) -> a.amount - b.amount );
-
 		return fruits;
 	}
 

@@ -99,8 +99,8 @@ class Troll {
 		}
 
 		switch isDoing {
-			case Attack: return goAndAttack();
-			case Chop( player ): return goChopping( player );
+			case Attack( priorities ): return goAndAttack( priorities );
+			case Chop( player, priorities ): return goChopping( player, priorities );
 			case CoChop( tree ): return goCoChopping( tree );
 			case Drop: return drop();
 			case Harvest( resource ):
@@ -127,11 +127,12 @@ class Troll {
 		return 'MOVE $id ${targetPos.x} ${targetPos.y}';
 	}
 
-	function goAndAttack() {
+	function goAndAttack( priorities:Array<TResource> ) {
 		final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
 		if( sortedOppTrees.length == 0 ) return "";
 		// printErr( "trees " + [for( tree in sortedOppTrees ) '${tree.pos} distance ${board.getDistance( board.oppShack, tree.pos )}'].join(",") );
-		final targetTree = sortedOppTrees[0];
+		final targetTree = getClosestTreeWithFruitPriorities( priorities, sortedOppTrees );
+		
 		if( pos == targetTree.pos ) {
 			printErr( 'troll $id attack tree health ${targetTree.health} chop power $chopPower' );
 			return 'CHOP $id';
@@ -140,7 +141,7 @@ class Troll {
 		}
 	}
 
-	function goChopping( player:Player ) {
+	function goChopping( player:Player, priorities:Array<TResource> ) {
 		if( carrySum == carryCapacity ) {
 			return returnToShack();
 		} else { // go to to tree
@@ -149,7 +150,7 @@ class Troll {
 				case Opp:
 				final sortedOppTrees = board.getSortedTreesAround( board.oppShack, pos );
 				if( sortedOppTrees.length == 0 ) return "";
-				sortedOppTrees[0];
+				getClosestTreeWithFruitPriorities( priorities, sortedOppTrees );
 			}
 			
 			if( closestTree != Tree.NO_TREE ) {
@@ -164,6 +165,26 @@ class Troll {
 		}
 
 		return "";
+	}
+
+	function getClosestTreeWithFruitPriorities( priorities:Array<TResource>, sortedTreesAroundShack:Array<Tree> ) {
+		var closestTreeOfType = Tree.NO_TREE;
+		
+		for( fruit in priorities ) {
+			for( tree in sortedTreesAroundShack ) {
+				if( tree.type == fruit ) {
+					closestTreeOfType = tree;
+					break;
+				}
+			}
+			if( closestTreeOfType != Tree.NO_TREE ) break;
+		}
+		
+		if( closestTreeOfType != Tree.NO_TREE ) {
+			return closestTreeOfType;
+		} else {
+			return sortedTreesAroundShack[0];
+		}
 	}
 
 	function goCoChopping( targetTree:Tree ) {

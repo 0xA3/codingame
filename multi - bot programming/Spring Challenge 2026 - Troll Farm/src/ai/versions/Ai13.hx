@@ -5,6 +5,7 @@ import Std.int;
 import ai.contexts.WarCry;
 import ai.data.Board;
 import ai.data.Inventory;
+import ai.data.Player;
 import ai.data.TResource;
 import ai.data.Troll;
 import ai.data.TypeAmount;
@@ -20,6 +21,7 @@ class Ai13 {
 
 	var board:Board;
 	var myInventory:Inventory;
+	var oppInventory:Inventory;
 	var myTrolls:Array<Troll>;
 	var oppTrolls:Array<Troll>;
 
@@ -39,13 +41,13 @@ class Ai13 {
 	// var numFruitsAroundBase = 0;
 	
 	final resources = [PLUM, LEMON, APPLE, IRON];
-	final requiredResources:Array<TypeAmount> = [
+	final myRequiredResources:Array<TypeAmount> = [
 		new TypeAmount( PLUM, 0 ),
 		new TypeAmount( LEMON, 0 ),
 		new TypeAmount( APPLE, 0 ),
 		new TypeAmount( IRON, 0 )
 	];
-
+	
 	static inline var NEAR_DISTANCE = 2;
 	static inline var FAR_DISTANCE = 4;
 
@@ -57,8 +59,9 @@ class Ai13 {
 		this.board = board;
 	}
 
-	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, oppTrolls:Array<Troll> ) {
+	public function setInputs( myInventory:Inventory, oppInventory:Inventory, myTrolls:Array<Troll>, oppTrolls:Array<Troll> ) {
 		this.myInventory = myInventory;
+		this.oppInventory = oppInventory;
 		this.myTrolls = myTrolls;
 		this.oppTrolls = oppTrolls;
 		board.reset();
@@ -118,8 +121,8 @@ class Ai13 {
 
 	function calculateRequiredResources( speed:Int, carry:Int, harvest:Int, chop:Int ) {
 		for( i in 0...resources.length ) { // reset
-			requiredResources[i].type = resources[i];
-			requiredResources[i].amount = 0;
+			myRequiredResources[i].type = resources[i];
+			myRequiredResources[i].amount = 0;
 		}
 
 		// cost = trolls + attribute * attribute
@@ -133,10 +136,10 @@ class Ai13 {
 		final diffApples = requiredApples - myInventory.apple;
 		final diffIron = requiredIron - myInventory.iron;
 
-		requiredResources[0].amount = diffPlums;
-		requiredResources[1].amount = diffLemons;
-		requiredResources[2].amount = diffApples;
-		requiredResources[3].amount = diffIron;
+		myRequiredResources[0].amount = diffPlums;
+		myRequiredResources[1].amount = diffLemons;
+		myRequiredResources[2].amount = diffApples;
+		myRequiredResources[3].amount = diffIron;
 		// printErr( 'requiredPlums $requiredPlums requiredLemons $requiredLemons requiredApples $requiredApples requiredIron $requiredIron' );
 		// printErr( 'required ' + [for( resource in requiredResources ) 'type ${resource.type}: ${resource.amount}'].join(",") );
 	}
@@ -165,11 +168,11 @@ class Ai13 {
 		
 		if( troll.isDoing == Nothing ) {
 			calculateRequiredResources( nextTrollSpeed, nextTrollCarry, nextTrollHarvest, nextTrollChop );
-			requiredResources.sort( TypeAmount.sortReverse );
+			myRequiredResources.sort( TypeAmount.sortReverse );
 
 			final treeTypesAroundBase = board.getTreeTypesAroundBase( 2 );
 
-			for( requiredResource in requiredResources ) {
+			for( requiredResource in myRequiredResources ) {
 				if( requiredResource.amount <= 0 ) continue;
 				
 				printErr( 'requiredResource ${requiredResource.type} ${requiredResource.amount} treeTypesAroundBase ${treeTypesAroundBase[requiredResource.type]}' );
@@ -207,7 +210,7 @@ class Ai13 {
 			} else {
 				printErr( 'process2 harvestAndChop' );
 				process1( troll0, 2, 2, 1, 1 );
-				chop( troll1 );
+				chop( troll1, Opp );
 			}
 		}
 	}
@@ -218,18 +221,8 @@ class Ai13 {
 		for( tree in board.trees ) {
 			if( board.targetTrees.exists( tree.pos )) continue;
 			
-			if( tree.isNearPlayer == Me ) {
-				if( tree.healthDecline > 0 ) {
-					// final troll = myTrollsMap.exists( tree.pos )
-					// 	? myTrollsMap[tree.pos]
-					// 	: oppTrollsMap.exists( tree.pos )
-					// 		? oppTrollsMap[tree.pos]
-					// 		: {
-					// 			printErr( 'Error: no troll at tree ${tree.pos}' );
-					// 			Troll.NO_TROLL;
-					// 		}
-					if( oppTrollsMap.exists( tree.pos ) ) attackedTrees.push( tree );
-				}
+			if( tree.isNearPlayer == Me && tree.healthDecline > 0 ) {
+				if( oppTrollsMap.exists( tree.pos )) attackedTrees.push( tree );
 			}
 		}
 
@@ -266,13 +259,22 @@ class Ai13 {
 		}
 	}
 
-	function attack( troll1:Troll ) {
-		if( !board.treePositionsMap.exists( troll1.pos ) ) troll1.finishTask();
-		if( troll1.isDoing == Nothing ) troll1.addTask( Attack );
+	function attack( troll:Troll ) {
+		if( !board.treePositionsMap.exists( troll.pos )) troll.finishTask();
+		
+		final oppFruitAmounts = oppInventory.getFruitAmounts();
+		oppFruitAmounts.sort(( a, b ) -> a.amount - b.amount );
+		final treePriorities = oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ]);
+		
+		if( troll.isDoing == Nothing ) troll.addTask( Attack( treePriorities ));
 	}
 
-	function chop( troll1:Troll ) {
-		if( troll1.isDoing == Nothing ) troll1.addTask( Chop( Opp ));
+	function chop( troll:Troll, targetPlayer:Player ) {
+		final oppFruitAmounts = oppInventory.getFruitAmounts();
+		oppFruitAmounts.sort(( a, b ) -> a.amount - b.amount );
+		final treePriorities = oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ]);
+
+		if( troll.isDoing == Nothing ) troll.addTask( Chop( Opp, treePriorities ));
 	}
 
 	function harvestForThirdTroll( speed:Int, carry:Int, harvest:Int, chop:Int ) {
@@ -293,12 +295,12 @@ class Ai13 {
 		}
 		
 		calculateRequiredResources( speed, carry, harvest, chop );
-		requiredResources.sort( TypeAmount.sortReverse );
+		myRequiredResources.sort( TypeAmount.sortReverse );
 
-		printErr( 'requiredResources ' + [for( requiredResource in requiredResources ) '${requiredResource.type} ${requiredResource.amount}'].join(",") );
+		printErr( 'requiredResources ' + [for( requiredResource in myRequiredResources ) '${requiredResource.type} ${requiredResource.amount}'].join(",") );
 
-		final mostNeeded = requiredResources[0];
-		final secondMostNeeded = requiredResources[1];
+		final mostNeeded = myRequiredResources[0];
+		final secondMostNeeded = myRequiredResources[1];
 
 		final treeTypeDistances = board.getTreeTypeDistances();
 		final resourceTypeDistances = [
@@ -358,12 +360,12 @@ class Ai13 {
 		}
 		
 		calculateRequiredResources( speed, carry, harvest, chop );
-		requiredResources.sort( TypeAmount.sortReverse );
+		myRequiredResources.sort( TypeAmount.sortReverse );
 
-		printErr( 'requiredResources ' + [for( requiredResource in requiredResources ) '${requiredResource.type} ${requiredResource.amount}'].join(",") );
+		printErr( 'requiredResources ' + [for( requiredResource in myRequiredResources ) '${requiredResource.type} ${requiredResource.amount}'].join(",") );
 
-		final mostNeeded = requiredResources[0];
-		final secondMostNeeded = requiredResources[1];
+		final mostNeeded = myRequiredResources[0];
+		final secondMostNeeded = myRequiredResources[1];
 
 		final treeTypeDistances = board.getTreeTypeDistances();
 		final resourceTypeDistances = [
@@ -399,7 +401,11 @@ class Ai13 {
 		}
 
 		if( chopTroll.isDoing == Nothing ) {
-			chopTroll.addTask( Chop( Opp ));
+			final oppFruitAmounts = oppInventory.getFruitAmounts();
+			oppFruitAmounts.sort(( a, b ) -> a.amount - b.amount );
+			final treePriorities = oppFruitAmounts.map( typeAmount -> typeAmount.fruit ).concat([ BANANA ]);
+			
+			chopTroll.addTask( Chop( Opp, treePriorities ));
 		}
 	}
 	
@@ -411,9 +417,15 @@ class Ai13 {
 
 		checkOppAttack();
 
+		final myFruitAmounts = myInventory.getFruitAmounts();
+		myFruitAmounts.sort(( a, b ) -> b.amount - a.amount );
+		final productiveFruitPriorities = myFruitAmounts.map( typeAmount -> typeAmount.fruit );
+
+		final treePriorities = [ BANANA ].concat( productiveFruitPriorities );
+
 		if( slowTroll.isDoing == Nothing ) slowTroll.addTask( Plant( BANANA ));
-		if( fastTroll.isDoing == Nothing ) fastTroll.addTask( Chop( AnyPlayer ));
-		if( chopTroll.isDoing == Nothing ) chopTroll.addTask( Chop( AnyPlayer ));
+		if( fastTroll.isDoing == Nothing ) fastTroll.addTask( Chop( AnyPlayer, treePriorities ));
+		if( chopTroll.isDoing == Nothing ) chopTroll.addTask( Chop( AnyPlayer, treePriorities ));
 		if( fourthTroll.isDoing == Nothing ) fourthTroll.addTask( Plant( BANANA ));
 	}
 }
