@@ -23,7 +23,7 @@ class AiWait {
 		this.board = board;
 	}
 
-	public function setInputs( myInventory:Inventory, myTrolls:Array<Troll>, trees:Array<Tree>, treePositionsMap:Map<Pos, Tree> ) {
+	public function setInputs( myInventory:Inventory, oppInventory:Inventory, myTrolls:Array<Troll>, oppTrolls:Array<Troll> ) {
 		
 		outputs.splice( 0, outputs.length );
 	}

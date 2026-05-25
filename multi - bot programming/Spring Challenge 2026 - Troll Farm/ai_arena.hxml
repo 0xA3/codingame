@@ -11,4 +11,4 @@
 -main ai.MainAi
 --js dest/ai.js
 
-# -cmd uglifyjs dest/ai.js -o dest/ai-min.js
+-cmd uglifyjs dest/ai.js -o dest/ai-min.js

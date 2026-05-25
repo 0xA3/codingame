@@ -4,9 +4,13 @@ import CodinGame.print;
 import CodinGame.printErr;
 import Std.int;
 import Std.parseInt;
-import ai.data.Cell;
-import haxe.Timer;
+import ai.data.Inventory;
+import ai.data.Player;
+import ai.data.Tree;
+import ai.data.Troll;
+import ai.factory.BoardFactory;
 import js.Node.process;
+import xa3.MTRandom;
 import xa3.math.Pos;
 
 using StringTools;
@@ -14,7 +18,10 @@ using tink.CoreApi;
 
 // below is a mechanism that connects nodejs standard input with something that resembles the readline()
 @await class MainAiLocal {
-	
+
+	public static var seed = 0;
+	public static var mtRandom:MTRandom;
+
 	static var inputLines:Array<String> = [];
 	static var promises:Array<(String)->Void> = [];
 	static var buffer:String = "";
@@ -63,183 +70,126 @@ using tink.CoreApi;
 		return prom;
 	}
 	
-	static inline var ME = 1;
-	static inline var OPP = 0;
-	static inline var NO_OWNER = -1;
-
 	@await static function asyncMain() {
 		// actual code, but must use (@await readline()) instead of readline() - for example
 		// trace( "asyncMain" );
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		
-		final ai = new ai.versions.Ai9();
+		var turn = 1;
+		var startTime = haxe.Timer.stamp();
 
+		final ai = new ai.versions.AiWait();
 		final inputsAwait = @await readline();
-		final inputs = inputsAwait.split(' ');
-		final width = parseInt( inputs[0] );
-		final height = parseInt( inputs[1] );
-		final positions = [for( y in 0...height ) [for( x in 0...width ) new Pos( x, y )]];
-		var prevCells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => Cell.createEmptyCell( positions[y][x] )];
-		var cells:Map<Pos, Cell> = [for( y in 0...height ) for( x in 0...width ) positions[y][x] => Cell.createEmptyCell( positions[y][x] )];
-		initNeighbors( positions, cells, width, height );
-		// printErr( 'width: $width' );
-		// printErr( 'height: $height' );
-		ai.setGlobalInputs( positions, cells, width, height );
-		
-		final myCells:Array<Cell> = [];
-		final myRootIds:Array<Int> = [];
-		final oppMoves:Array<Cell> = [];
-		final myMoves:Array<Cell> = [];
-		final harvestedProteins:Map<Pos, Bool> = [];
-		
+		final inputs = inputsAwait.split(" ");
+		final boardWidth = parseInt( inputs[0] ); // The width of the board
+		final boardHeight = parseInt( inputs[1] ); // The height of the board
+		final lines = [for( i in 0...boardHeight ) @await readline()];
+		final lines:Array<String> = [];
+		for( i in 0...boardHeight ) {
+			final line = @await readline();
+			lines.push( line );
+		}
+
+
+		final trees = [];
+		final treePositionsMap:Map<Pos, Tree> = [];
+
+		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines, trees, treePositionsMap );
+		mtRandom = new MTRandom( seed );
+
+		ai.setGlobalInputs( board );
+
+		final inventories = [Me => new Inventory(), Opp => new Inventory()];
+
+		final trolls:Map<Int, Troll> = [];
+		final myTrolls = [];
+		final oppTrolls = [];
 		// game loop
 		while( true ) {
-			final startTime = Timer.stamp();
+			if( turn > 1 ) startTime = haxe.Timer.stamp();
+			
+			trees.splice( 0, trees.length );
+			final treesLastTurn:Map<Pos, Tree> = [for( pos => tree in treePositionsMap ) pos => tree];
+			treePositionsMap.clear();
+			
+			final inputsAwait = @await readline();
+			inventories[Me].update( inputsAwait.split(" ") );
+			
+			final inputsAwait = @await readline();
+			inventories[Opp].update( inputsAwait.split(" ") );
 
-			for( cell in cells ) {
-				final prevCell = prevCells[cell.pos];
-				prevCell.type = cell.type;
-				prevCell.owner = cell.owner;
-				prevCell.organId = cell.organId;
-				prevCell.organDir = cell.organDir;
-				prevCell.organParentId = cell.organParentId;
-				prevCell.organRootId = cell.organRootId;
+			final treesCount = parseInt( @await readline() );
 
-				cell.reset();
-			}
-			myCells.splice( 0, myCells.length );
-			myRootIds.splice( 0, myRootIds.length );
-			oppMoves.splice( 0, oppMoves.length );
-			myMoves.splice( 0, myMoves.length );
-			harvestedProteins.clear();
-
-			final entityCount = parseInt( @await readline() );
-			// printErr( 'entityCount: $entityCount' );
-			for ( i in 0...entityCount ) {
+			for( _ in 0...treesCount ) {
 				final inputsAwait = @await readline();
-				final inputs = inputsAwait.split(' ');
-				// printErr( 'Entity: ${inputs.join(" ")}' );
-				final x = parseInt( inputs[0] );
-				final y = parseInt( inputs[1] ); // grid coordinate
-				final type = switch inputs[2] {
-					case "WALL": TCell.Wall;
-					case "ROOT": TCell.Root;
-					case "BASIC": TCell.Basic;
-					case "TENTACLE": TCell.Tentacle;
-					case "HARVESTER": TCell.Harvester;
-					case "SPORER": TCell.Sporer;
-					case "A": TCell.A;
-					case "B": TCell.B;
-					case "C": TCell.C;
-					case "D": TCell.D;
-					default: throw new Error( 'Error: unknown type: ${inputs[2]}' );
-				} // WALL, ROOT, BASIC, TENTACLE, HARVESTER, SPORER, A, B, C, D
-				final owner = parseInt( inputs[3] ); // 1 if your organ, 0 if enemy organ, -1 if neither
-				final organId = parseInt( inputs[4] ); // id of this entity if it's an organ, 0 otherwise
-				final organDir = switch inputs[5] {
-					case "N": TDir.N;
-					case "E": TDir.E;
-					case "S": TDir.S;
-					case "W": TDir.W;
-					case "X": TDir.X;
-					default: throw new Error( 'Error: unknown direction: ${inputs[5]}' );
-				} // N,E,S,W or X if not an organ
-				final organParentId = parseInt( inputs[6] );
-				final organRootId = parseInt( inputs[7] );
+				final inputs = inputsAwait.split(" ");
+				final type = inputs[0];
+				final x = parseInt( inputs[1] );
+				final y = parseInt( inputs[2] );
+				final size = parseInt( inputs[3] );
+				final health = parseInt( inputs[4] );
+				final fruits = parseInt( inputs[5] );
+				final cooldown = parseInt( inputs[6] );
 
-				final pos = positions[y][x];
-				final cell = cells[pos];
+				final pos = board.positions[y][x];
+				if( treesLastTurn.exists( pos )) treePositionsMap.set( pos, treesLastTurn[pos] );
+				else treePositionsMap.set( pos, new Tree( type, pos ));
 				
-				cell.type = type;
-				cell.owner = owner;
-				cell.organId = organId;
-				cell.organDir = organDir;
-				cell.organParentId = organParentId;
-				cell.organRootId = organRootId;
+				final tree = treePositionsMap[pos];
+				final isNearWater = board.waterNeighborPosSet.contains( pos );
+				final myDistance = board.getDistance( pos, board.myShack );
+				final oppDistance = board.getDistance( pos, board.oppShack );
+				tree.update( size, health, fruits, cooldown, isNearWater, myDistance < oppDistance ? Me : Opp );
+				// if( '$pos' == "10:2" ) printErr( 'tree at $pos health $health' );
+				// printErr( 'add tree at $pos  myDistance $myDistance oppDistance $oppDistance' );
+				
+				trees.push( tree );
+			}
 
-				if( owner == OPP && !cell.compareTo( prevCells[pos] )) oppMoves.push( cell );
-				if( owner == ME && !cell.compareTo( prevCells[pos] )) myMoves.push( cell );
+			final trollsCount = parseInt( @await readline() );
 
-				if( cell.type == Wall ) isolate( cell );
-
-				if( owner == ME ) {
-					myCells.push( cell );
-					if( cell.type == TCell.Root ) {
-						// printErr( 'my root id: ${cell.organId}' );
-						myRootIds.push( cell.organId );
-					}
-					if( cell.type == TCell.Harvester ) {
-						final proteinPos = getNeighborPosition( positions, cell.pos, cell.organDir );
-						harvestedProteins.set( proteinPos, true );
+			for( _ in 0...trollsCount ) {
+				final inputsAwait = @await readline();
+				final inputs = inputsAwait.split(" ");
+				final id = parseInt( inputs[0] );
+				final player = parseInt( inputs[1] ) == 0 ? Me : Opp;
+				final x = parseInt( inputs[2] );
+				final y = parseInt( inputs[3] );
+				final movementSpeed = parseInt( inputs[4] );
+				final carryCapacity = parseInt( inputs[5] );
+				final harvestPower = parseInt( inputs[6] );
+				final chopPower = parseInt( inputs[7] );
+				final carryPlum = parseInt( inputs[8] );
+				final carryLemon = parseInt( inputs[9] );
+				final carryApple = parseInt( inputs[10] );
+				final carryBanana = parseInt( inputs[11] );
+				final carryIron = parseInt( inputs[12] );
+				final carryWood = parseInt( inputs[13] );
+				
+				if( !trolls.exists( id )) {
+					if( player == Me ) {
+						final troll = new Troll( id, myTrolls.length, player, board, inventories[player] );
+						myTrolls.push( troll );
+						trolls.set( id, troll );
+					} else {
+						final troll = new Troll( id, oppTrolls.length, player, board, inventories[player] );
+						oppTrolls.push( troll );
+						trolls.set( id, troll );
 					}
 				}
-				// else if( owner == 0 ) oppCells.push( cell );
+				
+				trolls[id].update( board.positions[y][x], movementSpeed, carryCapacity, harvestPower, chopPower, carryPlum, carryLemon, carryApple, carryBanana, carryIron, carryWood );
 			}
-			final inputsAwait = @await readline();
-			final inputs = inputsAwait.split(' ');
-			// printErr( 'my inputs: ${inputs.join(" ")}' );
-			final myA = parseInt( inputs[0] );
-			final myB = parseInt( inputs[1] );
-			final myC = parseInt( inputs[2] );
-			final myD = parseInt( inputs[3] ); // your protein stock
-			final inputsAwait = @await readline();
-			final inputs = inputsAwait.split(' ');
-			// printErr( 'opp inputs: ${inputs.join(" ")}' );
-			final oppA = parseInt( inputs[0] );
-			final oppB = parseInt( inputs[1] );
-			final oppC = parseInt( inputs[2] );
-			final oppD = parseInt( inputs[3] ); // opponent's protein stock
-			final requiredActionsCount = parseInt( @await readline() ); // your number of organisms, output an action for each one in any order
-			// printErr( 'requiredActionsCount: $requiredActionsCount' );
-			// final oppCellPositions = oppCells.map( cell -> cell.pos );
-			// printErr( 'oppCellPositions: ${oppCellPositions.join(" ")}' );
 
-			for( oppCell in oppMoves ) printErr( 'opp changed cell ${oppCell.pos} to ${CellType.toString( oppCell.type )}' );
-			for( myCell in myMoves ) printErr( 'my changed cell ${myCell.pos} to ${CellType.toString( myCell.type )}' );
-
-			ai.setInputs( myA, myB, myC, myD, requiredActionsCount, myRootIds, myCells, harvestedProteins, myMoves, oppMoves );
-
-			final outputs = ai.process();
-			// printErr( outputs );
-			printErr( '${int(( Timer.stamp() - startTime ) * 1000)} ms' );
-			print( outputs );
-		}
-	}
-
-	static function initNeighbors( positions:Array<Array<Pos>>, cells:Map<Pos, Cell>, width:Int, height:Int ) {
-		for( cell in cells ) {
-			final pos = cell.pos;
-
-			final x1 = pos.x - 1;
-			final y1 = pos.y;
-			final x2 = pos.x + 1;
-			final y2 = pos.y;
-			final x3 = pos.x;
-			final y3 = pos.y - 1;
-			final x4 = pos.x;
-			final y4 = pos.y + 1;
-
-			if( x1 >= 0 ) cell.neighbors.push( cells[positions[y1][x1]] );
-			if( x2 < width ) cell.neighbors.push( cells[positions[y2][x2]] );
-			if( y3 >= 0 ) cell.neighbors.push( cells[positions[y3][x3]] );
-			if( y4 < height ) cell.neighbors.push( cells[positions[y4][x4]] );
-		}
-	}
-
-	static function isolate( cell:Cell ) {
-		for( neighborCell in cell.neighbors ) {
-			neighborCell.removeNeighbor( cell );
-		}
-		cell.neighbors.splice( 0, cell.neighbors.length );
-	}
-
-	static function getNeighborPosition( positions:Array<Array<Pos>>, pos:Pos, direction:TDir ) {
-		switch direction {
-			case TDir.N: return positions[pos.y - 1][pos.x];
-			case TDir.W: return positions[pos.y][pos.x - 1];
-			case TDir.S: return positions[pos.y + 1][pos.x];
-			case TDir.E: return positions[pos.y][pos.x + 1];
-			case TDir.X: throw 'ERROR: invalid direction $direction';
+			// board.populateBoard( treePositionsMap, trolls );
+			
+			ai.setInputs( inventories[Me], inventories[Opp], myTrolls, oppTrolls );
+			final output = ai.process();
+			
+			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
+			
+			turn++;
+			print( output );
 		}
 	}
 }
