@@ -1,0 +1,10 @@
+2026-05-25T15:37:50.518731Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T15:49:47.878035Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T15:52:56.292222Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T15:54:58.610700Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T15:55:24.321895Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T16:00:29.956139Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T16:04:05.050593Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T16:36:06.272362Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T16:37:18.825832Z  INFO cgarena::arena_server: CG Arena started
+2026-05-25T16:52:20.978286Z ERROR cgarena::worker: Error while running match: 

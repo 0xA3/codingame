@@ -52,9 +52,14 @@ file = "cgarena.log"
 type = "embedded"
 threads = 1
 cmd_play_match = "python play_game.py {SEED} {PLAYERS}"
-cmd_build = "g++ -std=c++20 -x c++ {DIR}/source.txt -o {DIR}/a"
-cmd_run = "./{DIR}/a"
+
+cmd_build = "cmd /c copy {DIR}\\source.txt {DIR}\\bot.js"
+cmd_run = "node {DIR}\\bot.js"
 
 # or a generic version
-# cmd_run = "sh run.sh {DIR} {LANG}"
-# cmd_build = "sh build.sh {DIR} {LANG}"
+# cmd_build = "build.bat {DIR} {LANG}"
+# cmd_run = "run.bat {DIR} {LANG}"
+
+# C++ version
+# cmd_build = "g++ -std=c++20 -x c++ {DIR}/source.txt -o {DIR}/a"
+# cmd_run = "./{DIR}/a"

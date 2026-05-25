@@ -13,4 +13,4 @@
 -main ai.MainAiLocal
 --js dest/ai_local.js
 
--cmd uglifyjs dest/ai_local.js -o dest/ai_local-min.js
+# -cmd uglifyjs dest/ai_local.js -o dest/ai_local-min.js
