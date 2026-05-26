@@ -29,7 +29,7 @@ class Ai17 {
 	final oppTrollsMap:Map<Pos, Troll> = [];
 
 
-	final warCry = new WarCry();
+	var warCry:WarCry;
 	
 	var maxSpeed = 0;
 	var maxCarry = 0;
@@ -53,7 +53,9 @@ class Ai17 {
 
 	var turn = 1;
 
-	public function new() {	}
+	public function new( warCry:WarCry ) {
+		this.warCry = warCry;
+	}
 
 	public function setGlobalInputs( board:Board ) {
 		this.board = board;

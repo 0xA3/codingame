@@ -4,6 +4,7 @@ import CodinGame.print;
 import CodinGame.printErr;
 import Std.int;
 import Std.parseInt;
+import ai.contexts.WarCry;
 import ai.data.Inventory;
 import ai.data.Player;
 import ai.data.Tree;
@@ -71,32 +72,32 @@ using tink.CoreApi;
 	}
 	
 	@await static function asyncMain() {
+		printErr( 'asyncMain' );
 		// actual code, but must use (@await readline()) instead of readline() - for example
 		// trace( "asyncMain" );
 		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		
 		var turn = 1;
 		var startTime = haxe.Timer.stamp();
-
-		final ai = new ai.versions.AiWait();
+		mtRandom = new MTRandom( seed );
+		final warCry = new WarCry( mtRandom );
+		
+		// final ai = new ai.versions.AiWait();
+		final ai = new ai.versions.Ai17( warCry );
 		final inputsAwait = @await readline();
 		final inputs = inputsAwait.split(" ");
 		final boardWidth = parseInt( inputs[0] ); // The width of the board
 		final boardHeight = parseInt( inputs[1] ); // The height of the board
-		final lines = [for( i in 0...boardHeight ) @await readline()];
 		final lines:Array<String> = [];
 		for( i in 0...boardHeight ) {
 			final line = @await readline();
 			lines.push( line );
 		}
 
-
 		final trees = [];
 		final treePositionsMap:Map<Pos, Tree> = [];
 
 		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines, trees, treePositionsMap );
-		mtRandom = new MTRandom( seed );
-
 		ai.setGlobalInputs( board );
 
 		final inventories = [Me => new Inventory(), Opp => new Inventory()];

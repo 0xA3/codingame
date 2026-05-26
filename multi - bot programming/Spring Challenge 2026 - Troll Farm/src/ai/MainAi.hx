@@ -5,6 +5,7 @@ import CodinGame.printErr;
 import CodinGame.readline;
 import Std.int;
 import Std.parseInt;
+import ai.contexts.WarCry;
 import ai.data.Inventory;
 import ai.data.Player;
 import ai.data.Tree;
@@ -21,12 +22,16 @@ class MainAi {
 	public static var mtRandom:MTRandom;
 
 	static function main() {
-		var turn = 1;
-		// js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
+		js.Syntax.code("// Build date {0}", CompileTime.buildDateString() );
 		printErr( CompileTime.buildDateString());
+		
+		var turn = 1;
 		var startTime = haxe.Timer.stamp();
 
-		final ai = new ai.versions.Ai17();
+		mtRandom = new MTRandom( seed );
+		final warCry = new WarCry( mtRandom );
+		
+		final ai = new ai.versions.Ai17( warCry );
 		final inputs = readline().split(" ");
 		final boardWidth = parseInt( inputs[0] ); // The width of the board
 		final boardHeight = parseInt( inputs[1] ); // The height of the board
@@ -36,7 +41,6 @@ class MainAi {
 		final treePositionsMap:Map<Pos, Tree> = [];
 
 		final board = BoardFactory.createBoard( boardWidth, boardHeight, lines, trees, treePositionsMap );
-		mtRandom = new MTRandom( seed );
 
 		ai.setGlobalInputs( board );
 

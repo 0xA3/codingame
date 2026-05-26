@@ -1,1 +1,1 @@
-java -jar referee.jar -p1 "node ./bots/9/bot.js" -p2 "node ./bots/10/bot.js" -s -seed 1
+java -jar cgarena/referee.jar -p1 "node dest/ai_local.js" -p2 "node dest/aiWait_local.js" -s -seed 1
