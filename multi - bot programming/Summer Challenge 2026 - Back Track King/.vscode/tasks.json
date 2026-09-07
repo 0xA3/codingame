@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "hxml",
+			"label": "Build Game",
+			"file": "game.hxml"
+		},
+		{
+			"type": "hxml",
+			"label": "Build Referee",
+			"file": "referee.hxml"
+		},
+		{
+			"type": "haxe",
+			"args": "active configuration",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
