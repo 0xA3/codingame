@@ -1,6 +1,7 @@
 package ai.versions;
 
 import CodinGame.printErr;
+import Std.int;
 import ai.data.Board;
 import xa3.math.Pos;
 import ya.Set;
@@ -11,13 +12,17 @@ class AiWood1 {
 	final outputs:Array<String> = [];
 	
 	var board:Board;
-	
+	var myId = -1;
+	var oppId = -1;
+
 	var turn = 1;
 
 	public function new() { }
 
-	public function setGlobalInputs( board:Board) {
+	public function setGlobalInputs( board:Board, myId:Int, oppId:Int ) {
 		this.board = board;
+		this.myId = myId;
+		this.oppId = oppId;
 	}
 
 	public function setInputs() {
@@ -27,10 +32,42 @@ class AiWood1 {
 
 	public function process() {
 
-		final firstTown = board.towns[0];
-		final secondTown = board.towns[1];
+		final firstTown = board.towns[Std.random( int( board.towns.length / 2 ) )];
+		final secondTown = board.towns[firstTown.id + 1];
+
+		final actions = [];
+		actions.push( 'AUTOPLACE ${firstTown.pos.x} ${firstTown.pos.y} ${secondTown.pos.x} ${secondTown.pos.y}' );
+
+		var maxOppTracks = 0;
+		var regionIdWithMaxOppTracks = -1;
+		for( regionId => cellPositions in board.regionCells ) {
+			var numOppTracks = 0;
+			for( pos in cellPositions ) {
+				if( board.grid[pos.y][pos.x].isInked ) continue;
+				if( board.grid[pos.y][pos.x].tracksOwnerId == oppId ) numOppTracks++;
+			}
+			if( numOppTracks > maxOppTracks ) {
+				maxOppTracks = numOppTracks;
+				regionIdWithMaxOppTracks = regionId;
+			}
+		}
+
+		if( regionIdWithMaxOppTracks != -1 ) {
+			final cellsOfRegion = board.regionCells[regionIdWithMaxOppTracks];
+			var maxInstability = 0;
+			var cellPosWithMaxInstability = cellsOfRegion[0];
+			
+			for( cell in cellsOfRegion ) {
+				if( board.grid[cell.y][cell.x].instability > maxInstability ) {
+					maxInstability = board.grid[cell.y][cell.x].instability;
+					cellPosWithMaxInstability = board.positions[cell.y][cell.x];
+				}
+			}
+			actions.push( 'DISRUPT ${cellPosWithMaxInstability.x} ${cellPosWithMaxInstability.y}' );
+		}
+
 		turn++;
 		
-		return 'AUTOPLACE ${firstTown.pos.x} ${firstTown.pos.y} ${secondTown.pos.x} ${secondTown.pos.y}';
+		return actions.join(";");
 	}
 }

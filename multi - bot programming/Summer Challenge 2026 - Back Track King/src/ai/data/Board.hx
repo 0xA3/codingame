@@ -12,12 +12,13 @@ using xa3.math.IntMath;
 class Board {
 	
 
-	public static final NO_BOARD = new Board( 0, 0, [], [], [] );
+	public static final NO_BOARD = new Board( 0, 0, [], [], [], [] );
 
 	public final boardWidth:Int;
 	public final boardHeight:Int;
 	public final positions:Array<Array<Pos>>;
 	public final grid:Array<Array<Cell>>;
+	public final regionCells:Map<Int, Array<Pos>>;
 	public final towns:Array<Town>;
 
 	// final map2d:Map2D;
@@ -36,19 +37,23 @@ class Board {
 		boardHeight:Int,
 		positions:Array<Array<Pos>>,
 		grid:Array<Array<Cell>>,
+		regionCells:Map<Int, Array<Pos>>,
 		towns:Array<Town>
 	) {
 		this.boardWidth = boardWidth;
 		this.boardHeight = boardHeight;
 		this.positions = positions;
 		this.grid = grid;
+		this.regionCells = regionCells;
 		this.towns = towns;
 
 		halfWidth = int( boardWidth / 2 );
 		thirdWidth = int( boardWidth / 3 );
 		
 		center = positions.length == 0 ? Pos.NO_POS : positions[int( boardHeight / 2 )][halfWidth];
-
+		for( regionId => cells in regionCells ) {
+			printErr( 'region $regionId cells ' + cells.join( "," ));
+		}
 		// final movementDirection = FourWay;
 		
 		// if( boardWidth > 0 && boardHeight > 0 ) {

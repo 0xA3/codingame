@@ -38,6 +38,7 @@ class MainAi {
 		final positions = Pos.createPositions( boardWidth, boardHeight );
 		
 		final grid:Array<Array<Cell>> = [for( y in 0...boardHeight ) []];
+		final regionCells:Map<Int,Array<Pos>> = [];
 		for( y in 0...boardHeight ) {
 			for( x in 0...boardWidth ) {
 				final inputs = readline().split(" ");
@@ -46,6 +47,9 @@ class MainAi {
 				final pos = positions[y][x];
 				final cell = new Cell( pos, regionId, type );
 				grid[y][x] = cell;
+
+				if( !regionCells.exists( regionId )) regionCells.set( regionId, [pos] );
+				else regionCells[regionId].push( pos );
 			}
 		}
 
@@ -64,9 +68,9 @@ class MainAi {
 		}
 
 		// final board = BoardFactory.createBoard( boardWidth, boardHeight, grid, towns );
-		final board = new Board( boardWidth, boardHeight, positions, grid, towns );
+		final board = new Board( boardWidth, boardHeight, positions, grid, regionCells, towns );
 
-		ai.setGlobalInputs( board );
+		ai.setGlobalInputs( board, myId, oppId );
 
 		// game loop
 		while( true ) {
@@ -75,6 +79,7 @@ class MainAi {
 			final myScore = parseInt( readline() ); // Your score
 			final oppScore = parseInt( readline() ); // Opponent's score
 
+			final trackGrid = [for( y in 0...boardHeight ) []];
 			for( y in 0...boardHeight ) {
 				for( x in 0...boardWidth ) {
 					final inputs = readline().split(" ");
@@ -82,10 +87,12 @@ class MainAi {
 					final instability = parseInt( inputs[1] );
 					final inked = inputs[2] != "0";
 					final partOfActiveConnections = inputs[3];
+
+					board.grid[y][x].updateTrackData(tracksOwner, instability, inked, partOfActiveConnections );
 				}
 			}
 
-			// ai.setInputs();
+			ai.setInputs();
 			final output = ai.process();
 			
 			printErr( '${int(( haxe.Timer.stamp() - startTime ) * 1000)}ms' );
