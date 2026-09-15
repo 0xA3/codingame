@@ -12,7 +12,7 @@ class MinPriorityQueue<T> {
 	* @param  initCapacity the initial capacity of this priority queue
 	*/
 	public function new( compare:( a:T, b:T ) -> Bool ) {
-		this.compare = compare; 
+		this.compare = compare;
 		pq = new Vector<T>( 1 );
 		n = 0;
 	}
@@ -23,7 +23,7 @@ class MinPriorityQueue<T> {
 	* Takes time proportional to the number of keys, using sink-based heap construction.
 	*
 	* @param  keys the array of keys
-	*/	
+	*/
 	public function init( keys:Array<T>) {
 		n = keys.length;
 		pq = new Vector<T>( keys.length + 1 );

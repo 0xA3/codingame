@@ -7,7 +7,6 @@ import Std.int;
 import Std.parseInt;
 import ai.data.Board;
 import ai.data.Cell;
-import ai.data.TTerrain;
 import ai.data.Town;
 import ai.factory.BoardFactory;
 import xa3.MTRandom;
@@ -42,8 +41,9 @@ class MainAi {
 		for( y in 0...boardHeight ) {
 			for( x in 0...boardWidth ) {
 				final inputs = readline().split(" ");
+				printErr( '$x $y ' + inputs.join(" "));
 				final regionId = parseInt( inputs[0] );
-				final type:TTerrain = parseInt( inputs[1] );
+				final type = parseInt( inputs[1] );
 				final pos = positions[y][x];
 				final cell = new Cell( pos, regionId, type );
 				grid[y][x] = cell;
@@ -69,6 +69,7 @@ class MainAi {
 
 		// final board = BoardFactory.createBoard( boardWidth, boardHeight, grid, towns );
 		final board = new Board( boardWidth, boardHeight, positions, grid, regionCells, towns );
+		board.initNeighbors();
 
 		ai.setGlobalInputs( board, myId, oppId );
 
@@ -100,7 +101,7 @@ class MainAi {
 			turn++;
 			
 			// AUTOPLACE x1 y1 x2 | PLACE_TRACKS x y | DISRUPT regionId | MESSAGE text
-			print( output );
+			// print( output );
 		}
 	}
 }

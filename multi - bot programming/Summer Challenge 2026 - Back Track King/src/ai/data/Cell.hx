@@ -4,9 +4,11 @@ import xa3.math.Pos;
 
 class Cell {
 	
+	public static final NO_CELL = new Cell( Pos.NO_POS, -1, 999 );
+
 	public final pos:Pos;
 	public final regionId:Int;
-	public final type:TTerrain;
+	public final type:Int;
 	
 	public var tracksOwnerId = -1;
 	public var instability = 0;
@@ -15,7 +17,7 @@ class Cell {
 
 	public final neighbors:Array<Cell> = [];
 	
-	public function new( pos:Pos, regionId:Int, type:TTerrain ) {
+	public function new( pos:Pos, regionId:Int, type:Int ) {
 		this.pos = pos;
 		this.regionId = regionId;
 		this.type = type;

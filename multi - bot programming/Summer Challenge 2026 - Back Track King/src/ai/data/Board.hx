@@ -2,8 +2,6 @@ package ai.data;
 
 import CodinGame.printErr;
 import Std.int;
-import astar.map2d.Map2D;
-import astar.map2d.types.MovementDirection;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -20,8 +18,6 @@ class Board {
 	public final grid:Array<Array<Cell>>;
 	public final regionCells:Map<Int, Array<Pos>>;
 	public final towns:Array<Town>;
-
-	// final map2d:Map2D;
 
 	public final halfWidth:Int;
 	public final thirdWidth:Int;
@@ -51,19 +47,22 @@ class Board {
 		thirdWidth = int( boardWidth / 3 );
 		
 		center = positions.length == 0 ? Pos.NO_POS : positions[int( boardHeight / 2 )][halfWidth];
-		for( regionId => cells in regionCells ) {
-			printErr( 'region $regionId cells ' + cells.join( "," ));
+	}
+
+	public function initNeighbors() {
+		for( y in 0...grid.length ) {
+			for( x in 0...grid[y].length ) {
+				final cell = grid[y][x];
+				// north
+				if( y > 0 ) cell.addNeighbor( grid[y-1][x] );
+				// east
+				if( x < boardWidth - 1 ) cell.addNeighbor( grid[y][x+1] );
+				// south
+				if( y < boardHeight - 1 ) cell.addNeighbor( grid[y+1][x] );
+				//west
+				if( x > 0 ) cell.addNeighbor( grid[y][x-1] );
+			}
 		}
-		// final movementDirection = FourWay;
-		
-		// if( boardWidth > 0 && boardHeight > 0 ) {
-		// 	map2d = new Map2D( boardWidth, boardHeight, movementDirection );
-		// 	final costs = [0 => Map2D.defaultCosts];
-		
-		// 	map2d.setMap( [for( y in 0...boardHeight ) for( x in 0...boardWidth ) grid[y][x]] );
-		// 	map2d.setCosts( costs );
-		// 	map2d.configureCache( true, 1024 );
-		// }
 	}
 
 	public function reset() {
