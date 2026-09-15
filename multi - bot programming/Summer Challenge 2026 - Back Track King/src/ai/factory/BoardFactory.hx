@@ -66,7 +66,7 @@ class BoardFactory {
 				townPaths.push( townPath );
 			}
 		}
-		townPaths.sort(( a, b ) -> a.length - b.length );
+		townPaths.sort( TownPath.sortByLength );
 
 		return townPaths;
 	}
@@ -107,7 +107,7 @@ class BoardFactory {
 
 			for( neighbor in current.neighbors ) {
 				if( visited.exists( neighbor )) continue;
-				final dist = minDist + neighbor.type + 1;
+				final dist = minDist + 1;
 				if( !distances.exists( neighbor ) || dist < distances[neighbor] ) {
 					distances[neighbor] = dist;
 					previous[neighbor] = current;

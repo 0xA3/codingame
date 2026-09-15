@@ -3,6 +3,7 @@ package ai.versions;
 import CodinGame.printErr;
 import Std.int;
 import ai.data.Board;
+import ai.data.TownPath;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -31,13 +32,21 @@ class Ai1 {
 	}
 
 	public function process() {
-
-		final randomTownPath = board.townPaths[Std.random( int( board.townPaths.length ) )];
-		final firstTown = board.towns[randomTownPath.start];
-		final secondTown = board.towns[randomTownPath.end];
-
 		final actions = [];
-		actions.push( 'AUTOPLACE ${firstTown.pos.x} ${firstTown.pos.y} ${secondTown.pos.x} ${secondTown.pos.y}' );
+		
+		board.townPaths.sort( TownPath.sortByLength );
+		
+		for( townPath in board.townPaths ) {
+			// printErr( 'townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
+			if( townPath.length > 0 ) {
+				final firstTownId = townPath.start;
+				final secondTownId = townPath.end;
+				final firstTown = board.towns[firstTownId];
+				final secondTown = board.towns[secondTownId];
+				actions.push( 'AUTOPLACE ${firstTown.pos.x} ${firstTown.pos.y} ${secondTown.pos.x} ${secondTown.pos.y}' );
+				break;
+			}
+		}
 
 		var maxOppTracks = 0;
 		var regionIdWithMaxOppTracks = -1;

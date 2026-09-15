@@ -18,13 +18,13 @@ class Board {
 	public final regionCells:Map<Int, Array<Pos>>;
 	public final towns:Map<Int, Town>;
 	public final townPaths:Array<TownPath>;
+	public final pathsOfCell:Map<Cell, Array<TownPath>> = [];
 
 	public final halfWidth:Int;
 	public final thirdWidth:Int;
 
 	public final center:Pos;
 	public final neighborOffsets = Pos.createNeighborOffsets();
-	
 
 	var turn = 0;
 
@@ -44,7 +44,13 @@ class Board {
 		this.regionCells = regionCells;
 		this.towns = towns;
 		this.townPaths = townPaths;
+		
 		for( townPath in townPaths ) {
+			for( cell in townPath.cells ) {
+				if( !pathsOfCell.exists( cell )) pathsOfCell.set( cell, [townPath] );
+				else pathsOfCell[cell].push( townPath );
+				// printErr( 'cell ${cell.pos} is in path ${townPath.start}-${townPath.end}' );
+			}
 			final pathPositions = townPath.cells.map( cell -> '${cell.pos}' ).join(",");
 			printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
 		}
@@ -58,6 +64,21 @@ class Board {
 	public function reset() {
 	}
 
+	public function updateTrackData( x:Int, y:Int, tracksOwnerId:Int, instability:Int, isInked:Bool, partOfActiveConnections:String ) {
+		grid[y][x].updateTrackData( tracksOwnerId, instability, isInked, partOfActiveConnections );
+		
+		if( tracksOwnerId != -1 ) {
+			final cell = grid[y][x];
+			if( pathsOfCell.exists( cell )) {
+				final townPaths = pathsOfCell[cell];
+				for( townPath in townPaths ) {
+					townPath.removeCell( cell );
+					townPath.recalculateLength();
+					printErr( 'remove cell ${cell.pos} from townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
+				}
+			}
+		}
+	}
 
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
 	public function checkOutsideBoard( x:Int, y:Int ) return x < 0 || x >= boardWidth || y < 0 || y >= boardHeight;
@@ -69,58 +90,6 @@ class Board {
 		return cell;
 	}
 
-	public function getAllNeighbors( pos:Pos ) {
-		final neighbors = [];
-		for( neighborOffset in neighborOffsets ) {
-			final neighborX = pos.x + neighborOffset.x;
-			final neighborY = pos.y + neighborOffset.y;
-			if( checkOutsideBoard( neighborX, neighborY ) ) continue;
-			final neighbor = positions[neighborY][neighborX];
-			neighbors.push( neighbor );
-		}
-		return neighbors;
-	}
-
-	public function getDistance( startPos:Pos, endPos:Pos ) {
-		// final path = getPath( startPos, endPos );
-		// return path.length - 1;
-	}
-
-	public function getPath( startPos:Pos, endPos:Pos ) {
-		// final startIndex = pos2Index( startPos );
-		// final endIndex = pos2Index( endPos );
-		
-		// if( paths[startIndex][endIndex].length == 0 ) {
-		// 	if( startIndex == endIndex ) {
-		// 		final path = [startPos];
-		// 		paths[startIndex][endIndex] = path;
-		// 		// printErr( 'getPath $startPos -> $endPos: $path' );
-		// 		return path;
-		// 	}
-			
-		// 	final solution = map2d.solve( startPos.x, startPos.y, endPos.x, endPos.y );
-			
-		// 	if( solution.result == Solved ) {
-		// 		final path = solution.path.map( point2D -> positions[point2D.y][point2D.x] );
-		// 		paths[startIndex][endIndex] = path;
-				
-		// 		final reversePath = path.copy();
-		// 		reversePath.reverse();
-		// 		paths[endIndex][startIndex] = reversePath;
-				
-		// 		// printErr( 'new path $startPos -> $endPos: $path' );
-		// 		return path;
-			
-		// 	} else {
-		// 		// printErr( 'getPath $startPos -> $endPos: notfound' );
-		// 		return [];
-		// 	}
-		// }
-
-		// final path = paths[startIndex][endIndex];
-		// // printErr( 'getPath $startPos -> $endPos: $path' );
-		// return path;
-	}
 
 	public function outputBoard( board:Array<Array<Int>> ) {
 		// final output = [for( y in 0...boardHeight )

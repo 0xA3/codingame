@@ -87,7 +87,7 @@ class MainAi {
 					final inked = inputs[2] != "0";
 					final partOfActiveConnections = inputs[3];
 
-					board.grid[y][x].updateTrackData(tracksOwner, instability, inked, partOfActiveConnections );
+					board.updateTrackData( x, y, tracksOwner, instability, inked, partOfActiveConnections );
 				}
 			}
 
