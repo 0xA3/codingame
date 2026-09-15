@@ -3,12 +3,10 @@ package ai.versions;
 import CodinGame.printErr;
 import Std.int;
 import ai.data.Board;
-import xa3.math.Pos;
-import ya.Set;
 
 class AiWood1 {
 
-	public var aiId = "AiWood2";
+	public var aiId = "AiWood1";
 	final outputs:Array<String> = [];
 	
 	var board:Board;

@@ -29,7 +29,7 @@ class MainAi {
 		mtRandom = new MTRandom( seed );
 		// final warCry = new WarCry( mtRandom );
 		
-		final ai = new ai.versions.AiWood1();
+		final ai = new ai.versions.Ai1();
 		final myId = parseInt( readline() ); // The id of the player
 		final oppId = 1 - myId;
 		final boardWidth = parseInt( readline() ); // The width of the board
@@ -41,10 +41,10 @@ class MainAi {
 		for( y in 0...boardHeight ) {
 			for( x in 0...boardWidth ) {
 				final inputs = readline().split(" ");
-				printErr( '$x $y ' + inputs.join(" "));
 				final regionId = parseInt( inputs[0] );
 				final type = parseInt( inputs[1] );
 				final pos = positions[y][x];
+				// printErr( '$pos regionId $regionId type $type' );
 				final cell = new Cell( pos, regionId, type );
 				grid[y][x] = cell;
 
@@ -53,7 +53,7 @@ class MainAi {
 			}
 		}
 
-		final towns = [];
+		final towns:Map<Int, Town> = [];
 		final townCount = parseInt( readline() );
 		for( i in 0...townCount ) {
 			final inputs = readline().split(" ");
@@ -61,15 +61,13 @@ class MainAi {
 			final townX = parseInt( inputs[1] );
 			final townY = parseInt( inputs[2] );
 			final townPos = positions[townY][townX];
-			final desiredConnections = inputs[3].split(",").map( s -> parseInt( s ) );
-			
+			final inputs3 = inputs[3];
+			final desiredConnections = inputs3 == "x" ? [] : inputs3.split(",").map( s -> parseInt( s ) );
 			final town = new Town( townId, townPos, desiredConnections );
-			towns.push( town );
+			towns.set( townId, town );
 		}
 
-		// final board = BoardFactory.createBoard( boardWidth, boardHeight, grid, towns );
-		final board = new Board( boardWidth, boardHeight, positions, grid, regionCells, towns );
-		board.initNeighbors();
+		final board = BoardFactory.createBoard( boardWidth, boardHeight, positions, grid, regionCells, towns );
 
 		ai.setGlobalInputs( board, myId, oppId );
 
@@ -101,7 +99,7 @@ class MainAi {
 			turn++;
 			
 			// AUTOPLACE x1 y1 x2 | PLACE_TRACKS x y | DISRUPT regionId | MESSAGE text
-			// print( output );
+			print( output );
 		}
 	}
 }

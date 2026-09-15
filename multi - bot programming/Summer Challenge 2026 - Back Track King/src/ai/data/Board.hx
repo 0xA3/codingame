@@ -8,16 +8,16 @@ import ya.Set;
 using xa3.math.IntMath;
 
 class Board {
-	
 
-	public static final NO_BOARD = new Board( 0, 0, [], [], [], [] );
+	public static final NO_BOARD = new Board( 0, 0, [], [], [], [], [] );
 
 	public final boardWidth:Int;
 	public final boardHeight:Int;
 	public final positions:Array<Array<Pos>>;
 	public final grid:Array<Array<Cell>>;
 	public final regionCells:Map<Int, Array<Pos>>;
-	public final towns:Array<Town>;
+	public final towns:Map<Int, Town>;
+	public final townPaths:Array<TownPath>;
 
 	public final halfWidth:Int;
 	public final thirdWidth:Int;
@@ -34,7 +34,8 @@ class Board {
 		positions:Array<Array<Pos>>,
 		grid:Array<Array<Cell>>,
 		regionCells:Map<Int, Array<Pos>>,
-		towns:Array<Town>
+		towns:Map<Int, Town>,
+		townPaths:Array<TownPath>
 	) {
 		this.boardWidth = boardWidth;
 		this.boardHeight = boardHeight;
@@ -42,27 +43,16 @@ class Board {
 		this.grid = grid;
 		this.regionCells = regionCells;
 		this.towns = towns;
+		this.townPaths = townPaths;
+		for( townPath in townPaths ) {
+			final pathPositions = townPath.cells.map( cell -> '${cell.pos}' ).join(",");
+			printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
+		}
 
 		halfWidth = int( boardWidth / 2 );
 		thirdWidth = int( boardWidth / 3 );
 		
 		center = positions.length == 0 ? Pos.NO_POS : positions[int( boardHeight / 2 )][halfWidth];
-	}
-
-	public function initNeighbors() {
-		for( y in 0...grid.length ) {
-			for( x in 0...grid[y].length ) {
-				final cell = grid[y][x];
-				// north
-				if( y > 0 ) cell.addNeighbor( grid[y-1][x] );
-				// east
-				if( x < boardWidth - 1 ) cell.addNeighbor( grid[y][x+1] );
-				// south
-				if( y < boardHeight - 1 ) cell.addNeighbor( grid[y+1][x] );
-				//west
-				if( x > 0 ) cell.addNeighbor( grid[y][x-1] );
-			}
-		}
 	}
 
 	public function reset() {
