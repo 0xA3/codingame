@@ -11,6 +11,7 @@ import ai.data.Town;
 import ai.factory.BoardFactory;
 import xa3.MTRandom;
 import xa3.math.Pos;
+import ya.Set;
 
 using StringTools;
 
@@ -37,7 +38,7 @@ class MainAi {
 		final positions = Pos.createPositions( boardWidth, boardHeight );
 		
 		final grid:Array<Array<Cell>> = [for( y in 0...boardHeight ) []];
-		final regionCells:Map<Int,Array<Pos>> = [];
+		final cellsOfRegions:Map<Int,Array<Pos>> = [];
 		for( y in 0...boardHeight ) {
 			for( x in 0...boardWidth ) {
 				final inputs = readline().split(" ");
@@ -48,8 +49,8 @@ class MainAi {
 				final cell = new Cell( pos, regionId, type );
 				grid[y][x] = cell;
 
-				if( !regionCells.exists( regionId )) regionCells.set( regionId, [pos] );
-				else regionCells[regionId].push( pos );
+				if( !cellsOfRegions.exists( regionId )) cellsOfRegions.set( regionId, [pos] );
+				else cellsOfRegions[regionId].push( pos );
 			}
 		}
 
@@ -67,7 +68,17 @@ class MainAi {
 			towns.set( townId, town );
 		}
 
-		final board = BoardFactory.createBoard( boardWidth, boardHeight, positions, grid, regionCells, towns );
+		final regionsOfTowns = new Set<Int>();
+		for( town in towns ) {
+			final townCell = grid[town.pos.y][town.pos.x];
+			regionsOfTowns.add( townCell.regionId );
+		}
+		final regionsWithoutTowns = [];
+		for( regionId in cellsOfRegions.keys()) {
+			if( !regionsOfTowns.contains( regionId )) regionsWithoutTowns.push( regionId );
+		}
+
+		final board = BoardFactory.createBoard( boardWidth, boardHeight, positions, grid, cellsOfRegions, towns, regionsWithoutTowns );
 
 		ai.setGlobalInputs( board, myId, oppId );
 

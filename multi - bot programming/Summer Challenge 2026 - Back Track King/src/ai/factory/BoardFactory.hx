@@ -15,12 +15,13 @@ class BoardFactory {
 		positions:Array<Array<Pos>>,
 		grid:Array<Array<Cell>>,
 		regionCells:Map<Int, Array<Pos>>,
-		towns:Map<Int, Town>
+		towns:Map<Int, Town>,
+		regionsWithoutTowns:Array<Int>
 	) {
 		initCellNeighbors( boardWidth, boardHeight, grid );
 		final paths = createPaths( grid, towns );
 		
-		final board = new ai.data.Board( boardWidth, boardHeight, positions, grid, regionCells, towns, paths );
+		final board = new ai.data.Board( boardWidth, boardHeight, positions, grid, regionCells, towns, regionsWithoutTowns, paths );
 		return board;
 	}
 

@@ -46,7 +46,7 @@ class Ai2 {
 				while( paintPoints > 0 && townPath.noTrackCells.length > 0 ) {
 					final cellToPaint = townPath.noTrackCells.shift();
 					actions.push( 'PLACE_TRACKS ${cellToPaint.pos.x} ${cellToPaint.pos.y}' );
-					paintPoints -= cellToPaint.type;
+					paintPoints -= cellToPaint.type + 1;
 					// printErr( 'paint ${cellToPaint.pos} remaining points $paintPoints' );
 				}
 				
@@ -56,7 +56,8 @@ class Ai2 {
 
 		var maxOppTracks = 0;
 		var regionIdWithMaxOppTracks = -1;
-		for( regionId => cellPositions in board.regionCells ) {
+		for( regionId in board.regionsWithoutTowns ) {
+			final cellPositions = board.regionCells[regionId];
 			var numOppTracks = 0;
 			for( pos in cellPositions ) {
 				if( board.grid[pos.y][pos.x].isInked ) continue;
