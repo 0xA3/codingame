@@ -7,6 +7,8 @@ import ai.data.Cell;
 import ai.data.TownPath;
 import ai.factory.BoardFactory;
 import haxe.ds.ArraySort;
+import xa3.math.Pos;
+import ya.Set;
 
 class Ai6 {
 
@@ -19,6 +21,8 @@ class Ai6 {
 
 	var turn = 1;
 	var paintPoints = 3;
+
+	final assignedTrackPositions:Set<Pos> = [];
 
 	public function new() { }
 
@@ -49,18 +53,26 @@ class Ai6 {
 		
 		board.townPaths.sort( TownPath.sortByLength );
 		
+		assignedTrackPositions.clear();
+
 		var pathCounter = 0;
 		while( paintPoints > 0 && pathCounter < board.townPaths.length ) {
 			final townPath = board.townPaths[pathCounter++];
 			if( townPath.noTrackCells.length > 0 ) {
-				// printErr( 'process townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
+				// printErr( 'process townPath ${townPath.start}-${townPath.end} ' + townPath.noTrackCells.map( c -> c.pos ).join(" "));
 				ArraySort.sort( townPath.noTrackCells, Cell.sortByType );
-				var nextCell = townPath.noTrackCells[0];
-				while( paintPoints > nextCell.type && townPath.noTrackCells.length > 0 ) {
-					final cellToPaint = townPath.noTrackCells.shift();
-					actions.push( 'PLACE_TRACKS ${cellToPaint.pos.x} ${cellToPaint.pos.y}' );
-					paintPoints -= cellToPaint.type + 1;
-					// printErr( 'paint ${cellToPaint.pos} remaining points $paintPoints' );
+				var cellCounter = 0;
+				while( cellCounter < townPath.noTrackCells.length && paintPoints > townPath.noTrackCells[cellCounter].type ) {
+					final nextCell = townPath.noTrackCells[cellCounter++];
+					// printErr( 'paintPoints $paintPoints  nextCell ${nextCell.pos} type ${nextCell.type}' );
+					if( !assignedTrackPositions.contains( nextCell.pos )) {
+						actions.push( 'PLACE_TRACKS ${nextCell.pos.x} ${nextCell.pos.y}' );
+						assignedTrackPositions.add( nextCell.pos );
+						paintPoints -= nextCell.type + 1;
+						// printErr( 'paint ${nextCell.pos} remaining points $paintPoints' );
+					} else {
+						// printErr( 'skip ${nextCell.pos} it is already assigned' );
+					}
 				}
 			}
 		}
