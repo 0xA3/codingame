@@ -73,12 +73,12 @@ class MainAi {
 			final townCell = grid[town.pos.y][town.pos.x];
 			regionsOfTowns.add( townCell.regionId );
 		}
-		final regionsWithoutTowns = [];
+		final paintableRegionsMap:Map<Int,Bool> = [];
 		for( regionId in cellsOfRegions.keys()) {
-			if( !regionsOfTowns.contains( regionId )) regionsWithoutTowns.push( regionId );
+			paintableRegionsMap.set( regionId, !regionsOfTowns.contains( regionId ));
 		}
 
-		final board = BoardFactory.createBoard( boardWidth, boardHeight, positions, grid, cellsOfRegions, towns, regionsWithoutTowns );
+		final board = BoardFactory.createBoard( boardWidth, boardHeight, positions, grid, cellsOfRegions, towns, paintableRegionsMap );
 
 		ai.setGlobalInputs( board, myId, oppId );
 

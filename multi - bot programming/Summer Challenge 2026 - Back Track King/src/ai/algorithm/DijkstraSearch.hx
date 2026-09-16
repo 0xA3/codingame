@@ -34,11 +34,15 @@ class DijkstraSearch {
 			frontier.splice( minIndex, 1 );
 			visited[current] = true;
 
-			if( current == target ) return reconstructPath( previous, start, target );
+			if( current == target ) {
+				final path = reconstructPath( previous, start, target );
+				final pathWithoutTowns = path.filter( cell -> !townPositions.contains( cell.pos ));
+				return pathWithoutTowns;
+			}
 
 			for( neighbor in current.neighbors ) {
 				if( visited.exists( neighbor )) continue;
-				final dist = townPositions.contains( neighbor.pos ) ? minDist : minDist + 1;
+				final dist = townPositions.contains( neighbor.pos ) ? minDist : minDist + neighbor.type + 1;
 				// final dist = minDist + 1;
 				if( !distances.exists( neighbor ) || dist < distances[neighbor] ) {
 					distances[neighbor] = dist;

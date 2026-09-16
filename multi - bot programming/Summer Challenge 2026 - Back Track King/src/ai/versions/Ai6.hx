@@ -40,12 +40,16 @@ class Ai6 {
 	public function process() {
 		final obsoletePaths = board.obsoletePaths.toArray();
 		for( obsoletePath in obsoletePaths ) {
+			for( cell in obsoletePath.cells ) board.removePathOfCell( cell, obsoletePath );
+			
 			final startTown = board.towns[obsoletePath.start];
 			final endTown = board.towns[obsoletePath.end];
 			final startCell = board.grid[startTown.pos.y][startTown.pos.x];
 			final endCell = board.grid[endTown.pos.y][endTown.pos.x];
-			final path = findShortestPath( startCell, endCell, board.townPositions );
-			obsoletePath.resetPath( path.length > 0 ? path : [] );
+			final nextPath = findShortestPath( startCell, endCell, board.townPositions );
+			obsoletePath.resetPath( nextPath.length > 0 ? nextPath : [] );
+			
+			for( cell in nextPath ) board.addPathOfCell( cell, obsoletePath );
 			// printErr( 'resetPath for ${obsoletePath.start}-${obsoletePath.end} ' + path.map( cell -> cell.pos ).join( "," ));
 		}
 
@@ -79,7 +83,9 @@ class Ai6 {
 
 		var maxOppTracks = 0;
 		var regionIdWithMaxOppTracks = -1;
-		for( regionId in board.regionsWithoutTowns ) {
+		for( regionId => isPaintable in board.paintableRegionsMap ) {
+			if( !isPaintable ) continue;
+
 			final cellPositions = board.regionCells[regionId];
 			var numOppTracks = 0;
 			for( pos in cellPositions ) {
@@ -103,6 +109,7 @@ class Ai6 {
 					cellPosWithMaxInstability = board.positions[cell.y][cell.x];
 				}
 			}
+			printErr( 'Disrupting region $regionIdWithMaxOppTracks at $cellPosWithMaxInstability' );
 			actions.push( 'DISRUPT ${cellPosWithMaxInstability.x} ${cellPosWithMaxInstability.y}' );
 		}
 

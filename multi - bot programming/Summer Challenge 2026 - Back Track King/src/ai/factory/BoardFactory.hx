@@ -17,7 +17,7 @@ class BoardFactory {
 		grid:Array<Array<Cell>>,
 		regionCells:Map<Int, Array<Pos>>,
 		towns:Map<Int, Town>,
-		regionsWithoutTowns:Array<Int>
+		paintableRegionsMap:Map<Int,Bool>
 	) {
 		initCellNeighbors( boardWidth, boardHeight, grid );
 		
@@ -26,7 +26,7 @@ class BoardFactory {
 
 		final paths = createPaths( grid, towns, townPositions );
 		
-		final board = new ai.data.Board( boardWidth, boardHeight, positions, grid, regionCells, towns, townPositions, regionsWithoutTowns, paths );
+		final board = new ai.data.Board( boardWidth, boardHeight, positions, grid, regionCells, towns, townPositions, paintableRegionsMap, paths );
 		return board;
 	}
 
@@ -60,11 +60,10 @@ class BoardFactory {
 
 				final targetCell = grid[targetTown.pos.y][targetTown.pos.x];
 				final path = findShortestPath( sourceCell, targetCell, townPositions );
-				final pathWithoutTowns = path.filter( cell -> !townPositions.contains( cell.pos ));
 				// printErr( '${sourceTown.id} -> $connectionId length $length' );
 
 				pathsSet.add( key );
-				final townPath = new TownPath( sourceTown.id, targetTown.id, pathWithoutTowns );
+				final townPath = new TownPath( sourceTown.id, targetTown.id, path );
 				townPaths.push( townPath );
 			}
 		}

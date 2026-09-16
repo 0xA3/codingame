@@ -15,7 +15,7 @@ class TownPath {
 		this.end = end;
 		this.cells = cells;
 
-		for( cell in cells ) noTrackCells.push( cell );
+		for( cell in cells ) if( cell.tracksOwnerId == -1 ) noTrackCells.push( cell );
 		recalculateLength();
 	}
 
@@ -23,14 +23,18 @@ class TownPath {
 		noTrackCells.remove( cell );
 	}
 
-	public function resetPath( cells:Array<Cell> ) {
-		this.cells.resize( 0 );
-		this.noTrackCells.resize( 0 );
-		for( cell in cells ) {
-			this.cells.push( cell );
-			if( cell.tracksOwnerId == -1 ) noTrackCells.push( cell );
+	public function resetPath( nextPath:Array<Cell> ) {
+		cells.resize( 0 );
+		noTrackCells.resize( 0 );
+		for( cell in nextPath ) {
+			cells.push( cell );
+			if( cell.tracksOwnerId == -1 ) {
+				// printErr( 'resetPath add cell ${cell.pos} with owner ${cell.tracksOwnerId}' );
+				noTrackCells.push( cell );
+			}
 			recalculateLength();
 		}
+		printErr( 'resetPath $start-$end ' + cells.map( c -> c.pos ).join(" "));
 	}
 
 	public function recalculateLength() {

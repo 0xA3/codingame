@@ -18,7 +18,7 @@ class Board {
 	public final regionCells:Map<Int, Array<Pos>>;
 	public final towns:Map<Int, Town>;
 	public final townPositions:Set<Pos>;
-	public final regionsWithoutTowns:Array<Int>;
+	public final paintableRegionsMap:Map<Int,Bool>;
 	public final townPaths:Array<TownPath>;
 	public final pathsOfCell:Map<Cell, Array<TownPath>> = [];
 
@@ -41,7 +41,7 @@ class Board {
 		regionCells:Map<Int, Array<Pos>>,
 		towns:Map<Int, Town>,
 		townPositions:Set<Pos>,
-		regionsWithoutTowns:Array<Int>,
+		paintableRegionsMap:Map<Int,Bool>,
 		townPaths:Array<TownPath>
 	) {
 		this.boardWidth = boardWidth;
@@ -51,16 +51,15 @@ class Board {
 		this.regionCells = regionCells;
 		this.towns = towns;
 		this.townPositions = townPositions;
-		this.regionsWithoutTowns = regionsWithoutTowns;
+		this.paintableRegionsMap = paintableRegionsMap;
 		this.townPaths = townPaths;
 		
 		for( townPath in townPaths ) {
-			for( cell in townPath.cells ) {
-				if( !pathsOfCell.exists( cell )) pathsOfCell.set( cell, [townPath] );
-				else pathsOfCell[cell].push( townPath );
+			for( cell in townPath.noTrackCells ) {
+				addPathOfCell( cell, townPath );
 				// printErr( 'cell ${cell.pos} is in path ${townPath.start}-${townPath.end}' );
 			}
-			final pathPositions = townPath.cells.map( cell -> '${cell.pos}' ).join(" ");
+			final pathPositions = townPath.noTrackCells.map( cell -> '${cell.pos}' ).join(" ");
 			// printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
 		}
 
@@ -70,6 +69,15 @@ class Board {
 		center = positions.length == 0 ? Pos.NO_POS : positions[int( boardHeight / 2 )][halfWidth];
 	}
 
+	public function addPathOfCell( cell:Cell, townPath:TownPath ) {
+		if( !pathsOfCell.exists( cell )) pathsOfCell.set( cell, [townPath] );
+		else pathsOfCell[cell].push( townPath );
+	}
+
+	public function removePathOfCell( cell:Cell, townPath:TownPath ) {
+
+	}
+
 	public function reset() {
 		// printErr( 'clear obsolete paths' );
 		obsoletePaths.clear();
@@ -77,6 +85,8 @@ class Board {
 
 	public function updateTrackData( x:Int, y:Int, tracksOwnerId:Int, instability:Int, isInked:Bool, partOfActiveConnections:String ) {
 		final cell = grid[y][x];
+		if( isInked ) paintableRegionsMap[cell.regionId] = false;
+		
 		if( isInked && cell.neighbors.length > 0 ) {
 			disconnectCell( cell );
 			if( pathsOfCell.exists( cell )) {
@@ -90,13 +100,14 @@ class Board {
 		
 		cell.updateTrackData( tracksOwnerId, instability, isInked, partOfActiveConnections );
 		
+		// if( tracksOwnerId != -1 ) printErr( 'updateTrackData of cell ${cell.pos} alreadyRemoved ${removedCells.contains( cell )}' );
 		if( removedCells.contains( cell )) return;
 		if( tracksOwnerId != -1 ) {
 			if( pathsOfCell.exists( cell )) {
 				final townPaths = pathsOfCell[cell];
 				for( townPath in townPaths ) {
-					removedCells.add( cell );
 					townPath.removeCell( cell );
+					removedCells.add( cell );
 					townPath.recalculateLength();
 					// printErr( 'remove cell ${cell.pos} from townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
 				}
