@@ -31,4 +31,6 @@ class Cell {
 	}
 
 	public function addNeighbor( cell:Cell ) neighbors.push( cell );
+
+	public static function sortByType( a:Cell, b:Cell ) return a.type - b.type;
 }

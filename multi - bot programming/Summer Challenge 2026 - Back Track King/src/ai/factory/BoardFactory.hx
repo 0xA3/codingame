@@ -18,10 +18,8 @@ class BoardFactory {
 		towns:Map<Int, Town>
 	) {
 		initCellNeighbors( boardWidth, boardHeight, grid );
-		printErr( 'createPaths' );
 		final paths = createPaths( grid, towns );
 		
-		printErr( 'new board' );
 		final board = new ai.data.Board( boardWidth, boardHeight, positions, grid, regionCells, towns, paths );
 		return board;
 	}
@@ -52,28 +50,20 @@ class BoardFactory {
 				final key = '${sourceTown.id}-$connectionId';
 				if( pathsSet.contains( key )) continue;
 
-				final targetTown = getTown( towns, connectionId );
+				final targetTown = towns.exists( connectionId ) ? towns[connectionId] : throw 'Error: Town not found: $connectionId';
 
 				final targetCell = grid[targetTown.pos.y][targetTown.pos.x];
-				final pathAndLength = findShortestPath( sourceCell, targetCell );
-				
-				final path = pathAndLength.path;
-				final length = pathAndLength.totalDistance;
+				final path = findShortestPath( sourceCell, targetCell );
 				// printErr( '${sourceTown.id} -> $connectionId length $length' );
 
 				pathsSet.add( key );
-				final townPath = new TownPath( sourceTown.id, targetTown.id, path, length );
+				final townPath = new TownPath( sourceTown.id, targetTown.id, path );
 				townPaths.push( townPath );
 			}
 		}
 		townPaths.sort( TownPath.sortByLength );
 
 		return townPaths;
-	}
-
-	static function getTown( towns:Map<Int, Town>, id:Int ) {
-		if( towns.exists( id )) return towns[id];
-		throw 'Error: Town not found: $id';
 	}
 
 	static function findShortestPath( start:Cell, target:Cell ) {
@@ -116,21 +106,19 @@ class BoardFactory {
 			}
 		}
 
-		return { path: [], totalDistance: 999 };
+		return [];
 	}
 
 	static function reconstructPath( previous:Map<Cell, Cell>, start:Cell, target:Cell ) {
 		final path = [];
 		var current = target;
-		var totalDistance = 0;
 		while( current != start ) {
 			path.push( current );
 			current = previous[current];
-			totalDistance += current.type + 1;
 		}
-		path.push( start );
+		// path.push( start );
 		path.reverse();
 		
-		return { path: path, totalDistance: totalDistance };
+		return path.slice( 0, path.length - 1 );
 	}
 }

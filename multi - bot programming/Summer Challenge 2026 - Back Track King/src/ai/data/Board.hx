@@ -26,6 +26,8 @@ class Board {
 	public final center:Pos;
 	public final neighborOffsets = Pos.createNeighborOffsets();
 
+	final removedCells:Set<Cell> = [];
+
 	var turn = 0;
 
 	public function new(
@@ -52,7 +54,7 @@ class Board {
 				// printErr( 'cell ${cell.pos} is in path ${townPath.start}-${townPath.end}' );
 			}
 			final pathPositions = townPath.cells.map( cell -> '${cell.pos}' ).join(",");
-			printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
+			// printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
 		}
 
 		halfWidth = int( boardWidth / 2 );
@@ -67,14 +69,20 @@ class Board {
 	public function updateTrackData( x:Int, y:Int, tracksOwnerId:Int, instability:Int, isInked:Bool, partOfActiveConnections:String ) {
 		grid[y][x].updateTrackData( tracksOwnerId, instability, isInked, partOfActiveConnections );
 		
+		final cell = grid[y][x];
+		// printErr( 'updateTrackData $x:$y' );
+		if( removedCells.contains( cell )) return;
+		// printErr( '!removedCells.contains( cell )' );
 		if( tracksOwnerId != -1 ) {
-			final cell = grid[y][x];
+			// printErr( 'tracksOwnerId != -1' );
 			if( pathsOfCell.exists( cell )) {
+				// printErr( 'pathsOfCell.exists( cell )' );
 				final townPaths = pathsOfCell[cell];
 				for( townPath in townPaths ) {
 					townPath.removeCell( cell );
 					townPath.recalculateLength();
-					printErr( 'remove cell ${cell.pos} from townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
+					// printErr( 'remove cell ${cell.pos} from townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
+					removedCells.add( cell );
 				}
 			}
 		}

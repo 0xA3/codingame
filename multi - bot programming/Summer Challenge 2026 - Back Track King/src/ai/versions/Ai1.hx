@@ -3,7 +3,9 @@ package ai.versions;
 import CodinGame.printErr;
 import Std.int;
 import ai.data.Board;
+import ai.data.Cell;
 import ai.data.TownPath;
+import haxe.ds.ArraySort;
 import xa3.math.Pos;
 import ya.Set;
 
@@ -17,6 +19,7 @@ class Ai1 {
 	var oppId = -1;
 
 	var turn = 1;
+	var paintPoints = 3;
 
 	public function new() { }
 
@@ -27,8 +30,8 @@ class Ai1 {
 	}
 
 	public function setInputs() {
-		
 		outputs.splice( 0, outputs.length );
+		paintPoints = 3;
 	}
 
 	public function process() {
@@ -39,11 +42,14 @@ class Ai1 {
 		for( townPath in board.townPaths ) {
 			// printErr( 'townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
 			if( townPath.length > 0 ) {
-				final firstTownId = townPath.start;
-				final secondTownId = townPath.end;
-				final firstTown = board.towns[firstTownId];
-				final secondTown = board.towns[secondTownId];
-				actions.push( 'AUTOPLACE ${firstTown.pos.x} ${firstTown.pos.y} ${secondTown.pos.x} ${secondTown.pos.y}' );
+				ArraySort.sort( townPath.noTrackCells, Cell.sortByType );
+				while( paintPoints > 0 && townPath.noTrackCells.length > 0 ) {
+					final cellToPaint = townPath.noTrackCells.shift();
+					actions.push( 'PLACE_TRACKS ${cellToPaint.pos.x} ${cellToPaint.pos.y}' );
+					paintPoints -= cellToPaint.type;
+					// printErr( 'paint ${cellToPaint.pos} remaining points $paintPoints' );
+				}
+				
 				break;
 			}
 		}

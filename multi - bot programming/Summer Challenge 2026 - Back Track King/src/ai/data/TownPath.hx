@@ -10,18 +10,17 @@ class TownPath {
 	public final noTrackCells:Array<Cell> = [];
 	public var length:Int;
 
-	public function new( start:Int, end:Int, cells:Array<Cell>, length:Int ) {
+	public function new( start:Int, end:Int, cells:Array<Cell> ) {
 		this.start = start;
 		this.end = end;
 		this.cells = cells;
-		this.length = length;
 
 		for( cell in cells ) noTrackCells.push( cell );
+		recalculateLength();
 	}
 
 	public function removeCell( cell:Cell ) {
 		noTrackCells.remove( cell );
-		// printErr( noTrackCells.map( cell -> cell.pos ).join(","));
 	}
 
 	public function recalculateLength() {
