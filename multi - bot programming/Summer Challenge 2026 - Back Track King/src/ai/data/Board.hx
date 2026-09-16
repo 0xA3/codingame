@@ -9,7 +9,7 @@ using xa3.math.IntMath;
 
 class Board {
 
-	public static final NO_BOARD = new Board( 0, 0, [], [], [], [], [], [] );
+	public static final NO_BOARD = new Board( 0, 0, [], [], [], [], [], [], [] );
 
 	public final boardWidth:Int;
 	public final boardHeight:Int;
@@ -17,6 +17,7 @@ class Board {
 	public final grid:Array<Array<Cell>>;
 	public final regionCells:Map<Int, Array<Pos>>;
 	public final towns:Map<Int, Town>;
+	public final townPositions:Set<Pos>;
 	public final regionsWithoutTowns:Array<Int>;
 	public final townPaths:Array<TownPath>;
 	public final pathsOfCell:Map<Cell, Array<TownPath>> = [];
@@ -39,6 +40,7 @@ class Board {
 		grid:Array<Array<Cell>>,
 		regionCells:Map<Int, Array<Pos>>,
 		towns:Map<Int, Town>,
+		townPositions:Set<Pos>,
 		regionsWithoutTowns:Array<Int>,
 		townPaths:Array<TownPath>
 	) {
@@ -48,6 +50,7 @@ class Board {
 		this.grid = grid;
 		this.regionCells = regionCells;
 		this.towns = towns;
+		this.townPositions = townPositions;
 		this.regionsWithoutTowns = regionsWithoutTowns;
 		this.townPaths = townPaths;
 		
@@ -57,8 +60,8 @@ class Board {
 				else pathsOfCell[cell].push( townPath );
 				// printErr( 'cell ${cell.pos} is in path ${townPath.start}-${townPath.end}' );
 			}
-			final pathPositions = townPath.cells.map( cell -> '${cell.pos}' ).join(",");
-			// printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
+			final pathPositions = townPath.cells.map( cell -> '${cell.pos}' ).join(" ");
+			printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
 		}
 
 		halfWidth = int( boardWidth / 2 );
@@ -116,25 +119,6 @@ class Board {
 	public inline function getCell( pos:Pos ) {
 		final cell = grid[pos.y][pos.x];
 		return cell;
-	}
-
-
-	public function outputBoard( board:Array<Array<Int>> ) {
-		// final output = [for( y in 0...boardHeight )
-		// 	[for( x in 0...boardWidth ) {
-		// 		final cell = board[y][x];
-		// 		switch( cell ) {
-		// 			case WATER: return "~";
-		// 			case ROCK: return "#";
-		// 			case IRON: return "+";
-		// 			case MY_SHACK: return "0";
-		// 			case OPP_SHACK: return "1";
-		// 			default: return ".";
-		// 		}
-		// 	}].join( "" )
-		// ];
-		
-		// return output.join( "\n" );
 	}
 
 	inline function index2Pos( index:Int ) return positions[int( index / boardWidth )][index % boardWidth];

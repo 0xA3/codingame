@@ -1,6 +1,7 @@
 package ai.factory;
 
 import CodinGame.printErr;
+import ai.algorithm.DijkstraSearch.findShortestPath;
 import ai.data.Cell;
 import ai.data.Town;
 import ai.data.TownPath;
@@ -19,9 +20,13 @@ class BoardFactory {
 		regionsWithoutTowns:Array<Int>
 	) {
 		initCellNeighbors( boardWidth, boardHeight, grid );
-		final paths = createPaths( grid, towns );
 		
-		final board = new ai.data.Board( boardWidth, boardHeight, positions, grid, regionCells, towns, regionsWithoutTowns, paths );
+		final townPositions:Set<Pos> = [];
+		for( town in towns ) townPositions.add( town.pos );
+
+		final paths = createPaths( grid, towns, townPositions );
+		
+		final board = new ai.data.Board( boardWidth, boardHeight, positions, grid, regionCells, towns, townPositions, regionsWithoutTowns, paths );
 		return board;
 	}
 
@@ -41,7 +46,7 @@ class BoardFactory {
 		}
 	}
 
-	static function createPaths( grid:Array<Array<Cell>>, towns:Map<Int, Town> ) {
+	static function createPaths( grid:Array<Array<Cell>>, towns:Map<Int, Town>, townPositions:Set<Pos> ) {
 		final pathsSet:Set<String> = [];
 		final townPaths:Array<TownPath> = [];
 
@@ -54,72 +59,17 @@ class BoardFactory {
 				final targetTown = towns.exists( connectionId ) ? towns[connectionId] : throw 'Error: Town not found: $connectionId';
 
 				final targetCell = grid[targetTown.pos.y][targetTown.pos.x];
-				final path = findShortestPath( sourceCell, targetCell );
+				final path = findShortestPath( sourceCell, targetCell, townPositions );
+				final pathWithoutTowns = path.filter( cell -> !townPositions.contains( cell.pos ));
 				// printErr( '${sourceTown.id} -> $connectionId length $length' );
 
 				pathsSet.add( key );
-				final townPath = new TownPath( sourceTown.id, targetTown.id, path );
+				final townPath = new TownPath( sourceTown.id, targetTown.id, pathWithoutTowns );
 				townPaths.push( townPath );
 			}
 		}
 		townPaths.sort( TownPath.sortByLength );
 
 		return townPaths;
-	}
-
-	public static function findShortestPath( start:Cell, target:Cell ) {
-		if( start == target ) throw 'Error: start ${start.pos} = target';
-
-		final distances = new Map<Cell, Int>();
-		final previous = new Map<Cell, Cell>();
-		final visited = new Map<Cell, Bool>();
-		final frontier = new Array<Cell>();
-
-		distances[start] = 0;
-		frontier.push( start );
-
-		while( frontier.length > 0 ) {
-			var current = frontier[0];
-			var minIndex = 0;
-			var minDist = distances[current];
-			for( i in 1...frontier.length ) {
-				final cell = frontier[i];
-				final dist = distances[cell];
-				if( dist < minDist ) {
-					current = cell;
-					minDist = dist;
-					minIndex = i;
-				}
-			}
-			frontier.splice( minIndex, 1 );
-			visited[current] = true;
-
-			if( current == target ) return reconstructPath( previous, start, target );
-
-			for( neighbor in current.neighbors ) {
-				if( visited.exists( neighbor )) continue;
-				final dist = minDist + 1;
-				if( !distances.exists( neighbor ) || dist < distances[neighbor] ) {
-					distances[neighbor] = dist;
-					previous[neighbor] = current;
-					if( !frontier.contains( neighbor )) frontier.push( neighbor );
-				}
-			}
-		}
-
-		return [];
-	}
-
-	static function reconstructPath( previous:Map<Cell, Cell>, start:Cell, target:Cell ) {
-		final path = [];
-		var current = target;
-		while( current != start ) {
-			path.push( current );
-			current = previous[current];
-		}
-		// path.push( start );
-		path.reverse();
-		
-		return path.slice( 0, path.length - 1 );
 	}
 }

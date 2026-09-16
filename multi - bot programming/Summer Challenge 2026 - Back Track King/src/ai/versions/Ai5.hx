@@ -1,6 +1,7 @@
 package ai.versions;
 
 import CodinGame.printErr;
+import ai.algorithm.DijkstraSearch.findShortestPath;
 import ai.data.Board;
 import ai.data.Cell;
 import ai.data.TownPath;
@@ -39,7 +40,7 @@ class Ai5 {
 			final endTown = board.towns[obsoletePath.end];
 			final startCell = board.grid[startTown.pos.y][startTown.pos.x];
 			final endCell = board.grid[endTown.pos.y][endTown.pos.x];
-			final path = BoardFactory.findShortestPath( startCell, endCell );
+			final path = findShortestPath( startCell, endCell, board.townPositions );
 			obsoletePath.resetPath( path.length > 0 ? path : [] );
 			// printErr( 'resetPath for ${obsoletePath.start}-${obsoletePath.end} ' + path.map( cell -> cell.pos ).join( "," ));
 		}
