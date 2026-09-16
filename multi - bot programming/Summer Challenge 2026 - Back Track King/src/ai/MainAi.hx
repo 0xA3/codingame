@@ -30,7 +30,7 @@ class MainAi {
 		mtRandom = new MTRandom( seed );
 		// final warCry = new WarCry( mtRandom );
 		
-		final ai = new ai.versions.Ai2();
+		final ai = new ai.versions.Ai3();
 		final myId = parseInt( readline() ); // The id of the player
 		final oppId = 1 - myId;
 		final boardWidth = parseInt( readline() ); // The width of the board
