@@ -85,6 +85,6 @@ class Ai3 {
 
 		turn++;
 		
-		return actions.join(";");
+		return actions.length == 0 ? "WAIT" : actions.join(";");
 	}
 }
