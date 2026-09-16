@@ -23,6 +23,16 @@ class TownPath {
 		noTrackCells.remove( cell );
 	}
 
+	public function resetPath( cells:Array<Cell> ) {
+		this.cells.resize( 0 );
+		this.noTrackCells.resize( 0 );
+		for( cell in cells ) {
+			this.cells.push( cell );
+			if( cell.tracksOwnerId == -1 ) noTrackCells.push( cell );
+			recalculateLength();
+		}
+	}
+
 	public function recalculateLength() {
 		var length = 0;
 		for( cell in noTrackCells ) length += cell.type + 1;

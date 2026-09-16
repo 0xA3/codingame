@@ -67,7 +67,7 @@ class BoardFactory {
 		return townPaths;
 	}
 
-	static function findShortestPath( start:Cell, target:Cell ) {
+	public static function findShortestPath( start:Cell, target:Cell ) {
 		if( start == target ) throw 'Error: start ${start.pos} = target';
 
 		final distances = new Map<Cell, Int>();

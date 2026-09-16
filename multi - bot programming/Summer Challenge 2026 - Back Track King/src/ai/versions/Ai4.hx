@@ -5,6 +5,7 @@ import Std.int;
 import ai.data.Board;
 import ai.data.Cell;
 import ai.data.TownPath;
+import ai.factory.BoardFactory;
 import haxe.ds.ArraySort;
 import xa3.math.Pos;
 import ya.Set;
@@ -35,22 +36,34 @@ class Ai4 {
 	}
 
 	public function process() {
+		final obsoletePaths = board.obsoletePaths.toArray();
+		for( obsoletePath in obsoletePaths ) {
+			final startTown = board.towns[obsoletePath.start];
+			final endTown = board.towns[obsoletePath.end];
+			final startCell = board.grid[startTown.pos.y][startTown.pos.x];
+			final endCell = board.grid[endTown.pos.y][endTown.pos.x];
+			final path = BoardFactory.findShortestPath( startCell, endCell );
+			obsoletePath.resetPath( path.length > 0 ? path : [] );
+			// printErr( 'resetPath for ${obsoletePath.start}-${obsoletePath.end} ' + path.map( cell -> cell.pos ).join( "," ));
+		}
+
 		final actions = [];
 		
 		board.townPaths.sort( TownPath.sortByLength );
 		
-		for( townPath in board.townPaths ) {
-			// printErr( 'townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
-			if( townPath.length > 0 ) {
+		var pathCounter = 0;
+		while( paintPoints > 0 && pathCounter < board.townPaths.length ) {
+			final townPath = board.townPaths[pathCounter++];
+			if( townPath.noTrackCells.length > 0 ) {
+				// printErr( 'process townPath ${townPath.start}-${townPath.end} length ${townPath.length}' );
 				ArraySort.sort( townPath.noTrackCells, Cell.sortByType );
-				while( paintPoints > 0 && townPath.noTrackCells.length > 0 ) {
+				var nextCell = townPath.noTrackCells[0];
+				while( paintPoints > nextCell.type && townPath.noTrackCells.length > 0 ) {
 					final cellToPaint = townPath.noTrackCells.shift();
 					actions.push( 'PLACE_TRACKS ${cellToPaint.pos.x} ${cellToPaint.pos.y}' );
 					paintPoints -= cellToPaint.type + 1;
 					// printErr( 'paint ${cellToPaint.pos} remaining points $paintPoints' );
 				}
-				
-				break;
 			}
 		}
 

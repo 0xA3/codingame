@@ -89,6 +89,7 @@ class MainAi {
 			final myScore = parseInt( readline() ); // Your score
 			final oppScore = parseInt( readline() ); // Opponent's score
 
+			board.reset();
 			final trackGrid = [for( y in 0...boardHeight ) []];
 			for( y in 0...boardHeight ) {
 				for( x in 0...boardWidth ) {
