@@ -1,7 +1,6 @@
 package ai.algorithm;
 
 import ai.data.Cell;
-import ai.data.Town;
 import xa3.math.Pos;
 import ya.Set;
 
