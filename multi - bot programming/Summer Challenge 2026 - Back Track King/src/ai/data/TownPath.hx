@@ -34,7 +34,7 @@ class TownPath {
 			}
 		}
 		recalculateLength();
-		printErr( 'resetPath $start-$end ' + cells.map( c -> c.pos ).join(" "));
+		// printErr( 'resetPath $start-$end ' + cells.map( c -> c.pos ).join(" "));
 	}
 
 	public function recalculateLength() {

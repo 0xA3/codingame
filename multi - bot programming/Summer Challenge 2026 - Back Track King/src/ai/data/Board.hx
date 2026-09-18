@@ -60,7 +60,7 @@ class Board {
 				// printErr( 'cell ${cell.pos} is in path ${townPath.start}-${townPath.end}' );
 			}
 			final pathPositions = townPath.noTrackCells.map( cell -> '${cell.pos}' ).join(" ");
-			printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
+			// printErr( '${townPath.start}-${townPath.end} length ${townPath.length} $pathPositions' );
 		}
 
 		halfWidth = int( boardWidth / 2 );

@@ -25,6 +25,7 @@ class Ai10 {
 
 	static final TOTAL_TURNS = 100;
 	static final PAINT_POINTS_PER_TURN = 3;
+	static final THREAT_TURNS = 3;
 
 	final assignedTrackPositions:Set<Pos> = [];
 
@@ -61,9 +62,10 @@ class Ai10 {
 
 		final turnsLeft = TOTAL_TURNS - turn + 1;
 		final activeConnectionCounts = collectActiveConnectionCounts();
+		final activeConnectionPairs = collectActiveConnectionPairs();
 
 		placeOnActiveConnections( actions, activeConnectionCounts, turnsLeft );
-		placeOnPlannedPaths( actions, turnsLeft );
+		placeOnPlannedPaths( actions, turnsLeft, activeConnectionPairs );
 
 		placeDisruption( actions, turnsLeft );
 
@@ -98,9 +100,28 @@ class Ai10 {
 		}
 	}
 
-	function placeOnPlannedPaths( actions:Array<String>, turnsLeft:Int ) {
-		final candidates = [for( townPath in board.townPaths ) if( pathRoi( townPath, turnsLeft ) > 0 ) townPath];
-		candidates.sort(( a, b ) -> compareByPathRoi( a, b, turnsLeft ));
+	function placeOnPlannedPaths( actions:Array<String>, turnsLeft:Int, activeConnectionPairs:Set<String> ) {
+		final pathRois = new Map<TownPath, Float>();
+
+		for( townPath in board.townPaths ) {
+			final analysis = analyzePath( townPath, turnsLeft, activeConnectionPairs );
+			if( analysis.active || analysis.freeCells == 0 || analysis.roi <= 0 ) continue;
+
+			pathRois.set( townPath, analysis.roi );
+
+			if( analysis.threat ) {
+				final totalCells = analysis.myCells + analysis.oppCells + analysis.freeCells;
+				printErr( 'Threat ${townPath.start}-${townPath.end}: opponent owns ${analysis.oppCells}/$totalCells cells, ${analysis.freeCells} free, completes in ${analysis.turnsToComplete} turns, we own ${analysis.myCells}' );
+			}
+		}
+
+		final candidates = [for( townPath in pathRois.keys()) townPath];
+		candidates.sort(( a, b ) -> {
+			final roiA = pathRois[a];
+			final roiB = pathRois[b];
+			if( roiA != roiB ) return roiA > roiB ? -1 : 1;
+			return a.length - b.length;
+		});
 
 		for( townPath in candidates ) {
 			if( paintPoints <= 0 ) break;
@@ -116,25 +137,41 @@ class Ai10 {
 		}
 	}
 
-	function pathRoi( townPath:TownPath, turnsLeft:Int ) {
-		if( townPath.length <= 0 ) return 0.0;
+	function analyzePath( townPath:TownPath, turnsLeft:Int, activeConnectionPairs:Set<String> ) {
+		var myCells = 0;
+		var oppCells = 0;
+		for( cell in townPath.cells ) {
+			if( cell.tracksOwnerId == myId ) myCells++;
+			else if( cell.tracksOwnerId == oppId ) oppCells++;
+		}
 
-		var ownedCells = 0;
-		for( cell in townPath.cells ) if( cell.tracksOwnerId == myId ) ownedCells++;
-		final cellsWeWillOwn = ownedCells + townPath.noTrackCells.length;
-
-		final turnsToComplete = Std.int(( townPath.length + PAINT_POINTS_PER_TURN - 1 ) / PAINT_POINTS_PER_TURN );
+		final freeCells = townPath.noTrackCells.length;
+		final remainingCost = townPath.length;
+		final active = freeCells == 0 || activeConnectionPairs.contains( canonicalPair( townPath.start, townPath.end ));
+		final turnsToComplete = Std.int(( remainingCost + PAINT_POINTS_PER_TURN - 1 ) / PAINT_POINTS_PER_TURN );
 		final turnsEarning = turnsLeft - turnsToComplete;
-		if( turnsEarning <= 0 ) return 0.0;
+		final projectedOurCells = myCells + freeCells;
+		final threat = !active && freeCells > 0 && oppCells > 0 && oppCells >= myCells && turnsToComplete <= THREAT_TURNS;
 
-		return cellsWeWillOwn * turnsEarning / townPath.length;
-	}
+		var roi = 0.0;
+		if( remainingCost > 0 && turnsEarning > 0 ) {
+			roi = projectedOurCells * turnsEarning / remainingCost;
+			if( projectedOurCells <= oppCells ) roi *= 0.5;
+			if( threat ) {
+				roi *= myCells == 0 ? ( turnsToComplete <= 1 ? 2.0 : 1.5 ) : 0.75;
+			}
+		}
 
-	function compareByPathRoi( a:TownPath, b:TownPath, turnsLeft:Int ) {
-		final roiA = pathRoi( a, turnsLeft );
-		final roiB = pathRoi( b, turnsLeft );
-		if( roiA != roiB ) return roiA > roiB ? -1 : 1;
-		return a.length - b.length;
+		return {
+			active: active,
+			myCells: myCells,
+			oppCells: oppCells,
+			freeCells: freeCells,
+			remainingCost: remainingCost,
+			turnsToComplete: turnsToComplete,
+			threat: threat,
+			roi: roi
+		};
 	}
 
 	function placeDisruption( actions:Array<String>, turnsLeft:Int ) {
@@ -222,6 +259,28 @@ class Ai10 {
 		}
 		return counts;
 	}
+
+	function collectActiveConnectionPairs() {
+		final pairs:Set<String> = [];
+		for( y in 0...board.boardHeight ) {
+			for( x in 0...board.boardWidth ) {
+				final partOfActiveConnections = board.grid[y][x].partOfActiveConnections;
+				if( partOfActiveConnections == null ) continue;
+
+				for( pair in partOfActiveConnections.split(",") ) {
+					final token = pair.trim();
+					if( token == "" || token == "x" ) continue;
+
+					pairs.add( token );
+					final parts = token.split("-");
+					if( parts.length == 2 ) pairs.add( '${parts[1]}-${parts[0]}' );
+				}
+			}
+		}
+		return pairs;
+	}
+
+	static function canonicalPair( a:Int, b:Int ) return a <= b ? '$a-$b' : '$b-$a';
 
 	static function countActiveConnections( partOfActiveConnections:String ) {
 		if( partOfActiveConnections == null ) return 0;
