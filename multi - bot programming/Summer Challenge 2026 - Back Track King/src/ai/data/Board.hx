@@ -118,10 +118,9 @@ class Board {
 	}
 
 	function disconnectCell( cell:Cell ) {
-		for( neighbor in cell.neighbors ) {
-			neighbor.neighbors.remove( cell );
-			cell.neighbors.resize( 0 );
-		}
+		final neighbors = cell.neighbors.copy();
+		cell.neighbors.resize( 0 );
+		for( neighbor in neighbors ) neighbor.neighbors.remove( cell );
 	}
 
 	public function checkInsideBoard( x:Int, y:Int ) return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;

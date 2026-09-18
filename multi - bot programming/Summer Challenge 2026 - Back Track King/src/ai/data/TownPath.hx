@@ -32,8 +32,8 @@ class TownPath {
 				// printErr( 'resetPath add cell ${cell.pos} with owner ${cell.tracksOwnerId}' );
 				noTrackCells.push( cell );
 			}
-			recalculateLength();
 		}
+		recalculateLength();
 		printErr( 'resetPath $start-$end ' + cells.map( c -> c.pos ).join(" "));
 	}
 

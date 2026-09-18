@@ -42,7 +42,7 @@ class DijkstraSearch {
 			for( neighbor in current.neighbors ) {
 				if( visited.exists( neighbor )) continue;
 				final dist = townPositions.contains( neighbor.pos ) ? minDist : minDist + neighbor.type + 1;
-				// final dist = minDist + 1;
+				// final dist = townPositions.contains( neighbor.pos ) ? minDist : minDist + 1;
 				if( !distances.exists( neighbor ) || dist < distances[neighbor] ) {
 					distances[neighbor] = dist;
 					previous[neighbor] = current;
