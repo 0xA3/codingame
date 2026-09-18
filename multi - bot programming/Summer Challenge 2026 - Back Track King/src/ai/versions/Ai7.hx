@@ -1,7 +1,7 @@
 package ai.versions;
 
 import CodinGame.printErr;
-import ai.algorithm.DijkstraSearch.findShortestPath;
+import ai.algorithm.BreadthFirstSearch.findActivePath;
 import ai.data.Board;
 import ai.data.Cell;
 import ai.data.TownPath;
@@ -46,7 +46,7 @@ class Ai7 {
 			final endTown = board.towns[obsoletePath.end];
 			final startCell = board.grid[startTown.pos.y][startTown.pos.x];
 			final endCell = board.grid[endTown.pos.y][endTown.pos.x];
-			final nextPath = findShortestPath( startCell, endCell, board.townPositions );
+			final nextPath = findActivePath( startCell, endCell, board.townPositions );
 			obsoletePath.resetPath( nextPath.length > 0 ? nextPath : [] );
 			
 			for( cell in nextPath ) board.addPathOfCell( cell, obsoletePath );

@@ -32,5 +32,7 @@ class Cell {
 
 	public function addNeighbor( cell:Cell ) neighbors.push( cell );
 
+	public inline function paintCost() return tracksOwnerId == -1 ? type + 1 : 0;
+
 	public static function sortByType( a:Cell, b:Cell ) return a.type - b.type;
 }

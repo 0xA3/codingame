@@ -1,7 +1,7 @@
 package ai.factory;
 
 import CodinGame.printErr;
-import ai.algorithm.DijkstraSearch.findShortestPath;
+import ai.algorithm.BreadthFirstSearch.findActivePath;
 import ai.data.Cell;
 import ai.data.Town;
 import ai.data.TownPath;
@@ -59,7 +59,7 @@ class BoardFactory {
 				final targetTown = towns.exists( connectionId ) ? towns[connectionId] : throw 'Error: Town not found: $connectionId';
 
 				final targetCell = grid[targetTown.pos.y][targetTown.pos.x];
-				final path = findShortestPath( sourceCell, targetCell, townPositions );
+				final path = findActivePath( sourceCell, targetCell, townPositions );
 				// printErr( '${sourceTown.id} -> $connectionId length $length' );
 
 				pathsSet.add( key );

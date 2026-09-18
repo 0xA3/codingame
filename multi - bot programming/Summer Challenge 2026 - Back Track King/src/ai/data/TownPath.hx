@@ -39,7 +39,7 @@ class TownPath {
 
 	public function recalculateLength() {
 		var length = 0;
-		for( cell in noTrackCells ) length += cell.type + 1;
+		for( cell in noTrackCells ) length += cell.paintCost();
 
 		this.length = length;
 	}
