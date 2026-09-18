@@ -5,7 +5,6 @@ import ai.algorithm.BreadthFirstSearch.findActivePath;
 import ai.data.Board;
 import ai.data.Cell;
 import ai.data.TownPath;
-import ai.factory.BoardFactory;
 import haxe.ds.ArraySort;
 import xa3.math.Pos;
 import ya.Set;
@@ -66,7 +65,7 @@ class Ai9 {
 		placeOnActiveConnections( actions, activeConnectionCounts, turnsLeft );
 		placeOnPlannedPaths( actions, turnsLeft );
 
-		placeDisruption( actions );
+		placeDisruption( actions, turnsLeft );
 
 		turn++;
 		
@@ -138,38 +137,72 @@ class Ai9 {
 		return a.length - b.length;
 	}
 
-	function placeDisruption( actions:Array<String> ) {
-		var maxOppTracks = 0;
-		var regionIdWithMaxOppTracks = -1;
+	function placeDisruption( actions:Array<String>, turnsLeft:Int ) {
+		final candidates:Array<{ regionId:Int, instability:Int, ownTracks:Int, net:Int, earning:Int }> = [];
+
 		for( regionId => isPaintable in board.paintableRegionsMap ) {
 			if( !isPaintable ) continue;
 
 			final cellPositions = board.regionCells[regionId];
-			var numOppTracks = 0;
-			for( pos in cellPositions ) {
-				if( board.grid[pos.y][pos.x].isInked ) continue;
-				if( board.grid[pos.y][pos.x].tracksOwnerId == oppId ) numOppTracks++;
-			}
-			if( numOppTracks > maxOppTracks ) {
-				maxOppTracks = numOppTracks;
-				regionIdWithMaxOppTracks = regionId;
-			}
-		}
+			var instability = -1;
+			var ownTracks = 0;
+			var ownInactiveTracks = 0;
+			var ownActivePoints = 0;
+			var oppInactiveTracks = 0;
+			var oppActivePoints = 0;
 
-		if( regionIdWithMaxOppTracks != -1 ) {
-			final cellsOfRegion = board.regionCells[regionIdWithMaxOppTracks];
-			var maxInstability = 0;
-			var cellPosWithMaxInstability = cellsOfRegion[0];
-			
-			for( cell in cellsOfRegion ) {
-				if( board.grid[cell.y][cell.x].instability > maxInstability ) {
-					maxInstability = board.grid[cell.y][cell.x].instability;
-					cellPosWithMaxInstability = board.positions[cell.y][cell.x];
+			for( pos in cellPositions ) {
+				final cell = board.grid[pos.y][pos.x];
+				if( cell.isInked ) continue;
+				if( instability < 0 ) instability = cell.instability;
+
+				final activeConnections = countActiveConnections( cell.partOfActiveConnections );
+				if( cell.tracksOwnerId == oppId ) {
+					if( activeConnections > 0 ) oppActivePoints += activeConnections;
+					else oppInactiveTracks++;
+				} else if( cell.tracksOwnerId == myId ) {
+					ownTracks++;
+					if( activeConnections > 0 ) ownActivePoints += activeConnections;
+					else ownInactiveTracks++;
 				}
 			}
-			printErr( 'Disrupting region $regionIdWithMaxOppTracks at $cellPosWithMaxInstability' );
-			actions.push( 'DISRUPT ${cellPosWithMaxInstability.x} ${cellPosWithMaxInstability.y}' );
+
+			if( instability < 0 || instability >= 4 ) continue;
+
+			final turnsNeeded = 4 - instability;
+			if( turnsLeft < turnsNeeded ) continue;
+
+			final net = oppActivePoints * 5 + oppInactiveTracks - ownActivePoints * 5 - ownInactiveTracks;
+			if( net <= 0 ) continue;
+
+			candidates.push({
+				regionId: regionId,
+				instability: instability,
+				ownTracks: ownTracks,
+				net: net,
+				earning: turnsLeft - turnsNeeded + 1
+			});
 		}
+
+		if( candidates.length == 0 ) return;
+
+		candidates.sort(( a, b ) -> {
+			final immediateA = a.instability >= 3 ? 1 : 0;
+			final immediateB = b.instability >= 3 ? 1 : 0;
+			if( immediateA != immediateB ) return immediateB - immediateA;
+
+			if( a.instability != b.instability ) return b.instability - a.instability;
+
+			final cleanA = a.ownTracks == 0 ? 1 : 0;
+			final cleanB = b.ownTracks == 0 ? 1 : 0;
+			if( cleanA != cleanB ) return cleanB - cleanA;
+
+			return b.net - a.net;
+		});
+
+		final best = candidates[0];
+		printErr( 'Disrupting region ${best.regionId} instability ${best.instability} ownTracks ${best.ownTracks} net ${best.net} earning ${best.earning}' );
+		actions.push( 'DISRUPT ${best.regionId}' );
 	}
 
 	function placeTrack( actions:Array<String>, cell:Cell ) {
